@@ -1,0 +1,828 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.17.2 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Idapro权威代码破解揭秘笔记 2  -  My way, though far away</title>
+<meta name="description" content="  本篇是关于《IDApro权威代码破解揭秘》的笔记。主要是一些IDA的实战技巧。这部分由于涉及到调试的部分，我就不截图了。写一些要点。建立缓冲区在IDA中，连续分配的局部变量，IDA默认都是一个一个分配的，这就导致如果是一个数组的话，识别起来会很困难，导致代码被曲解。方法是建立缓冲区。指定数组的首地址和大小，IDA便能自动进行优化，从而将很多零散的局部变量转换成基地址加偏移量的数组形式。断点关于断点的内容，之前也写过。断点hash寻找DLL类似于一个windows的shellcode，例如对kernel32.dll的导出表进行遍历，同时对名字进行散列，与已知的散列值进行匹配，可以查找像LoadLibrary()、GetProcAddress()等函数的地址。详细说明可以GoogleSkape. Understanding Windows Shellcodehit marking关于bin的流程分析，最常用的分析方式是hit marking。即记录对每个消息的判断树的调用路径，在每次函数或块的开始设置断点。当断点被触发时，记下访问顺序，同时让程序继续运行到下一个块。最后把触发断点的列表进行排序得到hit list，通过list中的函数，我们可以拼凑出消息的结构。编写hit marking 插件主要就是掌握下IDApython脚本的编写，这部分以前也有学习过，不过没有系统学习，idapython的资料也比较少，可以GoogleThe Beginner’s Guide to IDAPython关于内置的跟踪功能，使用idapython编写脚本进行自动化分析。下面给出书上的列题代码，但是我是试过之后，发现只设置了断点，而断点并没有启动，有点问题，而且每一个断点没有记录断点的经过次数，而这方面的资料比较少，目前我还不知道是怎么回事。# coding:utf-8__author__=&#39;zjgcjy&#39;from idaapi import *def test():	for i in xrange(get_func_qty()):		f = getn_func(i)		print &quot;Function %s at 0x%x &quot; % (GetFunctionName(f.startEA), f.startEA)		add_bpt(f.startEA, 1, 4)		SetBptAttr(f.startEA, BPTATTR_FLAGS, BPT_ENABLED | BPT_TRACE) # 这里必须设置BPT_ENABLED，否则没有作用。	print &quot;[*] Set %d breakpoints.&quot; % GetBptQty()	#for i in xrange(get_func_qty()):	#	b =bpt_t()	#	getn_bpt(i, b)	#	b.flags ^=BPT_BRK	#	b.flags |=BPT_TRACE	#	update_bpt(b)def main():	test()if __name__ == &#39;__main__&#39;:	main()主要的问题就是没有生成hit list，依然不知道函数或模块调用的次数，只有在断点列表中可以找到。在《IDApro权威指南》中也没有找到相应的说明。-_-附上第二个脚本，使用hook进行实时调试。可以自动定义FuncPath类中的处理函数。# coding:utf-8__author__=&#39;zjgcjy&#39;from idaapi import *from idautils import *from idc import *count = 0# 从DBG_Hooks类继承class FuncPath(DBG_Hooks):    # 断点处理函数    def dbg_bpt(self, tid, ea):    	global count          count += 1        print &quot;[*] Hit: 0x%08x the %d time&quot; % (ea, count)          #        #        #        #        return 1# 移除先前的调试try:      if debugger:          print(&quot;Removing previous hook ...&quot;)          debugger.unhook()  except:      pass# 建立一个对象debugger = FuncPath ()# 将钩子装入IDA内建调试器debugger.hook()current_addr = ScreenEA()# 遍历函数设置跟踪断点for function in Functions(SegStart( current_addr ), SegEnd( current_addr )):    AddBpt( function )    SetBptAttr( function, BPTATTR_FLAGS, BPT_ENABLED|BPT_TRACE)num_breakpoints = GetBptQty()print &quot;[*] Set %d breakpoints.&quot; % num_breakpoints">
+
+
+  <meta name="author" content="zjgcjy">
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="My way, though far away">
+<meta property="og:title" content="Idapro权威代码破解揭秘笔记 2">
+<meta property="og:url" content="http://localhost:4000/posts/2018-03/IDApro%E6%9D%83%E5%A8%81%E4%BB%A3%E7%A0%81%E7%A0%B4%E8%A7%A3%E6%8F%AD%E7%A7%98%E7%AC%94%E8%AE%B0-2.html">
+
+
+  <meta property="og:description" content="  本篇是关于《IDApro权威代码破解揭秘》的笔记。主要是一些IDA的实战技巧。这部分由于涉及到调试的部分，我就不截图了。写一些要点。建立缓冲区在IDA中，连续分配的局部变量，IDA默认都是一个一个分配的，这就导致如果是一个数组的话，识别起来会很困难，导致代码被曲解。方法是建立缓冲区。指定数组的首地址和大小，IDA便能自动进行优化，从而将很多零散的局部变量转换成基地址加偏移量的数组形式。断点关于断点的内容，之前也写过。断点hash寻找DLL类似于一个windows的shellcode，例如对kernel32.dll的导出表进行遍历，同时对名字进行散列，与已知的散列值进行匹配，可以查找像LoadLibrary()、GetProcAddress()等函数的地址。详细说明可以GoogleSkape. Understanding Windows Shellcodehit marking关于bin的流程分析，最常用的分析方式是hit marking。即记录对每个消息的判断树的调用路径，在每次函数或块的开始设置断点。当断点被触发时，记下访问顺序，同时让程序继续运行到下一个块。最后把触发断点的列表进行排序得到hit list，通过list中的函数，我们可以拼凑出消息的结构。编写hit marking 插件主要就是掌握下IDApython脚本的编写，这部分以前也有学习过，不过没有系统学习，idapython的资料也比较少，可以GoogleThe Beginner’s Guide to IDAPython关于内置的跟踪功能，使用idapython编写脚本进行自动化分析。下面给出书上的列题代码，但是我是试过之后，发现只设置了断点，而断点并没有启动，有点问题，而且每一个断点没有记录断点的经过次数，而这方面的资料比较少，目前我还不知道是怎么回事。# coding:utf-8__author__=&#39;zjgcjy&#39;from idaapi import *def test():	for i in xrange(get_func_qty()):		f = getn_func(i)		print &quot;Function %s at 0x%x &quot; % (GetFunctionName(f.startEA), f.startEA)		add_bpt(f.startEA, 1, 4)		SetBptAttr(f.startEA, BPTATTR_FLAGS, BPT_ENABLED | BPT_TRACE) # 这里必须设置BPT_ENABLED，否则没有作用。	print &quot;[*] Set %d breakpoints.&quot; % GetBptQty()	#for i in xrange(get_func_qty()):	#	b =bpt_t()	#	getn_bpt(i, b)	#	b.flags ^=BPT_BRK	#	b.flags |=BPT_TRACE	#	update_bpt(b)def main():	test()if __name__ == &#39;__main__&#39;:	main()主要的问题就是没有生成hit list，依然不知道函数或模块调用的次数，只有在断点列表中可以找到。在《IDApro权威指南》中也没有找到相应的说明。-_-附上第二个脚本，使用hook进行实时调试。可以自动定义FuncPath类中的处理函数。# coding:utf-8__author__=&#39;zjgcjy&#39;from idaapi import *from idautils import *from idc import *count = 0# 从DBG_Hooks类继承class FuncPath(DBG_Hooks):    # 断点处理函数    def dbg_bpt(self, tid, ea):    	global count          count += 1        print &quot;[*] Hit: 0x%08x the %d time&quot; % (ea, count)          #        #        #        #        return 1# 移除先前的调试try:      if debugger:          print(&quot;Removing previous hook ...&quot;)          debugger.unhook()  except:      pass# 建立一个对象debugger = FuncPath ()# 将钩子装入IDA内建调试器debugger.hook()current_addr = ScreenEA()# 遍历函数设置跟踪断点for function in Functions(SegStart( current_addr ), SegEnd( current_addr )):    AddBpt( function )    SetBptAttr( function, BPTATTR_FLAGS, BPT_ENABLED|BPT_TRACE)num_breakpoints = GetBptQty()print &quot;[*] Set %d breakpoints.&quot; % num_breakpoints">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+
+
+
+  <meta name="twitter:site" content="@zjgcjy">
+  <meta name="twitter:title" content="Idapro权威代码破解揭秘笔记 2">
+  <meta name="twitter:description" content="  本篇是关于《IDApro权威代码破解揭秘》的笔记。主要是一些IDA的实战技巧。这部分由于涉及到调试的部分，我就不截图了。写一些要点。建立缓冲区在IDA中，连续分配的局部变量，IDA默认都是一个一个分配的，这就导致如果是一个数组的话，识别起来会很困难，导致代码被曲解。方法是建立缓冲区。指定数组的首地址和大小，IDA便能自动进行优化，从而将很多零散的局部变量转换成基地址加偏移量的数组形式。断点关于断点的内容，之前也写过。断点hash寻找DLL类似于一个windows的shellcode，例如对kernel32.dll的导出表进行遍历，同时对名字进行散列，与已知的散列值进行匹配，可以查找像LoadLibrary()、GetProcAddress()等函数的地址。详细说明可以GoogleSkape. Understanding Windows Shellcodehit marking关于bin的流程分析，最常用的分析方式是hit marking。即记录对每个消息的判断树的调用路径，在每次函数或块的开始设置断点。当断点被触发时，记下访问顺序，同时让程序继续运行到下一个块。最后把触发断点的列表进行排序得到hit list，通过list中的函数，我们可以拼凑出消息的结构。编写hit marking 插件主要就是掌握下IDApython脚本的编写，这部分以前也有学习过，不过没有系统学习，idapython的资料也比较少，可以GoogleThe Beginner’s Guide to IDAPython关于内置的跟踪功能，使用idapython编写脚本进行自动化分析。下面给出书上的列题代码，但是我是试过之后，发现只设置了断点，而断点并没有启动，有点问题，而且每一个断点没有记录断点的经过次数，而这方面的资料比较少，目前我还不知道是怎么回事。# coding:utf-8__author__=&#39;zjgcjy&#39;from idaapi import *def test():	for i in xrange(get_func_qty()):		f = getn_func(i)		print &quot;Function %s at 0x%x &quot; % (GetFunctionName(f.startEA), f.startEA)		add_bpt(f.startEA, 1, 4)		SetBptAttr(f.startEA, BPTATTR_FLAGS, BPT_ENABLED | BPT_TRACE) # 这里必须设置BPT_ENABLED，否则没有作用。	print &quot;[*] Set %d breakpoints.&quot; % GetBptQty()	#for i in xrange(get_func_qty()):	#	b =bpt_t()	#	getn_bpt(i, b)	#	b.flags ^=BPT_BRK	#	b.flags |=BPT_TRACE	#	update_bpt(b)def main():	test()if __name__ == &#39;__main__&#39;:	main()主要的问题就是没有生成hit list，依然不知道函数或模块调用的次数，只有在断点列表中可以找到。在《IDApro权威指南》中也没有找到相应的说明。-_-附上第二个脚本，使用hook进行实时调试。可以自动定义FuncPath类中的处理函数。# coding:utf-8__author__=&#39;zjgcjy&#39;from idaapi import *from idautils import *from idc import *count = 0# 从DBG_Hooks类继承class FuncPath(DBG_Hooks):    # 断点处理函数    def dbg_bpt(self, tid, ea):    	global count          count += 1        print &quot;[*] Hit: 0x%08x the %d time&quot; % (ea, count)          #        #        #        #        return 1# 移除先前的调试try:      if debugger:          print(&quot;Removing previous hook ...&quot;)          debugger.unhook()  except:      pass# 建立一个对象debugger = FuncPath ()# 将钩子装入IDA内建调试器debugger.hook()current_addr = ScreenEA()# 遍历函数设置跟踪断点for function in Functions(SegStart( current_addr ), SegEnd( current_addr )):    AddBpt( function )    SetBptAttr( function, BPTATTR_FLAGS, BPT_ENABLED|BPT_TRACE)num_breakpoints = GetBptQty()print &quot;[*] Set %d breakpoints.&quot; % num_breakpoints">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2018-03/IDApro%E6%9D%83%E5%A8%81%E4%BB%A3%E7%A0%81%E7%A0%B4%E8%A7%A3%E6%8F%AD%E7%A7%98%E7%AC%94%E8%AE%B0-2.html">
+
+  
+    <meta name="twitter:card" content="summary">
+    
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+    
+  
+
+  
+
+
+
+  <meta property="article:published_time" content="2018-03-15T03:02:00+08:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/posts/2018-03/IDApro%E6%9D%83%E5%A8%81%E4%BB%A3%E7%A0%81%E7%A0%B4%E8%A7%A3%E6%8F%AD%E7%A7%98%E7%AC%94%E8%AE%B0-2.html">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Blogger",
+      "url": "http://localhost:4000/",
+      "sameAs": ["https://twitter.com/","https://github.com/"]
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="My way, though far away Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/apple-touch-icon.png" alt=""></a>
+        
+        <a class="site-title" href="/">
+          ZJGCJY
+          <span class="site-subtitle">My way, though far away</span>
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/collection-archive/" >Collections</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="search__toggle" type="button">
+          <span class="visually-hidden">Toggle search</span>
+          <svg class="icon" width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15.99 16">
+            <path d="M15.5,13.12L13.19,10.8a1.69,1.69,0,0,0-1.28-.55l-0.06-.06A6.5,6.5,0,0,0,5.77,0,6.5,6.5,0,0,0,2.46,11.59a6.47,6.47,0,0,0,7.74.26l0.05,0.05a1.65,1.65,0,0,0,.5,1.24l2.38,2.38A1.68,1.68,0,0,0,15.5,13.12ZM6.4,2A4.41,4.41,0,1,1,2,6.4,4.43,4.43,0,0,1,6.4,2Z" transform="translate(-.01)"></path>
+          </svg>
+        </button>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#posts" itemprop="item"><span itemprop="name">Posts</span></a>
+          <meta itemprop="position" content="2" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#2018-03" itemprop="item"><span itemprop="name">2018 03</span></a>
+          <meta itemprop="position" content="3" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        <li class="current">Idapro权威代码破解揭秘笔记 2</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/me.jpg" alt="zjgcjy" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">zjgcjy</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>IIE UCAS, CTFer, Binarian</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+          
+        
+          
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+          
+        
+          
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          
+        
+          
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Idapro权威代码破解揭秘笔记 2">
+    <meta itemprop="description" content="  本篇是关于《IDApro权威代码破解揭秘》的笔记。主要是一些IDA的实战技巧。这部分由于涉及到调试的部分，我就不截图了。写一些要点。建立缓冲区在IDA中，连续分配的局部变量，IDA默认都是一个一个分配的，这就导致如果是一个数组的话，识别起来会很困难，导致代码被曲解。方法是建立缓冲区。指定数组的首地址和大小，IDA便能自动进行优化，从而将很多零散的局部变量转换成基地址加偏移量的数组形式。断点关于断点的内容，之前也写过。断点hash寻找DLL类似于一个windows的shellcode，例如对kernel32.dll的导出表进行遍历，同时对名字进行散列，与已知的散列值进行匹配，可以查找像LoadLibrary()、GetProcAddress()等函数的地址。详细说明可以GoogleSkape. Understanding Windows Shellcodehit marking关于bin的流程分析，最常用的分析方式是hit marking。即记录对每个消息的判断树的调用路径，在每次函数或块的开始设置断点。当断点被触发时，记下访问顺序，同时让程序继续运行到下一个块。最后把触发断点的列表进行排序得到hit list，通过list中的函数，我们可以拼凑出消息的结构。编写hit marking 插件主要就是掌握下IDApython脚本的编写，这部分以前也有学习过，不过没有系统学习，idapython的资料也比较少，可以GoogleThe Beginner’s Guide to IDAPython关于内置的跟踪功能，使用idapython编写脚本进行自动化分析。下面给出书上的列题代码，但是我是试过之后，发现只设置了断点，而断点并没有启动，有点问题，而且每一个断点没有记录断点的经过次数，而这方面的资料比较少，目前我还不知道是怎么回事。# coding:utf-8__author__=&#39;zjgcjy&#39;from idaapi import *def test():	for i in xrange(get_func_qty()):		f = getn_func(i)		print &quot;Function %s at 0x%x &quot; % (GetFunctionName(f.startEA), f.startEA)		add_bpt(f.startEA, 1, 4)		SetBptAttr(f.startEA, BPTATTR_FLAGS, BPT_ENABLED | BPT_TRACE) # 这里必须设置BPT_ENABLED，否则没有作用。	print &quot;[*] Set %d breakpoints.&quot; % GetBptQty()	#for i in xrange(get_func_qty()):	#	b =bpt_t()	#	getn_bpt(i, b)	#	b.flags ^=BPT_BRK	#	b.flags |=BPT_TRACE	#	update_bpt(b)def main():	test()if __name__ == &#39;__main__&#39;:	main()主要的问题就是没有生成hit list，依然不知道函数或模块调用的次数，只有在断点列表中可以找到。在《IDApro权威指南》中也没有找到相应的说明。-_-附上第二个脚本，使用hook进行实时调试。可以自动定义FuncPath类中的处理函数。# coding:utf-8__author__=&#39;zjgcjy&#39;from idaapi import *from idautils import *from idc import *count = 0# 从DBG_Hooks类继承class FuncPath(DBG_Hooks):    # 断点处理函数    def dbg_bpt(self, tid, ea):    	global count          count += 1        print &quot;[*] Hit: 0x%08x the %d time&quot; % (ea, count)          #        #        #        #        return 1# 移除先前的调试try:      if debugger:          print(&quot;Removing previous hook ...&quot;)          debugger.unhook()  except:      pass# 建立一个对象debugger = FuncPath ()# 将钩子装入IDA内建调试器debugger.hook()current_addr = ScreenEA()# 遍历函数设置跟踪断点for function in Functions(SegStart( current_addr ), SegEnd( current_addr )):    AddBpt( function )    SetBptAttr( function, BPTATTR_FLAGS, BPT_ENABLED|BPT_TRACE)num_breakpoints = GetBptQty()print &quot;[*] Set %d breakpoints.&quot; % num_breakpoints">
+    <meta itemprop="datePublished" content="March 15, 2018">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Idapro权威代码破解揭秘笔记 2
+</h1>
+          
+            <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+          <aside class="sidebar__right ">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+              <ul class="toc__menu">
+  <li><a href="#建立缓冲区">建立缓冲区</a></li>
+  <li><a href="#断点">断点</a></li>
+  <li><a href="#hash寻找dll">hash寻找DLL</a></li>
+  <li><a href="#hit-marking">hit marking</a>
+    <ul>
+      <li><a href="#编写hit-marking-插件">编写hit marking 插件</a></li>
+    </ul>
+  </li>
+</ul>
+            </nav>
+          </aside>
+        
+        <hr />
+
+<blockquote>
+  <p>本篇是关于《IDApro权威代码破解揭秘》的笔记。主要是一些IDA的实战技巧。
+这部分由于涉及到调试的部分，我就不截图了。写一些要点。</p>
+</blockquote>
+
+<h1 id="建立缓冲区">建立缓冲区</h1>
+
+<p>在IDA中，连续分配的局部变量，IDA默认都是一个一个分配的，这就导致如果是一个数组的话，识别起来会很困难，导致代码被曲解。方法是建立缓冲区。指定数组的首地址和大小，IDA便能自动进行优化，从而将很多零散的局部变量转换成基地址加偏移量的数组形式。</p>
+
+<h1 id="断点">断点</h1>
+
+<p>关于断点的内容，之前也写过。
+<a href="http://cjynet.top/2017/10/10/python-learning/python-code-for-hacker/">断点</a></p>
+
+<h1 id="hash寻找dll">hash寻找DLL</h1>
+
+<p>类似于一个windows的shellcode，例如对kernel32.dll的导出表进行遍历，同时对名字进行散列，与已知的散列值进行匹配，可以查找像<code class="highlighter-rouge">LoadLibrary()</code>、<code class="highlighter-rouge">GetProcAddress()</code>等函数的地址。详细说明可以Google<a href="https://www.google.com/search?newwindow=1&amp;source=hp&amp;ei=DoukWtOcM8fqjwO-k4G4Cw&amp;q=Skape.+Understanding+Windows+Shellcode&amp;oq=Skape.+Understanding+Windows+Shellcode&amp;gs_l=psy-ab.3..35i39k1j0i8i10i30k1.634.634.0.942.2.1.0.0.0.0.300.300.3-1.1.0....0...1.1.64.psy-ab..1.1.299.0...0.SvzOoyuf560">Skape. Understanding Windows Shellcode</a></p>
+
+<h1 id="hit-marking">hit marking</h1>
+
+<p>关于bin的流程分析，最常用的分析方式是hit marking。即记录对每个消息的判断树的调用路径，在每次函数或块的开始设置断点。当断点被触发时，记下访问顺序，同时让程序继续运行到下一个块。最后把触发断点的列表进行排序得到hit list，通过list中的函数，我们可以拼凑出消息的结构。</p>
+
+<h2 id="编写hit-marking-插件">编写hit marking 插件</h2>
+
+<p>主要就是掌握下IDApython脚本的编写，这部分以前也有学习过，不过没有系统学习，idapython的资料也比较少，可以Google<a href="https://www.google.com/search?newwindow=1&amp;ei=DemlWrn2FY_ujwPHlZPAAg&amp;q=The+Beginner%27s+Guide+to+IDAPython&amp;oq=The+Beginner%27s+Guide+to+IDAPython&amp;gs_l=psy-ab.3...2939.2939.0.3567.1.1.0.0.0.0.0.0..0.0....0...1.1.64.psy-ab..1.0.0....0.fy73xpAo8kY">The Beginner’s Guide to IDAPython</a>
+关于内置的跟踪功能，使用idapython编写脚本进行自动化分析。下面给出书上的列题代码，但是我是试过之后，发现只设置了断点，而断点并没有启动，有点问题，而且每一个断点没有记录断点的经过次数，而这方面的资料比较少，目前我还不知道是怎么回事。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># coding:utf-8
+</span><span class="n">__author__</span><span class="o">=</span><span class="s">'zjgcjy'</span>
+
+<span class="kn">from</span> <span class="nn">idaapi</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="k">def</span> <span class="nf">test</span><span class="p">():</span>
+	<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">get_func_qty</span><span class="p">()):</span>
+		<span class="n">f</span> <span class="o">=</span> <span class="n">getn_func</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+		<span class="k">print</span> <span class="s">"Function </span><span class="si">%</span><span class="s">s at 0x</span><span class="si">%</span><span class="s">x "</span> <span class="o">%</span> <span class="p">(</span><span class="n">GetFunctionName</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">startEA</span><span class="p">),</span> <span class="n">f</span><span class="o">.</span><span class="n">startEA</span><span class="p">)</span>
+		<span class="n">add_bpt</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">startEA</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+		<span class="n">SetBptAttr</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">startEA</span><span class="p">,</span> <span class="n">BPTATTR_FLAGS</span><span class="p">,</span> <span class="n">BPT_ENABLED</span> <span class="o">|</span> <span class="n">BPT_TRACE</span><span class="p">)</span> <span class="c1"># 这里必须设置BPT_ENABLED，否则没有作用。
+</span>	<span class="k">print</span> <span class="s">"[*] Set </span><span class="si">%</span><span class="s">d breakpoints."</span> <span class="o">%</span> <span class="n">GetBptQty</span><span class="p">()</span>
+	<span class="c1">#for i in xrange(get_func_qty()):
+</span>	<span class="c1">#	b =bpt_t()
+</span>	<span class="c1">#	getn_bpt(i, b)
+</span>	<span class="c1">#	b.flags ^=BPT_BRK
+</span>	<span class="c1">#	b.flags |=BPT_TRACE
+</span>	<span class="c1">#	update_bpt(b)
+</span>
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+	<span class="n">test</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">'__main__'</span><span class="p">:</span>
+	<span class="n">main</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>主要的问题就是没有生成hit list，依然不知道函数或模块调用的次数，只有在断点列表中可以找到。在《IDApro权威指南》中也没有找到相应的说明。-_-</p>
+
+<p>附上第二个脚本，使用hook进行实时调试。可以自动定义FuncPath类中的处理函数。</p>
+
+<pre><code class="language-Python"># coding:utf-8
+__author__='zjgcjy'
+
+from idaapi import *
+from idautils import *
+from idc import *
+
+count = 0
+
+# 从DBG_Hooks类继承
+class FuncPath(DBG_Hooks):
+
+    # 断点处理函数
+    def dbg_bpt(self, tid, ea):
+    	global count  
+        count += 1
+        print "[*] Hit: 0x%08x the %d time" % (ea, count)  
+        #
+        #
+        #
+        #
+        return 1
+
+# 移除先前的调试
+try:  
+    if debugger:  
+        print("Removing previous hook ...")  
+        debugger.unhook()  
+except:  
+    pass
+
+# 建立一个对象
+debugger = FuncPath ()
+# 将钩子装入IDA内建调试器
+debugger.hook()
+
+current_addr = ScreenEA()
+
+# 遍历函数设置跟踪断点
+for function in Functions(SegStart( current_addr ), SegEnd( current_addr )):
+    AddBpt( function )
+    SetBptAttr( function, BPTATTR_FLAGS, BPT_ENABLED|BPT_TRACE)
+
+num_breakpoints = GetBptQty()
+
+print "[*] Set %d breakpoints." % num_breakpoints
+</code></pre>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#ida" class="page__taxonomy-item" rel="tag">ida</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#reverse" class="page__taxonomy-item" rel="tag">reverse</a>
+    
+    </span>
+  </p>
+
+
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2018-03-15T03:02:00+08:00">March 15, 2018</time></p>
+        
+      </footer>
+
+      <section class="page__share">
+  
+    <h4 class="page__share-title">Share on</h4>
+  
+
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Idapro%E6%9D%83%E5%A8%81%E4%BB%A3%E7%A0%81%E7%A0%B4%E8%A7%A3%E6%8F%AD%E7%A7%98%E7%AC%94%E8%AE%B0+2%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-03%2FIDApro%25E6%259D%2583%25E5%25A8%2581%25E4%25BB%25A3%25E7%25A0%2581%25E7%25A0%25B4%25E8%25A7%25A3%25E6%258F%25AD%25E7%25A7%2598%25E7%25AC%2594%25E8%25AE%25B0-2.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-03%2FIDApro%25E6%259D%2583%25E5%25A8%2581%25E4%25BB%25A3%25E7%25A0%2581%25E7%25A0%25B4%25E8%25A7%25A3%25E6%258F%25AD%25E7%25A7%2598%25E7%25AC%2594%25E8%25AE%25B0-2.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-03%2FIDApro%25E6%259D%2583%25E5%25A8%2581%25E4%25BB%25A3%25E7%25A0%2581%25E7%25A0%25B4%25E8%25A7%25A3%25E6%258F%25AD%25E7%25A7%2598%25E7%25AC%2594%25E8%25AE%25B0-2.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+
+      
+  <nav class="pagination">
+    
+      <a href="/posts/2018-03/IDApro%E6%9D%83%E5%A8%81%E4%BB%A3%E7%A0%81%E7%A0%B4%E8%A7%A3%E6%8F%AD%E7%A7%98%E7%AC%94%E8%AE%B0-1.html" class="pagination--pager" title="Idapro权威代码破解揭秘笔记 1
+">Previous</a>
+    
+    
+      <a href="/posts/2018-03/IDApro%E6%9D%83%E5%A8%81%E4%BB%A3%E7%A0%81%E7%A0%B4%E8%A7%A3%E6%8F%AD%E7%A7%98%E7%AC%94%E8%AE%B0-3.html" class="pagination--pager" title="Idapro权威代码破解揭秘笔记 3
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      <h4 class="page__related-title">You may also enjoy</h4>
+      <div class="grid__wrapper">
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-11/Dirary_November.html" rel="permalink">Dirary_november
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  每日所作所得
+
+
+
+
+11月1日
+</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/Software_Security_Project.html" rel="permalink">Software_security_project
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  Malware
+vs2010
+
+
+
+
+InfoCollection
+
+configure
+
+
+
+warning
+
+
+
+</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/Pacman_Helper.html" rel="permalink">Pacman_helper
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  pacman 手册
+
+
+
+
+archlinux pacman 命令
+arch wiki
+
+pacman -Sy 仅同步源
+
+pacman -Syu 同步源，并更新系统
+
+pacman -Su –ignore foo 升级时不升级包foo
+
+pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/%E5%8D%81%E6%9C%88%E6%97%A5%E8%AE%B0.html" rel="permalink">十月日记
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  每日所作所得
+
+
+
+
+10月1日
+
+周日，上课前最后一天，算是给自己放了最后一天假期
+
+10月2日
+
+上了第一天的课，主要是os，一脸蒙蔽。
+</p>
+  </article>
+</div>
+
+        
+      </div>
+    </div>
+  
+  
+</div>
+
+    </div>
+
+    
+      <div class="search-content">
+        <div class="search-content__inner-wrap"><form class="search-content__form" onkeydown="return event.key != 'Enter';">
+    <label class="sr-only" for="search">
+      Enter your search term...
+    </label>
+    <input type="search" id="search" class="search-input" tabindex="-1" placeholder="Enter your search term..." />
+  </form>
+  <div id="results" class="results"></div></div>
+
+      </div>
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+        
+      
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2019 Blogger. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+
+
+
+
+<script src="/assets/js/lunr/lunr.min.js"></script>
+<script src="/assets/js/lunr/lunr-store.js"></script>
+<script src="/assets/js/lunr/lunr-en.js"></script>
+
+
+
+
+    
+  <script>
+    var disqus_config = function () {
+      this.page.url = "http://localhost:4000/posts/2018-03/IDApro%E6%9D%83%E5%A8%81%E4%BB%A3%E7%A0%81%E7%A0%B4%E8%A7%A3%E6%8F%AD%E7%A7%98%E7%AC%94%E8%AE%B0-2.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.identifier = "/posts/2018-03/IDApro权威代码破解揭秘笔记-2"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    (function() { // DON'T EDIT BELOW THIS LINE
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zjgcjy-github-io.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  </script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+  
+
+
+
+
+
+  </body>
+</html>

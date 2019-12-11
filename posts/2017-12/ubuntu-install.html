@@ -1,0 +1,947 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.17.2 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Ubuntu Install  -  My way, though far away</title>
+<meta name="description" content="  Something about in installing Ubuntu16.04.3_amd64dpkg -l | grep linux-image，或者name -a发现16.04.3已经是4.10的内核了。考虑到pwntools，pwndbug，angr对ubuntu17的兼容性，这个版本够用。就用这个beta。ubuntu禁止guest用户登陆1、打开终端（快捷键 Ctrl+Alt+T）2、编辑50-no-guest.conf。sudo gedit /usr/share/lightdm/lightdm.conf.d/50-no-guest.conf3、在打开的窗口中输入[SeatDefaults]allow-guest=false开启root用户先改密码。sudo passwd root然后就可以su或者sudo了。使用root用户登陆sudo gedit /usr/share/lightdm/lightdm.conf.d/50-ubuntu.conf在最后增加greeter-show-manual-login=true登陆的时候会出现：读取/root/.profile时发现错误。gedit /root/.profile找到mesg n，修改为：tty -s &amp;&amp; mesg n卸载libreOffice、Amazon的ubuntu自带的开源office软件，体验效果不如windows上的office。sudo apt-get remove libreoffice-common  sudo apt-get remove unity-webapps-common删除不常用的软件sudo apt-get remove thunderbird totem rhythmbox empathy brasero simple-scan gnome-mahjongg aisleriotsudo apt-get remove gnome-mines cheese transmission-common gnome-orca webbrowser-app gnome-sudoku  landscape-client-ui-install  sudo apt-get remove onboard deja-dup运行x86程序为了在64位系统上运行x86程序，我们需要添加x86平台并且安装库。install libc6:i386,libncurses5:i386,libstdc++6:i386sudo dpkg --add-architecture i386sudo apt-get updatesudo apt-get install libc6:i386 libncurses5:i386 libstdc++6:i386sudo apt-get upgradesudo apt-get install libc6-dev-i386安装开发库和头文件apt-get install build-essentialapt-get install linux-headers-$(uname -r)unity-tweak-tool调整 Unity 桌面环境，推荐使用Unity Tweak Tool，这是一个非常好用的 Unity 图形化管理工具，可以修改工作区数量、热区等。如果安装完成之后发现运行不了，很可能是之前的删除不用的软件给删除了，所以在安装之前先安装一个库。sudo apt-get install unity-webapps-commonsudo apt-get install unity-tweak-toolFlatabulous主题Flatabulous主题是一款ubuntu下扁平化主题，也是我试过众多主题中最喜欢的一个！sudo add-apt-repository ppa:noobslab/themessudo apt-get updatesudo apt-get install flatabulous-themesudo add-apt-repository ppa:noobslab/iconssudo apt-get updatesudo apt-get install ultra-flat-icons字体ubuntu自带的字体不太好看，所以采用文泉译微米黑字体替代，效果会比较好，毕竟是国产字体！sudo apt-get install fonts-wqy-microhei然后通过unity-tweak-tool来替换字体。安装vmtoolssudo apt install open-vm-toolssudo apt install open-vm-tools-dkms     //实现文件夹共享，sudo apt install open-vm-tools-desktop  //桌面环境,支持双向拖放文件终端首先如果是Ubuntu14.04没有右键打开terminal的话，使用：sudo apt-get install nautilus-open-terminal安装一个插件就行，reboot见效。终端采用zsh和oh-my-zsh，既美观又简单易用，主要是能提高你的逼格！！！首先，安装zsh：sudo apt-get install gitsudo apt-get install zshsudo wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | sh所以这时的zsh 基本已经配置完成,你需要一行命令就可以切换到 zsh 模式。chsh -s /usr/local/bin/zsh设置zsh代替bash作为默认终端，可是，chsh命令执行后没效果，打开终端还是bash于是用土办法，编辑.bashrc配置文件vim .bashrc  在最后一行写上zsh，这样终端每次打开都会自动执行zsh，那么就变成zsh了！也可以直接改 /etc/passwd的shell。sudo vim /etc/passwd将 root 的路径修改成 zsh 的路径即可。root:x:0:0:root:/root:bash改为root:x:0:0:root:/root:/bin/zsh最后，修改配色，在终端任意地方右键，profile-&gt;profile Preferences-&gt;colors一栏：配置，文字和背景采用系统主题，透明度设为10%，palette采用Tango。关于zsh的详细配置可以查看：http://www.jianshu.com/p/7de00c73a2bb。root用户登录没有声音临时方法：在终端中执行命令：pulseaudio --start --log-target=syslog永久方法：将上面的命令添加到用户启动脚本：pulseaudio --start --log-target=syslogubuntu会遍历 “/etc/profile.d” 目录下的所有*.sh 脚本文件。据此，我们只需要在 profile.d 文件夹中创建自己的启动配置脚本文件即可，不再需要修改 “etc/profile” 这个配置文件，还系统一个清净的环境。安装特定开发包安装OpenSSLsudo apt-get install libssl-dev安装ffi.hsudo apt-get install libffi-dev安装openssl.hsudo apt-get install openssl-devel安装python模板库sudo apt-get install python-dev python-pipapt-get install python-pippip install – upgrade setuptools安装pwntoolsgit clone https://github.com/Gallopsled/pwntoolscd pwntoolspython setup.py install安装pwndbggit clone https://github.com/pwndbg/pwndbgcd pwndbg./setup.sh安装angr如果有问题就把下面的做一下。安装编译环境apt-get install build-essential顺便更新一下apt-get updatePython Development Headers安装python模板库sudo apt-get install python-dev python3-dev python-pip python3-pip安装pip相关apt-get install python-pippip install - - upgrade pippip3 install - - upgrade pippip install - - upgrade setuptoolspip3 install - - upgrade setuptools安装capstonegit clone https://github.com/aquynh/capstonecd capstonemakemake install">
+
+
+  <meta name="author" content="zjgcjy">
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="My way, though far away">
+<meta property="og:title" content="Ubuntu Install">
+<meta property="og:url" content="http://localhost:4000/posts/2017-12/ubuntu-install.html">
+
+
+  <meta property="og:description" content="  Something about in installing Ubuntu16.04.3_amd64dpkg -l | grep linux-image，或者name -a发现16.04.3已经是4.10的内核了。考虑到pwntools，pwndbug，angr对ubuntu17的兼容性，这个版本够用。就用这个beta。ubuntu禁止guest用户登陆1、打开终端（快捷键 Ctrl+Alt+T）2、编辑50-no-guest.conf。sudo gedit /usr/share/lightdm/lightdm.conf.d/50-no-guest.conf3、在打开的窗口中输入[SeatDefaults]allow-guest=false开启root用户先改密码。sudo passwd root然后就可以su或者sudo了。使用root用户登陆sudo gedit /usr/share/lightdm/lightdm.conf.d/50-ubuntu.conf在最后增加greeter-show-manual-login=true登陆的时候会出现：读取/root/.profile时发现错误。gedit /root/.profile找到mesg n，修改为：tty -s &amp;&amp; mesg n卸载libreOffice、Amazon的ubuntu自带的开源office软件，体验效果不如windows上的office。sudo apt-get remove libreoffice-common  sudo apt-get remove unity-webapps-common删除不常用的软件sudo apt-get remove thunderbird totem rhythmbox empathy brasero simple-scan gnome-mahjongg aisleriotsudo apt-get remove gnome-mines cheese transmission-common gnome-orca webbrowser-app gnome-sudoku  landscape-client-ui-install  sudo apt-get remove onboard deja-dup运行x86程序为了在64位系统上运行x86程序，我们需要添加x86平台并且安装库。install libc6:i386,libncurses5:i386,libstdc++6:i386sudo dpkg --add-architecture i386sudo apt-get updatesudo apt-get install libc6:i386 libncurses5:i386 libstdc++6:i386sudo apt-get upgradesudo apt-get install libc6-dev-i386安装开发库和头文件apt-get install build-essentialapt-get install linux-headers-$(uname -r)unity-tweak-tool调整 Unity 桌面环境，推荐使用Unity Tweak Tool，这是一个非常好用的 Unity 图形化管理工具，可以修改工作区数量、热区等。如果安装完成之后发现运行不了，很可能是之前的删除不用的软件给删除了，所以在安装之前先安装一个库。sudo apt-get install unity-webapps-commonsudo apt-get install unity-tweak-toolFlatabulous主题Flatabulous主题是一款ubuntu下扁平化主题，也是我试过众多主题中最喜欢的一个！sudo add-apt-repository ppa:noobslab/themessudo apt-get updatesudo apt-get install flatabulous-themesudo add-apt-repository ppa:noobslab/iconssudo apt-get updatesudo apt-get install ultra-flat-icons字体ubuntu自带的字体不太好看，所以采用文泉译微米黑字体替代，效果会比较好，毕竟是国产字体！sudo apt-get install fonts-wqy-microhei然后通过unity-tweak-tool来替换字体。安装vmtoolssudo apt install open-vm-toolssudo apt install open-vm-tools-dkms     //实现文件夹共享，sudo apt install open-vm-tools-desktop  //桌面环境,支持双向拖放文件终端首先如果是Ubuntu14.04没有右键打开terminal的话，使用：sudo apt-get install nautilus-open-terminal安装一个插件就行，reboot见效。终端采用zsh和oh-my-zsh，既美观又简单易用，主要是能提高你的逼格！！！首先，安装zsh：sudo apt-get install gitsudo apt-get install zshsudo wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | sh所以这时的zsh 基本已经配置完成,你需要一行命令就可以切换到 zsh 模式。chsh -s /usr/local/bin/zsh设置zsh代替bash作为默认终端，可是，chsh命令执行后没效果，打开终端还是bash于是用土办法，编辑.bashrc配置文件vim .bashrc  在最后一行写上zsh，这样终端每次打开都会自动执行zsh，那么就变成zsh了！也可以直接改 /etc/passwd的shell。sudo vim /etc/passwd将 root 的路径修改成 zsh 的路径即可。root:x:0:0:root:/root:bash改为root:x:0:0:root:/root:/bin/zsh最后，修改配色，在终端任意地方右键，profile-&gt;profile Preferences-&gt;colors一栏：配置，文字和背景采用系统主题，透明度设为10%，palette采用Tango。关于zsh的详细配置可以查看：http://www.jianshu.com/p/7de00c73a2bb。root用户登录没有声音临时方法：在终端中执行命令：pulseaudio --start --log-target=syslog永久方法：将上面的命令添加到用户启动脚本：pulseaudio --start --log-target=syslogubuntu会遍历 “/etc/profile.d” 目录下的所有*.sh 脚本文件。据此，我们只需要在 profile.d 文件夹中创建自己的启动配置脚本文件即可，不再需要修改 “etc/profile” 这个配置文件，还系统一个清净的环境。安装特定开发包安装OpenSSLsudo apt-get install libssl-dev安装ffi.hsudo apt-get install libffi-dev安装openssl.hsudo apt-get install openssl-devel安装python模板库sudo apt-get install python-dev python-pipapt-get install python-pippip install – upgrade setuptools安装pwntoolsgit clone https://github.com/Gallopsled/pwntoolscd pwntoolspython setup.py install安装pwndbggit clone https://github.com/pwndbg/pwndbgcd pwndbg./setup.sh安装angr如果有问题就把下面的做一下。安装编译环境apt-get install build-essential顺便更新一下apt-get updatePython Development Headers安装python模板库sudo apt-get install python-dev python3-dev python-pip python3-pip安装pip相关apt-get install python-pippip install - - upgrade pippip3 install - - upgrade pippip install - - upgrade setuptoolspip3 install - - upgrade setuptools安装capstonegit clone https://github.com/aquynh/capstonecd capstonemakemake install">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+
+
+
+  <meta name="twitter:site" content="@zjgcjy">
+  <meta name="twitter:title" content="Ubuntu Install">
+  <meta name="twitter:description" content="  Something about in installing Ubuntu16.04.3_amd64dpkg -l | grep linux-image，或者name -a发现16.04.3已经是4.10的内核了。考虑到pwntools，pwndbug，angr对ubuntu17的兼容性，这个版本够用。就用这个beta。ubuntu禁止guest用户登陆1、打开终端（快捷键 Ctrl+Alt+T）2、编辑50-no-guest.conf。sudo gedit /usr/share/lightdm/lightdm.conf.d/50-no-guest.conf3、在打开的窗口中输入[SeatDefaults]allow-guest=false开启root用户先改密码。sudo passwd root然后就可以su或者sudo了。使用root用户登陆sudo gedit /usr/share/lightdm/lightdm.conf.d/50-ubuntu.conf在最后增加greeter-show-manual-login=true登陆的时候会出现：读取/root/.profile时发现错误。gedit /root/.profile找到mesg n，修改为：tty -s &amp;&amp; mesg n卸载libreOffice、Amazon的ubuntu自带的开源office软件，体验效果不如windows上的office。sudo apt-get remove libreoffice-common  sudo apt-get remove unity-webapps-common删除不常用的软件sudo apt-get remove thunderbird totem rhythmbox empathy brasero simple-scan gnome-mahjongg aisleriotsudo apt-get remove gnome-mines cheese transmission-common gnome-orca webbrowser-app gnome-sudoku  landscape-client-ui-install  sudo apt-get remove onboard deja-dup运行x86程序为了在64位系统上运行x86程序，我们需要添加x86平台并且安装库。install libc6:i386,libncurses5:i386,libstdc++6:i386sudo dpkg --add-architecture i386sudo apt-get updatesudo apt-get install libc6:i386 libncurses5:i386 libstdc++6:i386sudo apt-get upgradesudo apt-get install libc6-dev-i386安装开发库和头文件apt-get install build-essentialapt-get install linux-headers-$(uname -r)unity-tweak-tool调整 Unity 桌面环境，推荐使用Unity Tweak Tool，这是一个非常好用的 Unity 图形化管理工具，可以修改工作区数量、热区等。如果安装完成之后发现运行不了，很可能是之前的删除不用的软件给删除了，所以在安装之前先安装一个库。sudo apt-get install unity-webapps-commonsudo apt-get install unity-tweak-toolFlatabulous主题Flatabulous主题是一款ubuntu下扁平化主题，也是我试过众多主题中最喜欢的一个！sudo add-apt-repository ppa:noobslab/themessudo apt-get updatesudo apt-get install flatabulous-themesudo add-apt-repository ppa:noobslab/iconssudo apt-get updatesudo apt-get install ultra-flat-icons字体ubuntu自带的字体不太好看，所以采用文泉译微米黑字体替代，效果会比较好，毕竟是国产字体！sudo apt-get install fonts-wqy-microhei然后通过unity-tweak-tool来替换字体。安装vmtoolssudo apt install open-vm-toolssudo apt install open-vm-tools-dkms     //实现文件夹共享，sudo apt install open-vm-tools-desktop  //桌面环境,支持双向拖放文件终端首先如果是Ubuntu14.04没有右键打开terminal的话，使用：sudo apt-get install nautilus-open-terminal安装一个插件就行，reboot见效。终端采用zsh和oh-my-zsh，既美观又简单易用，主要是能提高你的逼格！！！首先，安装zsh：sudo apt-get install gitsudo apt-get install zshsudo wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | sh所以这时的zsh 基本已经配置完成,你需要一行命令就可以切换到 zsh 模式。chsh -s /usr/local/bin/zsh设置zsh代替bash作为默认终端，可是，chsh命令执行后没效果，打开终端还是bash于是用土办法，编辑.bashrc配置文件vim .bashrc  在最后一行写上zsh，这样终端每次打开都会自动执行zsh，那么就变成zsh了！也可以直接改 /etc/passwd的shell。sudo vim /etc/passwd将 root 的路径修改成 zsh 的路径即可。root:x:0:0:root:/root:bash改为root:x:0:0:root:/root:/bin/zsh最后，修改配色，在终端任意地方右键，profile-&gt;profile Preferences-&gt;colors一栏：配置，文字和背景采用系统主题，透明度设为10%，palette采用Tango。关于zsh的详细配置可以查看：http://www.jianshu.com/p/7de00c73a2bb。root用户登录没有声音临时方法：在终端中执行命令：pulseaudio --start --log-target=syslog永久方法：将上面的命令添加到用户启动脚本：pulseaudio --start --log-target=syslogubuntu会遍历 “/etc/profile.d” 目录下的所有*.sh 脚本文件。据此，我们只需要在 profile.d 文件夹中创建自己的启动配置脚本文件即可，不再需要修改 “etc/profile” 这个配置文件，还系统一个清净的环境。安装特定开发包安装OpenSSLsudo apt-get install libssl-dev安装ffi.hsudo apt-get install libffi-dev安装openssl.hsudo apt-get install openssl-devel安装python模板库sudo apt-get install python-dev python-pipapt-get install python-pippip install – upgrade setuptools安装pwntoolsgit clone https://github.com/Gallopsled/pwntoolscd pwntoolspython setup.py install安装pwndbggit clone https://github.com/pwndbg/pwndbgcd pwndbg./setup.sh安装angr如果有问题就把下面的做一下。安装编译环境apt-get install build-essential顺便更新一下apt-get updatePython Development Headers安装python模板库sudo apt-get install python-dev python3-dev python-pip python3-pip安装pip相关apt-get install python-pippip install - - upgrade pippip3 install - - upgrade pippip install - - upgrade setuptoolspip3 install - - upgrade setuptools安装capstonegit clone https://github.com/aquynh/capstonecd capstonemakemake install">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2017-12/ubuntu-install.html">
+
+  
+    <meta name="twitter:card" content="summary">
+    
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+    
+  
+
+  
+
+
+
+  <meta property="article:published_time" content="2017-12-26T01:15:00+08:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/posts/2017-12/ubuntu-install.html">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Blogger",
+      "url": "http://localhost:4000/",
+      "sameAs": ["https://twitter.com/","https://github.com/"]
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="My way, though far away Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/apple-touch-icon.png" alt=""></a>
+        
+        <a class="site-title" href="/">
+          ZJGCJY
+          <span class="site-subtitle">My way, though far away</span>
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/collection-archive/" >Collections</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="search__toggle" type="button">
+          <span class="visually-hidden">Toggle search</span>
+          <svg class="icon" width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15.99 16">
+            <path d="M15.5,13.12L13.19,10.8a1.69,1.69,0,0,0-1.28-.55l-0.06-.06A6.5,6.5,0,0,0,5.77,0,6.5,6.5,0,0,0,2.46,11.59a6.47,6.47,0,0,0,7.74.26l0.05,0.05a1.65,1.65,0,0,0,.5,1.24l2.38,2.38A1.68,1.68,0,0,0,15.5,13.12ZM6.4,2A4.41,4.41,0,1,1,2,6.4,4.43,4.43,0,0,1,6.4,2Z" transform="translate(-.01)"></path>
+          </svg>
+        </button>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#posts" itemprop="item"><span itemprop="name">Posts</span></a>
+          <meta itemprop="position" content="2" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#2017-12" itemprop="item"><span itemprop="name">2017 12</span></a>
+          <meta itemprop="position" content="3" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        <li class="current">Ubuntu Install</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/me.jpg" alt="zjgcjy" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">zjgcjy</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>IIE UCAS, CTFer, Binarian</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+          
+        
+          
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+          
+        
+          
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          
+        
+          
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Ubuntu Install">
+    <meta itemprop="description" content="  Something about in installing Ubuntu16.04.3_amd64dpkg -l | grep linux-image，或者name -a发现16.04.3已经是4.10的内核了。考虑到pwntools，pwndbug，angr对ubuntu17的兼容性，这个版本够用。就用这个beta。ubuntu禁止guest用户登陆1、打开终端（快捷键 Ctrl+Alt+T）2、编辑50-no-guest.conf。sudo gedit /usr/share/lightdm/lightdm.conf.d/50-no-guest.conf3、在打开的窗口中输入[SeatDefaults]allow-guest=false开启root用户先改密码。sudo passwd root然后就可以su或者sudo了。使用root用户登陆sudo gedit /usr/share/lightdm/lightdm.conf.d/50-ubuntu.conf在最后增加greeter-show-manual-login=true登陆的时候会出现：读取/root/.profile时发现错误。gedit /root/.profile找到mesg n，修改为：tty -s &amp;&amp; mesg n卸载libreOffice、Amazon的ubuntu自带的开源office软件，体验效果不如windows上的office。sudo apt-get remove libreoffice-common  sudo apt-get remove unity-webapps-common删除不常用的软件sudo apt-get remove thunderbird totem rhythmbox empathy brasero simple-scan gnome-mahjongg aisleriotsudo apt-get remove gnome-mines cheese transmission-common gnome-orca webbrowser-app gnome-sudoku  landscape-client-ui-install  sudo apt-get remove onboard deja-dup运行x86程序为了在64位系统上运行x86程序，我们需要添加x86平台并且安装库。install libc6:i386,libncurses5:i386,libstdc++6:i386sudo dpkg --add-architecture i386sudo apt-get updatesudo apt-get install libc6:i386 libncurses5:i386 libstdc++6:i386sudo apt-get upgradesudo apt-get install libc6-dev-i386安装开发库和头文件apt-get install build-essentialapt-get install linux-headers-$(uname -r)unity-tweak-tool调整 Unity 桌面环境，推荐使用Unity Tweak Tool，这是一个非常好用的 Unity 图形化管理工具，可以修改工作区数量、热区等。如果安装完成之后发现运行不了，很可能是之前的删除不用的软件给删除了，所以在安装之前先安装一个库。sudo apt-get install unity-webapps-commonsudo apt-get install unity-tweak-toolFlatabulous主题Flatabulous主题是一款ubuntu下扁平化主题，也是我试过众多主题中最喜欢的一个！sudo add-apt-repository ppa:noobslab/themessudo apt-get updatesudo apt-get install flatabulous-themesudo add-apt-repository ppa:noobslab/iconssudo apt-get updatesudo apt-get install ultra-flat-icons字体ubuntu自带的字体不太好看，所以采用文泉译微米黑字体替代，效果会比较好，毕竟是国产字体！sudo apt-get install fonts-wqy-microhei然后通过unity-tweak-tool来替换字体。安装vmtoolssudo apt install open-vm-toolssudo apt install open-vm-tools-dkms     //实现文件夹共享，sudo apt install open-vm-tools-desktop  //桌面环境,支持双向拖放文件终端首先如果是Ubuntu14.04没有右键打开terminal的话，使用：sudo apt-get install nautilus-open-terminal安装一个插件就行，reboot见效。终端采用zsh和oh-my-zsh，既美观又简单易用，主要是能提高你的逼格！！！首先，安装zsh：sudo apt-get install gitsudo apt-get install zshsudo wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | sh所以这时的zsh 基本已经配置完成,你需要一行命令就可以切换到 zsh 模式。chsh -s /usr/local/bin/zsh设置zsh代替bash作为默认终端，可是，chsh命令执行后没效果，打开终端还是bash于是用土办法，编辑.bashrc配置文件vim .bashrc  在最后一行写上zsh，这样终端每次打开都会自动执行zsh，那么就变成zsh了！也可以直接改 /etc/passwd的shell。sudo vim /etc/passwd将 root 的路径修改成 zsh 的路径即可。root:x:0:0:root:/root:bash改为root:x:0:0:root:/root:/bin/zsh最后，修改配色，在终端任意地方右键，profile-&gt;profile Preferences-&gt;colors一栏：配置，文字和背景采用系统主题，透明度设为10%，palette采用Tango。关于zsh的详细配置可以查看：http://www.jianshu.com/p/7de00c73a2bb。root用户登录没有声音临时方法：在终端中执行命令：pulseaudio --start --log-target=syslog永久方法：将上面的命令添加到用户启动脚本：pulseaudio --start --log-target=syslogubuntu会遍历 “/etc/profile.d” 目录下的所有*.sh 脚本文件。据此，我们只需要在 profile.d 文件夹中创建自己的启动配置脚本文件即可，不再需要修改 “etc/profile” 这个配置文件，还系统一个清净的环境。安装特定开发包安装OpenSSLsudo apt-get install libssl-dev安装ffi.hsudo apt-get install libffi-dev安装openssl.hsudo apt-get install openssl-devel安装python模板库sudo apt-get install python-dev python-pipapt-get install python-pippip install – upgrade setuptools安装pwntoolsgit clone https://github.com/Gallopsled/pwntoolscd pwntoolspython setup.py install安装pwndbggit clone https://github.com/pwndbg/pwndbgcd pwndbg./setup.sh安装angr如果有问题就把下面的做一下。安装编译环境apt-get install build-essential顺便更新一下apt-get updatePython Development Headers安装python模板库sudo apt-get install python-dev python3-dev python-pip python3-pip安装pip相关apt-get install python-pippip install - - upgrade pippip3 install - - upgrade pippip install - - upgrade setuptoolspip3 install - - upgrade setuptools安装capstonegit clone https://github.com/aquynh/capstonecd capstonemakemake install">
+    <meta itemprop="datePublished" content="December 26, 2017">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Ubuntu Install
+</h1>
+          
+            <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  1 minute read
+
+</p>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+          <aside class="sidebar__right ">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+              <ul class="toc__menu">
+  <li><a href="#ubuntu禁止guest用户登陆">ubuntu禁止guest用户登陆</a></li>
+  <li><a href="#开启root用户">开启root用户</a></li>
+  <li><a href="#使用root用户登陆">使用root用户登陆</a></li>
+  <li><a href="#卸载libreofficeamazon的">卸载libreOffice、Amazon的</a></li>
+  <li><a href="#删除不常用的软件">删除不常用的软件</a></li>
+  <li><a href="#运行x86程序">运行x86程序</a></li>
+  <li><a href="#安装开发库和头文件">安装开发库和头文件</a></li>
+  <li><a href="#unity-tweak-tool">unity-tweak-tool</a></li>
+  <li><a href="#flatabulous主题">Flatabulous主题</a></li>
+  <li><a href="#字体">字体</a></li>
+  <li><a href="#安装vmtools">安装vmtools</a></li>
+  <li><a href="#终端">终端</a></li>
+  <li><a href="#root用户登录没有声音">root用户登录没有声音</a></li>
+  <li><a href="#安装特定开发包">安装特定开发包</a></li>
+  <li><a href="#安装pwntools">安装pwntools</a></li>
+  <li><a href="#安装pwndbg">安装pwndbg</a></li>
+  <li><a href="#安装angr">安装angr</a>
+    <ul>
+      <li><a href="#安装编译环境">安装编译环境</a></li>
+      <li><a href="#python-development-headers">Python Development Headers</a></li>
+      <li><a href="#安装pip相关">安装pip相关</a></li>
+    </ul>
+  </li>
+</ul>
+            </nav>
+          </aside>
+        
+        <hr />
+
+<blockquote>
+  <p>Something about in installing Ubuntu16.04.3_amd64
+dpkg -l | grep linux-image，或者name -a发现16.04.3已经是4.10的内核了。考虑到pwntools，pwndbug，angr对ubuntu17的兼容性，这个版本够用。就用这个beta。</p>
+</blockquote>
+
+<h1 id="ubuntu禁止guest用户登陆">ubuntu禁止guest用户登陆</h1>
+
+<p>1、打开终端（快捷键 Ctrl+Alt+T）
+2、编辑50-no-guest.conf。
+sudo gedit /usr/share/lightdm/lightdm.conf.d/50-no-guest.conf
+3、在打开的窗口中输入
+[SeatDefaults]
+allow-guest=false</p>
+
+<h1 id="开启root用户">开启root用户</h1>
+
+<p>先改密码。</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>passwd root
+</code></pre></div></div>
+
+<p>然后就可以su或者sudo了。</p>
+
+<h1 id="使用root用户登陆">使用root用户登陆</h1>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>gedit /usr/share/lightdm/lightdm.conf.d/50-ubuntu.conf
+</code></pre></div></div>
+
+<p>在最后增加greeter-show-manual-login=true
+登陆的时候会出现：读取/root/.profile时发现错误。</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gedit /root/.profile
+</code></pre></div></div>
+
+<p>找到mesg n，修改为：tty -s &amp;&amp; mesg n</p>
+
+<h1 id="卸载libreofficeamazon的">卸载libreOffice、Amazon的</h1>
+
+<p>ubuntu自带的开源office软件，体验效果不如windows上的office。</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>apt-get remove libreoffice-common  
+<span class="nb">sudo </span>apt-get remove unity-webapps-common
+</code></pre></div></div>
+
+<h1 id="删除不常用的软件">删除不常用的软件</h1>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>apt-get remove thunderbird totem rhythmbox empathy brasero simple-scan gnome-mahjongg aisleriot
+<span class="nb">sudo </span>apt-get remove gnome-mines cheese transmission-common gnome-orca webbrowser-app gnome-sudoku  landscape-client-ui-install  
+<span class="nb">sudo </span>apt-get remove onboard deja-dup
+</code></pre></div></div>
+
+<h1 id="运行x86程序">运行x86程序</h1>
+
+<p>为了在64位系统上运行x86程序，我们需要添加x86平台并且安装库。
+install libc6:i386,libncurses5:i386,libstdc++6:i386</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>dpkg <span class="nt">--add-architecture</span> i386
+<span class="nb">sudo </span>apt-get update
+<span class="nb">sudo </span>apt-get <span class="nb">install </span>libc6:i386 libncurses5:i386 libstdc++6:i386
+<span class="nb">sudo </span>apt-get upgrade
+<span class="nb">sudo </span>apt-get <span class="nb">install </span>libc6-dev-i386
+</code></pre></div></div>
+
+<h1 id="安装开发库和头文件">安装开发库和头文件</h1>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>apt-get <span class="nb">install </span>build-essential
+apt-get <span class="nb">install </span>linux-headers-<span class="si">$(</span><span class="nb">uname</span> <span class="nt">-r</span><span class="si">)</span>
+</code></pre></div></div>
+
+<h1 id="unity-tweak-tool">unity-tweak-tool</h1>
+
+<p>调整 Unity 桌面环境，推荐使用Unity Tweak Tool，这是一个非常好用的 Unity 图形化管理工具，可以修改工作区数量、热区等。
+如果安装完成之后发现运行不了，很可能是之前的删除不用的软件给删除了，所以在安装之前先安装一个库。</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>apt-get <span class="nb">install </span>unity-webapps-common
+<span class="nb">sudo </span>apt-get <span class="nb">install </span>unity-tweak-tool
+</code></pre></div></div>
+
+<h1 id="flatabulous主题">Flatabulous主题</h1>
+
+<p>Flatabulous主题是一款ubuntu下扁平化主题，也是我试过众多主题中最喜欢的一个！</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>add-apt-repository ppa:noobslab/themes
+<span class="nb">sudo </span>apt-get update
+<span class="nb">sudo </span>apt-get <span class="nb">install </span>flatabulous-theme
+<span class="nb">sudo </span>add-apt-repository ppa:noobslab/icons
+<span class="nb">sudo </span>apt-get update
+<span class="nb">sudo </span>apt-get <span class="nb">install </span>ultra-flat-icons
+</code></pre></div></div>
+
+<h1 id="字体">字体</h1>
+
+<p>ubuntu自带的字体不太好看，所以采用文泉译微米黑字体替代，效果会比较好，毕竟是国产字体！</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>apt-get <span class="nb">install </span>fonts-wqy-microhei
+</code></pre></div></div>
+
+<p>然后通过unity-tweak-tool来替换字体。</p>
+
+<h1 id="安装vmtools">安装vmtools</h1>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>apt <span class="nb">install </span>open-vm-tools
+<span class="nb">sudo </span>apt <span class="nb">install </span>open-vm-tools-dkms     //实现文件夹共享，
+<span class="nb">sudo </span>apt <span class="nb">install </span>open-vm-tools-desktop  //桌面环境,支持双向拖放文件
+</code></pre></div></div>
+
+<h1 id="终端">终端</h1>
+
+<p>首先如果是Ubuntu14.04没有右键打开terminal的话，使用：
+sudo apt-get install nautilus-open-terminal
+安装一个插件就行，reboot见效。
+终端采用zsh和oh-my-zsh，既美观又简单易用，主要是能提高你的逼格！！！</p>
+
+<p>首先，安装zsh：</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>apt-get <span class="nb">install </span>git
+<span class="nb">sudo </span>apt-get <span class="nb">install </span>zsh
+<span class="nb">sudo </span>wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh <span class="nt">-O</span> - | sh
+</code></pre></div></div>
+
+<p>所以这时的zsh 基本已经配置完成,你需要一行命令就可以切换到 zsh 模式。</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>chsh <span class="nt">-s</span> /usr/local/bin/zsh
+</code></pre></div></div>
+
+<p>设置zsh代替bash作为默认终端，可是，chsh命令执行后没效果，打开终端还是bash
+于是用土办法，编辑.bashrc配置文件</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vim .bashrc  
+</code></pre></div></div>
+
+<p>在最后一行写上zsh，这样终端每次打开都会自动执行zsh，那么就变成zsh了！
+也可以直接改 /etc/passwd的shell。
+sudo vim /etc/passwd
+将 root 的路径修改成 zsh 的路径即可。
+root:x:0:0:root:/root:bash<br />
+改为
+root:x:0:0:root:/root:/bin/zsh
+最后，修改配色，在终端任意地方右键，profile-&gt;profile Preferences-&gt;colors一栏：配置，文字和背景采用系统主题，透明度设为10%，palette采用Tango。
+关于zsh的详细配置可以查看：http://www.jianshu.com/p/7de00c73a2bb。</p>
+
+<h1 id="root用户登录没有声音">root用户登录没有声音</h1>
+
+<p>临时方法：
+在终端中执行命令：</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pulseaudio <span class="nt">--start</span> <span class="nt">--log-target</span><span class="o">=</span>syslog
+</code></pre></div></div>
+
+<p>永久方法：
+将上面的命令添加到用户启动脚本：</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pulseaudio <span class="nt">--start</span> <span class="nt">--log-target</span><span class="o">=</span>syslog
+</code></pre></div></div>
+
+<p>ubuntu会遍历 “/etc/profile.d” 目录下的所有*.sh 脚本文件。据此，我们只需要在 profile.d 文件夹中创建自己的启动配置脚本文件即可，不再需要修改 “etc/profile” 这个配置文件，还系统一个清净的环境。</p>
+
+<h1 id="安装特定开发包">安装特定开发包</h1>
+
+<p>安装OpenSSL
+sudo apt-get install libssl-dev
+安装ffi.h
+sudo apt-get install libffi-dev
+安装openssl.h
+sudo apt-get install openssl-devel
+安装python模板库
+sudo apt-get install python-dev python-pip
+apt-get install python-pip
+pip install – upgrade setuptools</p>
+
+<h1 id="安装pwntools">安装pwntools</h1>
+
+<p>git clone https://github.com/Gallopsled/pwntools
+cd pwntools
+python setup.py install</p>
+
+<h1 id="安装pwndbg">安装pwndbg</h1>
+
+<p>git clone https://github.com/pwndbg/pwndbg
+cd pwndbg
+./setup.sh</p>
+
+<h1 id="安装angr">安装angr</h1>
+
+<p>如果有问题就把下面的做一下。</p>
+
+<h2 id="安装编译环境">安装编译环境</h2>
+
+<p>apt-get install build-essential
+顺便更新一下
+apt-get update</p>
+
+<h2 id="python-development-headers">Python Development Headers</h2>
+
+<p>安装python模板库
+sudo apt-get install python-dev python3-dev python-pip python3-pip</p>
+
+<h2 id="安装pip相关">安装pip相关</h2>
+
+<p>apt-get install python-pip
+pip install - - upgrade pip
+pip3 install - - upgrade pip
+pip install - - upgrade setuptools
+pip3 install - - upgrade setuptools</p>
+
+<p>安装capstone
+git clone https://github.com/aquynh/capstone
+cd capstone
+make
+make install</p>
+
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="530" height="86" src="http://music.163.com/outchain/player?type=2&amp;id=28285910&amp;auto=1&amp;height=66"></iframe>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#ubuntu" class="page__taxonomy-item" rel="tag">ubuntu</a>
+    
+    </span>
+  </p>
+
+
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2017-12-26T01:15:00+08:00">December 26, 2017</time></p>
+        
+      </footer>
+
+      <section class="page__share">
+  
+    <h4 class="page__share-title">Share on</h4>
+  
+
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Ubuntu+Install%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-12%2Fubuntu-install.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-12%2Fubuntu-install.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-12%2Fubuntu-install.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+
+      
+  <nav class="pagination">
+    
+      <a href="/posts/2017-12/Ponce-using.html" class="pagination--pager" title="Ponce Using
+">Previous</a>
+    
+    
+      <a href="/posts/2018-01/vimium-using.html" class="pagination--pager" title="Vimium Using
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      <h4 class="page__related-title">You may also enjoy</h4>
+      <div class="grid__wrapper">
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-11/Dirary_November.html" rel="permalink">Dirary_november
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  每日所作所得
+
+
+
+
+11月1日
+</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/Software_Security_Project.html" rel="permalink">Software_security_project
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  Malware
+vs2010
+
+
+
+
+InfoCollection
+
+configure
+
+
+
+warning
+
+
+
+</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/Pacman_Helper.html" rel="permalink">Pacman_helper
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  pacman 手册
+
+
+
+
+archlinux pacman 命令
+arch wiki
+
+pacman -Sy 仅同步源
+
+pacman -Syu 同步源，并更新系统
+
+pacman -Su –ignore foo 升级时不升级包foo
+
+pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/%E5%8D%81%E6%9C%88%E6%97%A5%E8%AE%B0.html" rel="permalink">十月日记
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  每日所作所得
+
+
+
+
+10月1日
+
+周日，上课前最后一天，算是给自己放了最后一天假期
+
+10月2日
+
+上了第一天的课，主要是os，一脸蒙蔽。
+</p>
+  </article>
+</div>
+
+        
+      </div>
+    </div>
+  
+  
+</div>
+
+    </div>
+
+    
+      <div class="search-content">
+        <div class="search-content__inner-wrap"><form class="search-content__form" onkeydown="return event.key != 'Enter';">
+    <label class="sr-only" for="search">
+      Enter your search term...
+    </label>
+    <input type="search" id="search" class="search-input" tabindex="-1" placeholder="Enter your search term..." />
+  </form>
+  <div id="results" class="results"></div></div>
+
+      </div>
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+        
+      
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2019 Blogger. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+
+
+
+
+<script src="/assets/js/lunr/lunr.min.js"></script>
+<script src="/assets/js/lunr/lunr-store.js"></script>
+<script src="/assets/js/lunr/lunr-en.js"></script>
+
+
+
+
+    
+  <script>
+    var disqus_config = function () {
+      this.page.url = "http://localhost:4000/posts/2017-12/ubuntu-install.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.identifier = "/posts/2017-12/ubuntu-install"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    (function() { // DON'T EDIT BELOW THIS LINE
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zjgcjy-github-io.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  </script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+  
+
+
+
+
+
+  </body>
+</html>

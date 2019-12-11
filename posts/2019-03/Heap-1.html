@@ -1,0 +1,961 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.17.2 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Heap 1  -  My way, though far away</title>
+<meta name="description" content="  堆的结构和利用方式介绍资料来源：heap-exploitation教程malloc中的系统调用深入理解glibc-mallochow2heap的教程ctf-wiki中的教程mallocmalloc(size_t n)可以看出，malloc 函数返回对应大小字节的内存块的指针。此外，该函数还对一些异常情况进行了处理  当 n=0 时，返回当前系统允许的堆的最小内存块。  当 n 为负数时，由于在大多数系统上，size_t 是无符号数（这一点非常重要），所以程序就会申请很大的内存空间，但通常来说都会失败，因为系统没有那么多的内存可以分配。freefree(void* p)可以看出，free 函数会释放由 p 所指向的内存块。这个内存块有可能是通过 malloc 函数得到的，也有可能是通过相关的函数 realloc 得到的。此外，该函数也同样对异常情况进行了处理：  当 p 为空指针时，函数不执行任何操作。  当 p 已经被释放之后，再次释放会出现乱七八糟的效果，这其实就是 double free。  除了被禁用 (mallopt) 的情况下，当释放很大的内存空间时，程序会将这些内存空间还给系统，以便于减小程序所使用的内存空间。内存分配背后的系统调用在前面提到的函数中，无论是 malloc 函数还是 free 函数，我们动态申请和释放内存时，都经常会使用，但是它们并不是真正与系统交互的函数。这些函数背后的系统调用主要是 (s)brk函数以及mmap, munmap函数。这部分直Syscalls used by malloc接查看另一篇文章。这里只放出一张图片。malloc_chunk的数据结构首先看一下malloc分配的数据结构，注意已经分配的chunks和未分配的chunks是不一样的。struct malloc_chunk {  INTERNAL_SIZE_T      mchunk_prev_size;  /* 前一个chunk的大小，free时使用  */  INTERNAL_SIZE_T      mchunk_size;       /* 包括头部的总大小 */  struct malloc_chunk* fd;                /* 双向链表，free时使用 */  struct malloc_chunk* bk;  /* 大型块使用，下一个大型块的指针。*/  struct malloc_chunk* fd_nextsize; /* 双向链表，free时使用 */  struct malloc_chunk* bk_nextsize;};typedef struct malloc_chunk* mchunkptr;Allocated chunk    chunk-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Size of previous chunk, if unallocated (P clear)  |            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Size of chunk, in bytes                     |A|M|P|      mem-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             User data starts here...                          .            .                                                               .            .             (malloc_usable_size() bytes)                      .            .                                                               |nextchunk-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             (size of chunk, but used for application data)    |            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Size of next chunk, in bytes                |A|0|1|            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+Free chunk    chunk-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Size of previous chunk, if unallocated (P clear)  |            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+    `head:&#39; |             Size of chunk, in bytes                     |A|0|P|      mem-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Forward pointer to next chunk in list             |            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Back pointer to previous chunk in list            |            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Unused space (may be 0 bytes long)                .            .                                                               .            .                                                               |nextchunk-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+    `foot:&#39; |             Size of chunk, in bytes                           |            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Size of next chunk, in bytes                |A|0|0|            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+P (PREV_INUSE): 0 当前一个chunk是空闲的时候，因此前一个chunk的大小被存储在第一个区域中。分配的第一个块设置这个标志位。如果是1，我们不能确定前一个chunk的大小。M (IS_MMAPPED): chunk是否通过mmap分配。如果是，其他2位将忽略。mmapped 分配的chunk既不在arean中，也不与空闲块相邻。A (NON_MAIN_ARENA): 0说明了chunk在main arean中， 每一个线程都有自己的arean对于这些chunk，设置这个标志位。注意：fastbin中的块被视为分配的块，因为它们没有与相邻的空闲块合并。malloc_state这个结构展示arean的头部信息。主线程是一个全局变量，且不是堆段的一部分。其他线程的arean的头部被存储在堆段中。非main areans可以拥有很多堆，堆指代内部结构而不是堆段。struct malloc_state{  /* Serialize access.  */  __libc_lock_define (, mutex);  /* Flags (formerly in max_fast).  */  int flags;  /* Fastbins */  mfastbinptr fastbinsY[NFASTBINS];  /* Base of the topmost chunk -- not otherwise kept in a bin */  mchunkptr top;  /* The remainder from the most recent split of a small request */  mchunkptr last_remainder;  /* Normal bins packed as described above */  mchunkptr bins[NBINS * 2 - 2];  /* Bitmap of bins */  unsigned int binmap[BINMAPSIZE];  /* Linked list */  struct malloc_state *next;  /* Linked list for free arenas.  Access to this field is serialized     by free_list_lock in arena.c.  */  struct malloc_state *next_free;  /* Number of threads attached to this arena.  0 if the arena is on     the free list.  Access to this field is serialized by     free_list_lock in arena.c.  */  INTERNAL_SIZE_T attached_threads;  /* Memory allocated from the system in this arena.  */  INTERNAL_SIZE_T system_mem;  INTERNAL_SIZE_T max_system_mem;};typedef struct malloc_state *mstate;Bins and Chunksbin是一个由空闲块(非分配的)组成的列表(双链表或单链表)。bins是有差别的，根据它们所包含的块的大小来区分。  Fast bin  Unsorted bin  Small bin  Large binfastbins是被下面这个维护的。typedef struct malloc_chunk *mfastbinptr;mfastbinptr fastbinsY[]; // Array of pointers to chunksUnsorted, small 和 large bins 使用单个数组进行维护。typedef struct malloc_chunk* mchunkptr;mchunkptr bins[]; // Array of pointers to chunks初始化的过程中，small和large bins是空的。每一个bin通过2个值来表示。第一个值是指向HEAD的指针，第二个是指向TAIL的指针。在fastbins（单链表），第二个值是NULL。fast binsfast bins 一共有10个。每一个都维护一个单链表，添加和删除发生在列表的最前面（先进后出，和栈差不多），每一个bins都维护着相同大小的chunks，这10个值是16, 24, 32, 40, 48, 56, 64, 72, 80 和 88，这里说的大小还包括元数据。只有 prev_size 和size会控制已经分配的元数据。下一个连续chunk的prev_size 将会存储用户数据。没有两个相邻的free chunks会合并在一起。unsorted binsunsorted bins只有一条，包括small bins和large bins。这个bins的主要目的是充当缓存层(某种程度上)来加速分配和重新分配请求。small binssmall bins共有62个。速度比large bins快，但是比fast bins慢。每一个bin维护一个双向链表。插入发生在“头部”，而删除发生在“尾部”(以FIFO方式)。和fast bins差不多，每一个bin中的chunk大小相同，依次是16, 24, … , 504。在释放的过程中，小chunk可能会被合并在一起，然后放入unsorted bins中。large binslarge bins一共有63个，每一个bin维护一个双向链表，一个特别之处是large bins中chunk的大小不一样，并且以升序排列，头部最大，尾部最小。插入和删除操作会发生在列表中的任何位置。最开始的32个bins包含的chunks是相距64的。即第一个 bin: 512 - 568 bytes第二个 bin: 576 - 632 bytes总结一下：No. of Bins       Spacing between bins64 bins of size       8  [ Small bins]32 bins of size      64  [ Large bins]16 bins of size     512  [ Large bins]8 bins of size     4096  [ ..        ]4 bins of size    327682 bins of size   2621441 bin  of size what&#39;s leftlarge bins和small bins一样，chunks可能会被合并，然后放入large bins。有2个特殊的chunks不属于任何一种bin。top chunkstop chunks和arena的顶部相邻，在遇到“malloc”请求时，它被用作最后的手段。如果还需要更大的大小，则可以使用sbrk系统调用使其增长。P (PREV_INUSE)标志位总会被设置位1。last remainder chunk它是从最后一个分割中获得的chunk。有时，当没有确切大小的chunk时，更大的chunk被分成两部分。一部分返回给用户，而另一部分成为last remainder chunk。">
+
+
+  <meta name="author" content="zjgcjy">
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="My way, though far away">
+<meta property="og:title" content="Heap 1">
+<meta property="og:url" content="http://localhost:4000/posts/2019-03/Heap-1.html">
+
+
+  <meta property="og:description" content="  堆的结构和利用方式介绍资料来源：heap-exploitation教程malloc中的系统调用深入理解glibc-mallochow2heap的教程ctf-wiki中的教程mallocmalloc(size_t n)可以看出，malloc 函数返回对应大小字节的内存块的指针。此外，该函数还对一些异常情况进行了处理  当 n=0 时，返回当前系统允许的堆的最小内存块。  当 n 为负数时，由于在大多数系统上，size_t 是无符号数（这一点非常重要），所以程序就会申请很大的内存空间，但通常来说都会失败，因为系统没有那么多的内存可以分配。freefree(void* p)可以看出，free 函数会释放由 p 所指向的内存块。这个内存块有可能是通过 malloc 函数得到的，也有可能是通过相关的函数 realloc 得到的。此外，该函数也同样对异常情况进行了处理：  当 p 为空指针时，函数不执行任何操作。  当 p 已经被释放之后，再次释放会出现乱七八糟的效果，这其实就是 double free。  除了被禁用 (mallopt) 的情况下，当释放很大的内存空间时，程序会将这些内存空间还给系统，以便于减小程序所使用的内存空间。内存分配背后的系统调用在前面提到的函数中，无论是 malloc 函数还是 free 函数，我们动态申请和释放内存时，都经常会使用，但是它们并不是真正与系统交互的函数。这些函数背后的系统调用主要是 (s)brk函数以及mmap, munmap函数。这部分直Syscalls used by malloc接查看另一篇文章。这里只放出一张图片。malloc_chunk的数据结构首先看一下malloc分配的数据结构，注意已经分配的chunks和未分配的chunks是不一样的。struct malloc_chunk {  INTERNAL_SIZE_T      mchunk_prev_size;  /* 前一个chunk的大小，free时使用  */  INTERNAL_SIZE_T      mchunk_size;       /* 包括头部的总大小 */  struct malloc_chunk* fd;                /* 双向链表，free时使用 */  struct malloc_chunk* bk;  /* 大型块使用，下一个大型块的指针。*/  struct malloc_chunk* fd_nextsize; /* 双向链表，free时使用 */  struct malloc_chunk* bk_nextsize;};typedef struct malloc_chunk* mchunkptr;Allocated chunk    chunk-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Size of previous chunk, if unallocated (P clear)  |            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Size of chunk, in bytes                     |A|M|P|      mem-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             User data starts here...                          .            .                                                               .            .             (malloc_usable_size() bytes)                      .            .                                                               |nextchunk-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             (size of chunk, but used for application data)    |            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Size of next chunk, in bytes                |A|0|1|            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+Free chunk    chunk-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Size of previous chunk, if unallocated (P clear)  |            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+    `head:&#39; |             Size of chunk, in bytes                     |A|0|P|      mem-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Forward pointer to next chunk in list             |            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Back pointer to previous chunk in list            |            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Unused space (may be 0 bytes long)                .            .                                                               .            .                                                               |nextchunk-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+    `foot:&#39; |             Size of chunk, in bytes                           |            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Size of next chunk, in bytes                |A|0|0|            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+P (PREV_INUSE): 0 当前一个chunk是空闲的时候，因此前一个chunk的大小被存储在第一个区域中。分配的第一个块设置这个标志位。如果是1，我们不能确定前一个chunk的大小。M (IS_MMAPPED): chunk是否通过mmap分配。如果是，其他2位将忽略。mmapped 分配的chunk既不在arean中，也不与空闲块相邻。A (NON_MAIN_ARENA): 0说明了chunk在main arean中， 每一个线程都有自己的arean对于这些chunk，设置这个标志位。注意：fastbin中的块被视为分配的块，因为它们没有与相邻的空闲块合并。malloc_state这个结构展示arean的头部信息。主线程是一个全局变量，且不是堆段的一部分。其他线程的arean的头部被存储在堆段中。非main areans可以拥有很多堆，堆指代内部结构而不是堆段。struct malloc_state{  /* Serialize access.  */  __libc_lock_define (, mutex);  /* Flags (formerly in max_fast).  */  int flags;  /* Fastbins */  mfastbinptr fastbinsY[NFASTBINS];  /* Base of the topmost chunk -- not otherwise kept in a bin */  mchunkptr top;  /* The remainder from the most recent split of a small request */  mchunkptr last_remainder;  /* Normal bins packed as described above */  mchunkptr bins[NBINS * 2 - 2];  /* Bitmap of bins */  unsigned int binmap[BINMAPSIZE];  /* Linked list */  struct malloc_state *next;  /* Linked list for free arenas.  Access to this field is serialized     by free_list_lock in arena.c.  */  struct malloc_state *next_free;  /* Number of threads attached to this arena.  0 if the arena is on     the free list.  Access to this field is serialized by     free_list_lock in arena.c.  */  INTERNAL_SIZE_T attached_threads;  /* Memory allocated from the system in this arena.  */  INTERNAL_SIZE_T system_mem;  INTERNAL_SIZE_T max_system_mem;};typedef struct malloc_state *mstate;Bins and Chunksbin是一个由空闲块(非分配的)组成的列表(双链表或单链表)。bins是有差别的，根据它们所包含的块的大小来区分。  Fast bin  Unsorted bin  Small bin  Large binfastbins是被下面这个维护的。typedef struct malloc_chunk *mfastbinptr;mfastbinptr fastbinsY[]; // Array of pointers to chunksUnsorted, small 和 large bins 使用单个数组进行维护。typedef struct malloc_chunk* mchunkptr;mchunkptr bins[]; // Array of pointers to chunks初始化的过程中，small和large bins是空的。每一个bin通过2个值来表示。第一个值是指向HEAD的指针，第二个是指向TAIL的指针。在fastbins（单链表），第二个值是NULL。fast binsfast bins 一共有10个。每一个都维护一个单链表，添加和删除发生在列表的最前面（先进后出，和栈差不多），每一个bins都维护着相同大小的chunks，这10个值是16, 24, 32, 40, 48, 56, 64, 72, 80 和 88，这里说的大小还包括元数据。只有 prev_size 和size会控制已经分配的元数据。下一个连续chunk的prev_size 将会存储用户数据。没有两个相邻的free chunks会合并在一起。unsorted binsunsorted bins只有一条，包括small bins和large bins。这个bins的主要目的是充当缓存层(某种程度上)来加速分配和重新分配请求。small binssmall bins共有62个。速度比large bins快，但是比fast bins慢。每一个bin维护一个双向链表。插入发生在“头部”，而删除发生在“尾部”(以FIFO方式)。和fast bins差不多，每一个bin中的chunk大小相同，依次是16, 24, … , 504。在释放的过程中，小chunk可能会被合并在一起，然后放入unsorted bins中。large binslarge bins一共有63个，每一个bin维护一个双向链表，一个特别之处是large bins中chunk的大小不一样，并且以升序排列，头部最大，尾部最小。插入和删除操作会发生在列表中的任何位置。最开始的32个bins包含的chunks是相距64的。即第一个 bin: 512 - 568 bytes第二个 bin: 576 - 632 bytes总结一下：No. of Bins       Spacing between bins64 bins of size       8  [ Small bins]32 bins of size      64  [ Large bins]16 bins of size     512  [ Large bins]8 bins of size     4096  [ ..        ]4 bins of size    327682 bins of size   2621441 bin  of size what&#39;s leftlarge bins和small bins一样，chunks可能会被合并，然后放入large bins。有2个特殊的chunks不属于任何一种bin。top chunkstop chunks和arena的顶部相邻，在遇到“malloc”请求时，它被用作最后的手段。如果还需要更大的大小，则可以使用sbrk系统调用使其增长。P (PREV_INUSE)标志位总会被设置位1。last remainder chunk它是从最后一个分割中获得的chunk。有时，当没有确切大小的chunk时，更大的chunk被分成两部分。一部分返回给用户，而另一部分成为last remainder chunk。">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+
+
+
+  <meta name="twitter:site" content="@zjgcjy">
+  <meta name="twitter:title" content="Heap 1">
+  <meta name="twitter:description" content="  堆的结构和利用方式介绍资料来源：heap-exploitation教程malloc中的系统调用深入理解glibc-mallochow2heap的教程ctf-wiki中的教程mallocmalloc(size_t n)可以看出，malloc 函数返回对应大小字节的内存块的指针。此外，该函数还对一些异常情况进行了处理  当 n=0 时，返回当前系统允许的堆的最小内存块。  当 n 为负数时，由于在大多数系统上，size_t 是无符号数（这一点非常重要），所以程序就会申请很大的内存空间，但通常来说都会失败，因为系统没有那么多的内存可以分配。freefree(void* p)可以看出，free 函数会释放由 p 所指向的内存块。这个内存块有可能是通过 malloc 函数得到的，也有可能是通过相关的函数 realloc 得到的。此外，该函数也同样对异常情况进行了处理：  当 p 为空指针时，函数不执行任何操作。  当 p 已经被释放之后，再次释放会出现乱七八糟的效果，这其实就是 double free。  除了被禁用 (mallopt) 的情况下，当释放很大的内存空间时，程序会将这些内存空间还给系统，以便于减小程序所使用的内存空间。内存分配背后的系统调用在前面提到的函数中，无论是 malloc 函数还是 free 函数，我们动态申请和释放内存时，都经常会使用，但是它们并不是真正与系统交互的函数。这些函数背后的系统调用主要是 (s)brk函数以及mmap, munmap函数。这部分直Syscalls used by malloc接查看另一篇文章。这里只放出一张图片。malloc_chunk的数据结构首先看一下malloc分配的数据结构，注意已经分配的chunks和未分配的chunks是不一样的。struct malloc_chunk {  INTERNAL_SIZE_T      mchunk_prev_size;  /* 前一个chunk的大小，free时使用  */  INTERNAL_SIZE_T      mchunk_size;       /* 包括头部的总大小 */  struct malloc_chunk* fd;                /* 双向链表，free时使用 */  struct malloc_chunk* bk;  /* 大型块使用，下一个大型块的指针。*/  struct malloc_chunk* fd_nextsize; /* 双向链表，free时使用 */  struct malloc_chunk* bk_nextsize;};typedef struct malloc_chunk* mchunkptr;Allocated chunk    chunk-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Size of previous chunk, if unallocated (P clear)  |            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Size of chunk, in bytes                     |A|M|P|      mem-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             User data starts here...                          .            .                                                               .            .             (malloc_usable_size() bytes)                      .            .                                                               |nextchunk-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             (size of chunk, but used for application data)    |            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Size of next chunk, in bytes                |A|0|1|            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+Free chunk    chunk-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Size of previous chunk, if unallocated (P clear)  |            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+    `head:&#39; |             Size of chunk, in bytes                     |A|0|P|      mem-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Forward pointer to next chunk in list             |            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Back pointer to previous chunk in list            |            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Unused space (may be 0 bytes long)                .            .                                                               .            .                                                               |nextchunk-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+    `foot:&#39; |             Size of chunk, in bytes                           |            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Size of next chunk, in bytes                |A|0|0|            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+P (PREV_INUSE): 0 当前一个chunk是空闲的时候，因此前一个chunk的大小被存储在第一个区域中。分配的第一个块设置这个标志位。如果是1，我们不能确定前一个chunk的大小。M (IS_MMAPPED): chunk是否通过mmap分配。如果是，其他2位将忽略。mmapped 分配的chunk既不在arean中，也不与空闲块相邻。A (NON_MAIN_ARENA): 0说明了chunk在main arean中， 每一个线程都有自己的arean对于这些chunk，设置这个标志位。注意：fastbin中的块被视为分配的块，因为它们没有与相邻的空闲块合并。malloc_state这个结构展示arean的头部信息。主线程是一个全局变量，且不是堆段的一部分。其他线程的arean的头部被存储在堆段中。非main areans可以拥有很多堆，堆指代内部结构而不是堆段。struct malloc_state{  /* Serialize access.  */  __libc_lock_define (, mutex);  /* Flags (formerly in max_fast).  */  int flags;  /* Fastbins */  mfastbinptr fastbinsY[NFASTBINS];  /* Base of the topmost chunk -- not otherwise kept in a bin */  mchunkptr top;  /* The remainder from the most recent split of a small request */  mchunkptr last_remainder;  /* Normal bins packed as described above */  mchunkptr bins[NBINS * 2 - 2];  /* Bitmap of bins */  unsigned int binmap[BINMAPSIZE];  /* Linked list */  struct malloc_state *next;  /* Linked list for free arenas.  Access to this field is serialized     by free_list_lock in arena.c.  */  struct malloc_state *next_free;  /* Number of threads attached to this arena.  0 if the arena is on     the free list.  Access to this field is serialized by     free_list_lock in arena.c.  */  INTERNAL_SIZE_T attached_threads;  /* Memory allocated from the system in this arena.  */  INTERNAL_SIZE_T system_mem;  INTERNAL_SIZE_T max_system_mem;};typedef struct malloc_state *mstate;Bins and Chunksbin是一个由空闲块(非分配的)组成的列表(双链表或单链表)。bins是有差别的，根据它们所包含的块的大小来区分。  Fast bin  Unsorted bin  Small bin  Large binfastbins是被下面这个维护的。typedef struct malloc_chunk *mfastbinptr;mfastbinptr fastbinsY[]; // Array of pointers to chunksUnsorted, small 和 large bins 使用单个数组进行维护。typedef struct malloc_chunk* mchunkptr;mchunkptr bins[]; // Array of pointers to chunks初始化的过程中，small和large bins是空的。每一个bin通过2个值来表示。第一个值是指向HEAD的指针，第二个是指向TAIL的指针。在fastbins（单链表），第二个值是NULL。fast binsfast bins 一共有10个。每一个都维护一个单链表，添加和删除发生在列表的最前面（先进后出，和栈差不多），每一个bins都维护着相同大小的chunks，这10个值是16, 24, 32, 40, 48, 56, 64, 72, 80 和 88，这里说的大小还包括元数据。只有 prev_size 和size会控制已经分配的元数据。下一个连续chunk的prev_size 将会存储用户数据。没有两个相邻的free chunks会合并在一起。unsorted binsunsorted bins只有一条，包括small bins和large bins。这个bins的主要目的是充当缓存层(某种程度上)来加速分配和重新分配请求。small binssmall bins共有62个。速度比large bins快，但是比fast bins慢。每一个bin维护一个双向链表。插入发生在“头部”，而删除发生在“尾部”(以FIFO方式)。和fast bins差不多，每一个bin中的chunk大小相同，依次是16, 24, … , 504。在释放的过程中，小chunk可能会被合并在一起，然后放入unsorted bins中。large binslarge bins一共有63个，每一个bin维护一个双向链表，一个特别之处是large bins中chunk的大小不一样，并且以升序排列，头部最大，尾部最小。插入和删除操作会发生在列表中的任何位置。最开始的32个bins包含的chunks是相距64的。即第一个 bin: 512 - 568 bytes第二个 bin: 576 - 632 bytes总结一下：No. of Bins       Spacing between bins64 bins of size       8  [ Small bins]32 bins of size      64  [ Large bins]16 bins of size     512  [ Large bins]8 bins of size     4096  [ ..        ]4 bins of size    327682 bins of size   2621441 bin  of size what&#39;s leftlarge bins和small bins一样，chunks可能会被合并，然后放入large bins。有2个特殊的chunks不属于任何一种bin。top chunkstop chunks和arena的顶部相邻，在遇到“malloc”请求时，它被用作最后的手段。如果还需要更大的大小，则可以使用sbrk系统调用使其增长。P (PREV_INUSE)标志位总会被设置位1。last remainder chunk它是从最后一个分割中获得的chunk。有时，当没有确切大小的chunk时，更大的chunk被分成两部分。一部分返回给用户，而另一部分成为last remainder chunk。">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2019-03/Heap-1.html">
+
+  
+    <meta name="twitter:card" content="summary">
+    
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+    
+  
+
+  
+
+
+
+  <meta property="article:published_time" content="2019-03-28T17:27:00+08:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/posts/2019-03/Heap-1.html">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Blogger",
+      "url": "http://localhost:4000/",
+      "sameAs": ["https://twitter.com/","https://github.com/"]
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="My way, though far away Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/apple-touch-icon.png" alt=""></a>
+        
+        <a class="site-title" href="/">
+          ZJGCJY
+          <span class="site-subtitle">My way, though far away</span>
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/collection-archive/" >Collections</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="search__toggle" type="button">
+          <span class="visually-hidden">Toggle search</span>
+          <svg class="icon" width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15.99 16">
+            <path d="M15.5,13.12L13.19,10.8a1.69,1.69,0,0,0-1.28-.55l-0.06-.06A6.5,6.5,0,0,0,5.77,0,6.5,6.5,0,0,0,2.46,11.59a6.47,6.47,0,0,0,7.74.26l0.05,0.05a1.65,1.65,0,0,0,.5,1.24l2.38,2.38A1.68,1.68,0,0,0,15.5,13.12ZM6.4,2A4.41,4.41,0,1,1,2,6.4,4.43,4.43,0,0,1,6.4,2Z" transform="translate(-.01)"></path>
+          </svg>
+        </button>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#posts" itemprop="item"><span itemprop="name">Posts</span></a>
+          <meta itemprop="position" content="2" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#2019-03" itemprop="item"><span itemprop="name">2019 03</span></a>
+          <meta itemprop="position" content="3" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        <li class="current">Heap 1</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/me.jpg" alt="zjgcjy" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">zjgcjy</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>IIE UCAS, CTFer, Binarian</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+          
+        
+          
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+          
+        
+          
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          
+        
+          
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Heap 1">
+    <meta itemprop="description" content="  堆的结构和利用方式介绍资料来源：heap-exploitation教程malloc中的系统调用深入理解glibc-mallochow2heap的教程ctf-wiki中的教程mallocmalloc(size_t n)可以看出，malloc 函数返回对应大小字节的内存块的指针。此外，该函数还对一些异常情况进行了处理  当 n=0 时，返回当前系统允许的堆的最小内存块。  当 n 为负数时，由于在大多数系统上，size_t 是无符号数（这一点非常重要），所以程序就会申请很大的内存空间，但通常来说都会失败，因为系统没有那么多的内存可以分配。freefree(void* p)可以看出，free 函数会释放由 p 所指向的内存块。这个内存块有可能是通过 malloc 函数得到的，也有可能是通过相关的函数 realloc 得到的。此外，该函数也同样对异常情况进行了处理：  当 p 为空指针时，函数不执行任何操作。  当 p 已经被释放之后，再次释放会出现乱七八糟的效果，这其实就是 double free。  除了被禁用 (mallopt) 的情况下，当释放很大的内存空间时，程序会将这些内存空间还给系统，以便于减小程序所使用的内存空间。内存分配背后的系统调用在前面提到的函数中，无论是 malloc 函数还是 free 函数，我们动态申请和释放内存时，都经常会使用，但是它们并不是真正与系统交互的函数。这些函数背后的系统调用主要是 (s)brk函数以及mmap, munmap函数。这部分直Syscalls used by malloc接查看另一篇文章。这里只放出一张图片。malloc_chunk的数据结构首先看一下malloc分配的数据结构，注意已经分配的chunks和未分配的chunks是不一样的。struct malloc_chunk {  INTERNAL_SIZE_T      mchunk_prev_size;  /* 前一个chunk的大小，free时使用  */  INTERNAL_SIZE_T      mchunk_size;       /* 包括头部的总大小 */  struct malloc_chunk* fd;                /* 双向链表，free时使用 */  struct malloc_chunk* bk;  /* 大型块使用，下一个大型块的指针。*/  struct malloc_chunk* fd_nextsize; /* 双向链表，free时使用 */  struct malloc_chunk* bk_nextsize;};typedef struct malloc_chunk* mchunkptr;Allocated chunk    chunk-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Size of previous chunk, if unallocated (P clear)  |            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Size of chunk, in bytes                     |A|M|P|      mem-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             User data starts here...                          .            .                                                               .            .             (malloc_usable_size() bytes)                      .            .                                                               |nextchunk-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             (size of chunk, but used for application data)    |            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Size of next chunk, in bytes                |A|0|1|            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+Free chunk    chunk-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Size of previous chunk, if unallocated (P clear)  |            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+    `head:&#39; |             Size of chunk, in bytes                     |A|0|P|      mem-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Forward pointer to next chunk in list             |            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Back pointer to previous chunk in list            |            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Unused space (may be 0 bytes long)                .            .                                                               .            .                                                               |nextchunk-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+    `foot:&#39; |             Size of chunk, in bytes                           |            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            |             Size of next chunk, in bytes                |A|0|0|            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+P (PREV_INUSE): 0 当前一个chunk是空闲的时候，因此前一个chunk的大小被存储在第一个区域中。分配的第一个块设置这个标志位。如果是1，我们不能确定前一个chunk的大小。M (IS_MMAPPED): chunk是否通过mmap分配。如果是，其他2位将忽略。mmapped 分配的chunk既不在arean中，也不与空闲块相邻。A (NON_MAIN_ARENA): 0说明了chunk在main arean中， 每一个线程都有自己的arean对于这些chunk，设置这个标志位。注意：fastbin中的块被视为分配的块，因为它们没有与相邻的空闲块合并。malloc_state这个结构展示arean的头部信息。主线程是一个全局变量，且不是堆段的一部分。其他线程的arean的头部被存储在堆段中。非main areans可以拥有很多堆，堆指代内部结构而不是堆段。struct malloc_state{  /* Serialize access.  */  __libc_lock_define (, mutex);  /* Flags (formerly in max_fast).  */  int flags;  /* Fastbins */  mfastbinptr fastbinsY[NFASTBINS];  /* Base of the topmost chunk -- not otherwise kept in a bin */  mchunkptr top;  /* The remainder from the most recent split of a small request */  mchunkptr last_remainder;  /* Normal bins packed as described above */  mchunkptr bins[NBINS * 2 - 2];  /* Bitmap of bins */  unsigned int binmap[BINMAPSIZE];  /* Linked list */  struct malloc_state *next;  /* Linked list for free arenas.  Access to this field is serialized     by free_list_lock in arena.c.  */  struct malloc_state *next_free;  /* Number of threads attached to this arena.  0 if the arena is on     the free list.  Access to this field is serialized by     free_list_lock in arena.c.  */  INTERNAL_SIZE_T attached_threads;  /* Memory allocated from the system in this arena.  */  INTERNAL_SIZE_T system_mem;  INTERNAL_SIZE_T max_system_mem;};typedef struct malloc_state *mstate;Bins and Chunksbin是一个由空闲块(非分配的)组成的列表(双链表或单链表)。bins是有差别的，根据它们所包含的块的大小来区分。  Fast bin  Unsorted bin  Small bin  Large binfastbins是被下面这个维护的。typedef struct malloc_chunk *mfastbinptr;mfastbinptr fastbinsY[]; // Array of pointers to chunksUnsorted, small 和 large bins 使用单个数组进行维护。typedef struct malloc_chunk* mchunkptr;mchunkptr bins[]; // Array of pointers to chunks初始化的过程中，small和large bins是空的。每一个bin通过2个值来表示。第一个值是指向HEAD的指针，第二个是指向TAIL的指针。在fastbins（单链表），第二个值是NULL。fast binsfast bins 一共有10个。每一个都维护一个单链表，添加和删除发生在列表的最前面（先进后出，和栈差不多），每一个bins都维护着相同大小的chunks，这10个值是16, 24, 32, 40, 48, 56, 64, 72, 80 和 88，这里说的大小还包括元数据。只有 prev_size 和size会控制已经分配的元数据。下一个连续chunk的prev_size 将会存储用户数据。没有两个相邻的free chunks会合并在一起。unsorted binsunsorted bins只有一条，包括small bins和large bins。这个bins的主要目的是充当缓存层(某种程度上)来加速分配和重新分配请求。small binssmall bins共有62个。速度比large bins快，但是比fast bins慢。每一个bin维护一个双向链表。插入发生在“头部”，而删除发生在“尾部”(以FIFO方式)。和fast bins差不多，每一个bin中的chunk大小相同，依次是16, 24, … , 504。在释放的过程中，小chunk可能会被合并在一起，然后放入unsorted bins中。large binslarge bins一共有63个，每一个bin维护一个双向链表，一个特别之处是large bins中chunk的大小不一样，并且以升序排列，头部最大，尾部最小。插入和删除操作会发生在列表中的任何位置。最开始的32个bins包含的chunks是相距64的。即第一个 bin: 512 - 568 bytes第二个 bin: 576 - 632 bytes总结一下：No. of Bins       Spacing between bins64 bins of size       8  [ Small bins]32 bins of size      64  [ Large bins]16 bins of size     512  [ Large bins]8 bins of size     4096  [ ..        ]4 bins of size    327682 bins of size   2621441 bin  of size what&#39;s leftlarge bins和small bins一样，chunks可能会被合并，然后放入large bins。有2个特殊的chunks不属于任何一种bin。top chunkstop chunks和arena的顶部相邻，在遇到“malloc”请求时，它被用作最后的手段。如果还需要更大的大小，则可以使用sbrk系统调用使其增长。P (PREV_INUSE)标志位总会被设置位1。last remainder chunk它是从最后一个分割中获得的chunk。有时，当没有确切大小的chunk时，更大的chunk被分成两部分。一部分返回给用户，而另一部分成为last remainder chunk。">
+    <meta itemprop="datePublished" content="March 28, 2019">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Heap 1
+</h1>
+          
+            <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  2 minute read
+
+</p>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+          <aside class="sidebar__right ">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+              <ul class="toc__menu">
+  <li><a href="#malloc">malloc</a></li>
+  <li><a href="#free">free</a></li>
+  <li><a href="#内存分配背后的系统调用">内存分配背后的系统调用</a></li>
+  <li><a href="#malloc_chunk的数据结构">malloc_chunk的数据结构</a>
+    <ul>
+      <li><a href="#allocated-chunk">Allocated chunk</a></li>
+      <li><a href="#free-chunk">Free chunk</a></li>
+    </ul>
+  </li>
+  <li><a href="#malloc_state">malloc_state</a></li>
+  <li><a href="#bins-and-chunks">Bins and Chunks</a>
+    <ul>
+      <li><a href="#fast-bins">fast bins</a></li>
+      <li><a href="#unsorted-bins">unsorted bins</a>
+        <ul>
+          <li><a href="#small-bins">small bins</a></li>
+          <li><a href="#large-bins">large bins</a></li>
+        </ul>
+      </li>
+      <li><a href="#top-chunks">top chunks</a></li>
+      <li><a href="#last-remainder-chunk">last remainder chunk</a></li>
+    </ul>
+  </li>
+</ul>
+            </nav>
+          </aside>
+        
+        <blockquote>
+  <p>堆的结构和利用方式介绍</p>
+</blockquote>
+
+<p>资料来源：
+<a href="https://heap-exploitation.dhavalkapil.com/">heap-exploitation教程</a>
+<a href="https://sploitfun.wordpress.com/2015/02/11/syscalls-used-by-malloc/">malloc中的系统调用</a>
+<a href="https://sploitfun.wordpress.com/2015/02/10/understanding-glibc-malloc/">深入理解glibc-malloc</a>
+<a href="https://github.com/shellphish/how2heap">how2heap的教程</a>
+<a href="https://ctf-wiki.github.io/ctf-wiki/pwn/linux/glibc-heap/introduction/">ctf-wiki中的教程</a></p>
+
+<hr />
+
+<h1 id="malloc">malloc</h1>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">malloc</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">n</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>可以看出，malloc 函数返回对应大小字节的内存块的指针。此外，该函数还对一些异常情况进行了处理</p>
+
+<ul>
+  <li>当 n=0 时，返回当前系统允许的堆的最小内存块。</li>
+  <li>当 n 为负数时，由于在大多数系统上，<strong>size_t 是无符号数（这一点非常重要）</strong>，所以程序就会申请很大的内存空间，但通常来说都会失败，因为系统没有那么多的内存可以分配。</li>
+</ul>
+
+<h1 id="free">free</h1>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">free</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">p</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>可以看出，free 函数会释放由 p 所指向的内存块。这个内存块有可能是通过 malloc 函数得到的，也有可能是通过相关的函数 realloc 得到的。此外，该函数也同样对异常情况进行了处理：</p>
+
+<ul>
+  <li><strong>当 p 为空指针时，函数不执行任何操作。</strong></li>
+  <li>当 p 已经被释放之后，再次释放会出现乱七八糟的效果，这其实就是 <code class="highlighter-rouge">double free</code>。</li>
+  <li>除了被禁用 (mallopt) 的情况下，当释放很大的内存空间时，程序会将这些内存空间还给系统，以便于减小程序所使用的内存空间。</li>
+</ul>
+
+<h1 id="内存分配背后的系统调用">内存分配背后的系统调用</h1>
+
+<p>在前面提到的函数中，无论是 malloc 函数还是 free 函数，我们动态申请和释放内存时，都经常会使用，但是它们并不是真正与系统交互的函数。这些函数背后的系统调用主要是 <code class="highlighter-rouge">(s)brk</code>函数以及<code class="highlighter-rouge">mmap</code>, <code class="highlighter-rouge">munmap</code>函数。</p>
+
+<p>这部分直Syscalls used by malloc接查看另一篇文章。这里只放出一张图片。</p>
+
+<p><img src="images/program_virtual_address_memory_space.png" alt="program_virtual_address_memory_space" /></p>
+
+<h1 id="malloc_chunk的数据结构">malloc_chunk的数据结构</h1>
+
+<p>首先看一下malloc分配的数据结构，注意已经分配的chunks和未分配的chunks是不一样的。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">malloc_chunk</span> <span class="p">{</span>
+  <span class="n">INTERNAL_SIZE_T</span>      <span class="n">mchunk_prev_size</span><span class="p">;</span>  <span class="cm">/* 前一个chunk的大小，free时使用  */</span>
+  <span class="n">INTERNAL_SIZE_T</span>      <span class="n">mchunk_size</span><span class="p">;</span>       <span class="cm">/* 包括头部的总大小 */</span>
+  <span class="k">struct</span> <span class="n">malloc_chunk</span><span class="o">*</span> <span class="n">fd</span><span class="p">;</span>                <span class="cm">/* 双向链表，free时使用 */</span>
+  <span class="k">struct</span> <span class="n">malloc_chunk</span><span class="o">*</span> <span class="n">bk</span><span class="p">;</span>
+  <span class="cm">/* 大型块使用，下一个大型块的指针。*/</span>
+  <span class="k">struct</span> <span class="n">malloc_chunk</span><span class="o">*</span> <span class="n">fd_nextsize</span><span class="p">;</span> <span class="cm">/* 双向链表，free时使用 */</span>
+  <span class="k">struct</span> <span class="n">malloc_chunk</span><span class="o">*</span> <span class="n">bk_nextsize</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">typedef</span> <span class="k">struct</span> <span class="n">malloc_chunk</span><span class="o">*</span> <span class="n">mchunkptr</span><span class="p">;</span>
+</code></pre></div></div>
+
+<h2 id="allocated-chunk">Allocated chunk</h2>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="n">chunk</span><span class="o">-&gt;</span> <span class="o">+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span>
+            <span class="o">|</span>             <span class="n">Size</span> <span class="n">of</span> <span class="n">previous</span> <span class="n">chunk</span><span class="p">,</span> <span class="k">if</span> <span class="n">unallocated</span> <span class="p">(</span><span class="n">P</span> <span class="n">clear</span><span class="p">)</span>  <span class="o">|</span>
+            <span class="o">+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span>
+            <span class="o">|</span>             <span class="n">Size</span> <span class="n">of</span> <span class="n">chunk</span><span class="p">,</span> <span class="n">in</span> <span class="n">bytes</span>                     <span class="o">|</span><span class="n">A</span><span class="o">|</span><span class="n">M</span><span class="o">|</span><span class="n">P</span><span class="o">|</span>
+      <span class="n">mem</span><span class="o">-&gt;</span> <span class="o">+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span>
+            <span class="o">|</span>             <span class="n">User</span> <span class="n">data</span> <span class="n">starts</span> <span class="n">here</span><span class="p">...</span>                          <span class="p">.</span>
+            <span class="p">.</span>                                                               <span class="p">.</span>
+            <span class="p">.</span>             <span class="p">(</span><span class="n">malloc_usable_size</span><span class="p">()</span> <span class="n">bytes</span><span class="p">)</span>                      <span class="p">.</span>
+            <span class="p">.</span>                                                               <span class="o">|</span>
+<span class="n">nextchunk</span><span class="o">-&gt;</span> <span class="o">+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span>
+            <span class="o">|</span>             <span class="p">(</span><span class="n">size</span> <span class="n">of</span> <span class="n">chunk</span><span class="p">,</span> <span class="n">but</span> <span class="n">used</span> <span class="k">for</span> <span class="n">application</span> <span class="n">data</span><span class="p">)</span>    <span class="o">|</span>
+            <span class="o">+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span>
+            <span class="o">|</span>             <span class="n">Size</span> <span class="n">of</span> <span class="n">next</span> <span class="n">chunk</span><span class="p">,</span> <span class="n">in</span> <span class="n">bytes</span>                <span class="o">|</span><span class="n">A</span><span class="o">|</span><span class="mi">0</span><span class="o">|</span><span class="mi">1</span><span class="o">|</span>
+            <span class="o">+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span>
+</code></pre></div></div>
+
+<h2 id="free-chunk">Free chunk</h2>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="n">chunk</span><span class="o">-&gt;</span> <span class="o">+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span>
+            <span class="o">|</span>             <span class="n">Size</span> <span class="n">of</span> <span class="n">previous</span> <span class="n">chunk</span><span class="p">,</span> <span class="k">if</span> <span class="n">unallocated</span> <span class="p">(</span><span class="n">P</span> <span class="n">clear</span><span class="p">)</span>  <span class="o">|</span>
+            <span class="o">+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span>
+    <span class="err">`</span><span class="n">head</span><span class="o">:</span><span class="err">'</span> <span class="o">|</span>             <span class="n">Size</span> <span class="n">of</span> <span class="n">chunk</span><span class="p">,</span> <span class="n">in</span> <span class="n">bytes</span>                     <span class="o">|</span><span class="n">A</span><span class="o">|</span><span class="mi">0</span><span class="o">|</span><span class="n">P</span><span class="o">|</span>
+      <span class="n">mem</span><span class="o">-&gt;</span> <span class="o">+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span>
+            <span class="o">|</span>             <span class="n">Forward</span> <span class="n">pointer</span> <span class="n">to</span> <span class="n">next</span> <span class="n">chunk</span> <span class="n">in</span> <span class="n">list</span>             <span class="o">|</span>
+            <span class="o">+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span>
+            <span class="o">|</span>             <span class="n">Back</span> <span class="n">pointer</span> <span class="n">to</span> <span class="n">previous</span> <span class="n">chunk</span> <span class="n">in</span> <span class="n">list</span>            <span class="o">|</span>
+            <span class="o">+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span>
+            <span class="o">|</span>             <span class="n">Unused</span> <span class="n">space</span> <span class="p">(</span><span class="n">may</span> <span class="n">be</span> <span class="mi">0</span> <span class="n">bytes</span> <span class="kt">long</span><span class="p">)</span>                <span class="p">.</span>
+            <span class="p">.</span>                                                               <span class="p">.</span>
+            <span class="p">.</span>                                                               <span class="o">|</span>
+<span class="n">nextchunk</span><span class="o">-&gt;</span> <span class="o">+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span>
+    <span class="err">`</span><span class="n">foot</span><span class="o">:</span><span class="err">'</span> <span class="o">|</span>             <span class="n">Size</span> <span class="n">of</span> <span class="n">chunk</span><span class="p">,</span> <span class="n">in</span> <span class="n">bytes</span>                           <span class="o">|</span>
+            <span class="o">+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span>
+            <span class="o">|</span>             <span class="n">Size</span> <span class="n">of</span> <span class="n">next</span> <span class="n">chunk</span><span class="p">,</span> <span class="n">in</span> <span class="n">bytes</span>                <span class="o">|</span><span class="n">A</span><span class="o">|</span><span class="mi">0</span><span class="o">|</span><span class="mi">0</span><span class="o">|</span>
+            <span class="o">+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span>
+</code></pre></div></div>
+
+<p><strong>P (PREV_INUSE)</strong>: 0 当前一个chunk是空闲的时候，因此前一个chunk的大小被存储在第一个区域中。分配的第一个块设置这个标志位。如果是1，我们不能确定前一个chunk的大小。</p>
+
+<p><strong>M (IS_MMAPPED)</strong>: chunk是否通过<code class="highlighter-rouge">mmap</code>分配。如果是，其他2位将忽略。<code class="highlighter-rouge">mmapped</code> 分配的chunk既不在arean中，也不与空闲块相邻。</p>
+
+<p><strong>A (NON_MAIN_ARENA)</strong>: 0说明了chunk在main arean中， 每一个线程都有自己的arean对于这些chunk，设置这个标志位。</p>
+
+<p><strong>注意</strong>：fastbin中的块被视为分配的块，因为它们没有与相邻的空闲块合并。</p>
+
+<h1 id="malloc_state">malloc_state</h1>
+
+<p>这个结构展示arean的头部信息。主线程是一个全局变量，且不是堆段的一部分。其他线程的arean的头部被存储在堆段中。非main areans可以拥有很多堆，堆指代内部结构而不是堆段。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">malloc_state</span>
+<span class="p">{</span>
+  <span class="cm">/* Serialize access.  */</span>
+  <span class="n">__libc_lock_define</span> <span class="p">(,</span> <span class="n">mutex</span><span class="p">);</span>
+  <span class="cm">/* Flags (formerly in max_fast).  */</span>
+  <span class="kt">int</span> <span class="n">flags</span><span class="p">;</span>
+
+  <span class="cm">/* Fastbins */</span>
+  <span class="n">mfastbinptr</span> <span class="n">fastbinsY</span><span class="p">[</span><span class="n">NFASTBINS</span><span class="p">];</span>
+  <span class="cm">/* Base of the topmost chunk -- not otherwise kept in a bin */</span>
+  <span class="n">mchunkptr</span> <span class="n">top</span><span class="p">;</span>
+  <span class="cm">/* The remainder from the most recent split of a small request */</span>
+  <span class="n">mchunkptr</span> <span class="n">last_remainder</span><span class="p">;</span>
+  <span class="cm">/* Normal bins packed as described above */</span>
+  <span class="n">mchunkptr</span> <span class="n">bins</span><span class="p">[</span><span class="n">NBINS</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">2</span><span class="p">];</span>
+
+  <span class="cm">/* Bitmap of bins */</span>
+  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">binmap</span><span class="p">[</span><span class="n">BINMAPSIZE</span><span class="p">];</span>
+
+  <span class="cm">/* Linked list */</span>
+  <span class="k">struct</span> <span class="n">malloc_state</span> <span class="o">*</span><span class="n">next</span><span class="p">;</span>
+  <span class="cm">/* Linked list for free arenas.  Access to this field is serialized
+     by free_list_lock in arena.c.  */</span>
+  <span class="k">struct</span> <span class="n">malloc_state</span> <span class="o">*</span><span class="n">next_free</span><span class="p">;</span>
+  <span class="cm">/* Number of threads attached to this arena.  0 if the arena is on
+     the free list.  Access to this field is serialized by
+     free_list_lock in arena.c.  */</span>
+
+  <span class="n">INTERNAL_SIZE_T</span> <span class="n">attached_threads</span><span class="p">;</span>
+  <span class="cm">/* Memory allocated from the system in this arena.  */</span>
+  <span class="n">INTERNAL_SIZE_T</span> <span class="n">system_mem</span><span class="p">;</span>
+  <span class="n">INTERNAL_SIZE_T</span> <span class="n">max_system_mem</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">typedef</span> <span class="k">struct</span> <span class="n">malloc_state</span> <span class="o">*</span><span class="n">mstate</span><span class="p">;</span>
+</code></pre></div></div>
+
+<h1 id="bins-and-chunks">Bins and Chunks</h1>
+
+<p>bin是一个由空闲块(非分配的)组成的列表(双链表或单链表)。bins是有差别的，根据它们所包含的块的大小来区分。</p>
+
+<ol>
+  <li>Fast bin</li>
+  <li>Unsorted bin</li>
+  <li>Small bin</li>
+  <li>Large bin</li>
+</ol>
+
+<p>fastbins是被下面这个维护的。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">typedef</span> <span class="k">struct</span> <span class="n">malloc_chunk</span> <span class="o">*</span><span class="n">mfastbinptr</span><span class="p">;</span>
+<span class="n">mfastbinptr</span> <span class="n">fastbinsY</span><span class="p">[];</span> <span class="c1">// Array of pointers to chunks</span>
+</code></pre></div></div>
+
+<p>Unsorted, small 和 large bins 使用单个数组进行维护。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">typedef</span> <span class="k">struct</span> <span class="n">malloc_chunk</span><span class="o">*</span> <span class="n">mchunkptr</span><span class="p">;</span>
+<span class="n">mchunkptr</span> <span class="n">bins</span><span class="p">[];</span> <span class="c1">// Array of pointers to chunks</span>
+</code></pre></div></div>
+
+<p>初始化的过程中，small和large bins是空的。每一个bin通过2个值来表示。第一个值是指向HEAD的指针，第二个是指向TAIL的指针。在fastbins（单链表），第二个值是NULL。</p>
+
+<h2 id="fast-bins">fast bins</h2>
+
+<p>fast bins 一共有10个。每一个都维护一个单链表，添加和删除发生在列表的最前面（先进后出，和栈差不多），每一个bins都维护着相同大小的chunks，这10个值是16, 24, 32, 40, 48, 56, 64, 72, 80 和 88，这里说的大小还包括元数据。只有 <code class="highlighter-rouge">prev_size</code> 和<code class="highlighter-rouge">size</code>会控制已经分配的元数据。下一个连续chunk的<code class="highlighter-rouge">prev_size</code> 将会存储用户数据。</p>
+
+<p>没有两个相邻的free chunks会合并在一起。</p>
+
+<h2 id="unsorted-bins">unsorted bins</h2>
+
+<p>unsorted bins只有一条，包括small bins和large bins。这个bins的主要目的是充当缓存层(某种程度上)来加速分配和重新分配请求。</p>
+
+<h3 id="small-bins">small bins</h3>
+
+<p>small bins共有62个。速度比large bins快，但是比fast bins慢。每一个bin维护一个双向链表。插入发生在“头部”，而删除发生在“尾部”(以FIFO方式)。
+和fast bins差不多，每一个bin中的chunk大小相同，依次是16, 24, … , 504。</p>
+
+<p>在释放的过程中，小chunk可能会被合并在一起，然后放入unsorted bins中。</p>
+
+<h3 id="large-bins">large bins</h3>
+
+<p>large bins一共有63个，每一个bin维护一个双向链表，一个特别之处是large bins中chunk的大小不一样，并且以升序排列，头部最大，尾部最小。插入和删除操作会发生在列表中的任何位置。
+最开始的32个bins包含的chunks是相距64的。即
+第一个 bin: 512 - 568 bytes
+第二个 bin: 576 - 632 bytes</p>
+
+<p><strong>总结一下</strong>：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">No</span><span class="p">.</span> <span class="n">of</span> <span class="n">Bins</span>       <span class="n">Spacing</span> <span class="n">between</span> <span class="n">bins</span>
+
+<span class="mi">64</span> <span class="n">bins</span> <span class="n">of</span> <span class="n">size</span>       <span class="mi">8</span>  <span class="p">[</span> <span class="n">Small</span> <span class="n">bins</span><span class="p">]</span>
+<span class="mi">32</span> <span class="n">bins</span> <span class="n">of</span> <span class="n">size</span>      <span class="mi">64</span>  <span class="p">[</span> <span class="n">Large</span> <span class="n">bins</span><span class="p">]</span>
+<span class="mi">16</span> <span class="n">bins</span> <span class="n">of</span> <span class="n">size</span>     <span class="mi">512</span>  <span class="p">[</span> <span class="n">Large</span> <span class="n">bins</span><span class="p">]</span>
+<span class="mi">8</span> <span class="n">bins</span> <span class="n">of</span> <span class="n">size</span>     <span class="mi">4096</span>  <span class="p">[</span> <span class="p">..</span>        <span class="p">]</span>
+<span class="mi">4</span> <span class="n">bins</span> <span class="n">of</span> <span class="n">size</span>    <span class="mi">32768</span>
+<span class="mi">2</span> <span class="n">bins</span> <span class="n">of</span> <span class="n">size</span>   <span class="mi">262144</span>
+<span class="mi">1</span> <span class="n">bin</span>  <span class="n">of</span> <span class="n">size</span> <span class="n">what</span><span class="err">'</span><span class="n">s</span> <span class="n">left</span>
+</code></pre></div></div>
+
+<p>large bins和small bins一样，chunks可能会被合并，然后放入large bins。
+有2个特殊的chunks不属于任何一种bin。</p>
+
+<h2 id="top-chunks">top chunks</h2>
+
+<p>top chunks和arena的顶部相邻，在遇到“malloc”请求时，它被用作最后的手段。如果还需要更大的大小，则可以使用sbrk系统调用使其增长。P (PREV_INUSE)标志位总会被设置位1。</p>
+
+<h2 id="last-remainder-chunk">last remainder chunk</h2>
+
+<p>它是从最后一个分割中获得的chunk。有时，当没有确切大小的chunk时，更大的chunk被分成两部分。一部分返回给用户，而另一部分成为last remainder chunk。</p>
+
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#heap" class="page__taxonomy-item" rel="tag">heap</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#pwn" class="page__taxonomy-item" rel="tag">pwn</a>
+    
+    </span>
+  </p>
+
+
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-03-28T17:27:00+08:00">March 28, 2019</time></p>
+        
+      </footer>
+
+      <section class="page__share">
+  
+    <h4 class="page__share-title">Share on</h4>
+  
+
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Heap+1%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-03%2FHeap-1.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-03%2FHeap-1.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-03%2FHeap-1.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+
+      
+  <nav class="pagination">
+    
+      <a href="/posts/2019-03/%E4%B8%89%E6%9C%88%E6%97%A5%E8%AE%B0.html" class="pagination--pager" title="三月日记
+">Previous</a>
+    
+    
+      <a href="/posts/2019-03/malloc%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0.html" class="pagination--pager" title="Malloc内部实现
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      <h4 class="page__related-title">You may also enjoy</h4>
+      <div class="grid__wrapper">
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-11/Dirary_November.html" rel="permalink">Dirary_november
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  每日所作所得
+
+
+
+
+11月1日
+</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/Software_Security_Project.html" rel="permalink">Software_security_project
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  Malware
+vs2010
+
+
+
+
+InfoCollection
+
+configure
+
+
+
+warning
+
+
+
+</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/Pacman_Helper.html" rel="permalink">Pacman_helper
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  pacman 手册
+
+
+
+
+archlinux pacman 命令
+arch wiki
+
+pacman -Sy 仅同步源
+
+pacman -Syu 同步源，并更新系统
+
+pacman -Su –ignore foo 升级时不升级包foo
+
+pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/%E5%8D%81%E6%9C%88%E6%97%A5%E8%AE%B0.html" rel="permalink">十月日记
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  每日所作所得
+
+
+
+
+10月1日
+
+周日，上课前最后一天，算是给自己放了最后一天假期
+
+10月2日
+
+上了第一天的课，主要是os，一脸蒙蔽。
+</p>
+  </article>
+</div>
+
+        
+      </div>
+    </div>
+  
+  
+</div>
+
+    </div>
+
+    
+      <div class="search-content">
+        <div class="search-content__inner-wrap"><form class="search-content__form" onkeydown="return event.key != 'Enter';">
+    <label class="sr-only" for="search">
+      Enter your search term...
+    </label>
+    <input type="search" id="search" class="search-input" tabindex="-1" placeholder="Enter your search term..." />
+  </form>
+  <div id="results" class="results"></div></div>
+
+      </div>
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+        
+      
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2019 Blogger. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+
+
+
+
+<script src="/assets/js/lunr/lunr.min.js"></script>
+<script src="/assets/js/lunr/lunr-store.js"></script>
+<script src="/assets/js/lunr/lunr-en.js"></script>
+
+
+
+
+    
+  <script>
+    var disqus_config = function () {
+      this.page.url = "http://localhost:4000/posts/2019-03/Heap-1.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.identifier = "/posts/2019-03/Heap-1"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    (function() { // DON'T EDIT BELOW THIS LINE
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zjgcjy-github-io.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  </script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+  
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,831 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.17.2 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Python Code For Hacker  -  My way, though far away</title>
+<meta name="description" content="  读书笔记——《Python灰帽子-黑客与逆向工程师的python编程之道》由于书上采用的是immunity debugger作为调试器，而我感觉现在已经过期了，所以在阅读的时候并没有实现，简单的阅读看了看就完了，还有fuzz和sulley等模糊测试框架技术，虽然也可以和漏洞挖掘结合起来，但是感觉用的比较少吧，这里没有写。（其实并不清楚-_-）。HOOK，DLL注入，IDC脚本编程是以后要着重掌握的。关于调试器软件断点软件断点只能中止执行。软件断点由于  缺乏硬件支持，一般都是模拟出来的。软件断点用触发寄存器的指令替换原来的指令。在x86处理器里，这条新指令通常是INT 3（0xCC）。调试器必须记录原来的指令。当软件断点被触发时，INT 3指令把控制权传给寄存器。寄存器在内部表里查找断点，并用原来的指令替换INT 3，然后恢复指令指针，使保存的指令成为下一条要执行的指令。整个过程对用户来说是不可见的，调试器将显示包含原来的指令的反汇编。硬件断点X86系列处理器支持4种硬件断点。硬件断点使用特殊的调试寄存器。这些寄存器包含断点地址、控制信息及断点类型。断点地址保存在调试寄存器D0至D3中。为了设置断点，需要有一个字段，大小可以是1、2或4字节。执行中断使用的大小为1字节。在64位CPU上，大小已经扩展到8字节。有多种条件可以出发断点：一、执行中断；二、内存访问中断（读内存或写内存）；三、仅写内存时中断；四、I/O端口访问中断（很少被使用，很多调试器没有这个设置）内存断点内存断电本质上不是断点，只是依靠操作系统对内存页的分配权限和调试器收到的返回异常来下断。操作系统美分配一个内存页的时候，都会为这个内存页设置相应的访问权限，该权限取决鱼这个内存页被访问的方式。主要有以下几个：页可执行：如果试图读写这个页将导致非法内存操作异常。页可读：只能读取数据，企图写入数据或者执行代码都会导致内存操作异常。页可写：只允许写数据。保护页：对保护页的任何一次操作都会导致一次异常。使用断点调试器使用软件断点要多于硬件断点。最主要的理由是软件断点没有数量的限制。有些反调试技术会通过计算代码的校验和判断是否有指令被修改了。硬件断点可以设在内存地址上，这点与软件断点不一样。我们可以通过中断内存访问寻找使用的表或内存崩溃。关于HOOK和DLL这部分内容由于书写的比较老，自己只知道了一些基础知识，对于怎么具体使用并没有心得，是之后的学习中需要加强的一部分，尤其是HOOK技术，在apk逆向中使用比较多，结合xposed可以实现快速自动化分析。IDAPython脚本编程两个工具函数ScreanEA()获取鼠标所停留的地址，可以通过这个来为脚本指定起始地址。hex(ScreanEA())GetInputFileMD5()计算当前载入文件的MD5值，可以用来检测文件是否被更改，尤其是patch的时候，尽管有patch_list显示。段Firstseg()返回文件中首个段的起始地址。hex(Firstseg())Nextseg(long Address)根据当前位置，返回下一个段的起始位置。SegByName(string SegmentName)根据段名称，返回段的起始地址。试了一下好像有问题。SegEnd(long Address)根据地址返回该段的结束地址SegStart(long Address)根据地址返回该段的起始地址SegName(long Address)根据地址，返回该地址的段名称Segments()返回段首地址的列表函数Function(long StartAddress, long EndAddress)返回函数地址列表，在起始地址和结束地址之间。Chunks(long FunctionAddrss)根据地址返回块列表，以python二元组的形式（chunks start,chunks end）存储每个函数块的起始结束地址。LocByName(string FunctionName)根据函数名称返回函数地址GetFuncOffset(long Address)将函数内部地址转换成函数名后跟偏移的字符串GetFuncitonName(long Address)根据地址返回函数名称交叉引用CodeRefsTo(long Address,bool Flow)根据地址返回指向此处的交叉引用列表，Flow表示是否返回顺序执行代码引用地址。CodeRefsFrom(long Address,bool Flow)根据地址，返回由此出发的交叉引用列表，Flow表示是否返回顺序执行代码引用地址。DataRefsTo(long Address)根据目标地址，返回一个指向此处的数据引用列表DataRefsFrom(long Address)根据目标地址，返回一个由此出发的数据引用列表HOOKAddBpt(long Address)根据地址下软件断点。GetBptQty()返回下断点个数GetRegValue(string Register)根据寄存器名称返回相应的值SetRegValue(long Value, String Register)设置相应寄存器的值。">
+
+
+  <meta name="author" content="zjgcjy">
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="My way, though far away">
+<meta property="og:title" content="Python Code For Hacker">
+<meta property="og:url" content="http://localhost:4000/posts/2018-01/python-code-for-hacker.html">
+
+
+  <meta property="og:description" content="  读书笔记——《Python灰帽子-黑客与逆向工程师的python编程之道》由于书上采用的是immunity debugger作为调试器，而我感觉现在已经过期了，所以在阅读的时候并没有实现，简单的阅读看了看就完了，还有fuzz和sulley等模糊测试框架技术，虽然也可以和漏洞挖掘结合起来，但是感觉用的比较少吧，这里没有写。（其实并不清楚-_-）。HOOK，DLL注入，IDC脚本编程是以后要着重掌握的。关于调试器软件断点软件断点只能中止执行。软件断点由于  缺乏硬件支持，一般都是模拟出来的。软件断点用触发寄存器的指令替换原来的指令。在x86处理器里，这条新指令通常是INT 3（0xCC）。调试器必须记录原来的指令。当软件断点被触发时，INT 3指令把控制权传给寄存器。寄存器在内部表里查找断点，并用原来的指令替换INT 3，然后恢复指令指针，使保存的指令成为下一条要执行的指令。整个过程对用户来说是不可见的，调试器将显示包含原来的指令的反汇编。硬件断点X86系列处理器支持4种硬件断点。硬件断点使用特殊的调试寄存器。这些寄存器包含断点地址、控制信息及断点类型。断点地址保存在调试寄存器D0至D3中。为了设置断点，需要有一个字段，大小可以是1、2或4字节。执行中断使用的大小为1字节。在64位CPU上，大小已经扩展到8字节。有多种条件可以出发断点：一、执行中断；二、内存访问中断（读内存或写内存）；三、仅写内存时中断；四、I/O端口访问中断（很少被使用，很多调试器没有这个设置）内存断点内存断电本质上不是断点，只是依靠操作系统对内存页的分配权限和调试器收到的返回异常来下断。操作系统美分配一个内存页的时候，都会为这个内存页设置相应的访问权限，该权限取决鱼这个内存页被访问的方式。主要有以下几个：页可执行：如果试图读写这个页将导致非法内存操作异常。页可读：只能读取数据，企图写入数据或者执行代码都会导致内存操作异常。页可写：只允许写数据。保护页：对保护页的任何一次操作都会导致一次异常。使用断点调试器使用软件断点要多于硬件断点。最主要的理由是软件断点没有数量的限制。有些反调试技术会通过计算代码的校验和判断是否有指令被修改了。硬件断点可以设在内存地址上，这点与软件断点不一样。我们可以通过中断内存访问寻找使用的表或内存崩溃。关于HOOK和DLL这部分内容由于书写的比较老，自己只知道了一些基础知识，对于怎么具体使用并没有心得，是之后的学习中需要加强的一部分，尤其是HOOK技术，在apk逆向中使用比较多，结合xposed可以实现快速自动化分析。IDAPython脚本编程两个工具函数ScreanEA()获取鼠标所停留的地址，可以通过这个来为脚本指定起始地址。hex(ScreanEA())GetInputFileMD5()计算当前载入文件的MD5值，可以用来检测文件是否被更改，尤其是patch的时候，尽管有patch_list显示。段Firstseg()返回文件中首个段的起始地址。hex(Firstseg())Nextseg(long Address)根据当前位置，返回下一个段的起始位置。SegByName(string SegmentName)根据段名称，返回段的起始地址。试了一下好像有问题。SegEnd(long Address)根据地址返回该段的结束地址SegStart(long Address)根据地址返回该段的起始地址SegName(long Address)根据地址，返回该地址的段名称Segments()返回段首地址的列表函数Function(long StartAddress, long EndAddress)返回函数地址列表，在起始地址和结束地址之间。Chunks(long FunctionAddrss)根据地址返回块列表，以python二元组的形式（chunks start,chunks end）存储每个函数块的起始结束地址。LocByName(string FunctionName)根据函数名称返回函数地址GetFuncOffset(long Address)将函数内部地址转换成函数名后跟偏移的字符串GetFuncitonName(long Address)根据地址返回函数名称交叉引用CodeRefsTo(long Address,bool Flow)根据地址返回指向此处的交叉引用列表，Flow表示是否返回顺序执行代码引用地址。CodeRefsFrom(long Address,bool Flow)根据地址，返回由此出发的交叉引用列表，Flow表示是否返回顺序执行代码引用地址。DataRefsTo(long Address)根据目标地址，返回一个指向此处的数据引用列表DataRefsFrom(long Address)根据目标地址，返回一个由此出发的数据引用列表HOOKAddBpt(long Address)根据地址下软件断点。GetBptQty()返回下断点个数GetRegValue(string Register)根据寄存器名称返回相应的值SetRegValue(long Value, String Register)设置相应寄存器的值。">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+
+
+
+  <meta name="twitter:site" content="@zjgcjy">
+  <meta name="twitter:title" content="Python Code For Hacker">
+  <meta name="twitter:description" content="  读书笔记——《Python灰帽子-黑客与逆向工程师的python编程之道》由于书上采用的是immunity debugger作为调试器，而我感觉现在已经过期了，所以在阅读的时候并没有实现，简单的阅读看了看就完了，还有fuzz和sulley等模糊测试框架技术，虽然也可以和漏洞挖掘结合起来，但是感觉用的比较少吧，这里没有写。（其实并不清楚-_-）。HOOK，DLL注入，IDC脚本编程是以后要着重掌握的。关于调试器软件断点软件断点只能中止执行。软件断点由于  缺乏硬件支持，一般都是模拟出来的。软件断点用触发寄存器的指令替换原来的指令。在x86处理器里，这条新指令通常是INT 3（0xCC）。调试器必须记录原来的指令。当软件断点被触发时，INT 3指令把控制权传给寄存器。寄存器在内部表里查找断点，并用原来的指令替换INT 3，然后恢复指令指针，使保存的指令成为下一条要执行的指令。整个过程对用户来说是不可见的，调试器将显示包含原来的指令的反汇编。硬件断点X86系列处理器支持4种硬件断点。硬件断点使用特殊的调试寄存器。这些寄存器包含断点地址、控制信息及断点类型。断点地址保存在调试寄存器D0至D3中。为了设置断点，需要有一个字段，大小可以是1、2或4字节。执行中断使用的大小为1字节。在64位CPU上，大小已经扩展到8字节。有多种条件可以出发断点：一、执行中断；二、内存访问中断（读内存或写内存）；三、仅写内存时中断；四、I/O端口访问中断（很少被使用，很多调试器没有这个设置）内存断点内存断电本质上不是断点，只是依靠操作系统对内存页的分配权限和调试器收到的返回异常来下断。操作系统美分配一个内存页的时候，都会为这个内存页设置相应的访问权限，该权限取决鱼这个内存页被访问的方式。主要有以下几个：页可执行：如果试图读写这个页将导致非法内存操作异常。页可读：只能读取数据，企图写入数据或者执行代码都会导致内存操作异常。页可写：只允许写数据。保护页：对保护页的任何一次操作都会导致一次异常。使用断点调试器使用软件断点要多于硬件断点。最主要的理由是软件断点没有数量的限制。有些反调试技术会通过计算代码的校验和判断是否有指令被修改了。硬件断点可以设在内存地址上，这点与软件断点不一样。我们可以通过中断内存访问寻找使用的表或内存崩溃。关于HOOK和DLL这部分内容由于书写的比较老，自己只知道了一些基础知识，对于怎么具体使用并没有心得，是之后的学习中需要加强的一部分，尤其是HOOK技术，在apk逆向中使用比较多，结合xposed可以实现快速自动化分析。IDAPython脚本编程两个工具函数ScreanEA()获取鼠标所停留的地址，可以通过这个来为脚本指定起始地址。hex(ScreanEA())GetInputFileMD5()计算当前载入文件的MD5值，可以用来检测文件是否被更改，尤其是patch的时候，尽管有patch_list显示。段Firstseg()返回文件中首个段的起始地址。hex(Firstseg())Nextseg(long Address)根据当前位置，返回下一个段的起始位置。SegByName(string SegmentName)根据段名称，返回段的起始地址。试了一下好像有问题。SegEnd(long Address)根据地址返回该段的结束地址SegStart(long Address)根据地址返回该段的起始地址SegName(long Address)根据地址，返回该地址的段名称Segments()返回段首地址的列表函数Function(long StartAddress, long EndAddress)返回函数地址列表，在起始地址和结束地址之间。Chunks(long FunctionAddrss)根据地址返回块列表，以python二元组的形式（chunks start,chunks end）存储每个函数块的起始结束地址。LocByName(string FunctionName)根据函数名称返回函数地址GetFuncOffset(long Address)将函数内部地址转换成函数名后跟偏移的字符串GetFuncitonName(long Address)根据地址返回函数名称交叉引用CodeRefsTo(long Address,bool Flow)根据地址返回指向此处的交叉引用列表，Flow表示是否返回顺序执行代码引用地址。CodeRefsFrom(long Address,bool Flow)根据地址，返回由此出发的交叉引用列表，Flow表示是否返回顺序执行代码引用地址。DataRefsTo(long Address)根据目标地址，返回一个指向此处的数据引用列表DataRefsFrom(long Address)根据目标地址，返回一个由此出发的数据引用列表HOOKAddBpt(long Address)根据地址下软件断点。GetBptQty()返回下断点个数GetRegValue(string Register)根据寄存器名称返回相应的值SetRegValue(long Value, String Register)设置相应寄存器的值。">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2018-01/python-code-for-hacker.html">
+
+  
+    <meta name="twitter:card" content="summary">
+    
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+    
+  
+
+  
+
+
+
+  <meta property="article:published_time" content="2018-01-11T06:26:00+08:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/posts/2018-01/python-code-for-hacker.html">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Blogger",
+      "url": "http://localhost:4000/",
+      "sameAs": ["https://twitter.com/","https://github.com/"]
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="My way, though far away Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/apple-touch-icon.png" alt=""></a>
+        
+        <a class="site-title" href="/">
+          ZJGCJY
+          <span class="site-subtitle">My way, though far away</span>
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/collection-archive/" >Collections</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="search__toggle" type="button">
+          <span class="visually-hidden">Toggle search</span>
+          <svg class="icon" width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15.99 16">
+            <path d="M15.5,13.12L13.19,10.8a1.69,1.69,0,0,0-1.28-.55l-0.06-.06A6.5,6.5,0,0,0,5.77,0,6.5,6.5,0,0,0,2.46,11.59a6.47,6.47,0,0,0,7.74.26l0.05,0.05a1.65,1.65,0,0,0,.5,1.24l2.38,2.38A1.68,1.68,0,0,0,15.5,13.12ZM6.4,2A4.41,4.41,0,1,1,2,6.4,4.43,4.43,0,0,1,6.4,2Z" transform="translate(-.01)"></path>
+          </svg>
+        </button>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#posts" itemprop="item"><span itemprop="name">Posts</span></a>
+          <meta itemprop="position" content="2" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#2018-01" itemprop="item"><span itemprop="name">2018 01</span></a>
+          <meta itemprop="position" content="3" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        <li class="current">Python Code For Hacker</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/me.jpg" alt="zjgcjy" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">zjgcjy</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>IIE UCAS, CTFer, Binarian</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+          
+        
+          
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+          
+        
+          
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          
+        
+          
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Python Code For Hacker">
+    <meta itemprop="description" content="  读书笔记——《Python灰帽子-黑客与逆向工程师的python编程之道》由于书上采用的是immunity debugger作为调试器，而我感觉现在已经过期了，所以在阅读的时候并没有实现，简单的阅读看了看就完了，还有fuzz和sulley等模糊测试框架技术，虽然也可以和漏洞挖掘结合起来，但是感觉用的比较少吧，这里没有写。（其实并不清楚-_-）。HOOK，DLL注入，IDC脚本编程是以后要着重掌握的。关于调试器软件断点软件断点只能中止执行。软件断点由于  缺乏硬件支持，一般都是模拟出来的。软件断点用触发寄存器的指令替换原来的指令。在x86处理器里，这条新指令通常是INT 3（0xCC）。调试器必须记录原来的指令。当软件断点被触发时，INT 3指令把控制权传给寄存器。寄存器在内部表里查找断点，并用原来的指令替换INT 3，然后恢复指令指针，使保存的指令成为下一条要执行的指令。整个过程对用户来说是不可见的，调试器将显示包含原来的指令的反汇编。硬件断点X86系列处理器支持4种硬件断点。硬件断点使用特殊的调试寄存器。这些寄存器包含断点地址、控制信息及断点类型。断点地址保存在调试寄存器D0至D3中。为了设置断点，需要有一个字段，大小可以是1、2或4字节。执行中断使用的大小为1字节。在64位CPU上，大小已经扩展到8字节。有多种条件可以出发断点：一、执行中断；二、内存访问中断（读内存或写内存）；三、仅写内存时中断；四、I/O端口访问中断（很少被使用，很多调试器没有这个设置）内存断点内存断电本质上不是断点，只是依靠操作系统对内存页的分配权限和调试器收到的返回异常来下断。操作系统美分配一个内存页的时候，都会为这个内存页设置相应的访问权限，该权限取决鱼这个内存页被访问的方式。主要有以下几个：页可执行：如果试图读写这个页将导致非法内存操作异常。页可读：只能读取数据，企图写入数据或者执行代码都会导致内存操作异常。页可写：只允许写数据。保护页：对保护页的任何一次操作都会导致一次异常。使用断点调试器使用软件断点要多于硬件断点。最主要的理由是软件断点没有数量的限制。有些反调试技术会通过计算代码的校验和判断是否有指令被修改了。硬件断点可以设在内存地址上，这点与软件断点不一样。我们可以通过中断内存访问寻找使用的表或内存崩溃。关于HOOK和DLL这部分内容由于书写的比较老，自己只知道了一些基础知识，对于怎么具体使用并没有心得，是之后的学习中需要加强的一部分，尤其是HOOK技术，在apk逆向中使用比较多，结合xposed可以实现快速自动化分析。IDAPython脚本编程两个工具函数ScreanEA()获取鼠标所停留的地址，可以通过这个来为脚本指定起始地址。hex(ScreanEA())GetInputFileMD5()计算当前载入文件的MD5值，可以用来检测文件是否被更改，尤其是patch的时候，尽管有patch_list显示。段Firstseg()返回文件中首个段的起始地址。hex(Firstseg())Nextseg(long Address)根据当前位置，返回下一个段的起始位置。SegByName(string SegmentName)根据段名称，返回段的起始地址。试了一下好像有问题。SegEnd(long Address)根据地址返回该段的结束地址SegStart(long Address)根据地址返回该段的起始地址SegName(long Address)根据地址，返回该地址的段名称Segments()返回段首地址的列表函数Function(long StartAddress, long EndAddress)返回函数地址列表，在起始地址和结束地址之间。Chunks(long FunctionAddrss)根据地址返回块列表，以python二元组的形式（chunks start,chunks end）存储每个函数块的起始结束地址。LocByName(string FunctionName)根据函数名称返回函数地址GetFuncOffset(long Address)将函数内部地址转换成函数名后跟偏移的字符串GetFuncitonName(long Address)根据地址返回函数名称交叉引用CodeRefsTo(long Address,bool Flow)根据地址返回指向此处的交叉引用列表，Flow表示是否返回顺序执行代码引用地址。CodeRefsFrom(long Address,bool Flow)根据地址，返回由此出发的交叉引用列表，Flow表示是否返回顺序执行代码引用地址。DataRefsTo(long Address)根据目标地址，返回一个指向此处的数据引用列表DataRefsFrom(long Address)根据目标地址，返回一个由此出发的数据引用列表HOOKAddBpt(long Address)根据地址下软件断点。GetBptQty()返回下断点个数GetRegValue(string Register)根据寄存器名称返回相应的值SetRegValue(long Value, String Register)设置相应寄存器的值。">
+    <meta itemprop="datePublished" content="January 11, 2018">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Python Code For Hacker
+</h1>
+          
+            <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+          <aside class="sidebar__right ">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+              <ul class="toc__menu">
+  <li><a href="#关于调试器">关于调试器</a>
+    <ul>
+      <li><a href="#软件断点">软件断点</a></li>
+      <li><a href="#硬件断点">硬件断点</a></li>
+      <li><a href="#内存断点">内存断点</a></li>
+      <li><a href="#使用断点">使用断点</a></li>
+    </ul>
+  </li>
+  <li><a href="#关于hook和dll">关于HOOK和DLL</a></li>
+  <li><a href="#idapython脚本编程">IDAPython脚本编程</a>
+    <ul>
+      <li><a href="#两个工具函数">两个工具函数</a></li>
+      <li><a href="#段">段</a></li>
+      <li><a href="#函数">函数</a></li>
+      <li><a href="#交叉引用">交叉引用</a></li>
+      <li><a href="#hook">HOOK</a></li>
+    </ul>
+  </li>
+</ul>
+            </nav>
+          </aside>
+        
+        <hr />
+
+<blockquote>
+  <p>读书笔记——《Python灰帽子-黑客与逆向工程师的python编程之道》
+由于书上采用的是immunity debugger作为调试器，而我感觉现在已经过期了，所以在阅读的时候并没有实现，简单的阅读看了看就完了，还有fuzz和sulley等模糊测试框架技术，虽然也可以和漏洞挖掘结合起来，但是感觉用的比较少吧，这里没有写。（其实并不清楚-_-）。
+HOOK，DLL注入，IDC脚本编程是以后要着重掌握的。</p>
+</blockquote>
+
+<h1 id="关于调试器">关于调试器</h1>
+
+<h2 id="软件断点">软件断点</h2>
+
+<p>软件断点只能中止执行。软件断点由于  <br />
+缺乏硬件支持，一般都是模拟出来的。软件断点用触发寄存器的指令替换原来的指令。在x86处理器里，这条新指令通常是INT 3（0xCC）。调试器必须记录原来的指令。
+当软件断点被触发时，INT 3指令把控制权传给寄存器。寄存器在内部表里查找断点，并用原来的指令替换INT 3，然后恢复指令指针，使保存的指令成为下一条要执行的指令。整个过程对用户来说是不可见的，调试器将显示包含原来的指令的反汇编。</p>
+
+<h2 id="硬件断点">硬件断点</h2>
+
+<p>X86系列处理器支持4种硬件断点。硬件断点使用特殊的调试寄存器。这些寄存器包含断点地址、控制信息及断点类型。
+断点地址保存在调试寄存器D0至D3中。为了设置断点，需要有一个字段，大小可以是1、2或4字节。执行中断使用的大小为1字节。
+在64位CPU上，大小已经扩展到8字节。有多种条件可以出发断点：
+一、执行中断；
+二、内存访问中断（读内存或写内存）；
+三、仅写内存时中断；
+四、I/O端口访问中断（很少被使用，很多调试器没有这个设置）</p>
+
+<h2 id="内存断点">内存断点</h2>
+
+<p>内存断电本质上不是断点，只是依靠操作系统对内存页的分配权限和调试器收到的返回异常来下断。操作系统美分配一个内存页的时候，都会为这个内存页设置相应的访问权限，该权限取决鱼这个内存页被访问的方式。主要有以下几个：页可执行：如果试图读写这个页将导致非法内存操作异常。页可读：只能读取数据，企图写入数据或者执行代码都会导致内存操作异常。页可写：只允许写数据。保护页：对保护页的任何一次操作都会导致一次异常。</p>
+
+<h2 id="使用断点">使用断点</h2>
+
+<p>调试器使用软件断点要多于硬件断点。最主要的理由是软件断点没有数量的限制。有些反调试技术会通过计算代码的校验和判断是否有指令被修改了。
+硬件断点可以设在内存地址上，这点与软件断点不一样。我们可以通过中断内存访问寻找使用的表或内存崩溃。</p>
+
+<h1 id="关于hook和dll">关于HOOK和DLL</h1>
+
+<p>这部分内容由于书写的比较老，自己只知道了一些基础知识，对于怎么具体使用并没有心得，是之后的学习中需要加强的一部分，尤其是HOOK技术，在apk逆向中使用比较多，结合xposed可以实现快速自动化分析。</p>
+
+<h1 id="idapython脚本编程">IDAPython脚本编程</h1>
+
+<h2 id="两个工具函数">两个工具函数</h2>
+
+<p>ScreanEA()
+获取鼠标所停留的地址，可以通过这个来为脚本指定起始地址。hex(ScreanEA())
+GetInputFileMD5()
+计算当前载入文件的MD5值，可以用来检测文件是否被更改，尤其是patch的时候，尽管有patch_list显示。</p>
+
+<h2 id="段">段</h2>
+
+<p>Firstseg()
+返回文件中首个段的起始地址。hex(Firstseg())
+Nextseg(long Address)
+根据当前位置，返回下一个段的起始位置。
+SegByName(string SegmentName)
+根据段名称，返回段的起始地址。试了一下好像有问题。
+SegEnd(long Address)
+根据地址返回该段的结束地址
+SegStart(long Address)
+根据地址返回该段的起始地址
+SegName(long Address)
+根据地址，返回该地址的段名称
+Segments()
+返回段首地址的列表</p>
+
+<h2 id="函数">函数</h2>
+
+<p>Function(long StartAddress, long EndAddress)
+返回函数地址列表，在起始地址和结束地址之间。
+Chunks(long FunctionAddrss)
+根据地址返回块列表，以python二元组的形式（chunks start,chunks end）存储每个函数块的起始结束地址。
+LocByName(string FunctionName)
+根据函数名称返回函数地址
+GetFuncOffset(long Address)
+将函数内部地址转换成函数名后跟偏移的字符串
+GetFuncitonName(long Address)
+根据地址返回函数名称</p>
+
+<h2 id="交叉引用">交叉引用</h2>
+
+<p>CodeRefsTo(long Address,bool Flow)
+根据地址返回指向此处的交叉引用列表，Flow表示是否返回顺序执行代码引用地址。
+CodeRefsFrom(long Address,bool Flow)
+根据地址，返回由此出发的交叉引用列表，Flow表示是否返回顺序执行代码引用地址。
+DataRefsTo(long Address)
+根据目标地址，返回一个指向此处的数据引用列表
+DataRefsFrom(long Address)
+根据目标地址，返回一个由此出发的数据引用列表</p>
+
+<h2 id="hook">HOOK</h2>
+
+<p>AddBpt(long Address)
+根据地址下软件断点。
+GetBptQty()
+返回下断点个数
+GetRegValue(string Register)
+根据寄存器名称返回相应的值
+SetRegValue(long Value, String Register)
+设置相应寄存器的值。</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#ida" class="page__taxonomy-item" rel="tag">ida</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#python" class="page__taxonomy-item" rel="tag">python</a>
+    
+    </span>
+  </p>
+
+
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2018-01-11T06:26:00+08:00">January 11, 2018</time></p>
+        
+      </footer>
+
+      <section class="page__share">
+  
+    <h4 class="page__share-title">Share on</h4>
+  
+
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Python+Code+For+Hacker%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-01%2Fpython-code-for-hacker.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-01%2Fpython-code-for-hacker.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-01%2Fpython-code-for-hacker.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+
+      
+  <nav class="pagination">
+    
+      <a href="/posts/2018-01/vimium-using.html" class="pagination--pager" title="Vimium Using
+">Previous</a>
+    
+    
+      <a href="/posts/2018-01/git-using.html" class="pagination--pager" title="Git Using
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      <h4 class="page__related-title">You may also enjoy</h4>
+      <div class="grid__wrapper">
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-11/Dirary_November.html" rel="permalink">Dirary_november
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  每日所作所得
+
+
+
+
+11月1日
+</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/Software_Security_Project.html" rel="permalink">Software_security_project
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  Malware
+vs2010
+
+
+
+
+InfoCollection
+
+configure
+
+
+
+warning
+
+
+
+</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/Pacman_Helper.html" rel="permalink">Pacman_helper
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  pacman 手册
+
+
+
+
+archlinux pacman 命令
+arch wiki
+
+pacman -Sy 仅同步源
+
+pacman -Syu 同步源，并更新系统
+
+pacman -Su –ignore foo 升级时不升级包foo
+
+pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/%E5%8D%81%E6%9C%88%E6%97%A5%E8%AE%B0.html" rel="permalink">十月日记
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  每日所作所得
+
+
+
+
+10月1日
+
+周日，上课前最后一天，算是给自己放了最后一天假期
+
+10月2日
+
+上了第一天的课，主要是os，一脸蒙蔽。
+</p>
+  </article>
+</div>
+
+        
+      </div>
+    </div>
+  
+  
+</div>
+
+    </div>
+
+    
+      <div class="search-content">
+        <div class="search-content__inner-wrap"><form class="search-content__form" onkeydown="return event.key != 'Enter';">
+    <label class="sr-only" for="search">
+      Enter your search term...
+    </label>
+    <input type="search" id="search" class="search-input" tabindex="-1" placeholder="Enter your search term..." />
+  </form>
+  <div id="results" class="results"></div></div>
+
+      </div>
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+        
+      
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2019 Blogger. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+
+
+
+
+<script src="/assets/js/lunr/lunr.min.js"></script>
+<script src="/assets/js/lunr/lunr-store.js"></script>
+<script src="/assets/js/lunr/lunr-en.js"></script>
+
+
+
+
+    
+  <script>
+    var disqus_config = function () {
+      this.page.url = "http://localhost:4000/posts/2018-01/python-code-for-hacker.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.identifier = "/posts/2018-01/python-code-for-hacker"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    (function() { // DON'T EDIT BELOW THIS LINE
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zjgcjy-github-io.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  </script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+  
+
+
+
+
+
+  </body>
+</html>

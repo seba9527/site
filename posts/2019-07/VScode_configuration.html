@@ -1,0 +1,984 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.17.2 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Vscode_configuration  -  My way, though far away</title>
+<meta name="description" content="  关于Vscode的配置信息主要是win下的C++ （wsl）以及 python 还有java（todo）基于WSL的C++环境主要是三个文件。  c_cpp_properties.json 用来配置VScode的插件。  task.json 用来设置任务，即对文件进行编译，快捷键是ctrl+shift+B。  launch.json 用来设置调试信息，这里使用的是WSL的gdb。下面给出详细的配置文件。c_cpp_properties.json的配置如下：{    &quot;configurations&quot;: [        {            &quot;name&quot;: &quot;wsl&quot;,            &quot;includePath&quot;: [                &quot;${workspaceFolder}/**&quot;            ],            &quot;defines&quot;: [                &quot;_DEBUG&quot;,                &quot;UNICODE&quot;,                &quot;_UNICODE&quot;,                &quot;__linux__&quot;,                &quot;__x86_64__&quot;            ],            &quot;windowsSdkVersion&quot;: &quot;10.0.18362.0&quot;,            &quot;compilerPath&quot;: &quot;/usr/bin/g++&quot;,            &quot;intelliSenseMode&quot;: &quot;gcc-x64&quot;,            &quot;cStandard&quot;: &quot;c11&quot;,            &quot;cppStandard&quot;: &quot;c++17&quot;,            &quot;browse&quot;: {                &quot;path&quot;: [                    &quot;${workspaceFolder}/**&quot;                ],                &quot;limitSymbolsToIncludedHeaders&quot;: true            }        }    ],    &quot;version&quot;: 4}launch.json的配置如下：{    &quot;version&quot;: &quot;0.2.0&quot;,    &quot;configurations&quot;: [        {            &quot;name&quot;: &quot;(gdb) Launch&quot;,            &quot;type&quot;: &quot;cppdbg&quot;,            &quot;request&quot;: &quot;launch&quot;,            &quot;program&quot;: &quot;${fileBasenameNoExtension}&quot;,            &quot;args&quot;: [                &quot;&quot;            ],            &quot;stopAtEntry&quot;: true,            &quot;cwd&quot;: &quot;.&quot;,            &quot;environment&quot;: [],            &quot;externalConsole&quot;: true,            &quot;windows&quot;: {                &quot;MIMode&quot;: &quot;gdb&quot;,                &quot;miDebuggerPath&quot;: &quot;/usr/bin/gdb&quot;,                &quot;setupCommands&quot;: [                    {                        &quot;description&quot;: &quot;Enable pretty-printing for gdb&quot;,                        &quot;text&quot;: &quot;-enable-pretty-printing&quot;,                        &quot;ignoreFailures&quot;: true                    }                ]            },            &quot;pipeTransport&quot;: {                &quot;pipeCwd&quot;: &quot;${fileDirname}&quot;,                &quot;pipeProgram&quot;: &quot;c:\\windows\\System32\\bash.exe&quot;,                &quot;pipeArgs&quot;: [                    &quot;-c&quot;                ],                &quot;debuggerPath&quot;: &quot;/usr/bin/gdb&quot;            },            &quot;targetArchitecture&quot;: &quot;x64&quot;,            &quot;sourceFileMap&quot;: {                &quot;/mnt/c&quot;: &quot;${env:systemdrive}/&quot;,                &quot;/mnt/d&quot;: &quot;d:\\&quot;,                &quot;/usr&quot;: &quot;C:\\Users\\zjgcj\\AppData\\Local\\Packages\\CanonicalGroupLimited.Ubuntu18.04onWindows_79rhkp1fndgsc\\LocalState\\rootfs\\usr\\&quot;            },            &quot;preLaunchTask&quot;: &quot;Make cpp on Wsl&quot;        }    ]}//&quot;program&quot;: &quot;./${fileBasenameNoExtension}&quot;,//&quot;cwd&quot;: &quot;${workspaceFolder}&quot;,//&quot;pipeProgram&quot;: &quot;c:\\windows\\sysnative\\bash.exe&quot;,//&quot;debuggerPath&quot;: &quot;gdb -q&quot;,task.json的配置如下：{    &quot;version&quot;: &quot;2.0.0&quot;,    &quot;windows&quot;: {        &quot;options&quot;: {            &quot;shell&quot;: {                &quot;executable&quot;: &quot;c:\\windows\\System32\\wsl.exe&quot;,                &quot;args&quot;: [                    &quot; &quot;                ]            }        }    },    &quot;tasks&quot;: [        {            &quot;label&quot;: &quot;Make cpp on Wsl&quot;,            &quot;type&quot;: &quot;shell&quot;,            &quot;command&quot;: &quot;g++&quot;,            &quot;args&quot;: [                &quot;-g&quot;,                &quot;./${fileBasename}&quot;,                &quot;-z&quot;,                &quot;execstack&quot;,                &quot;-fno-stack-protector&quot;,                &quot;-no-pie&quot;,                &quot;-o&quot;,                &quot;./${fileBasenameNoExtension}&quot;,                &quot;-std=c++17&quot;,                &quot;&amp;&amp;&quot;,                &quot;clear&quot;,                &quot;&amp;&amp;&quot;,                &quot;./${fileBasenameNoExtension}&quot;            ],            &quot;group&quot;: {                &quot;kind&quot;: &quot;build&quot;,                &quot;isDefault&quot;: true            },            &quot;problemMatcher&quot;: {                //&quot;$gcc&quot;                &quot;owner&quot;: &quot;cpp&quot;,                &quot;fileLocation&quot;: [                    &quot;relative&quot;,                    &quot;${workspaceRoot}&quot;                ],                &quot;pattern&quot;: {                    &quot;regexp&quot;: &quot;^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$&quot;,                    &quot;file&quot;: 1,                    &quot;line&quot;: 2,                    &quot;column&quot;: 3,                    &quot;severity&quot;: 4,                    &quot;message&quot;: 5                }            }        }    ]}基于MSCV的C++环境MSVC配置C/C++编译环境需要注意的主要是环境变量的配置问题。还有文件编码问题，由于控制台模式是gbk编码，代码页是936（chcp命令），而vscode默认编码是utf-8，所以中文什么的输出就很烦。c_cpp_properties.json的配置文件：{    &quot;configurations&quot;: [        {            &quot;name&quot;: &quot;Win32&quot;,            &quot;includePath&quot;: [                &quot;${workspaceFolder}/**&quot;            ],            &quot;defines&quot;: [                &quot;_DEBUG&quot;,                &quot;UNICODE&quot;,                &quot;_UNICODE&quot;            ],            &quot;windowsSdkVersion&quot;: &quot;10.0.18362.0&quot;,            &quot;compilerPath&quot;: &quot;C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.22.27905/bin/Hostx86/x86/cl.exe&quot;,            &quot;intelliSenseMode&quot;: &quot;msvc-x64&quot;,            &quot;cStandard&quot;: &quot;c11&quot;,            &quot;cppStandard&quot;: &quot;c++17&quot;,            &quot;browse&quot;: {                &quot;limitSymbolsToIncludedHeaders&quot;: false            }        }    ],    &quot;version&quot;: 4}launch.json的配置文件：{    // 使用 IntelliSense 了解相关属性。     // 悬停以查看现有属性的描述。    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387    &quot;version&quot;: &quot;0.2.0&quot;,    &quot;configurations&quot;: [        {            &quot;name&quot;: &quot;(mscv) Run&quot;,            &quot;type&quot;: &quot;cppvsdbg&quot;,            &quot;request&quot;: &quot;launch&quot;,            &quot;program&quot;: &quot;cmd&quot;,            &quot;args&quot;: [                &quot;/C&quot;,                &quot;${fileDirname}\\${fileBasenameNoExtension}.exe&quot;,                &quot;&amp;&quot;,                &quot;pause&quot;            ],            &quot;stopAtEntry&quot;: false,            &quot;cwd&quot;: &quot;${workspaceFolder}&quot;,            &quot;environment&quot;: [],            &quot;externalConsole&quot;: true,            &quot;preLaunchTask&quot;: &quot;msvc build&quot;        },        {            &quot;name&quot;: &quot;(msvc) Debug&quot;,            &quot;type&quot;: &quot;cppvsdbg&quot;,            &quot;request&quot;: &quot;launch&quot;,            &quot;program&quot;: &quot;${fileDirname}\\${fileBasenameNoExtension}.exe&quot;,            &quot;args&quot;: [],            &quot;stopAtEntry&quot;: true,            &quot;cwd&quot;: &quot;${workspaceFolder}&quot;,            &quot;environment&quot;: [],            &quot;externalConsole&quot;: true        }    ]}tasks.json的配置文件：{    // 有关 tasks.json 格式的文档，请参见    // https://go.microsoft.com/fwlink/?LinkId=733558    &quot;version&quot;: &quot;2.0.0&quot;,    &quot;tasks&quot;: [        {            &quot;type&quot;: &quot;shell&quot;,            &quot;label&quot;: &quot;msvc build&quot;,            &quot;command&quot;: &quot;\&quot;C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\Common7\\Tools\\VsDevCmd.bat\&quot;&quot;,            &quot;args&quot;: [                &quot;&amp;&amp;&quot;,                &quot;cl.exe&quot;,                &quot;/Zi&quot;,                &quot;/EHsc&quot;,                &quot;/Fe:&quot;,                &quot;${fileDirname}\\${fileBasenameNoExtension}.exe&quot;,                &quot;${file}&quot;            ],            &quot;group&quot;: {                &quot;kind&quot;: &quot;build&quot;,                &quot;isDefault&quot;: true            },            &quot;presentation&quot;: {                &quot;reveal&quot;: &quot;always&quot;            },            &quot;problemMatcher&quot;: [                &quot;$msCompile&quot;            ]        }    ]}现在先弄这两个吧。python也是个大头，不过先等等。">
+
+
+  <meta name="author" content="zjgcjy">
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="My way, though far away">
+<meta property="og:title" content="Vscode_configuration">
+<meta property="og:url" content="http://localhost:4000/posts/2019-07/VScode_configuration.html">
+
+
+  <meta property="og:description" content="  关于Vscode的配置信息主要是win下的C++ （wsl）以及 python 还有java（todo）基于WSL的C++环境主要是三个文件。  c_cpp_properties.json 用来配置VScode的插件。  task.json 用来设置任务，即对文件进行编译，快捷键是ctrl+shift+B。  launch.json 用来设置调试信息，这里使用的是WSL的gdb。下面给出详细的配置文件。c_cpp_properties.json的配置如下：{    &quot;configurations&quot;: [        {            &quot;name&quot;: &quot;wsl&quot;,            &quot;includePath&quot;: [                &quot;${workspaceFolder}/**&quot;            ],            &quot;defines&quot;: [                &quot;_DEBUG&quot;,                &quot;UNICODE&quot;,                &quot;_UNICODE&quot;,                &quot;__linux__&quot;,                &quot;__x86_64__&quot;            ],            &quot;windowsSdkVersion&quot;: &quot;10.0.18362.0&quot;,            &quot;compilerPath&quot;: &quot;/usr/bin/g++&quot;,            &quot;intelliSenseMode&quot;: &quot;gcc-x64&quot;,            &quot;cStandard&quot;: &quot;c11&quot;,            &quot;cppStandard&quot;: &quot;c++17&quot;,            &quot;browse&quot;: {                &quot;path&quot;: [                    &quot;${workspaceFolder}/**&quot;                ],                &quot;limitSymbolsToIncludedHeaders&quot;: true            }        }    ],    &quot;version&quot;: 4}launch.json的配置如下：{    &quot;version&quot;: &quot;0.2.0&quot;,    &quot;configurations&quot;: [        {            &quot;name&quot;: &quot;(gdb) Launch&quot;,            &quot;type&quot;: &quot;cppdbg&quot;,            &quot;request&quot;: &quot;launch&quot;,            &quot;program&quot;: &quot;${fileBasenameNoExtension}&quot;,            &quot;args&quot;: [                &quot;&quot;            ],            &quot;stopAtEntry&quot;: true,            &quot;cwd&quot;: &quot;.&quot;,            &quot;environment&quot;: [],            &quot;externalConsole&quot;: true,            &quot;windows&quot;: {                &quot;MIMode&quot;: &quot;gdb&quot;,                &quot;miDebuggerPath&quot;: &quot;/usr/bin/gdb&quot;,                &quot;setupCommands&quot;: [                    {                        &quot;description&quot;: &quot;Enable pretty-printing for gdb&quot;,                        &quot;text&quot;: &quot;-enable-pretty-printing&quot;,                        &quot;ignoreFailures&quot;: true                    }                ]            },            &quot;pipeTransport&quot;: {                &quot;pipeCwd&quot;: &quot;${fileDirname}&quot;,                &quot;pipeProgram&quot;: &quot;c:\\windows\\System32\\bash.exe&quot;,                &quot;pipeArgs&quot;: [                    &quot;-c&quot;                ],                &quot;debuggerPath&quot;: &quot;/usr/bin/gdb&quot;            },            &quot;targetArchitecture&quot;: &quot;x64&quot;,            &quot;sourceFileMap&quot;: {                &quot;/mnt/c&quot;: &quot;${env:systemdrive}/&quot;,                &quot;/mnt/d&quot;: &quot;d:\\&quot;,                &quot;/usr&quot;: &quot;C:\\Users\\zjgcj\\AppData\\Local\\Packages\\CanonicalGroupLimited.Ubuntu18.04onWindows_79rhkp1fndgsc\\LocalState\\rootfs\\usr\\&quot;            },            &quot;preLaunchTask&quot;: &quot;Make cpp on Wsl&quot;        }    ]}//&quot;program&quot;: &quot;./${fileBasenameNoExtension}&quot;,//&quot;cwd&quot;: &quot;${workspaceFolder}&quot;,//&quot;pipeProgram&quot;: &quot;c:\\windows\\sysnative\\bash.exe&quot;,//&quot;debuggerPath&quot;: &quot;gdb -q&quot;,task.json的配置如下：{    &quot;version&quot;: &quot;2.0.0&quot;,    &quot;windows&quot;: {        &quot;options&quot;: {            &quot;shell&quot;: {                &quot;executable&quot;: &quot;c:\\windows\\System32\\wsl.exe&quot;,                &quot;args&quot;: [                    &quot; &quot;                ]            }        }    },    &quot;tasks&quot;: [        {            &quot;label&quot;: &quot;Make cpp on Wsl&quot;,            &quot;type&quot;: &quot;shell&quot;,            &quot;command&quot;: &quot;g++&quot;,            &quot;args&quot;: [                &quot;-g&quot;,                &quot;./${fileBasename}&quot;,                &quot;-z&quot;,                &quot;execstack&quot;,                &quot;-fno-stack-protector&quot;,                &quot;-no-pie&quot;,                &quot;-o&quot;,                &quot;./${fileBasenameNoExtension}&quot;,                &quot;-std=c++17&quot;,                &quot;&amp;&amp;&quot;,                &quot;clear&quot;,                &quot;&amp;&amp;&quot;,                &quot;./${fileBasenameNoExtension}&quot;            ],            &quot;group&quot;: {                &quot;kind&quot;: &quot;build&quot;,                &quot;isDefault&quot;: true            },            &quot;problemMatcher&quot;: {                //&quot;$gcc&quot;                &quot;owner&quot;: &quot;cpp&quot;,                &quot;fileLocation&quot;: [                    &quot;relative&quot;,                    &quot;${workspaceRoot}&quot;                ],                &quot;pattern&quot;: {                    &quot;regexp&quot;: &quot;^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$&quot;,                    &quot;file&quot;: 1,                    &quot;line&quot;: 2,                    &quot;column&quot;: 3,                    &quot;severity&quot;: 4,                    &quot;message&quot;: 5                }            }        }    ]}基于MSCV的C++环境MSVC配置C/C++编译环境需要注意的主要是环境变量的配置问题。还有文件编码问题，由于控制台模式是gbk编码，代码页是936（chcp命令），而vscode默认编码是utf-8，所以中文什么的输出就很烦。c_cpp_properties.json的配置文件：{    &quot;configurations&quot;: [        {            &quot;name&quot;: &quot;Win32&quot;,            &quot;includePath&quot;: [                &quot;${workspaceFolder}/**&quot;            ],            &quot;defines&quot;: [                &quot;_DEBUG&quot;,                &quot;UNICODE&quot;,                &quot;_UNICODE&quot;            ],            &quot;windowsSdkVersion&quot;: &quot;10.0.18362.0&quot;,            &quot;compilerPath&quot;: &quot;C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.22.27905/bin/Hostx86/x86/cl.exe&quot;,            &quot;intelliSenseMode&quot;: &quot;msvc-x64&quot;,            &quot;cStandard&quot;: &quot;c11&quot;,            &quot;cppStandard&quot;: &quot;c++17&quot;,            &quot;browse&quot;: {                &quot;limitSymbolsToIncludedHeaders&quot;: false            }        }    ],    &quot;version&quot;: 4}launch.json的配置文件：{    // 使用 IntelliSense 了解相关属性。     // 悬停以查看现有属性的描述。    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387    &quot;version&quot;: &quot;0.2.0&quot;,    &quot;configurations&quot;: [        {            &quot;name&quot;: &quot;(mscv) Run&quot;,            &quot;type&quot;: &quot;cppvsdbg&quot;,            &quot;request&quot;: &quot;launch&quot;,            &quot;program&quot;: &quot;cmd&quot;,            &quot;args&quot;: [                &quot;/C&quot;,                &quot;${fileDirname}\\${fileBasenameNoExtension}.exe&quot;,                &quot;&amp;&quot;,                &quot;pause&quot;            ],            &quot;stopAtEntry&quot;: false,            &quot;cwd&quot;: &quot;${workspaceFolder}&quot;,            &quot;environment&quot;: [],            &quot;externalConsole&quot;: true,            &quot;preLaunchTask&quot;: &quot;msvc build&quot;        },        {            &quot;name&quot;: &quot;(msvc) Debug&quot;,            &quot;type&quot;: &quot;cppvsdbg&quot;,            &quot;request&quot;: &quot;launch&quot;,            &quot;program&quot;: &quot;${fileDirname}\\${fileBasenameNoExtension}.exe&quot;,            &quot;args&quot;: [],            &quot;stopAtEntry&quot;: true,            &quot;cwd&quot;: &quot;${workspaceFolder}&quot;,            &quot;environment&quot;: [],            &quot;externalConsole&quot;: true        }    ]}tasks.json的配置文件：{    // 有关 tasks.json 格式的文档，请参见    // https://go.microsoft.com/fwlink/?LinkId=733558    &quot;version&quot;: &quot;2.0.0&quot;,    &quot;tasks&quot;: [        {            &quot;type&quot;: &quot;shell&quot;,            &quot;label&quot;: &quot;msvc build&quot;,            &quot;command&quot;: &quot;\&quot;C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\Common7\\Tools\\VsDevCmd.bat\&quot;&quot;,            &quot;args&quot;: [                &quot;&amp;&amp;&quot;,                &quot;cl.exe&quot;,                &quot;/Zi&quot;,                &quot;/EHsc&quot;,                &quot;/Fe:&quot;,                &quot;${fileDirname}\\${fileBasenameNoExtension}.exe&quot;,                &quot;${file}&quot;            ],            &quot;group&quot;: {                &quot;kind&quot;: &quot;build&quot;,                &quot;isDefault&quot;: true            },            &quot;presentation&quot;: {                &quot;reveal&quot;: &quot;always&quot;            },            &quot;problemMatcher&quot;: [                &quot;$msCompile&quot;            ]        }    ]}现在先弄这两个吧。python也是个大头，不过先等等。">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+
+
+
+  <meta name="twitter:site" content="@zjgcjy">
+  <meta name="twitter:title" content="Vscode_configuration">
+  <meta name="twitter:description" content="  关于Vscode的配置信息主要是win下的C++ （wsl）以及 python 还有java（todo）基于WSL的C++环境主要是三个文件。  c_cpp_properties.json 用来配置VScode的插件。  task.json 用来设置任务，即对文件进行编译，快捷键是ctrl+shift+B。  launch.json 用来设置调试信息，这里使用的是WSL的gdb。下面给出详细的配置文件。c_cpp_properties.json的配置如下：{    &quot;configurations&quot;: [        {            &quot;name&quot;: &quot;wsl&quot;,            &quot;includePath&quot;: [                &quot;${workspaceFolder}/**&quot;            ],            &quot;defines&quot;: [                &quot;_DEBUG&quot;,                &quot;UNICODE&quot;,                &quot;_UNICODE&quot;,                &quot;__linux__&quot;,                &quot;__x86_64__&quot;            ],            &quot;windowsSdkVersion&quot;: &quot;10.0.18362.0&quot;,            &quot;compilerPath&quot;: &quot;/usr/bin/g++&quot;,            &quot;intelliSenseMode&quot;: &quot;gcc-x64&quot;,            &quot;cStandard&quot;: &quot;c11&quot;,            &quot;cppStandard&quot;: &quot;c++17&quot;,            &quot;browse&quot;: {                &quot;path&quot;: [                    &quot;${workspaceFolder}/**&quot;                ],                &quot;limitSymbolsToIncludedHeaders&quot;: true            }        }    ],    &quot;version&quot;: 4}launch.json的配置如下：{    &quot;version&quot;: &quot;0.2.0&quot;,    &quot;configurations&quot;: [        {            &quot;name&quot;: &quot;(gdb) Launch&quot;,            &quot;type&quot;: &quot;cppdbg&quot;,            &quot;request&quot;: &quot;launch&quot;,            &quot;program&quot;: &quot;${fileBasenameNoExtension}&quot;,            &quot;args&quot;: [                &quot;&quot;            ],            &quot;stopAtEntry&quot;: true,            &quot;cwd&quot;: &quot;.&quot;,            &quot;environment&quot;: [],            &quot;externalConsole&quot;: true,            &quot;windows&quot;: {                &quot;MIMode&quot;: &quot;gdb&quot;,                &quot;miDebuggerPath&quot;: &quot;/usr/bin/gdb&quot;,                &quot;setupCommands&quot;: [                    {                        &quot;description&quot;: &quot;Enable pretty-printing for gdb&quot;,                        &quot;text&quot;: &quot;-enable-pretty-printing&quot;,                        &quot;ignoreFailures&quot;: true                    }                ]            },            &quot;pipeTransport&quot;: {                &quot;pipeCwd&quot;: &quot;${fileDirname}&quot;,                &quot;pipeProgram&quot;: &quot;c:\\windows\\System32\\bash.exe&quot;,                &quot;pipeArgs&quot;: [                    &quot;-c&quot;                ],                &quot;debuggerPath&quot;: &quot;/usr/bin/gdb&quot;            },            &quot;targetArchitecture&quot;: &quot;x64&quot;,            &quot;sourceFileMap&quot;: {                &quot;/mnt/c&quot;: &quot;${env:systemdrive}/&quot;,                &quot;/mnt/d&quot;: &quot;d:\\&quot;,                &quot;/usr&quot;: &quot;C:\\Users\\zjgcj\\AppData\\Local\\Packages\\CanonicalGroupLimited.Ubuntu18.04onWindows_79rhkp1fndgsc\\LocalState\\rootfs\\usr\\&quot;            },            &quot;preLaunchTask&quot;: &quot;Make cpp on Wsl&quot;        }    ]}//&quot;program&quot;: &quot;./${fileBasenameNoExtension}&quot;,//&quot;cwd&quot;: &quot;${workspaceFolder}&quot;,//&quot;pipeProgram&quot;: &quot;c:\\windows\\sysnative\\bash.exe&quot;,//&quot;debuggerPath&quot;: &quot;gdb -q&quot;,task.json的配置如下：{    &quot;version&quot;: &quot;2.0.0&quot;,    &quot;windows&quot;: {        &quot;options&quot;: {            &quot;shell&quot;: {                &quot;executable&quot;: &quot;c:\\windows\\System32\\wsl.exe&quot;,                &quot;args&quot;: [                    &quot; &quot;                ]            }        }    },    &quot;tasks&quot;: [        {            &quot;label&quot;: &quot;Make cpp on Wsl&quot;,            &quot;type&quot;: &quot;shell&quot;,            &quot;command&quot;: &quot;g++&quot;,            &quot;args&quot;: [                &quot;-g&quot;,                &quot;./${fileBasename}&quot;,                &quot;-z&quot;,                &quot;execstack&quot;,                &quot;-fno-stack-protector&quot;,                &quot;-no-pie&quot;,                &quot;-o&quot;,                &quot;./${fileBasenameNoExtension}&quot;,                &quot;-std=c++17&quot;,                &quot;&amp;&amp;&quot;,                &quot;clear&quot;,                &quot;&amp;&amp;&quot;,                &quot;./${fileBasenameNoExtension}&quot;            ],            &quot;group&quot;: {                &quot;kind&quot;: &quot;build&quot;,                &quot;isDefault&quot;: true            },            &quot;problemMatcher&quot;: {                //&quot;$gcc&quot;                &quot;owner&quot;: &quot;cpp&quot;,                &quot;fileLocation&quot;: [                    &quot;relative&quot;,                    &quot;${workspaceRoot}&quot;                ],                &quot;pattern&quot;: {                    &quot;regexp&quot;: &quot;^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$&quot;,                    &quot;file&quot;: 1,                    &quot;line&quot;: 2,                    &quot;column&quot;: 3,                    &quot;severity&quot;: 4,                    &quot;message&quot;: 5                }            }        }    ]}基于MSCV的C++环境MSVC配置C/C++编译环境需要注意的主要是环境变量的配置问题。还有文件编码问题，由于控制台模式是gbk编码，代码页是936（chcp命令），而vscode默认编码是utf-8，所以中文什么的输出就很烦。c_cpp_properties.json的配置文件：{    &quot;configurations&quot;: [        {            &quot;name&quot;: &quot;Win32&quot;,            &quot;includePath&quot;: [                &quot;${workspaceFolder}/**&quot;            ],            &quot;defines&quot;: [                &quot;_DEBUG&quot;,                &quot;UNICODE&quot;,                &quot;_UNICODE&quot;            ],            &quot;windowsSdkVersion&quot;: &quot;10.0.18362.0&quot;,            &quot;compilerPath&quot;: &quot;C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.22.27905/bin/Hostx86/x86/cl.exe&quot;,            &quot;intelliSenseMode&quot;: &quot;msvc-x64&quot;,            &quot;cStandard&quot;: &quot;c11&quot;,            &quot;cppStandard&quot;: &quot;c++17&quot;,            &quot;browse&quot;: {                &quot;limitSymbolsToIncludedHeaders&quot;: false            }        }    ],    &quot;version&quot;: 4}launch.json的配置文件：{    // 使用 IntelliSense 了解相关属性。     // 悬停以查看现有属性的描述。    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387    &quot;version&quot;: &quot;0.2.0&quot;,    &quot;configurations&quot;: [        {            &quot;name&quot;: &quot;(mscv) Run&quot;,            &quot;type&quot;: &quot;cppvsdbg&quot;,            &quot;request&quot;: &quot;launch&quot;,            &quot;program&quot;: &quot;cmd&quot;,            &quot;args&quot;: [                &quot;/C&quot;,                &quot;${fileDirname}\\${fileBasenameNoExtension}.exe&quot;,                &quot;&amp;&quot;,                &quot;pause&quot;            ],            &quot;stopAtEntry&quot;: false,            &quot;cwd&quot;: &quot;${workspaceFolder}&quot;,            &quot;environment&quot;: [],            &quot;externalConsole&quot;: true,            &quot;preLaunchTask&quot;: &quot;msvc build&quot;        },        {            &quot;name&quot;: &quot;(msvc) Debug&quot;,            &quot;type&quot;: &quot;cppvsdbg&quot;,            &quot;request&quot;: &quot;launch&quot;,            &quot;program&quot;: &quot;${fileDirname}\\${fileBasenameNoExtension}.exe&quot;,            &quot;args&quot;: [],            &quot;stopAtEntry&quot;: true,            &quot;cwd&quot;: &quot;${workspaceFolder}&quot;,            &quot;environment&quot;: [],            &quot;externalConsole&quot;: true        }    ]}tasks.json的配置文件：{    // 有关 tasks.json 格式的文档，请参见    // https://go.microsoft.com/fwlink/?LinkId=733558    &quot;version&quot;: &quot;2.0.0&quot;,    &quot;tasks&quot;: [        {            &quot;type&quot;: &quot;shell&quot;,            &quot;label&quot;: &quot;msvc build&quot;,            &quot;command&quot;: &quot;\&quot;C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\Common7\\Tools\\VsDevCmd.bat\&quot;&quot;,            &quot;args&quot;: [                &quot;&amp;&amp;&quot;,                &quot;cl.exe&quot;,                &quot;/Zi&quot;,                &quot;/EHsc&quot;,                &quot;/Fe:&quot;,                &quot;${fileDirname}\\${fileBasenameNoExtension}.exe&quot;,                &quot;${file}&quot;            ],            &quot;group&quot;: {                &quot;kind&quot;: &quot;build&quot;,                &quot;isDefault&quot;: true            },            &quot;presentation&quot;: {                &quot;reveal&quot;: &quot;always&quot;            },            &quot;problemMatcher&quot;: [                &quot;$msCompile&quot;            ]        }    ]}现在先弄这两个吧。python也是个大头，不过先等等。">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2019-07/VScode_configuration.html">
+
+  
+    <meta name="twitter:card" content="summary">
+    
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+    
+  
+
+  
+
+
+
+  <meta property="article:published_time" content="2019-07-27T11:13:00+08:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/posts/2019-07/VScode_configuration.html">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Blogger",
+      "url": "http://localhost:4000/",
+      "sameAs": ["https://twitter.com/","https://github.com/"]
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="My way, though far away Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/apple-touch-icon.png" alt=""></a>
+        
+        <a class="site-title" href="/">
+          ZJGCJY
+          <span class="site-subtitle">My way, though far away</span>
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/collection-archive/" >Collections</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="search__toggle" type="button">
+          <span class="visually-hidden">Toggle search</span>
+          <svg class="icon" width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15.99 16">
+            <path d="M15.5,13.12L13.19,10.8a1.69,1.69,0,0,0-1.28-.55l-0.06-.06A6.5,6.5,0,0,0,5.77,0,6.5,6.5,0,0,0,2.46,11.59a6.47,6.47,0,0,0,7.74.26l0.05,0.05a1.65,1.65,0,0,0,.5,1.24l2.38,2.38A1.68,1.68,0,0,0,15.5,13.12ZM6.4,2A4.41,4.41,0,1,1,2,6.4,4.43,4.43,0,0,1,6.4,2Z" transform="translate(-.01)"></path>
+          </svg>
+        </button>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#posts" itemprop="item"><span itemprop="name">Posts</span></a>
+          <meta itemprop="position" content="2" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#2019-07" itemprop="item"><span itemprop="name">2019 07</span></a>
+          <meta itemprop="position" content="3" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        <li class="current">Vscode_configuration</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/me.jpg" alt="zjgcjy" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">zjgcjy</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>IIE UCAS, CTFer, Binarian</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+          
+        
+          
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+          
+        
+          
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          
+        
+          
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Vscode_configuration">
+    <meta itemprop="description" content="  关于Vscode的配置信息主要是win下的C++ （wsl）以及 python 还有java（todo）基于WSL的C++环境主要是三个文件。  c_cpp_properties.json 用来配置VScode的插件。  task.json 用来设置任务，即对文件进行编译，快捷键是ctrl+shift+B。  launch.json 用来设置调试信息，这里使用的是WSL的gdb。下面给出详细的配置文件。c_cpp_properties.json的配置如下：{    &quot;configurations&quot;: [        {            &quot;name&quot;: &quot;wsl&quot;,            &quot;includePath&quot;: [                &quot;${workspaceFolder}/**&quot;            ],            &quot;defines&quot;: [                &quot;_DEBUG&quot;,                &quot;UNICODE&quot;,                &quot;_UNICODE&quot;,                &quot;__linux__&quot;,                &quot;__x86_64__&quot;            ],            &quot;windowsSdkVersion&quot;: &quot;10.0.18362.0&quot;,            &quot;compilerPath&quot;: &quot;/usr/bin/g++&quot;,            &quot;intelliSenseMode&quot;: &quot;gcc-x64&quot;,            &quot;cStandard&quot;: &quot;c11&quot;,            &quot;cppStandard&quot;: &quot;c++17&quot;,            &quot;browse&quot;: {                &quot;path&quot;: [                    &quot;${workspaceFolder}/**&quot;                ],                &quot;limitSymbolsToIncludedHeaders&quot;: true            }        }    ],    &quot;version&quot;: 4}launch.json的配置如下：{    &quot;version&quot;: &quot;0.2.0&quot;,    &quot;configurations&quot;: [        {            &quot;name&quot;: &quot;(gdb) Launch&quot;,            &quot;type&quot;: &quot;cppdbg&quot;,            &quot;request&quot;: &quot;launch&quot;,            &quot;program&quot;: &quot;${fileBasenameNoExtension}&quot;,            &quot;args&quot;: [                &quot;&quot;            ],            &quot;stopAtEntry&quot;: true,            &quot;cwd&quot;: &quot;.&quot;,            &quot;environment&quot;: [],            &quot;externalConsole&quot;: true,            &quot;windows&quot;: {                &quot;MIMode&quot;: &quot;gdb&quot;,                &quot;miDebuggerPath&quot;: &quot;/usr/bin/gdb&quot;,                &quot;setupCommands&quot;: [                    {                        &quot;description&quot;: &quot;Enable pretty-printing for gdb&quot;,                        &quot;text&quot;: &quot;-enable-pretty-printing&quot;,                        &quot;ignoreFailures&quot;: true                    }                ]            },            &quot;pipeTransport&quot;: {                &quot;pipeCwd&quot;: &quot;${fileDirname}&quot;,                &quot;pipeProgram&quot;: &quot;c:\\windows\\System32\\bash.exe&quot;,                &quot;pipeArgs&quot;: [                    &quot;-c&quot;                ],                &quot;debuggerPath&quot;: &quot;/usr/bin/gdb&quot;            },            &quot;targetArchitecture&quot;: &quot;x64&quot;,            &quot;sourceFileMap&quot;: {                &quot;/mnt/c&quot;: &quot;${env:systemdrive}/&quot;,                &quot;/mnt/d&quot;: &quot;d:\\&quot;,                &quot;/usr&quot;: &quot;C:\\Users\\zjgcj\\AppData\\Local\\Packages\\CanonicalGroupLimited.Ubuntu18.04onWindows_79rhkp1fndgsc\\LocalState\\rootfs\\usr\\&quot;            },            &quot;preLaunchTask&quot;: &quot;Make cpp on Wsl&quot;        }    ]}//&quot;program&quot;: &quot;./${fileBasenameNoExtension}&quot;,//&quot;cwd&quot;: &quot;${workspaceFolder}&quot;,//&quot;pipeProgram&quot;: &quot;c:\\windows\\sysnative\\bash.exe&quot;,//&quot;debuggerPath&quot;: &quot;gdb -q&quot;,task.json的配置如下：{    &quot;version&quot;: &quot;2.0.0&quot;,    &quot;windows&quot;: {        &quot;options&quot;: {            &quot;shell&quot;: {                &quot;executable&quot;: &quot;c:\\windows\\System32\\wsl.exe&quot;,                &quot;args&quot;: [                    &quot; &quot;                ]            }        }    },    &quot;tasks&quot;: [        {            &quot;label&quot;: &quot;Make cpp on Wsl&quot;,            &quot;type&quot;: &quot;shell&quot;,            &quot;command&quot;: &quot;g++&quot;,            &quot;args&quot;: [                &quot;-g&quot;,                &quot;./${fileBasename}&quot;,                &quot;-z&quot;,                &quot;execstack&quot;,                &quot;-fno-stack-protector&quot;,                &quot;-no-pie&quot;,                &quot;-o&quot;,                &quot;./${fileBasenameNoExtension}&quot;,                &quot;-std=c++17&quot;,                &quot;&amp;&amp;&quot;,                &quot;clear&quot;,                &quot;&amp;&amp;&quot;,                &quot;./${fileBasenameNoExtension}&quot;            ],            &quot;group&quot;: {                &quot;kind&quot;: &quot;build&quot;,                &quot;isDefault&quot;: true            },            &quot;problemMatcher&quot;: {                //&quot;$gcc&quot;                &quot;owner&quot;: &quot;cpp&quot;,                &quot;fileLocation&quot;: [                    &quot;relative&quot;,                    &quot;${workspaceRoot}&quot;                ],                &quot;pattern&quot;: {                    &quot;regexp&quot;: &quot;^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$&quot;,                    &quot;file&quot;: 1,                    &quot;line&quot;: 2,                    &quot;column&quot;: 3,                    &quot;severity&quot;: 4,                    &quot;message&quot;: 5                }            }        }    ]}基于MSCV的C++环境MSVC配置C/C++编译环境需要注意的主要是环境变量的配置问题。还有文件编码问题，由于控制台模式是gbk编码，代码页是936（chcp命令），而vscode默认编码是utf-8，所以中文什么的输出就很烦。c_cpp_properties.json的配置文件：{    &quot;configurations&quot;: [        {            &quot;name&quot;: &quot;Win32&quot;,            &quot;includePath&quot;: [                &quot;${workspaceFolder}/**&quot;            ],            &quot;defines&quot;: [                &quot;_DEBUG&quot;,                &quot;UNICODE&quot;,                &quot;_UNICODE&quot;            ],            &quot;windowsSdkVersion&quot;: &quot;10.0.18362.0&quot;,            &quot;compilerPath&quot;: &quot;C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.22.27905/bin/Hostx86/x86/cl.exe&quot;,            &quot;intelliSenseMode&quot;: &quot;msvc-x64&quot;,            &quot;cStandard&quot;: &quot;c11&quot;,            &quot;cppStandard&quot;: &quot;c++17&quot;,            &quot;browse&quot;: {                &quot;limitSymbolsToIncludedHeaders&quot;: false            }        }    ],    &quot;version&quot;: 4}launch.json的配置文件：{    // 使用 IntelliSense 了解相关属性。     // 悬停以查看现有属性的描述。    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387    &quot;version&quot;: &quot;0.2.0&quot;,    &quot;configurations&quot;: [        {            &quot;name&quot;: &quot;(mscv) Run&quot;,            &quot;type&quot;: &quot;cppvsdbg&quot;,            &quot;request&quot;: &quot;launch&quot;,            &quot;program&quot;: &quot;cmd&quot;,            &quot;args&quot;: [                &quot;/C&quot;,                &quot;${fileDirname}\\${fileBasenameNoExtension}.exe&quot;,                &quot;&amp;&quot;,                &quot;pause&quot;            ],            &quot;stopAtEntry&quot;: false,            &quot;cwd&quot;: &quot;${workspaceFolder}&quot;,            &quot;environment&quot;: [],            &quot;externalConsole&quot;: true,            &quot;preLaunchTask&quot;: &quot;msvc build&quot;        },        {            &quot;name&quot;: &quot;(msvc) Debug&quot;,            &quot;type&quot;: &quot;cppvsdbg&quot;,            &quot;request&quot;: &quot;launch&quot;,            &quot;program&quot;: &quot;${fileDirname}\\${fileBasenameNoExtension}.exe&quot;,            &quot;args&quot;: [],            &quot;stopAtEntry&quot;: true,            &quot;cwd&quot;: &quot;${workspaceFolder}&quot;,            &quot;environment&quot;: [],            &quot;externalConsole&quot;: true        }    ]}tasks.json的配置文件：{    // 有关 tasks.json 格式的文档，请参见    // https://go.microsoft.com/fwlink/?LinkId=733558    &quot;version&quot;: &quot;2.0.0&quot;,    &quot;tasks&quot;: [        {            &quot;type&quot;: &quot;shell&quot;,            &quot;label&quot;: &quot;msvc build&quot;,            &quot;command&quot;: &quot;\&quot;C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\Common7\\Tools\\VsDevCmd.bat\&quot;&quot;,            &quot;args&quot;: [                &quot;&amp;&amp;&quot;,                &quot;cl.exe&quot;,                &quot;/Zi&quot;,                &quot;/EHsc&quot;,                &quot;/Fe:&quot;,                &quot;${fileDirname}\\${fileBasenameNoExtension}.exe&quot;,                &quot;${file}&quot;            ],            &quot;group&quot;: {                &quot;kind&quot;: &quot;build&quot;,                &quot;isDefault&quot;: true            },            &quot;presentation&quot;: {                &quot;reveal&quot;: &quot;always&quot;            },            &quot;problemMatcher&quot;: [                &quot;$msCompile&quot;            ]        }    ]}现在先弄这两个吧。python也是个大头，不过先等等。">
+    <meta itemprop="datePublished" content="July 27, 2019">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Vscode_configuration
+</h1>
+          
+            <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  1 minute read
+
+</p>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+          <aside class="sidebar__right ">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+              <ul class="toc__menu">
+  <li><a href="#基于wsl的c环境">基于WSL的C++环境</a></li>
+  <li><a href="#基于mscv的c环境">基于MSCV的C++环境</a></li>
+</ul>
+            </nav>
+          </aside>
+        
+        <blockquote>
+  <p>关于Vscode的配置信息
+主要是win下的C++ （wsl）以及 python 还有java（todo）</p>
+</blockquote>
+
+<hr />
+
+<h1 id="基于wsl的c环境">基于WSL的C++环境</h1>
+
+<p>主要是三个文件。</p>
+
+<ul>
+  <li><code class="highlighter-rouge">c_cpp_properties.json</code> 用来配置VScode的插件。</li>
+  <li><code class="highlighter-rouge">task.json</code> 用来设置任务，即对文件进行编译，快捷键是<code class="highlighter-rouge">ctrl+shift+B</code>。</li>
+  <li><code class="highlighter-rouge">launch.json</code> 用来设置调试信息，这里使用的是WSL的gdb。</li>
+</ul>
+
+<p>下面给出详细的配置文件。</p>
+
+<p><code class="highlighter-rouge">c_cpp_properties.json</code>的配置如下：</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"configurations"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"wsl"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"includePath"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="s2">"${workspaceFolder}/**"</span><span class="w">
+            </span><span class="p">],</span><span class="w">
+            </span><span class="nl">"defines"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="s2">"_DEBUG"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"UNICODE"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"_UNICODE"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"__linux__"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"__x86_64__"</span><span class="w">
+            </span><span class="p">],</span><span class="w">
+            </span><span class="nl">"windowsSdkVersion"</span><span class="p">:</span><span class="w"> </span><span class="s2">"10.0.18362.0"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"compilerPath"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/usr/bin/g++"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"intelliSenseMode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gcc-x64"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"cStandard"</span><span class="p">:</span><span class="w"> </span><span class="s2">"c11"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"cppStandard"</span><span class="p">:</span><span class="w"> </span><span class="s2">"c++17"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"browse"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"path"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                    </span><span class="s2">"${workspaceFolder}/**"</span><span class="w">
+                </span><span class="p">],</span><span class="w">
+                </span><span class="nl">"limitSymbolsToIncludedHeaders"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><code class="highlighter-rouge">launch.json</code>的配置如下：</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.2.0"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"configurations"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"(gdb) Launch"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cppdbg"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"request"</span><span class="p">:</span><span class="w"> </span><span class="s2">"launch"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"program"</span><span class="p">:</span><span class="w"> </span><span class="s2">"${fileBasenameNoExtension}"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="s2">""</span><span class="w">
+            </span><span class="p">],</span><span class="w">
+            </span><span class="nl">"stopAtEntry"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"cwd"</span><span class="p">:</span><span class="w"> </span><span class="s2">"."</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"environment"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+            </span><span class="nl">"externalConsole"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"windows"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"MIMode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gdb"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"miDebuggerPath"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/usr/bin/gdb"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"setupCommands"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                    </span><span class="p">{</span><span class="w">
+                        </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Enable pretty-printing for gdb"</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"text"</span><span class="p">:</span><span class="w"> </span><span class="s2">"-enable-pretty-printing"</span><span class="p">,</span><span class="w">
+                        </span><span class="nl">"ignoreFailures"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+                    </span><span class="p">}</span><span class="w">
+                </span><span class="p">]</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"pipeTransport"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"pipeCwd"</span><span class="p">:</span><span class="w"> </span><span class="s2">"${fileDirname}"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"pipeProgram"</span><span class="p">:</span><span class="w"> </span><span class="s2">"c:</span><span class="se">\\</span><span class="s2">windows</span><span class="se">\\</span><span class="s2">System32</span><span class="se">\\</span><span class="s2">bash.exe"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"pipeArgs"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                    </span><span class="s2">"-c"</span><span class="w">
+                </span><span class="p">],</span><span class="w">
+                </span><span class="nl">"debuggerPath"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/usr/bin/gdb"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"targetArchitecture"</span><span class="p">:</span><span class="w"> </span><span class="s2">"x64"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"sourceFileMap"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"/mnt/c"</span><span class="p">:</span><span class="w"> </span><span class="s2">"${env:systemdrive}/"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"/mnt/d"</span><span class="p">:</span><span class="w"> </span><span class="s2">"d:</span><span class="se">\\</span><span class="s2">"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"/usr"</span><span class="p">:</span><span class="w"> </span><span class="s2">"C:</span><span class="se">\\</span><span class="s2">Users</span><span class="se">\\</span><span class="s2">zjgcj</span><span class="se">\\</span><span class="s2">AppData</span><span class="se">\\</span><span class="s2">Local</span><span class="se">\\</span><span class="s2">Packages</span><span class="se">\\</span><span class="s2">CanonicalGroupLimited.Ubuntu18.04onWindows_79rhkp1fndgsc</span><span class="se">\\</span><span class="s2">LocalState</span><span class="se">\\</span><span class="s2">rootfs</span><span class="se">\\</span><span class="s2">usr</span><span class="se">\\</span><span class="s2">"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"preLaunchTask"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Make cpp on Wsl"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span><span class="err">//</span><span class="nl">"program"</span><span class="p">:</span><span class="w"> </span><span class="s2">"./${fileBasenameNoExtension}"</span><span class="err">,</span><span class="w">
+</span><span class="err">//</span><span class="nl">"cwd"</span><span class="p">:</span><span class="w"> </span><span class="s2">"${workspaceFolder}"</span><span class="err">,</span><span class="w">
+</span><span class="err">//</span><span class="nl">"pipeProgram"</span><span class="p">:</span><span class="w"> </span><span class="s2">"c:</span><span class="se">\\</span><span class="s2">windows</span><span class="se">\\</span><span class="s2">sysnative</span><span class="se">\\</span><span class="s2">bash.exe"</span><span class="err">,</span><span class="w">
+</span><span class="err">//</span><span class="nl">"debuggerPath"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gdb -q"</span><span class="err">,</span><span class="w">
+</span></code></pre></div></div>
+
+<p><code class="highlighter-rouge">task.json</code>的配置如下：</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2.0.0"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"windows"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"options"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"shell"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"executable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"c:</span><span class="se">\\</span><span class="s2">windows</span><span class="se">\\</span><span class="s2">System32</span><span class="se">\\</span><span class="s2">wsl.exe"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                    </span><span class="s2">" "</span><span class="w">
+                </span><span class="p">]</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nl">"tasks"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"label"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Make cpp on Wsl"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shell"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"g++"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="s2">"-g"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"./${fileBasename}"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"-z"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"execstack"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"-fno-stack-protector"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"-no-pie"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"-o"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"./${fileBasenameNoExtension}"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"-std=c++17"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"&amp;&amp;"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"clear"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"&amp;&amp;"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"./${fileBasenameNoExtension}"</span><span class="w">
+            </span><span class="p">],</span><span class="w">
+            </span><span class="nl">"group"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"build"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"isDefault"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"problemMatcher"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="err">//</span><span class="s2">"$gcc"</span><span class="w">
+                </span><span class="nl">"owner"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cpp"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"fileLocation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                    </span><span class="s2">"relative"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"${workspaceRoot}"</span><span class="w">
+                </span><span class="p">],</span><span class="w">
+                </span><span class="nl">"pattern"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nl">"regexp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^(.*):(</span><span class="se">\\</span><span class="s2">d+):(</span><span class="se">\\</span><span class="s2">d+):</span><span class="se">\\</span><span class="s2">s+(warning|error):</span><span class="se">\\</span><span class="s2">s+(.*)$"</span><span class="p">,</span><span class="w">
+                    </span><span class="nl">"file"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                    </span><span class="nl">"line"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+                    </span><span class="nl">"column"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w">
+                    </span><span class="nl">"severity"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w">
+                    </span><span class="nl">"message"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="w">
+                </span><span class="p">}</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h1 id="基于mscv的c环境">基于MSCV的C++环境</h1>
+
+<p><a href="https://blog.csdn.net/heilone6688/article/details/91050508">MSVC配置C/C++编译环境</a>
+需要注意的主要是环境变量的配置问题。还有文件编码问题，由于控制台模式是gbk编码，代码页是936（chcp命令），而vscode默认编码是utf-8，所以中文什么的输出就很烦。</p>
+
+<p><code class="highlighter-rouge">c_cpp_properties.json</code>的配置文件：</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"configurations"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Win32"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"includePath"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="s2">"${workspaceFolder}/**"</span><span class="w">
+            </span><span class="p">],</span><span class="w">
+            </span><span class="nl">"defines"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="s2">"_DEBUG"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"UNICODE"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"_UNICODE"</span><span class="w">
+            </span><span class="p">],</span><span class="w">
+            </span><span class="nl">"windowsSdkVersion"</span><span class="p">:</span><span class="w"> </span><span class="s2">"10.0.18362.0"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"compilerPath"</span><span class="p">:</span><span class="w"> </span><span class="s2">"C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.22.27905/bin/Hostx86/x86/cl.exe"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"intelliSenseMode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"msvc-x64"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"cStandard"</span><span class="p">:</span><span class="w"> </span><span class="s2">"c11"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"cppStandard"</span><span class="p">:</span><span class="w"> </span><span class="s2">"c++17"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"browse"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"limitSymbolsToIncludedHeaders"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><code class="highlighter-rouge">launch.json</code>的配置文件：</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="err">//</span><span class="w"> </span><span class="err">使用</span><span class="w"> </span><span class="err">IntelliSense</span><span class="w"> </span><span class="err">了解相关属性。</span><span class="w"> 
+    </span><span class="err">//</span><span class="w"> </span><span class="err">悬停以查看现有属性的描述。</span><span class="w">
+    </span><span class="err">//</span><span class="w"> </span><span class="err">欲了解更多信息，请访问:</span><span class="w"> </span><span class="err">https://go.microsoft.com/fwlink/?linkid=</span><span class="mi">830387</span><span class="w">
+    </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.2.0"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"configurations"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"(mscv) Run"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cppvsdbg"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"request"</span><span class="p">:</span><span class="w"> </span><span class="s2">"launch"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"program"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cmd"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="s2">"/C"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"${fileDirname}</span><span class="se">\\</span><span class="s2">${fileBasenameNoExtension}.exe"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"&amp;"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"pause"</span><span class="w">
+            </span><span class="p">],</span><span class="w">
+            </span><span class="nl">"stopAtEntry"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"cwd"</span><span class="p">:</span><span class="w"> </span><span class="s2">"${workspaceFolder}"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"environment"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+            </span><span class="nl">"externalConsole"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"preLaunchTask"</span><span class="p">:</span><span class="w"> </span><span class="s2">"msvc build"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"(msvc) Debug"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cppvsdbg"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"request"</span><span class="p">:</span><span class="w"> </span><span class="s2">"launch"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"program"</span><span class="p">:</span><span class="w"> </span><span class="s2">"${fileDirname}</span><span class="se">\\</span><span class="s2">${fileBasenameNoExtension}.exe"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+            </span><span class="nl">"stopAtEntry"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"cwd"</span><span class="p">:</span><span class="w"> </span><span class="s2">"${workspaceFolder}"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"environment"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+            </span><span class="nl">"externalConsole"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><code class="highlighter-rouge">tasks.json</code>的配置文件：</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="err">//</span><span class="w"> </span><span class="err">有关</span><span class="w"> </span><span class="err">tasks.json</span><span class="w"> </span><span class="err">格式的文档，请参见</span><span class="w">
+    </span><span class="err">//</span><span class="w"> </span><span class="err">https://go.microsoft.com/fwlink/?LinkId=</span><span class="mi">733558</span><span class="w">
+    </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2.0.0"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"tasks"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shell"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"label"</span><span class="p">:</span><span class="w"> </span><span class="s2">"msvc build"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"</span><span class="se">\"</span><span class="s2">C:</span><span class="se">\\</span><span class="s2">Program Files (x86)</span><span class="se">\\</span><span class="s2">Microsoft Visual Studio</span><span class="se">\\</span><span class="s2">2019</span><span class="se">\\</span><span class="s2">Community</span><span class="se">\\</span><span class="s2">Common7</span><span class="se">\\</span><span class="s2">Tools</span><span class="se">\\</span><span class="s2">VsDevCmd.bat</span><span class="se">\"</span><span class="s2">"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="s2">"&amp;&amp;"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"cl.exe"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"/Zi"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"/EHsc"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"/Fe:"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"${fileDirname}</span><span class="se">\\</span><span class="s2">${fileBasenameNoExtension}.exe"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"${file}"</span><span class="w">
+            </span><span class="p">],</span><span class="w">
+            </span><span class="nl">"group"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"build"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"isDefault"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"presentation"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"reveal"</span><span class="p">:</span><span class="w"> </span><span class="s2">"always"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nl">"problemMatcher"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="s2">"$msCompile"</span><span class="w">
+            </span><span class="p">]</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>现在先弄这两个吧。python也是个大头，不过先等等。</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#vscode" class="page__taxonomy-item" rel="tag">vscode</a>
+    
+    </span>
+  </p>
+
+
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-07-27T11:13:00+08:00">July 27, 2019</time></p>
+        
+      </footer>
+
+      <section class="page__share">
+  
+    <h4 class="page__share-title">Share on</h4>
+  
+
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Vscode_configuration%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-07%2FVScode_configuration.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-07%2FVScode_configuration.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-07%2FVScode_configuration.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+
+      
+  <nav class="pagination">
+    
+      <a href="/posts/2019-07/CPP-Prime-Plus-Learning2.html" class="pagination--pager" title="Cpp Prime Plus Learning2
+">Previous</a>
+    
+    
+      <a href="/posts/2019-07/CPP-Prime-Plus-Learning3.html" class="pagination--pager" title="Cpp Prime Plus Learning3
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      <h4 class="page__related-title">You may also enjoy</h4>
+      <div class="grid__wrapper">
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-11/Dirary_November.html" rel="permalink">Dirary_november
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  每日所作所得
+
+
+
+
+11月1日
+</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/Software_Security_Project.html" rel="permalink">Software_security_project
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  Malware
+vs2010
+
+
+
+
+InfoCollection
+
+configure
+
+
+
+warning
+
+
+
+</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/Pacman_Helper.html" rel="permalink">Pacman_helper
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  pacman 手册
+
+
+
+
+archlinux pacman 命令
+arch wiki
+
+pacman -Sy 仅同步源
+
+pacman -Syu 同步源，并更新系统
+
+pacman -Su –ignore foo 升级时不升级包foo
+
+pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/%E5%8D%81%E6%9C%88%E6%97%A5%E8%AE%B0.html" rel="permalink">十月日记
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  每日所作所得
+
+
+
+
+10月1日
+
+周日，上课前最后一天，算是给自己放了最后一天假期
+
+10月2日
+
+上了第一天的课，主要是os，一脸蒙蔽。
+</p>
+  </article>
+</div>
+
+        
+      </div>
+    </div>
+  
+  
+</div>
+
+    </div>
+
+    
+      <div class="search-content">
+        <div class="search-content__inner-wrap"><form class="search-content__form" onkeydown="return event.key != 'Enter';">
+    <label class="sr-only" for="search">
+      Enter your search term...
+    </label>
+    <input type="search" id="search" class="search-input" tabindex="-1" placeholder="Enter your search term..." />
+  </form>
+  <div id="results" class="results"></div></div>
+
+      </div>
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+        
+      
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2019 Blogger. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+
+
+
+
+<script src="/assets/js/lunr/lunr.min.js"></script>
+<script src="/assets/js/lunr/lunr-store.js"></script>
+<script src="/assets/js/lunr/lunr-en.js"></script>
+
+
+
+
+    
+  <script>
+    var disqus_config = function () {
+      this.page.url = "http://localhost:4000/posts/2019-07/VScode_configuration.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.identifier = "/posts/2019-07/VScode_configuration"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    (function() { // DON'T EDIT BELOW THIS LINE
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zjgcjy-github-io.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  </script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+  
+
+
+
+
+
+  </body>
+</html>

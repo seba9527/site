@@ -1,0 +1,814 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.17.2 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Pwnable刷题 2  -  My way, though far away</title>
+<meta name="description" content="  刷pwnable。。。题目:collision - 3 ptDaddy told me about cool MD5 hash collision today.I wanna do something like that too!爸爸告诉我cool的md5碰撞。。。我也想做一些和这个差不多的事情。(搞事情??!!)ssh col@pwnable.kr -p2222 (pw:guest)writeup登陆查看。col@ubuntu:~$ lscol  col.c  flagflag没有权限打开，运行col文件：usage : ./col [passcode]passcode length should be 20 bytes直接查看源代码：#include &lt;stdio.h&gt;#include &lt;string.h&gt;unsigned long hashcode = 0x21DD09EC;unsigned long check_password(const char* p){    int* ip = (int*)p;    int i;    int res=0;    for(i=0; i&lt;5; i++){            res += ip[i];    }    return res;}int main(int argc, char* argv[]){    if(argc&lt;2){            printf(&quot;usage : %s [passcode]\n&quot;, argv[0]);            return 0;    }    if(strlen(argv[1]) != 20){            printf(&quot;passcode length should be 20 bytes\n&quot;);            return 0;    }    if(hashcode == check_password( argv[1] )){            system(&quot;/bin/cat flag&quot;);            return 0;    }    else            printf(&quot;wrong passcode.\n&quot;);    return 0;}  首先看main函数，判断运行参数，为密码passcode，其次长度为20bytes。再带哦用check_password函数判断，相等则输出flag。  关于check函数的作用就是将输入的数据用整型转换，求和返回。  主要是写shellcode和纠结带参数的py怎么写，还是有很多问题，ssh参考了网上的模板。可以这样：./col `python -c &quot;print &#39;\x01&#39; * 16 + &#39;\xE8\x05\xD9\x1D&#39;&quot;`或者exp：from pwn import *import ospwn_ssh=ssh(host=&#39;pwnable.kr&#39;,user=&#39;col&#39;,password=&#39;guest&#39;,port=2222)print (pwn_ssh.connected())sh=pwn_ssh.process(argv=[&#39;./col&#39;,&#39;\x01&#39; * 16 + &#39;\xE8\x05\xD9\x1D&#39;])print (sh.recvall())返回如下：[+] Connecting to pwnable.kr on port 2222: Done[!] Couldn&#39;t check security settings on &#39;pwnable.kr&#39;True[+] Starting remote process &#39;./col&#39; on pwnable.kr: pid 53488[+] Receiving all data: Done (52B)[*] Stopped remote process &#39;col&#39; on pwnable.kr (pid 53488)daddy! I just managed to create a hash collision :)所以flag:daddy! I just managed to create a hash collision :)">
+
+
+  <meta name="author" content="zjgcjy">
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="My way, though far away">
+<meta property="og:title" content="Pwnable刷题 2">
+<meta property="og:url" content="http://localhost:4000/posts/2017-08/pwnable%E5%88%B7%E9%A2%98-2.html">
+
+
+  <meta property="og:description" content="  刷pwnable。。。题目:collision - 3 ptDaddy told me about cool MD5 hash collision today.I wanna do something like that too!爸爸告诉我cool的md5碰撞。。。我也想做一些和这个差不多的事情。(搞事情??!!)ssh col@pwnable.kr -p2222 (pw:guest)writeup登陆查看。col@ubuntu:~$ lscol  col.c  flagflag没有权限打开，运行col文件：usage : ./col [passcode]passcode length should be 20 bytes直接查看源代码：#include &lt;stdio.h&gt;#include &lt;string.h&gt;unsigned long hashcode = 0x21DD09EC;unsigned long check_password(const char* p){    int* ip = (int*)p;    int i;    int res=0;    for(i=0; i&lt;5; i++){            res += ip[i];    }    return res;}int main(int argc, char* argv[]){    if(argc&lt;2){            printf(&quot;usage : %s [passcode]\n&quot;, argv[0]);            return 0;    }    if(strlen(argv[1]) != 20){            printf(&quot;passcode length should be 20 bytes\n&quot;);            return 0;    }    if(hashcode == check_password( argv[1] )){            system(&quot;/bin/cat flag&quot;);            return 0;    }    else            printf(&quot;wrong passcode.\n&quot;);    return 0;}  首先看main函数，判断运行参数，为密码passcode，其次长度为20bytes。再带哦用check_password函数判断，相等则输出flag。  关于check函数的作用就是将输入的数据用整型转换，求和返回。  主要是写shellcode和纠结带参数的py怎么写，还是有很多问题，ssh参考了网上的模板。可以这样：./col `python -c &quot;print &#39;\x01&#39; * 16 + &#39;\xE8\x05\xD9\x1D&#39;&quot;`或者exp：from pwn import *import ospwn_ssh=ssh(host=&#39;pwnable.kr&#39;,user=&#39;col&#39;,password=&#39;guest&#39;,port=2222)print (pwn_ssh.connected())sh=pwn_ssh.process(argv=[&#39;./col&#39;,&#39;\x01&#39; * 16 + &#39;\xE8\x05\xD9\x1D&#39;])print (sh.recvall())返回如下：[+] Connecting to pwnable.kr on port 2222: Done[!] Couldn&#39;t check security settings on &#39;pwnable.kr&#39;True[+] Starting remote process &#39;./col&#39; on pwnable.kr: pid 53488[+] Receiving all data: Done (52B)[*] Stopped remote process &#39;col&#39; on pwnable.kr (pid 53488)daddy! I just managed to create a hash collision :)所以flag:daddy! I just managed to create a hash collision :)">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+
+
+
+  <meta name="twitter:site" content="@zjgcjy">
+  <meta name="twitter:title" content="Pwnable刷题 2">
+  <meta name="twitter:description" content="  刷pwnable。。。题目:collision - 3 ptDaddy told me about cool MD5 hash collision today.I wanna do something like that too!爸爸告诉我cool的md5碰撞。。。我也想做一些和这个差不多的事情。(搞事情??!!)ssh col@pwnable.kr -p2222 (pw:guest)writeup登陆查看。col@ubuntu:~$ lscol  col.c  flagflag没有权限打开，运行col文件：usage : ./col [passcode]passcode length should be 20 bytes直接查看源代码：#include &lt;stdio.h&gt;#include &lt;string.h&gt;unsigned long hashcode = 0x21DD09EC;unsigned long check_password(const char* p){    int* ip = (int*)p;    int i;    int res=0;    for(i=0; i&lt;5; i++){            res += ip[i];    }    return res;}int main(int argc, char* argv[]){    if(argc&lt;2){            printf(&quot;usage : %s [passcode]\n&quot;, argv[0]);            return 0;    }    if(strlen(argv[1]) != 20){            printf(&quot;passcode length should be 20 bytes\n&quot;);            return 0;    }    if(hashcode == check_password( argv[1] )){            system(&quot;/bin/cat flag&quot;);            return 0;    }    else            printf(&quot;wrong passcode.\n&quot;);    return 0;}  首先看main函数，判断运行参数，为密码passcode，其次长度为20bytes。再带哦用check_password函数判断，相等则输出flag。  关于check函数的作用就是将输入的数据用整型转换，求和返回。  主要是写shellcode和纠结带参数的py怎么写，还是有很多问题，ssh参考了网上的模板。可以这样：./col `python -c &quot;print &#39;\x01&#39; * 16 + &#39;\xE8\x05\xD9\x1D&#39;&quot;`或者exp：from pwn import *import ospwn_ssh=ssh(host=&#39;pwnable.kr&#39;,user=&#39;col&#39;,password=&#39;guest&#39;,port=2222)print (pwn_ssh.connected())sh=pwn_ssh.process(argv=[&#39;./col&#39;,&#39;\x01&#39; * 16 + &#39;\xE8\x05\xD9\x1D&#39;])print (sh.recvall())返回如下：[+] Connecting to pwnable.kr on port 2222: Done[!] Couldn&#39;t check security settings on &#39;pwnable.kr&#39;True[+] Starting remote process &#39;./col&#39; on pwnable.kr: pid 53488[+] Receiving all data: Done (52B)[*] Stopped remote process &#39;col&#39; on pwnable.kr (pid 53488)daddy! I just managed to create a hash collision :)所以flag:daddy! I just managed to create a hash collision :)">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2017-08/pwnable%E5%88%B7%E9%A2%98-2.html">
+
+  
+    <meta name="twitter:card" content="summary">
+    
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+    
+  
+
+  
+
+
+
+  <meta property="article:published_time" content="2017-08-23T04:33:00+08:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/posts/2017-08/pwnable%E5%88%B7%E9%A2%98-2.html">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Blogger",
+      "url": "http://localhost:4000/",
+      "sameAs": ["https://twitter.com/","https://github.com/"]
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="My way, though far away Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/apple-touch-icon.png" alt=""></a>
+        
+        <a class="site-title" href="/">
+          ZJGCJY
+          <span class="site-subtitle">My way, though far away</span>
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/collection-archive/" >Collections</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="search__toggle" type="button">
+          <span class="visually-hidden">Toggle search</span>
+          <svg class="icon" width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15.99 16">
+            <path d="M15.5,13.12L13.19,10.8a1.69,1.69,0,0,0-1.28-.55l-0.06-.06A6.5,6.5,0,0,0,5.77,0,6.5,6.5,0,0,0,2.46,11.59a6.47,6.47,0,0,0,7.74.26l0.05,0.05a1.65,1.65,0,0,0,.5,1.24l2.38,2.38A1.68,1.68,0,0,0,15.5,13.12ZM6.4,2A4.41,4.41,0,1,1,2,6.4,4.43,4.43,0,0,1,6.4,2Z" transform="translate(-.01)"></path>
+          </svg>
+        </button>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#posts" itemprop="item"><span itemprop="name">Posts</span></a>
+          <meta itemprop="position" content="2" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#2017-08" itemprop="item"><span itemprop="name">2017 08</span></a>
+          <meta itemprop="position" content="3" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        <li class="current">Pwnable刷题 2</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/me.jpg" alt="zjgcjy" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">zjgcjy</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>IIE UCAS, CTFer, Binarian</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+          
+        
+          
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+          
+        
+          
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          
+        
+          
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Pwnable刷题 2">
+    <meta itemprop="description" content="  刷pwnable。。。题目:collision - 3 ptDaddy told me about cool MD5 hash collision today.I wanna do something like that too!爸爸告诉我cool的md5碰撞。。。我也想做一些和这个差不多的事情。(搞事情??!!)ssh col@pwnable.kr -p2222 (pw:guest)writeup登陆查看。col@ubuntu:~$ lscol  col.c  flagflag没有权限打开，运行col文件：usage : ./col [passcode]passcode length should be 20 bytes直接查看源代码：#include &lt;stdio.h&gt;#include &lt;string.h&gt;unsigned long hashcode = 0x21DD09EC;unsigned long check_password(const char* p){    int* ip = (int*)p;    int i;    int res=0;    for(i=0; i&lt;5; i++){            res += ip[i];    }    return res;}int main(int argc, char* argv[]){    if(argc&lt;2){            printf(&quot;usage : %s [passcode]\n&quot;, argv[0]);            return 0;    }    if(strlen(argv[1]) != 20){            printf(&quot;passcode length should be 20 bytes\n&quot;);            return 0;    }    if(hashcode == check_password( argv[1] )){            system(&quot;/bin/cat flag&quot;);            return 0;    }    else            printf(&quot;wrong passcode.\n&quot;);    return 0;}  首先看main函数，判断运行参数，为密码passcode，其次长度为20bytes。再带哦用check_password函数判断，相等则输出flag。  关于check函数的作用就是将输入的数据用整型转换，求和返回。  主要是写shellcode和纠结带参数的py怎么写，还是有很多问题，ssh参考了网上的模板。可以这样：./col `python -c &quot;print &#39;\x01&#39; * 16 + &#39;\xE8\x05\xD9\x1D&#39;&quot;`或者exp：from pwn import *import ospwn_ssh=ssh(host=&#39;pwnable.kr&#39;,user=&#39;col&#39;,password=&#39;guest&#39;,port=2222)print (pwn_ssh.connected())sh=pwn_ssh.process(argv=[&#39;./col&#39;,&#39;\x01&#39; * 16 + &#39;\xE8\x05\xD9\x1D&#39;])print (sh.recvall())返回如下：[+] Connecting to pwnable.kr on port 2222: Done[!] Couldn&#39;t check security settings on &#39;pwnable.kr&#39;True[+] Starting remote process &#39;./col&#39; on pwnable.kr: pid 53488[+] Receiving all data: Done (52B)[*] Stopped remote process &#39;col&#39; on pwnable.kr (pid 53488)daddy! I just managed to create a hash collision :)所以flag:daddy! I just managed to create a hash collision :)">
+    <meta itemprop="datePublished" content="August 23, 2017">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Pwnable刷题 2
+</h1>
+          
+            <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  1 minute read
+
+</p>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+          <aside class="sidebar__right ">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+              <ul class="toc__menu">
+  <li><a href="#题目collision---3-pt">题目:collision - 3 pt</a></li>
+  <li><a href="#writeup">writeup</a></li>
+</ul>
+            </nav>
+          </aside>
+        
+        <hr />
+
+<blockquote>
+  <p>刷pwnable。。。</p>
+</blockquote>
+
+<h1 id="题目collision---3-pt">题目:collision - 3 pt</h1>
+
+<p>Daddy told me about cool MD5 hash collision today.
+I wanna do something like that too!
+爸爸告诉我cool的md5碰撞。。。
+我也想做一些和这个差不多的事情。(搞事情??!!)</p>
+
+<p>ssh col@pwnable.kr -p2222 (pw:guest)</p>
+
+<h1 id="writeup">writeup</h1>
+
+<p>登陆查看。</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>col@ubuntu:~<span class="nv">$ </span><span class="nb">ls
+</span>col  col.c  flag
+</code></pre></div></div>
+
+<p>flag没有权限打开，运行col文件：
+usage : ./col [passcode]
+passcode length should be 20 bytes
+直接查看源代码：</p>
+
+<pre><code class="language-C">#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+unsigned long hashcode = 0x21DD09EC;
+unsigned long check_password(const char* p)
+{
+    int* ip = (int*)p;
+    int i;
+    int res=0;
+    for(i=0; i&lt;5; i++){
+            res += ip[i];
+    }
+    return res;
+}
+
+int main(int argc, char* argv[])
+{
+    if(argc&lt;2){
+            printf("usage : %s [passcode]\n", argv[0]);
+            return 0;
+    }
+    if(strlen(argv[1]) != 20){
+            printf("passcode length should be 20 bytes\n");
+            return 0;
+    }
+
+    if(hashcode == check_password( argv[1] )){
+            system("/bin/cat flag");
+            return 0;
+    }
+    else
+            printf("wrong passcode.\n");
+    return 0;
+}
+</code></pre>
+
+<ol>
+  <li>首先看main函数，判断运行参数，为密码passcode，其次长度为20bytes。再带哦用check_password函数判断，相等则输出flag。</li>
+  <li>关于check函数的作用就是将输入的数据用整型转换，求和返回。</li>
+  <li>主要是写shellcode和纠结带参数的py怎么写，还是有很多问题，ssh参考了网上的模板。</li>
+</ol>
+
+<p>可以这样：</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./col <span class="sb">`</span>python <span class="nt">-c</span> <span class="s2">"print '</span><span class="se">\x</span><span class="s2">01' * 16 + '</span><span class="se">\x</span><span class="s2">E8</span><span class="se">\x</span><span class="s2">05</span><span class="se">\x</span><span class="s2">D9</span><span class="se">\x</span><span class="s2">1D'"</span><span class="sb">`</span>
+</code></pre></div></div>
+
+<p>或者exp：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">pwn_ssh</span><span class="o">=</span><span class="n">ssh</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s">'pwnable.kr'</span><span class="p">,</span><span class="n">user</span><span class="o">=</span><span class="s">'col'</span><span class="p">,</span><span class="n">password</span><span class="o">=</span><span class="s">'guest'</span><span class="p">,</span><span class="n">port</span><span class="o">=</span><span class="mi">2222</span><span class="p">)</span>
+<span class="k">print</span> <span class="p">(</span><span class="n">pwn_ssh</span><span class="o">.</span><span class="n">connected</span><span class="p">())</span>
+
+<span class="n">sh</span><span class="o">=</span><span class="n">pwn_ssh</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">argv</span><span class="o">=</span><span class="p">[</span><span class="s">'./col'</span><span class="p">,</span><span class="s">'</span><span class="se">\x01</span><span class="s">'</span> <span class="o">*</span> <span class="mi">16</span> <span class="o">+</span> <span class="s">'</span><span class="se">\xE8\x05\xD9\x1D</span><span class="s">'</span><span class="p">])</span>
+<span class="k">print</span> <span class="p">(</span><span class="n">sh</span><span class="o">.</span><span class="n">recvall</span><span class="p">())</span>
+</code></pre></div></div>
+
+<p>返回如下：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[</span><span class="o">+</span><span class="p">]</span> <span class="n">Connecting</span> <span class="n">to</span> <span class="n">pwnable</span><span class="o">.</span><span class="n">kr</span> <span class="n">on</span> <span class="n">port</span> <span class="mi">2222</span><span class="p">:</span> <span class="n">Done</span>
+<span class="p">[</span><span class="err">!</span><span class="p">]</span> <span class="n">Couldn</span><span class="s">'t check security settings on '</span><span class="n">pwnable</span><span class="o">.</span><span class="n">kr</span><span class="s">'</span><span class="err">
+</span><span class="s">True</span><span class="err">
+</span><span class="s">[+] Starting remote process '</span><span class="o">./</span><span class="n">col</span><span class="s">' on pwnable.kr: pid 53488</span><span class="err">
+</span><span class="s">[+] Receiving all data: Done (52B)</span><span class="err">
+</span><span class="s">[*] Stopped remote process '</span><span class="n">col</span><span class="s">' on pwnable.kr (pid 53488)</span><span class="err">
+</span><span class="s">daddy! I just managed to create a hash collision :)</span><span class="err">
+</span></code></pre></div></div>
+
+<p>所以flag:daddy! I just managed to create a hash collision :)</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#pwnable" class="page__taxonomy-item" rel="tag">pwnable</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#pwn" class="page__taxonomy-item" rel="tag">pwn</a>
+    
+    </span>
+  </p>
+
+
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2017-08-23T04:33:00+08:00">August 23, 2017</time></p>
+        
+      </footer>
+
+      <section class="page__share">
+  
+    <h4 class="page__share-title">Share on</h4>
+  
+
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Pwnable%E5%88%B7%E9%A2%98+2%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-08%2Fpwnable%25E5%2588%25B7%25E9%25A2%2598-2.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-08%2Fpwnable%25E5%2588%25B7%25E9%25A2%2598-2.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-08%2Fpwnable%25E5%2588%25B7%25E9%25A2%2598-2.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+
+      
+  <nav class="pagination">
+    
+      <a href="/posts/2017-08/pwnable%E5%88%B7%E9%A2%98-10.html" class="pagination--pager" title="Pwnable刷题 10
+">Previous</a>
+    
+    
+      <a href="/posts/2017-08/pwnable%E5%88%B7%E9%A2%98-3.html" class="pagination--pager" title="Pwnable刷题 3
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      <h4 class="page__related-title">You may also enjoy</h4>
+      <div class="grid__wrapper">
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-11/Dirary_November.html" rel="permalink">Dirary_november
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  每日所作所得
+
+
+
+
+11月1日
+</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/Software_Security_Project.html" rel="permalink">Software_security_project
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  Malware
+vs2010
+
+
+
+
+InfoCollection
+
+configure
+
+
+
+warning
+
+
+
+</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/Pacman_Helper.html" rel="permalink">Pacman_helper
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  pacman 手册
+
+
+
+
+archlinux pacman 命令
+arch wiki
+
+pacman -Sy 仅同步源
+
+pacman -Syu 同步源，并更新系统
+
+pacman -Su –ignore foo 升级时不升级包foo
+
+pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/%E5%8D%81%E6%9C%88%E6%97%A5%E8%AE%B0.html" rel="permalink">十月日记
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  每日所作所得
+
+
+
+
+10月1日
+
+周日，上课前最后一天，算是给自己放了最后一天假期
+
+10月2日
+
+上了第一天的课，主要是os，一脸蒙蔽。
+</p>
+  </article>
+</div>
+
+        
+      </div>
+    </div>
+  
+  
+</div>
+
+    </div>
+
+    
+      <div class="search-content">
+        <div class="search-content__inner-wrap"><form class="search-content__form" onkeydown="return event.key != 'Enter';">
+    <label class="sr-only" for="search">
+      Enter your search term...
+    </label>
+    <input type="search" id="search" class="search-input" tabindex="-1" placeholder="Enter your search term..." />
+  </form>
+  <div id="results" class="results"></div></div>
+
+      </div>
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+        
+      
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2019 Blogger. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+
+
+
+
+<script src="/assets/js/lunr/lunr.min.js"></script>
+<script src="/assets/js/lunr/lunr-store.js"></script>
+<script src="/assets/js/lunr/lunr-en.js"></script>
+
+
+
+
+    
+  <script>
+    var disqus_config = function () {
+      this.page.url = "http://localhost:4000/posts/2017-08/pwnable%E5%88%B7%E9%A2%98-2.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.identifier = "/posts/2017-08/pwnable刷题-2"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    (function() { // DON'T EDIT BELOW THIS LINE
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zjgcjy-github-io.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  </script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+  
+
+
+
+
+
+  </body>
+</html>

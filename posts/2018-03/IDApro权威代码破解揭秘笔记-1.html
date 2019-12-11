@@ -1,0 +1,867 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.17.2 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Idapro权威代码破解揭秘笔记 1  -  My way, though far away</title>
+<meta name="description" content="  本篇是关于《IDApro权威代码破解揭秘》的笔记,学习内容分为两部分，一是OS层面的系统知识，二是IDA脚本编写。内存管理方式以下的地址均是在Intel 32 位下。在64bit模式下分段直接被禁用了，内存完全平坦。虚拟地址（逻辑地址）即是16位里面的段+偏移量的地址表示方式，应用于寄存器寻址中。是80386 的默认内存寻址方式（保护模式）。虚拟地址到线性地址转换：虚拟段地址结合GDT、LDT，得到段描述符基址，加上偏移量得到线性地址。这个过程被称为 段式内存管理关于GDT和LDT线性地址应用于直接寄存器操作中的直接内存寻址方式，32bit长度的无符号整数地址即为线性地址。如果启用了分页机制，那么线性地址可以再经过变换以产生一个物理地址线性地址到物理地址转换：cr3中取出进程的页目录地址，根据线性地址前十位定位页表；根据线性地址的中间十位，在页表中找到页的起始地址，即页表项；根据线性地址中最后12位偏移量加上页的起始地址得到物理地址。这个过程被称为 页式内存管理物理地址地址线所代表的实际的内存地址，实模式下采用物理地址寻址。注意：在linux下虚拟地址和线性地址数值相同，原因是所有的段基址都是0，段限长都是最大。而虚拟地址是在段内的偏移量，现在段就是整个线性空间，所以虚拟地址就是整个线性空间的偏移量，这和线性地址的概念一样堆关于堆的内存管理与分配，参考malloc()和free()的实现方式。ptmallocGNU Libc 的内存分配器(allocator) — ptmalloc提供动态内存管理的支持。allocator一般都会预先分配一块大于用户请求的内存， 并通过某种算法管理这块内存。来满足用户的内存分配要求，用户 free 掉的内存也并不是立即就返回给操作系统，相反，allocator 会管理这些被 free 掉的空闲空间，以应对用户以后的内存分配要求。主分配区和非主分配区ptmalloc的内存分配器中，为了解决多线程锁争夺问题，分为主分配区main_area和非主分配区no_main_area。主分配区可以使用brk和mmap来分配，而非主分配区只能使用mmap来映射内存块。chuckptmalloc 在给用户分配的空间的前后加上了一些控制信息，用这样的方法来记录分配的信息，以便完成分配和释放工作。详细关于chunk结构的说明1详细关于chunk结构的说明2使用的chuckchunk 指针指向一个 chunk 的开始。一个chunk 中包含了用户请求的内存区域和相关的控制信息。mem 指针才是真正返回给用户的内存指针。chunk 的第二个域的最低一位为p，它表示前一个块是否在使用中，p为0则表示前一个 chunk 为空闲，这时 chunk 的第一个域 prev_size 才有效，prev_size 表示前一个 chunk 的 size，程序可以使用这个值来找到前一个 chunk 的开始。当p为1时，表示前一个 chunk 正在使用中，prev_size 无效，程序也就不可以得到前一个 chunk 的大小。而不能对前一个 chunk 进行任何操作。 ptmalloc 分配的第一个块总是将p设为1，以防止程序引用到不存在的区域。空闲的thunk当 chunk 空闲时，原本是用户数据区的地方存储了两个指针，指针 fd 指向后一个空闲的 chunk，而 bk 指向前一个空闲的 chunk， ptmalloc 通过这两个指针将大小相近的 chunk 连成一个双向链表。而不同的 chunk 链表又是通过 bins 或者 fastbins 来组织的。空闲链表bins当用户使用free函数释放掉的内存，ptmalloc并不会马上交还给操作系统，而是被ptmalloc本身的空闲链表bins管理起来了，这样当下次进程需要malloc一块内存的时候，ptmalloc就会从空闲的bins上寻找一块合适大小的内存块分配给用户使用。ptmalloc一共维护了128bin。每个bins都维护了大小相近的双向链表的chunk。fast binsfast bins是bins的高速缓冲区，大约有10个定长队列。当用户释放一块不大于max_fast（默认值64）的chunk（一般小内存）的时候，会默认会被放到fast bins上。当用户下次需要申请内存的时候首先会到fast bins上寻找是否有合适的chunk，然后才会到bins上空闲的chunk。unsorted bin是bins的一个缓冲区。当用户释放的内存大于max_fast或者fast bins合并后的chunk都会进入unsorted bin上。当用户malloc的时候，先会到unsorted bin上查找是否有合适的bin，如果没有合适的bin，ptmalloc会将unsorted bin上的chunk放入bins上，然后到bins上查找合适的空闲chunk。exact bins（small bins）和ordered bins（large bins）small bins和large bins是真正用来放置chunk双向链表的。每个bin之间相差8个字节，并且通过上面的这个列表，可以快速定位到合适大小的空闲chunk。前64个为small bins，定长；后64个为large bins，非定长。top chunkptmalloc 会预先分配一块较大的空闲内存(也就是所为的 heap)，而通过管理这块内存来响应用户的需求，因为内存是按地址从低向高进行分配的，在空闲内存的最高处，必然存在着一块空闲 chunk。top chunk相当于分配区的顶部空闲内存，当bins上都不能满足内存分配要求的时候，就会来top chunk上分配。mmaped chunk当需要分配的 chunk 足够大，而且 fastbins 和 bins 都不能满足要求，甚至 top chunk 本身也不能满足分配需求时，ptmalloc 会使用 mmap 来直接使用内存映射来将页映射到进程空间。当释放mmaped chunk上的内存的时候会直接交还给操作系统。  小内存： 获取分配区(arena)并加锁 -&gt; fast bin -&gt; unsorted bin -&gt; small bin -&gt; large bin -&gt; top chunk -&gt; 扩展堆  大内存： 直接mmapsbrk &amp; mmapptmalloc 使用两种方法向内存索取内存空间：sbrk 和 mmap。sbrk.bss 段之上的这块分配给用户程序的空间被称为 heap (堆)。start_brk 指向 heap 的开始，而 brk 指向 heap 的顶部。可以使用系统调用 brk 和 sbrk 来增加标识 heap 顶部的 brk 值，从而线性的增加分配给用户的 heap 空间。 ptmalloc 在开始时，若请求的空间小于 DEFAULT_MMAP_THRESHOLD (128K bytes)时，ptmalloc 会调用sbrk增加一块大小为 ( 128 KB + chunk_size ) align 4K 的空间作为heap。这就是ptmalloc 所维护的分配空间，当用户请求内存分配时，首先会在这个区域内找一块合适的 chunk 给用户。当用户释放了 heap 中的 chunk 时，ptmalloc 又会使用 fastbins 和 bins 来组织空闲 chunk。以备用户的下一次分配。若需要分配的 chunk 大小小于 DEFAULT_MMAP_THRESHOLD，而 heap 空间又不够，则此时 ptmalloc 会通过 sbrk 调用来增加 heap 值，也就是增加 top chunk 的大小，每次 heap 增加的值都会 align 到4k bytes。mmap当用户的请求超过 DEFAULT_MMAP_THRESHOLD，并且使用 sbrk 分配失败的时候，ptmalloc 会尝试使用 mmap 直接映射一块内存到进程内存空间。使用 mmap 直接映射的 chunk 在释放时直接解除映射，而不再属于进程的内存空间。任何对该内存的访问都会产生段错误。而在 heap 中分配的空间则可能会留在进程内存空间内。PE &amp; ELF 文件格式关于PE格式，之前写过了。PE格式关于ELF格式，这里不详细写了。主要是学习一下ELF的常见的节。ELF常见区段|区段名|说明||:——–:|:—–:||.text|可执行指令||.bss|未初始化的全局变量或静态变量||.data|已初始化的全局变量||.rdata|只读数据||.fini|结束应用程序的指令||.init|开始应用程序的指令||.got|GOT表，即全局偏移表||.plt |PLT表，即过程链接表||.dynamic|包含动态链接的信息|这里其实没什么东西，主要是要懂plt表和got表之间的关系，已经如何实现覆盖got表来实现缓冲区溢出。got表和plt表">
+
+
+  <meta name="author" content="zjgcjy">
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="My way, though far away">
+<meta property="og:title" content="Idapro权威代码破解揭秘笔记 1">
+<meta property="og:url" content="http://localhost:4000/posts/2018-03/IDApro%E6%9D%83%E5%A8%81%E4%BB%A3%E7%A0%81%E7%A0%B4%E8%A7%A3%E6%8F%AD%E7%A7%98%E7%AC%94%E8%AE%B0-1.html">
+
+
+  <meta property="og:description" content="  本篇是关于《IDApro权威代码破解揭秘》的笔记,学习内容分为两部分，一是OS层面的系统知识，二是IDA脚本编写。内存管理方式以下的地址均是在Intel 32 位下。在64bit模式下分段直接被禁用了，内存完全平坦。虚拟地址（逻辑地址）即是16位里面的段+偏移量的地址表示方式，应用于寄存器寻址中。是80386 的默认内存寻址方式（保护模式）。虚拟地址到线性地址转换：虚拟段地址结合GDT、LDT，得到段描述符基址，加上偏移量得到线性地址。这个过程被称为 段式内存管理关于GDT和LDT线性地址应用于直接寄存器操作中的直接内存寻址方式，32bit长度的无符号整数地址即为线性地址。如果启用了分页机制，那么线性地址可以再经过变换以产生一个物理地址线性地址到物理地址转换：cr3中取出进程的页目录地址，根据线性地址前十位定位页表；根据线性地址的中间十位，在页表中找到页的起始地址，即页表项；根据线性地址中最后12位偏移量加上页的起始地址得到物理地址。这个过程被称为 页式内存管理物理地址地址线所代表的实际的内存地址，实模式下采用物理地址寻址。注意：在linux下虚拟地址和线性地址数值相同，原因是所有的段基址都是0，段限长都是最大。而虚拟地址是在段内的偏移量，现在段就是整个线性空间，所以虚拟地址就是整个线性空间的偏移量，这和线性地址的概念一样堆关于堆的内存管理与分配，参考malloc()和free()的实现方式。ptmallocGNU Libc 的内存分配器(allocator) — ptmalloc提供动态内存管理的支持。allocator一般都会预先分配一块大于用户请求的内存， 并通过某种算法管理这块内存。来满足用户的内存分配要求，用户 free 掉的内存也并不是立即就返回给操作系统，相反，allocator 会管理这些被 free 掉的空闲空间，以应对用户以后的内存分配要求。主分配区和非主分配区ptmalloc的内存分配器中，为了解决多线程锁争夺问题，分为主分配区main_area和非主分配区no_main_area。主分配区可以使用brk和mmap来分配，而非主分配区只能使用mmap来映射内存块。chuckptmalloc 在给用户分配的空间的前后加上了一些控制信息，用这样的方法来记录分配的信息，以便完成分配和释放工作。详细关于chunk结构的说明1详细关于chunk结构的说明2使用的chuckchunk 指针指向一个 chunk 的开始。一个chunk 中包含了用户请求的内存区域和相关的控制信息。mem 指针才是真正返回给用户的内存指针。chunk 的第二个域的最低一位为p，它表示前一个块是否在使用中，p为0则表示前一个 chunk 为空闲，这时 chunk 的第一个域 prev_size 才有效，prev_size 表示前一个 chunk 的 size，程序可以使用这个值来找到前一个 chunk 的开始。当p为1时，表示前一个 chunk 正在使用中，prev_size 无效，程序也就不可以得到前一个 chunk 的大小。而不能对前一个 chunk 进行任何操作。 ptmalloc 分配的第一个块总是将p设为1，以防止程序引用到不存在的区域。空闲的thunk当 chunk 空闲时，原本是用户数据区的地方存储了两个指针，指针 fd 指向后一个空闲的 chunk，而 bk 指向前一个空闲的 chunk， ptmalloc 通过这两个指针将大小相近的 chunk 连成一个双向链表。而不同的 chunk 链表又是通过 bins 或者 fastbins 来组织的。空闲链表bins当用户使用free函数释放掉的内存，ptmalloc并不会马上交还给操作系统，而是被ptmalloc本身的空闲链表bins管理起来了，这样当下次进程需要malloc一块内存的时候，ptmalloc就会从空闲的bins上寻找一块合适大小的内存块分配给用户使用。ptmalloc一共维护了128bin。每个bins都维护了大小相近的双向链表的chunk。fast binsfast bins是bins的高速缓冲区，大约有10个定长队列。当用户释放一块不大于max_fast（默认值64）的chunk（一般小内存）的时候，会默认会被放到fast bins上。当用户下次需要申请内存的时候首先会到fast bins上寻找是否有合适的chunk，然后才会到bins上空闲的chunk。unsorted bin是bins的一个缓冲区。当用户释放的内存大于max_fast或者fast bins合并后的chunk都会进入unsorted bin上。当用户malloc的时候，先会到unsorted bin上查找是否有合适的bin，如果没有合适的bin，ptmalloc会将unsorted bin上的chunk放入bins上，然后到bins上查找合适的空闲chunk。exact bins（small bins）和ordered bins（large bins）small bins和large bins是真正用来放置chunk双向链表的。每个bin之间相差8个字节，并且通过上面的这个列表，可以快速定位到合适大小的空闲chunk。前64个为small bins，定长；后64个为large bins，非定长。top chunkptmalloc 会预先分配一块较大的空闲内存(也就是所为的 heap)，而通过管理这块内存来响应用户的需求，因为内存是按地址从低向高进行分配的，在空闲内存的最高处，必然存在着一块空闲 chunk。top chunk相当于分配区的顶部空闲内存，当bins上都不能满足内存分配要求的时候，就会来top chunk上分配。mmaped chunk当需要分配的 chunk 足够大，而且 fastbins 和 bins 都不能满足要求，甚至 top chunk 本身也不能满足分配需求时，ptmalloc 会使用 mmap 来直接使用内存映射来将页映射到进程空间。当释放mmaped chunk上的内存的时候会直接交还给操作系统。  小内存： 获取分配区(arena)并加锁 -&gt; fast bin -&gt; unsorted bin -&gt; small bin -&gt; large bin -&gt; top chunk -&gt; 扩展堆  大内存： 直接mmapsbrk &amp; mmapptmalloc 使用两种方法向内存索取内存空间：sbrk 和 mmap。sbrk.bss 段之上的这块分配给用户程序的空间被称为 heap (堆)。start_brk 指向 heap 的开始，而 brk 指向 heap 的顶部。可以使用系统调用 brk 和 sbrk 来增加标识 heap 顶部的 brk 值，从而线性的增加分配给用户的 heap 空间。 ptmalloc 在开始时，若请求的空间小于 DEFAULT_MMAP_THRESHOLD (128K bytes)时，ptmalloc 会调用sbrk增加一块大小为 ( 128 KB + chunk_size ) align 4K 的空间作为heap。这就是ptmalloc 所维护的分配空间，当用户请求内存分配时，首先会在这个区域内找一块合适的 chunk 给用户。当用户释放了 heap 中的 chunk 时，ptmalloc 又会使用 fastbins 和 bins 来组织空闲 chunk。以备用户的下一次分配。若需要分配的 chunk 大小小于 DEFAULT_MMAP_THRESHOLD，而 heap 空间又不够，则此时 ptmalloc 会通过 sbrk 调用来增加 heap 值，也就是增加 top chunk 的大小，每次 heap 增加的值都会 align 到4k bytes。mmap当用户的请求超过 DEFAULT_MMAP_THRESHOLD，并且使用 sbrk 分配失败的时候，ptmalloc 会尝试使用 mmap 直接映射一块内存到进程内存空间。使用 mmap 直接映射的 chunk 在释放时直接解除映射，而不再属于进程的内存空间。任何对该内存的访问都会产生段错误。而在 heap 中分配的空间则可能会留在进程内存空间内。PE &amp; ELF 文件格式关于PE格式，之前写过了。PE格式关于ELF格式，这里不详细写了。主要是学习一下ELF的常见的节。ELF常见区段|区段名|说明||:——–:|:—–:||.text|可执行指令||.bss|未初始化的全局变量或静态变量||.data|已初始化的全局变量||.rdata|只读数据||.fini|结束应用程序的指令||.init|开始应用程序的指令||.got|GOT表，即全局偏移表||.plt |PLT表，即过程链接表||.dynamic|包含动态链接的信息|这里其实没什么东西，主要是要懂plt表和got表之间的关系，已经如何实现覆盖got表来实现缓冲区溢出。got表和plt表">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+
+
+
+  <meta name="twitter:site" content="@zjgcjy">
+  <meta name="twitter:title" content="Idapro权威代码破解揭秘笔记 1">
+  <meta name="twitter:description" content="  本篇是关于《IDApro权威代码破解揭秘》的笔记,学习内容分为两部分，一是OS层面的系统知识，二是IDA脚本编写。内存管理方式以下的地址均是在Intel 32 位下。在64bit模式下分段直接被禁用了，内存完全平坦。虚拟地址（逻辑地址）即是16位里面的段+偏移量的地址表示方式，应用于寄存器寻址中。是80386 的默认内存寻址方式（保护模式）。虚拟地址到线性地址转换：虚拟段地址结合GDT、LDT，得到段描述符基址，加上偏移量得到线性地址。这个过程被称为 段式内存管理关于GDT和LDT线性地址应用于直接寄存器操作中的直接内存寻址方式，32bit长度的无符号整数地址即为线性地址。如果启用了分页机制，那么线性地址可以再经过变换以产生一个物理地址线性地址到物理地址转换：cr3中取出进程的页目录地址，根据线性地址前十位定位页表；根据线性地址的中间十位，在页表中找到页的起始地址，即页表项；根据线性地址中最后12位偏移量加上页的起始地址得到物理地址。这个过程被称为 页式内存管理物理地址地址线所代表的实际的内存地址，实模式下采用物理地址寻址。注意：在linux下虚拟地址和线性地址数值相同，原因是所有的段基址都是0，段限长都是最大。而虚拟地址是在段内的偏移量，现在段就是整个线性空间，所以虚拟地址就是整个线性空间的偏移量，这和线性地址的概念一样堆关于堆的内存管理与分配，参考malloc()和free()的实现方式。ptmallocGNU Libc 的内存分配器(allocator) — ptmalloc提供动态内存管理的支持。allocator一般都会预先分配一块大于用户请求的内存， 并通过某种算法管理这块内存。来满足用户的内存分配要求，用户 free 掉的内存也并不是立即就返回给操作系统，相反，allocator 会管理这些被 free 掉的空闲空间，以应对用户以后的内存分配要求。主分配区和非主分配区ptmalloc的内存分配器中，为了解决多线程锁争夺问题，分为主分配区main_area和非主分配区no_main_area。主分配区可以使用brk和mmap来分配，而非主分配区只能使用mmap来映射内存块。chuckptmalloc 在给用户分配的空间的前后加上了一些控制信息，用这样的方法来记录分配的信息，以便完成分配和释放工作。详细关于chunk结构的说明1详细关于chunk结构的说明2使用的chuckchunk 指针指向一个 chunk 的开始。一个chunk 中包含了用户请求的内存区域和相关的控制信息。mem 指针才是真正返回给用户的内存指针。chunk 的第二个域的最低一位为p，它表示前一个块是否在使用中，p为0则表示前一个 chunk 为空闲，这时 chunk 的第一个域 prev_size 才有效，prev_size 表示前一个 chunk 的 size，程序可以使用这个值来找到前一个 chunk 的开始。当p为1时，表示前一个 chunk 正在使用中，prev_size 无效，程序也就不可以得到前一个 chunk 的大小。而不能对前一个 chunk 进行任何操作。 ptmalloc 分配的第一个块总是将p设为1，以防止程序引用到不存在的区域。空闲的thunk当 chunk 空闲时，原本是用户数据区的地方存储了两个指针，指针 fd 指向后一个空闲的 chunk，而 bk 指向前一个空闲的 chunk， ptmalloc 通过这两个指针将大小相近的 chunk 连成一个双向链表。而不同的 chunk 链表又是通过 bins 或者 fastbins 来组织的。空闲链表bins当用户使用free函数释放掉的内存，ptmalloc并不会马上交还给操作系统，而是被ptmalloc本身的空闲链表bins管理起来了，这样当下次进程需要malloc一块内存的时候，ptmalloc就会从空闲的bins上寻找一块合适大小的内存块分配给用户使用。ptmalloc一共维护了128bin。每个bins都维护了大小相近的双向链表的chunk。fast binsfast bins是bins的高速缓冲区，大约有10个定长队列。当用户释放一块不大于max_fast（默认值64）的chunk（一般小内存）的时候，会默认会被放到fast bins上。当用户下次需要申请内存的时候首先会到fast bins上寻找是否有合适的chunk，然后才会到bins上空闲的chunk。unsorted bin是bins的一个缓冲区。当用户释放的内存大于max_fast或者fast bins合并后的chunk都会进入unsorted bin上。当用户malloc的时候，先会到unsorted bin上查找是否有合适的bin，如果没有合适的bin，ptmalloc会将unsorted bin上的chunk放入bins上，然后到bins上查找合适的空闲chunk。exact bins（small bins）和ordered bins（large bins）small bins和large bins是真正用来放置chunk双向链表的。每个bin之间相差8个字节，并且通过上面的这个列表，可以快速定位到合适大小的空闲chunk。前64个为small bins，定长；后64个为large bins，非定长。top chunkptmalloc 会预先分配一块较大的空闲内存(也就是所为的 heap)，而通过管理这块内存来响应用户的需求，因为内存是按地址从低向高进行分配的，在空闲内存的最高处，必然存在着一块空闲 chunk。top chunk相当于分配区的顶部空闲内存，当bins上都不能满足内存分配要求的时候，就会来top chunk上分配。mmaped chunk当需要分配的 chunk 足够大，而且 fastbins 和 bins 都不能满足要求，甚至 top chunk 本身也不能满足分配需求时，ptmalloc 会使用 mmap 来直接使用内存映射来将页映射到进程空间。当释放mmaped chunk上的内存的时候会直接交还给操作系统。  小内存： 获取分配区(arena)并加锁 -&gt; fast bin -&gt; unsorted bin -&gt; small bin -&gt; large bin -&gt; top chunk -&gt; 扩展堆  大内存： 直接mmapsbrk &amp; mmapptmalloc 使用两种方法向内存索取内存空间：sbrk 和 mmap。sbrk.bss 段之上的这块分配给用户程序的空间被称为 heap (堆)。start_brk 指向 heap 的开始，而 brk 指向 heap 的顶部。可以使用系统调用 brk 和 sbrk 来增加标识 heap 顶部的 brk 值，从而线性的增加分配给用户的 heap 空间。 ptmalloc 在开始时，若请求的空间小于 DEFAULT_MMAP_THRESHOLD (128K bytes)时，ptmalloc 会调用sbrk增加一块大小为 ( 128 KB + chunk_size ) align 4K 的空间作为heap。这就是ptmalloc 所维护的分配空间，当用户请求内存分配时，首先会在这个区域内找一块合适的 chunk 给用户。当用户释放了 heap 中的 chunk 时，ptmalloc 又会使用 fastbins 和 bins 来组织空闲 chunk。以备用户的下一次分配。若需要分配的 chunk 大小小于 DEFAULT_MMAP_THRESHOLD，而 heap 空间又不够，则此时 ptmalloc 会通过 sbrk 调用来增加 heap 值，也就是增加 top chunk 的大小，每次 heap 增加的值都会 align 到4k bytes。mmap当用户的请求超过 DEFAULT_MMAP_THRESHOLD，并且使用 sbrk 分配失败的时候，ptmalloc 会尝试使用 mmap 直接映射一块内存到进程内存空间。使用 mmap 直接映射的 chunk 在释放时直接解除映射，而不再属于进程的内存空间。任何对该内存的访问都会产生段错误。而在 heap 中分配的空间则可能会留在进程内存空间内。PE &amp; ELF 文件格式关于PE格式，之前写过了。PE格式关于ELF格式，这里不详细写了。主要是学习一下ELF的常见的节。ELF常见区段|区段名|说明||:——–:|:—–:||.text|可执行指令||.bss|未初始化的全局变量或静态变量||.data|已初始化的全局变量||.rdata|只读数据||.fini|结束应用程序的指令||.init|开始应用程序的指令||.got|GOT表，即全局偏移表||.plt |PLT表，即过程链接表||.dynamic|包含动态链接的信息|这里其实没什么东西，主要是要懂plt表和got表之间的关系，已经如何实现覆盖got表来实现缓冲区溢出。got表和plt表">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2018-03/IDApro%E6%9D%83%E5%A8%81%E4%BB%A3%E7%A0%81%E7%A0%B4%E8%A7%A3%E6%8F%AD%E7%A7%98%E7%AC%94%E8%AE%B0-1.html">
+
+  
+    <meta name="twitter:card" content="summary">
+    
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+    
+  
+
+  
+
+
+
+  <meta property="article:published_time" content="2018-03-14T06:19:00+08:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/posts/2018-03/IDApro%E6%9D%83%E5%A8%81%E4%BB%A3%E7%A0%81%E7%A0%B4%E8%A7%A3%E6%8F%AD%E7%A7%98%E7%AC%94%E8%AE%B0-1.html">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Blogger",
+      "url": "http://localhost:4000/",
+      "sameAs": ["https://twitter.com/","https://github.com/"]
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="My way, though far away Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/apple-touch-icon.png" alt=""></a>
+        
+        <a class="site-title" href="/">
+          ZJGCJY
+          <span class="site-subtitle">My way, though far away</span>
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/collection-archive/" >Collections</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="search__toggle" type="button">
+          <span class="visually-hidden">Toggle search</span>
+          <svg class="icon" width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15.99 16">
+            <path d="M15.5,13.12L13.19,10.8a1.69,1.69,0,0,0-1.28-.55l-0.06-.06A6.5,6.5,0,0,0,5.77,0,6.5,6.5,0,0,0,2.46,11.59a6.47,6.47,0,0,0,7.74.26l0.05,0.05a1.65,1.65,0,0,0,.5,1.24l2.38,2.38A1.68,1.68,0,0,0,15.5,13.12ZM6.4,2A4.41,4.41,0,1,1,2,6.4,4.43,4.43,0,0,1,6.4,2Z" transform="translate(-.01)"></path>
+          </svg>
+        </button>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#posts" itemprop="item"><span itemprop="name">Posts</span></a>
+          <meta itemprop="position" content="2" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#2018-03" itemprop="item"><span itemprop="name">2018 03</span></a>
+          <meta itemprop="position" content="3" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        <li class="current">Idapro权威代码破解揭秘笔记 1</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/me.jpg" alt="zjgcjy" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">zjgcjy</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>IIE UCAS, CTFer, Binarian</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+          
+        
+          
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+          
+        
+          
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          
+        
+          
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Idapro权威代码破解揭秘笔记 1">
+    <meta itemprop="description" content="  本篇是关于《IDApro权威代码破解揭秘》的笔记,学习内容分为两部分，一是OS层面的系统知识，二是IDA脚本编写。内存管理方式以下的地址均是在Intel 32 位下。在64bit模式下分段直接被禁用了，内存完全平坦。虚拟地址（逻辑地址）即是16位里面的段+偏移量的地址表示方式，应用于寄存器寻址中。是80386 的默认内存寻址方式（保护模式）。虚拟地址到线性地址转换：虚拟段地址结合GDT、LDT，得到段描述符基址，加上偏移量得到线性地址。这个过程被称为 段式内存管理关于GDT和LDT线性地址应用于直接寄存器操作中的直接内存寻址方式，32bit长度的无符号整数地址即为线性地址。如果启用了分页机制，那么线性地址可以再经过变换以产生一个物理地址线性地址到物理地址转换：cr3中取出进程的页目录地址，根据线性地址前十位定位页表；根据线性地址的中间十位，在页表中找到页的起始地址，即页表项；根据线性地址中最后12位偏移量加上页的起始地址得到物理地址。这个过程被称为 页式内存管理物理地址地址线所代表的实际的内存地址，实模式下采用物理地址寻址。注意：在linux下虚拟地址和线性地址数值相同，原因是所有的段基址都是0，段限长都是最大。而虚拟地址是在段内的偏移量，现在段就是整个线性空间，所以虚拟地址就是整个线性空间的偏移量，这和线性地址的概念一样堆关于堆的内存管理与分配，参考malloc()和free()的实现方式。ptmallocGNU Libc 的内存分配器(allocator) — ptmalloc提供动态内存管理的支持。allocator一般都会预先分配一块大于用户请求的内存， 并通过某种算法管理这块内存。来满足用户的内存分配要求，用户 free 掉的内存也并不是立即就返回给操作系统，相反，allocator 会管理这些被 free 掉的空闲空间，以应对用户以后的内存分配要求。主分配区和非主分配区ptmalloc的内存分配器中，为了解决多线程锁争夺问题，分为主分配区main_area和非主分配区no_main_area。主分配区可以使用brk和mmap来分配，而非主分配区只能使用mmap来映射内存块。chuckptmalloc 在给用户分配的空间的前后加上了一些控制信息，用这样的方法来记录分配的信息，以便完成分配和释放工作。详细关于chunk结构的说明1详细关于chunk结构的说明2使用的chuckchunk 指针指向一个 chunk 的开始。一个chunk 中包含了用户请求的内存区域和相关的控制信息。mem 指针才是真正返回给用户的内存指针。chunk 的第二个域的最低一位为p，它表示前一个块是否在使用中，p为0则表示前一个 chunk 为空闲，这时 chunk 的第一个域 prev_size 才有效，prev_size 表示前一个 chunk 的 size，程序可以使用这个值来找到前一个 chunk 的开始。当p为1时，表示前一个 chunk 正在使用中，prev_size 无效，程序也就不可以得到前一个 chunk 的大小。而不能对前一个 chunk 进行任何操作。 ptmalloc 分配的第一个块总是将p设为1，以防止程序引用到不存在的区域。空闲的thunk当 chunk 空闲时，原本是用户数据区的地方存储了两个指针，指针 fd 指向后一个空闲的 chunk，而 bk 指向前一个空闲的 chunk， ptmalloc 通过这两个指针将大小相近的 chunk 连成一个双向链表。而不同的 chunk 链表又是通过 bins 或者 fastbins 来组织的。空闲链表bins当用户使用free函数释放掉的内存，ptmalloc并不会马上交还给操作系统，而是被ptmalloc本身的空闲链表bins管理起来了，这样当下次进程需要malloc一块内存的时候，ptmalloc就会从空闲的bins上寻找一块合适大小的内存块分配给用户使用。ptmalloc一共维护了128bin。每个bins都维护了大小相近的双向链表的chunk。fast binsfast bins是bins的高速缓冲区，大约有10个定长队列。当用户释放一块不大于max_fast（默认值64）的chunk（一般小内存）的时候，会默认会被放到fast bins上。当用户下次需要申请内存的时候首先会到fast bins上寻找是否有合适的chunk，然后才会到bins上空闲的chunk。unsorted bin是bins的一个缓冲区。当用户释放的内存大于max_fast或者fast bins合并后的chunk都会进入unsorted bin上。当用户malloc的时候，先会到unsorted bin上查找是否有合适的bin，如果没有合适的bin，ptmalloc会将unsorted bin上的chunk放入bins上，然后到bins上查找合适的空闲chunk。exact bins（small bins）和ordered bins（large bins）small bins和large bins是真正用来放置chunk双向链表的。每个bin之间相差8个字节，并且通过上面的这个列表，可以快速定位到合适大小的空闲chunk。前64个为small bins，定长；后64个为large bins，非定长。top chunkptmalloc 会预先分配一块较大的空闲内存(也就是所为的 heap)，而通过管理这块内存来响应用户的需求，因为内存是按地址从低向高进行分配的，在空闲内存的最高处，必然存在着一块空闲 chunk。top chunk相当于分配区的顶部空闲内存，当bins上都不能满足内存分配要求的时候，就会来top chunk上分配。mmaped chunk当需要分配的 chunk 足够大，而且 fastbins 和 bins 都不能满足要求，甚至 top chunk 本身也不能满足分配需求时，ptmalloc 会使用 mmap 来直接使用内存映射来将页映射到进程空间。当释放mmaped chunk上的内存的时候会直接交还给操作系统。  小内存： 获取分配区(arena)并加锁 -&gt; fast bin -&gt; unsorted bin -&gt; small bin -&gt; large bin -&gt; top chunk -&gt; 扩展堆  大内存： 直接mmapsbrk &amp; mmapptmalloc 使用两种方法向内存索取内存空间：sbrk 和 mmap。sbrk.bss 段之上的这块分配给用户程序的空间被称为 heap (堆)。start_brk 指向 heap 的开始，而 brk 指向 heap 的顶部。可以使用系统调用 brk 和 sbrk 来增加标识 heap 顶部的 brk 值，从而线性的增加分配给用户的 heap 空间。 ptmalloc 在开始时，若请求的空间小于 DEFAULT_MMAP_THRESHOLD (128K bytes)时，ptmalloc 会调用sbrk增加一块大小为 ( 128 KB + chunk_size ) align 4K 的空间作为heap。这就是ptmalloc 所维护的分配空间，当用户请求内存分配时，首先会在这个区域内找一块合适的 chunk 给用户。当用户释放了 heap 中的 chunk 时，ptmalloc 又会使用 fastbins 和 bins 来组织空闲 chunk。以备用户的下一次分配。若需要分配的 chunk 大小小于 DEFAULT_MMAP_THRESHOLD，而 heap 空间又不够，则此时 ptmalloc 会通过 sbrk 调用来增加 heap 值，也就是增加 top chunk 的大小，每次 heap 增加的值都会 align 到4k bytes。mmap当用户的请求超过 DEFAULT_MMAP_THRESHOLD，并且使用 sbrk 分配失败的时候，ptmalloc 会尝试使用 mmap 直接映射一块内存到进程内存空间。使用 mmap 直接映射的 chunk 在释放时直接解除映射，而不再属于进程的内存空间。任何对该内存的访问都会产生段错误。而在 heap 中分配的空间则可能会留在进程内存空间内。PE &amp; ELF 文件格式关于PE格式，之前写过了。PE格式关于ELF格式，这里不详细写了。主要是学习一下ELF的常见的节。ELF常见区段|区段名|说明||:——–:|:—–:||.text|可执行指令||.bss|未初始化的全局变量或静态变量||.data|已初始化的全局变量||.rdata|只读数据||.fini|结束应用程序的指令||.init|开始应用程序的指令||.got|GOT表，即全局偏移表||.plt |PLT表，即过程链接表||.dynamic|包含动态链接的信息|这里其实没什么东西，主要是要懂plt表和got表之间的关系，已经如何实现覆盖got表来实现缓冲区溢出。got表和plt表">
+    <meta itemprop="datePublished" content="March 14, 2018">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Idapro权威代码破解揭秘笔记 1
+</h1>
+          
+            <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  1 minute read
+
+</p>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+          <aside class="sidebar__right ">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+              <ul class="toc__menu">
+  <li><a href="#内存管理方式">内存管理方式</a>
+    <ul>
+      <li><a href="#虚拟地址逻辑地址">虚拟地址（逻辑地址）</a></li>
+      <li><a href="#线性地址">线性地址</a></li>
+      <li><a href="#物理地址">物理地址</a></li>
+    </ul>
+  </li>
+  <li><a href="#堆">堆</a>
+    <ul>
+      <li><a href="#ptmalloc">ptmalloc</a></li>
+      <li><a href="#主分配区和非主分配区">主分配区和非主分配区</a></li>
+      <li><a href="#chuck">chuck</a>
+        <ul>
+          <li><a href="#使用的chuck">使用的chuck</a></li>
+          <li><a href="#空闲的thunk">空闲的thunk</a></li>
+        </ul>
+      </li>
+      <li><a href="#空闲链表bins">空闲链表bins</a>
+        <ul>
+          <li><a href="#fast-bins">fast bins</a></li>
+          <li><a href="#unsorted-bin">unsorted bin</a></li>
+          <li><a href="#exact-binssmall-bins和ordered-binslarge-bins">exact bins（small bins）和ordered bins（large bins）</a></li>
+          <li><a href="#top-chunk">top chunk</a></li>
+          <li><a href="#mmaped-chunk">mmaped chunk</a></li>
+        </ul>
+      </li>
+      <li><a href="#sbrk--mmap">sbrk &amp; mmap</a>
+        <ul>
+          <li><a href="#sbrk">sbrk</a></li>
+          <li><a href="#mmap">mmap</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#pe--elf-文件格式">PE &amp; ELF 文件格式</a>
+    <ul>
+      <li><a href="#elf常见区段">ELF常见区段</a></li>
+    </ul>
+  </li>
+</ul>
+            </nav>
+          </aside>
+        
+        <hr />
+<blockquote>
+  <p>本篇是关于《IDApro权威代码破解揭秘》的笔记,学习内容分为两部分，一是OS层面的系统知识，二是IDA脚本编写。</p>
+</blockquote>
+
+<h1 id="内存管理方式">内存管理方式</h1>
+
+<p>以下的地址均是在Intel 32 位下。在64bit模式下分段直接被禁用了，内存完全平坦。</p>
+
+<h2 id="虚拟地址逻辑地址">虚拟地址（逻辑地址）</h2>
+
+<p>即是16位里面的段+偏移量的地址表示方式，应用于寄存器寻址中。是80386 的默认内存寻址方式（保护模式）。
+虚拟地址到线性地址转换：虚拟段地址结合GDT、LDT，得到段描述符基址，加上偏移量得到线性地址。这个过程被称为 <strong>段式内存管理</strong>
+<a href="http://cjynet.top/2017/08/06/windows/Win32ASM-1/">关于GDT和LDT</a></p>
+
+<h2 id="线性地址">线性地址</h2>
+
+<p>应用于直接寄存器操作中的直接内存寻址方式，32bit长度的无符号整数地址即为线性地址。
+<strong>如果启用了分页机制，那么线性地址可以再经过变换以产生一个物理地址</strong>
+线性地址到物理地址转换：cr3中取出进程的页目录地址，根据线性地址前十位定位页表；根据线性地址的中间十位，在页表中找到页的起始地址，即页表项；根据线性地址中最后12位偏移量加上页的起始地址得到物理地址。这个过程被称为 <strong>页式内存管理</strong></p>
+
+<h2 id="物理地址">物理地址</h2>
+
+<p>地址线所代表的实际的内存地址，实模式下采用物理地址寻址。
+<code class="highlighter-rouge">注意：在linux下虚拟地址和线性地址数值相同，原因是所有的段基址都是0，段限长都是最大。而虚拟地址是在段内的偏移量，现在段就是整个线性空间，所以虚拟地址就是整个线性空间的偏移量，这和线性地址的概念一样</code></p>
+
+<h1 id="堆">堆</h1>
+
+<p>关于堆的内存管理与分配，参考<code class="highlighter-rouge">malloc()和free()</code>的实现方式。</p>
+
+<h2 id="ptmalloc">ptmalloc</h2>
+
+<p>GNU Libc 的内存分配器(allocator) — ptmalloc提供动态内存管理的支持。allocator一般都会预先分配一块大于用户请求的内存， 并通过某种算法管理这块内存。来满足用户的内存分配要求，用户 free 掉的内存也并不是立即就返回给操作系统，相反，allocator 会管理这些被 free 掉的空闲空间，以应对用户以后的内存分配要求。</p>
+
+<h2 id="主分配区和非主分配区">主分配区和非主分配区</h2>
+
+<p>ptmalloc的内存分配器中，为了解决多线程锁争夺问题，分为主分配区main_area和非主分配区no_main_area。主分配区可以使用brk和mmap来分配，而非主分配区只能使用mmap来映射内存块。</p>
+
+<h2 id="chuck">chuck</h2>
+
+<p>ptmalloc 在给用户分配的空间的前后加上了一些控制信息，用这样的方法来记录分配的信息，以便完成分配和释放工作。
+<a href="http://blog.csdn.net/phenics/article/details/777053">详细关于chunk结构的说明1</a>
+<a href="http://blog.csdn.net/initphp/article/details/50833036">详细关于chunk结构的说明2</a></p>
+
+<h3 id="使用的chuck">使用的chuck</h3>
+
+<p>chunk 指针指向一个 chunk 的开始。一个chunk 中包含了用户请求的内存区域和相关的控制信息。mem 指针才是真正返回给用户的内存指针。chunk 的第二个域的最低一位为p，它表示前一个块是否在使用中，p为0则表示前一个 chunk 为空闲，这时 chunk 的第一个域 prev_size 才有效，prev_size 表示前一个 chunk 的 size，程序可以使用这个值来找到前一个 chunk 的开始。当p为1时，表示前一个 chunk 正在使用中，prev_size 无效，程序也就不可以得到前一个 chunk 的大小。而不能对前一个 chunk 进行任何操作。 ptmalloc 分配的第一个块总是将p设为1，以防止程序引用到不存在的区域。</p>
+
+<h3 id="空闲的thunk">空闲的thunk</h3>
+
+<p>当 chunk 空闲时，原本是用户数据区的地方存储了两个指针，指针 fd 指向后一个空闲的 chunk，而 bk 指向前一个空闲的 chunk， ptmalloc 通过这两个指针将大小相近的 chunk 连成一个双向链表。而不同的 chunk 链表又是通过 bins 或者 fastbins 来组织的。</p>
+
+<h2 id="空闲链表bins">空闲链表bins</h2>
+
+<p>当用户使用free函数释放掉的内存，ptmalloc并不会马上交还给操作系统，而是被ptmalloc本身的空闲链表bins管理起来了，这样当下次进程需要malloc一块内存的时候，ptmalloc就会从空闲的bins上寻找一块合适大小的内存块分配给用户使用。
+ptmalloc一共维护了128bin。每个bins都维护了大小相近的双向链表的chunk。</p>
+
+<h3 id="fast-bins">fast bins</h3>
+
+<p>fast bins是bins的高速缓冲区，大约有10个定长队列。当用户释放一块不大于max_fast（默认值64）的chunk（一般小内存）的时候，会默认会被放到fast bins上。当用户下次需要申请内存的时候首先会到fast bins上寻找是否有合适的chunk，然后才会到bins上空闲的chunk。</p>
+
+<h3 id="unsorted-bin">unsorted bin</h3>
+
+<p>是bins的一个缓冲区。当用户释放的内存大于max_fast或者fast bins合并后的chunk都会进入unsorted bin上。当用户malloc的时候，先会到unsorted bin上查找是否有合适的bin，如果没有合适的bin，ptmalloc会将unsorted bin上的chunk放入bins上，然后到bins上查找合适的空闲chunk。</p>
+
+<h3 id="exact-binssmall-bins和ordered-binslarge-bins">exact bins（small bins）和ordered bins（large bins）</h3>
+
+<p>small bins和large bins是真正用来放置chunk双向链表的。每个bin之间相差8个字节，并且通过上面的这个列表，可以快速定位到合适大小的空闲chunk。前64个为small bins，定长；后64个为large bins，非定长。</p>
+
+<h3 id="top-chunk">top chunk</h3>
+
+<p>ptmalloc 会预先分配一块较大的空闲内存(也就是所为的 heap)，而通过管理这块内存来响应用户的需求，因为内存是按地址从低向高进行分配的，在空闲内存的最高处，必然存在着一块空闲 chunk。top chunk相当于分配区的顶部空闲内存，当bins上都不能满足内存分配要求的时候，就会来top chunk上分配。</p>
+
+<h3 id="mmaped-chunk">mmaped chunk</h3>
+
+<p>当需要分配的 chunk 足够大，而且 fastbins 和 bins 都不能满足要求，甚至 top chunk 本身也不能满足分配需求时，ptmalloc 会使用 mmap 来直接使用内存映射来将页映射到进程空间。当释放mmaped chunk上的内存的时候会直接交还给操作系统。</p>
+
+<ul>
+  <li>小内存： 获取分配区(arena)并加锁 -&gt; fast bin -&gt; unsorted bin -&gt; small bin -&gt; large bin -&gt; top chunk -&gt; 扩展堆</li>
+  <li>大内存： 直接mmap</li>
+</ul>
+
+<h2 id="sbrk--mmap">sbrk &amp; mmap</h2>
+
+<p>ptmalloc 使用两种方法向内存索取内存空间：sbrk 和 mmap。</p>
+
+<h3 id="sbrk">sbrk</h3>
+
+<p>.bss 段之上的这块分配给用户程序的空间被称为 heap (堆)。start_brk 指向 heap 的开始，而 brk 指向 heap 的顶部。可以使用系统调用 brk 和 sbrk 来增加标识 heap 顶部的 brk 值，从而线性的增加分配给用户的 heap 空间。 ptmalloc 在开始时，若请求的空间小于 DEFAULT_MMAP_THRESHOLD (128K bytes)时，ptmalloc 会调用sbrk增加一块大小为 ( 128 KB + chunk_size ) align 4K 的空间作为heap。这就是ptmalloc 所维护的分配空间，当用户请求内存分配时，首先会在这个区域内找一块合适的 chunk 给用户。当用户释放了 heap 中的 chunk 时，ptmalloc 又会使用 fastbins 和 bins 来组织空闲 chunk。以备用户的下一次分配。若需要分配的 chunk 大小小于 DEFAULT_MMAP_THRESHOLD，而 heap 空间又不够，则此时 ptmalloc 会通过 sbrk 调用来增加 heap 值，也就是增加 top chunk 的大小，每次 heap 增加的值都会 align 到4k bytes。</p>
+
+<h3 id="mmap">mmap</h3>
+
+<p>当用户的请求超过 DEFAULT_MMAP_THRESHOLD，并且使用 sbrk 分配失败的时候，ptmalloc 会尝试使用 mmap 直接映射一块内存到进程内存空间。使用 mmap 直接映射的 chunk 在释放时直接解除映射，而不再属于进程的内存空间。任何对该内存的访问都会产生段错误。而在 heap 中分配的空间则可能会留在进程内存空间内。</p>
+
+<h1 id="pe--elf-文件格式">PE &amp; ELF 文件格式</h1>
+
+<p>关于PE格式，之前写过了。<a href="http://cjynet.top/2017/09/28/windows/Win32ASM-2/">PE格式</a>
+关于ELF格式，这里不详细写了。主要是学习一下ELF的常见的节。</p>
+
+<h2 id="elf常见区段">ELF常见区段</h2>
+
+<p>|区段名|说明|
+|:——–:|:—–:|
+|.text|可执行指令|
+|.bss|未初始化的全局变量或静态变量|
+|.data|已初始化的全局变量|
+|.rdata|只读数据|
+|.fini|结束应用程序的指令|
+|.init|开始应用程序的指令|
+|.got|GOT表，即全局偏移表|
+|.plt |PLT表，即过程链接表|
+|.dynamic|包含动态链接的信息|
+这里其实没什么东西，主要是要懂plt表和got表之间的关系，已经如何实现覆盖got表来实现缓冲区溢出。
+<a href="http://cjynet.top/2017/09/15/pwn/GOT-AND-PLT/">got表和plt表</a></p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#ida" class="page__taxonomy-item" rel="tag">ida</a><span class="sep">, </span>
+    
+      
+      
+      <a href="/tags/#reverse" class="page__taxonomy-item" rel="tag">reverse</a>
+    
+    </span>
+  </p>
+
+
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2018-03-14T06:19:00+08:00">March 14, 2018</time></p>
+        
+      </footer>
+
+      <section class="page__share">
+  
+    <h4 class="page__share-title">Share on</h4>
+  
+
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Idapro%E6%9D%83%E5%A8%81%E4%BB%A3%E7%A0%81%E7%A0%B4%E8%A7%A3%E6%8F%AD%E7%A7%98%E7%AC%94%E8%AE%B0+1%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-03%2FIDApro%25E6%259D%2583%25E5%25A8%2581%25E4%25BB%25A3%25E7%25A0%2581%25E7%25A0%25B4%25E8%25A7%25A3%25E6%258F%25AD%25E7%25A7%2598%25E7%25AC%2594%25E8%25AE%25B0-1.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-03%2FIDApro%25E6%259D%2583%25E5%25A8%2581%25E4%25BB%25A3%25E7%25A0%2581%25E7%25A0%25B4%25E8%25A7%25A3%25E6%258F%25AD%25E7%25A7%2598%25E7%25AC%2594%25E8%25AE%25B0-1.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-03%2FIDApro%25E6%259D%2583%25E5%25A8%2581%25E4%25BB%25A3%25E7%25A0%2581%25E7%25A0%25B4%25E8%25A7%25A3%25E6%258F%25AD%25E7%25A7%2598%25E7%25AC%2594%25E8%25AE%25B0-1.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+
+      
+  <nav class="pagination">
+    
+      <a href="/posts/2018-03/Linux%E7%9F%A5%E8%AF%86%E8%A1%A5%E5%85%85.html" class="pagination--pager" title="Linux知识补充
+">Previous</a>
+    
+    
+      <a href="/posts/2018-03/IDApro%E6%9D%83%E5%A8%81%E4%BB%A3%E7%A0%81%E7%A0%B4%E8%A7%A3%E6%8F%AD%E7%A7%98%E7%AC%94%E8%AE%B0-2.html" class="pagination--pager" title="Idapro权威代码破解揭秘笔记 2
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      <h4 class="page__related-title">You may also enjoy</h4>
+      <div class="grid__wrapper">
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-11/Dirary_November.html" rel="permalink">Dirary_november
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  每日所作所得
+
+
+
+
+11月1日
+</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/Software_Security_Project.html" rel="permalink">Software_security_project
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  Malware
+vs2010
+
+
+
+
+InfoCollection
+
+configure
+
+
+
+warning
+
+
+
+</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/Pacman_Helper.html" rel="permalink">Pacman_helper
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  pacman 手册
+
+
+
+
+archlinux pacman 命令
+arch wiki
+
+pacman -Sy 仅同步源
+
+pacman -Syu 同步源，并更新系统
+
+pacman -Su –ignore foo 升级时不升级包foo
+
+pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/%E5%8D%81%E6%9C%88%E6%97%A5%E8%AE%B0.html" rel="permalink">十月日记
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  每日所作所得
+
+
+
+
+10月1日
+
+周日，上课前最后一天，算是给自己放了最后一天假期
+
+10月2日
+
+上了第一天的课，主要是os，一脸蒙蔽。
+</p>
+  </article>
+</div>
+
+        
+      </div>
+    </div>
+  
+  
+</div>
+
+    </div>
+
+    
+      <div class="search-content">
+        <div class="search-content__inner-wrap"><form class="search-content__form" onkeydown="return event.key != 'Enter';">
+    <label class="sr-only" for="search">
+      Enter your search term...
+    </label>
+    <input type="search" id="search" class="search-input" tabindex="-1" placeholder="Enter your search term..." />
+  </form>
+  <div id="results" class="results"></div></div>
+
+      </div>
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+        
+      
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2019 Blogger. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+
+
+
+
+<script src="/assets/js/lunr/lunr.min.js"></script>
+<script src="/assets/js/lunr/lunr-store.js"></script>
+<script src="/assets/js/lunr/lunr-en.js"></script>
+
+
+
+
+    
+  <script>
+    var disqus_config = function () {
+      this.page.url = "http://localhost:4000/posts/2018-03/IDApro%E6%9D%83%E5%A8%81%E4%BB%A3%E7%A0%81%E7%A0%B4%E8%A7%A3%E6%8F%AD%E7%A7%98%E7%AC%94%E8%AE%B0-1.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.identifier = "/posts/2018-03/IDApro权威代码破解揭秘笔记-1"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    (function() { // DON'T EDIT BELOW THIS LINE
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zjgcjy-github-io.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  </script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+  
+
+
+
+
+
+  </body>
+</html>

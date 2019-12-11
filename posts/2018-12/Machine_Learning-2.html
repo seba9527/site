@@ -1,0 +1,829 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.17.2 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Machine_learning 2  -  My way, though far away</title>
+<meta name="description" content="机器学习笔记week2。fighting。多变量线性回归假设现在有n个变量影响最终的结果，我们可以这样设立方程，注意变量均是线性的。其中θ是参量，而x是变量。我们也可以将上述表达式写成矩阵相乘的形式，如下图所示。即多变量代价函数和梯度函数然后我们就能得到估计函数，参数，代价函数的表达式，如下图所示，并且我们将关于θ的参数看成一个整体，作为θ的行向量，然后我们定义梯度下降函数的表达式，即对代价函数中每个变量求偏导数。如下图所示，我们可以对比单变量和多变量的情况，其实类似，由于我们定义了初始值是1，所以所有变量的情况和单变量情况下保持一致。公式如下所示。特征缩放进行特征缩放的意义就是在于，如果多变量之间的差距较大，在进行梯度下降的过程中，我们进行梯度下降的时间会比较慢，次数也比较多，如下图所示。我们将每个变量进行缩放，将其缩放到区间-1到1之间，是比较好的情况。均值归一化如上图所示，我们可以使用变量进行替换。具体方式减去变量的平均值再除以范围（标准差），就能得到一个很好的范围来进行梯度下降。关于学习比例α如何确定α的值是比较困难的，这里视频中提出了一种方法，即画出每一次迭代和代价函数的相应值，用以检测每一次迭代是否正确。如下图所示。同时我们可以选定一个极小值，如果在一次迭代中代价函数的值减小的部分小于极小值，可以认为代价函数已经根据梯度下降算法找到了最小值。如果代价函数随着迭代次数不是逐渐下降的，那我们可以认为α的值设定错误，大多数情况下都是偏大了，如下图所示，这些情况的原因都是α偏大，所以画出图像是一个很好的检测方式来判断α的值是否恰当。多项式线性回归讨论如何拟合多项式，一般的方式是通过换元法，即将变量替代成高次，同时注意控制变量的范围，这里需要和之前特征缩放结合起来，使得变量之间差距不要过大。正规方程正规方程能给出一个标准解法来求解代价函数的最小值，图解如下所示。当你有m个数据，每个数据n个特征值时，根据如下的解法，我们能得到最小值。即梯度下降和正规方程的比较            梯度下降      正规方程                  需要选择α      不需要α              需要很多次迭代      不需要迭代              运算复杂度是n的平方      运算复杂度是n的立方，且需要计算逆矩阵              当n很大时，仍然有效      当n很大时，速度很慢      关于矩阵不可逆如果碰到矩阵不可逆的情况，一般有2种方式来解决这个问题，首先是检测是否存在多余的特征变量，即多个变量之间线性相关，这会导致这个问题。其次检测是否特征变量太多，可以选择删除某些变量，或者使用正规化来解决这个问题。Week 2 ends here.">
+
+
+  <meta name="author" content="zjgcjy">
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="My way, though far away">
+<meta property="og:title" content="Machine_learning 2">
+<meta property="og:url" content="http://localhost:4000/posts/2018-12/Machine_Learning-2.html">
+
+
+  <meta property="og:description" content="机器学习笔记week2。fighting。多变量线性回归假设现在有n个变量影响最终的结果，我们可以这样设立方程，注意变量均是线性的。其中θ是参量，而x是变量。我们也可以将上述表达式写成矩阵相乘的形式，如下图所示。即多变量代价函数和梯度函数然后我们就能得到估计函数，参数，代价函数的表达式，如下图所示，并且我们将关于θ的参数看成一个整体，作为θ的行向量，然后我们定义梯度下降函数的表达式，即对代价函数中每个变量求偏导数。如下图所示，我们可以对比单变量和多变量的情况，其实类似，由于我们定义了初始值是1，所以所有变量的情况和单变量情况下保持一致。公式如下所示。特征缩放进行特征缩放的意义就是在于，如果多变量之间的差距较大，在进行梯度下降的过程中，我们进行梯度下降的时间会比较慢，次数也比较多，如下图所示。我们将每个变量进行缩放，将其缩放到区间-1到1之间，是比较好的情况。均值归一化如上图所示，我们可以使用变量进行替换。具体方式减去变量的平均值再除以范围（标准差），就能得到一个很好的范围来进行梯度下降。关于学习比例α如何确定α的值是比较困难的，这里视频中提出了一种方法，即画出每一次迭代和代价函数的相应值，用以检测每一次迭代是否正确。如下图所示。同时我们可以选定一个极小值，如果在一次迭代中代价函数的值减小的部分小于极小值，可以认为代价函数已经根据梯度下降算法找到了最小值。如果代价函数随着迭代次数不是逐渐下降的，那我们可以认为α的值设定错误，大多数情况下都是偏大了，如下图所示，这些情况的原因都是α偏大，所以画出图像是一个很好的检测方式来判断α的值是否恰当。多项式线性回归讨论如何拟合多项式，一般的方式是通过换元法，即将变量替代成高次，同时注意控制变量的范围，这里需要和之前特征缩放结合起来，使得变量之间差距不要过大。正规方程正规方程能给出一个标准解法来求解代价函数的最小值，图解如下所示。当你有m个数据，每个数据n个特征值时，根据如下的解法，我们能得到最小值。即梯度下降和正规方程的比较            梯度下降      正规方程                  需要选择α      不需要α              需要很多次迭代      不需要迭代              运算复杂度是n的平方      运算复杂度是n的立方，且需要计算逆矩阵              当n很大时，仍然有效      当n很大时，速度很慢      关于矩阵不可逆如果碰到矩阵不可逆的情况，一般有2种方式来解决这个问题，首先是检测是否存在多余的特征变量，即多个变量之间线性相关，这会导致这个问题。其次检测是否特征变量太多，可以选择删除某些变量，或者使用正规化来解决这个问题。Week 2 ends here.">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+
+
+
+  <meta name="twitter:site" content="@zjgcjy">
+  <meta name="twitter:title" content="Machine_learning 2">
+  <meta name="twitter:description" content="机器学习笔记week2。fighting。多变量线性回归假设现在有n个变量影响最终的结果，我们可以这样设立方程，注意变量均是线性的。其中θ是参量，而x是变量。我们也可以将上述表达式写成矩阵相乘的形式，如下图所示。即多变量代价函数和梯度函数然后我们就能得到估计函数，参数，代价函数的表达式，如下图所示，并且我们将关于θ的参数看成一个整体，作为θ的行向量，然后我们定义梯度下降函数的表达式，即对代价函数中每个变量求偏导数。如下图所示，我们可以对比单变量和多变量的情况，其实类似，由于我们定义了初始值是1，所以所有变量的情况和单变量情况下保持一致。公式如下所示。特征缩放进行特征缩放的意义就是在于，如果多变量之间的差距较大，在进行梯度下降的过程中，我们进行梯度下降的时间会比较慢，次数也比较多，如下图所示。我们将每个变量进行缩放，将其缩放到区间-1到1之间，是比较好的情况。均值归一化如上图所示，我们可以使用变量进行替换。具体方式减去变量的平均值再除以范围（标准差），就能得到一个很好的范围来进行梯度下降。关于学习比例α如何确定α的值是比较困难的，这里视频中提出了一种方法，即画出每一次迭代和代价函数的相应值，用以检测每一次迭代是否正确。如下图所示。同时我们可以选定一个极小值，如果在一次迭代中代价函数的值减小的部分小于极小值，可以认为代价函数已经根据梯度下降算法找到了最小值。如果代价函数随着迭代次数不是逐渐下降的，那我们可以认为α的值设定错误，大多数情况下都是偏大了，如下图所示，这些情况的原因都是α偏大，所以画出图像是一个很好的检测方式来判断α的值是否恰当。多项式线性回归讨论如何拟合多项式，一般的方式是通过换元法，即将变量替代成高次，同时注意控制变量的范围，这里需要和之前特征缩放结合起来，使得变量之间差距不要过大。正规方程正规方程能给出一个标准解法来求解代价函数的最小值，图解如下所示。当你有m个数据，每个数据n个特征值时，根据如下的解法，我们能得到最小值。即梯度下降和正规方程的比较            梯度下降      正规方程                  需要选择α      不需要α              需要很多次迭代      不需要迭代              运算复杂度是n的平方      运算复杂度是n的立方，且需要计算逆矩阵              当n很大时，仍然有效      当n很大时，速度很慢      关于矩阵不可逆如果碰到矩阵不可逆的情况，一般有2种方式来解决这个问题，首先是检测是否存在多余的特征变量，即多个变量之间线性相关，这会导致这个问题。其次检测是否特征变量太多，可以选择删除某些变量，或者使用正规化来解决这个问题。Week 2 ends here.">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2018-12/Machine_Learning-2.html">
+
+  
+    <meta name="twitter:card" content="summary">
+    
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+    
+  
+
+  
+
+
+
+  <meta property="article:published_time" content="2018-12-12T20:44:00+08:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/posts/2018-12/Machine_Learning-2.html">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Blogger",
+      "url": "http://localhost:4000/",
+      "sameAs": ["https://twitter.com/","https://github.com/"]
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="My way, though far away Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/apple-touch-icon.png" alt=""></a>
+        
+        <a class="site-title" href="/">
+          ZJGCJY
+          <span class="site-subtitle">My way, though far away</span>
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/collection-archive/" >Collections</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="search__toggle" type="button">
+          <span class="visually-hidden">Toggle search</span>
+          <svg class="icon" width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15.99 16">
+            <path d="M15.5,13.12L13.19,10.8a1.69,1.69,0,0,0-1.28-.55l-0.06-.06A6.5,6.5,0,0,0,5.77,0,6.5,6.5,0,0,0,2.46,11.59a6.47,6.47,0,0,0,7.74.26l0.05,0.05a1.65,1.65,0,0,0,.5,1.24l2.38,2.38A1.68,1.68,0,0,0,15.5,13.12ZM6.4,2A4.41,4.41,0,1,1,2,6.4,4.43,4.43,0,0,1,6.4,2Z" transform="translate(-.01)"></path>
+          </svg>
+        </button>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#posts" itemprop="item"><span itemprop="name">Posts</span></a>
+          <meta itemprop="position" content="2" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#2018-12" itemprop="item"><span itemprop="name">2018 12</span></a>
+          <meta itemprop="position" content="3" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        <li class="current">Machine_learning 2</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/me.jpg" alt="zjgcjy" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">zjgcjy</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>IIE UCAS, CTFer, Binarian</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+          
+        
+          
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+          
+        
+          
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          
+        
+          
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Machine_learning 2">
+    <meta itemprop="description" content="机器学习笔记week2。fighting。多变量线性回归假设现在有n个变量影响最终的结果，我们可以这样设立方程，注意变量均是线性的。其中θ是参量，而x是变量。我们也可以将上述表达式写成矩阵相乘的形式，如下图所示。即多变量代价函数和梯度函数然后我们就能得到估计函数，参数，代价函数的表达式，如下图所示，并且我们将关于θ的参数看成一个整体，作为θ的行向量，然后我们定义梯度下降函数的表达式，即对代价函数中每个变量求偏导数。如下图所示，我们可以对比单变量和多变量的情况，其实类似，由于我们定义了初始值是1，所以所有变量的情况和单变量情况下保持一致。公式如下所示。特征缩放进行特征缩放的意义就是在于，如果多变量之间的差距较大，在进行梯度下降的过程中，我们进行梯度下降的时间会比较慢，次数也比较多，如下图所示。我们将每个变量进行缩放，将其缩放到区间-1到1之间，是比较好的情况。均值归一化如上图所示，我们可以使用变量进行替换。具体方式减去变量的平均值再除以范围（标准差），就能得到一个很好的范围来进行梯度下降。关于学习比例α如何确定α的值是比较困难的，这里视频中提出了一种方法，即画出每一次迭代和代价函数的相应值，用以检测每一次迭代是否正确。如下图所示。同时我们可以选定一个极小值，如果在一次迭代中代价函数的值减小的部分小于极小值，可以认为代价函数已经根据梯度下降算法找到了最小值。如果代价函数随着迭代次数不是逐渐下降的，那我们可以认为α的值设定错误，大多数情况下都是偏大了，如下图所示，这些情况的原因都是α偏大，所以画出图像是一个很好的检测方式来判断α的值是否恰当。多项式线性回归讨论如何拟合多项式，一般的方式是通过换元法，即将变量替代成高次，同时注意控制变量的范围，这里需要和之前特征缩放结合起来，使得变量之间差距不要过大。正规方程正规方程能给出一个标准解法来求解代价函数的最小值，图解如下所示。当你有m个数据，每个数据n个特征值时，根据如下的解法，我们能得到最小值。即梯度下降和正规方程的比较            梯度下降      正规方程                  需要选择α      不需要α              需要很多次迭代      不需要迭代              运算复杂度是n的平方      运算复杂度是n的立方，且需要计算逆矩阵              当n很大时，仍然有效      当n很大时，速度很慢      关于矩阵不可逆如果碰到矩阵不可逆的情况，一般有2种方式来解决这个问题，首先是检测是否存在多余的特征变量，即多个变量之间线性相关，这会导致这个问题。其次检测是否特征变量太多，可以选择删除某些变量，或者使用正规化来解决这个问题。Week 2 ends here.">
+    <meta itemprop="datePublished" content="December 12, 2018">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Machine_learning 2
+</h1>
+          
+            <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+          <aside class="sidebar__right ">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+              <ul class="toc__menu">
+  <li><a href="#多变量线性回归">多变量线性回归</a></li>
+  <li><a href="#多变量代价函数和梯度函数">多变量代价函数和梯度函数</a></li>
+  <li><a href="#特征缩放">特征缩放</a>
+    <ul>
+      <li><a href="#均值归一化">均值归一化</a></li>
+    </ul>
+  </li>
+  <li><a href="#关于学习比例α">关于学习比例α</a></li>
+  <li><a href="#多项式线性回归">多项式线性回归</a></li>
+  <li><a href="#正规方程">正规方程</a>
+    <ul>
+      <li><a href="#梯度下降和正规方程的比较">梯度下降和正规方程的比较</a></li>
+      <li><a href="#关于矩阵不可逆">关于矩阵不可逆</a></li>
+    </ul>
+  </li>
+</ul>
+            </nav>
+          </aside>
+        
+        <p>机器学习笔记week2。fighting。</p>
+
+<hr />
+
+<h1 id="多变量线性回归">多变量线性回归</h1>
+
+<p>假设现在有n个变量影响最终的结果，我们可以这样设立方程，注意变量均是线性的。其中θ是参量，而x是变量。</p>
+
+<script type="math/tex; mode=display">h_\theta (x) = \theta_0 + \theta_1 x_1 + \theta_2 x_2 + \theta_3 x_3 + \cdots + \theta_n x_n</script>
+
+<p>我们也可以将上述表达式写成矩阵相乘的形式，如下图所示。</p>
+
+<p><img src="images/Snipaste_2018-12-22_16-15-46.png" alt="多变量线性回归" /></p>
+
+<p>即
+<script type="math/tex">h_\theta (x) = \theta^Tx</script></p>
+
+<h1 id="多变量代价函数和梯度函数">多变量代价函数和梯度函数</h1>
+
+<p>然后我们就能得到估计函数，参数，代价函数的表达式，如下图所示，并且我们将关于θ的参数看成一个整体，作为θ的行向量，然后我们定义梯度下降函数的表达式，即对代价函数中每个变量求偏导数。
+<img src="images/Snipaste_2018-12-22_16-46-44.png" alt="多变量代价函数" /></p>
+
+<p>如下图所示，我们可以对比单变量和多变量的情况，其实类似，由于我们定义了初始值是1，所以所有变量的情况和单变量情况下保持一致。</p>
+
+<p><img src="images/Snipaste_2018-12-22_16-43-56.png" alt="多变量梯度下降" /></p>
+
+<p>公式如下所示。</p>
+
+<script type="math/tex; mode=display">θ_j:=θ_j−α\frac{1}{m}\displaystyle\sum_{i=1}^{m}(h_θ(x^{(i)})−y^{(i)})⋅x^{(i)}_j</script>
+
+<h1 id="特征缩放">特征缩放</h1>
+
+<p>进行特征缩放的意义就是在于，如果多变量之间的差距较大，在进行梯度下降的过程中，我们进行梯度下降的时间会比较慢，次数也比较多，如下图所示。</p>
+
+<p><img src="images/Snipaste_2018-12-22_17-20-56.png" alt="特征缩放" /></p>
+
+<p>我们将每个变量进行缩放，将其缩放到区间-1到1之间，是比较好的情况。</p>
+
+<h2 id="均值归一化">均值归一化</h2>
+
+<p><img src="images/Snipaste_2018-12-22_17-23-19.png" alt="均值归一化" /></p>
+
+<p>如上图所示，我们可以使用变量进行替换。具体方式减去变量的平均值再除以范围（标准差），就能得到一个很好的范围来进行梯度下降。</p>
+
+<h1 id="关于学习比例α">关于学习比例α</h1>
+
+<p>如何确定α的值是比较困难的，这里视频中提出了一种方法，即画出每一次迭代和代价函数的相应值，用以检测每一次迭代是否正确。如下图所示。同时我们可以选定一个极小值，如果在一次迭代中代价函数的值减小的部分小于极小值，可以认为代价函数已经根据梯度下降算法找到了最小值。</p>
+
+<p><img src="images/Snipaste_2018-12-22_17-46-11.png" alt="代价函数和迭代次数" /></p>
+
+<p>如果代价函数随着迭代次数不是逐渐下降的，那我们可以认为α的值设定错误，大多数情况下都是偏大了，如下图所示，这些情况的原因都是α偏大，所以画出图像是一个很好的检测方式来判断α的值是否恰当。</p>
+
+<p><img src="images/Snipaste_2018-12-22_17-47-16.png" alt="学习比例α" /></p>
+
+<h1 id="多项式线性回归">多项式线性回归</h1>
+
+<p>讨论如何拟合多项式，一般的方式是通过换元法，即将变量替代成高次，同时注意控制变量的范围，这里需要和之前特征缩放结合起来，使得变量之间差距不要过大。</p>
+
+<p><img src="images/Snipaste_2018-12-22_19-06-32.png" alt="多项式线性回归" /></p>
+
+<h1 id="正规方程">正规方程</h1>
+
+<p>正规方程能给出一个标准解法来求解代价函数的最小值，图解如下所示。当你有m个数据，每个数据n个特征值时，根据如下的解法，我们能得到最小值。</p>
+
+<p><img src="images/Snipaste_2018-12-22_19-37-23.png" alt="正规方程" /></p>
+
+<p>即</p>
+
+<script type="math/tex; mode=display">\theta=(X^TX)^{-1}X^Ty</script>
+
+<h2 id="梯度下降和正规方程的比较">梯度下降和正规方程的比较</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">梯度下降</th>
+      <th style="text-align: center">正规方程</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">需要选择α</td>
+      <td style="text-align: center">不需要α</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">需要很多次迭代</td>
+      <td style="text-align: center">不需要迭代</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">运算复杂度是n的平方</td>
+      <td style="text-align: center">运算复杂度是n的立方，且需要计算逆矩阵</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">当n很大时，仍然有效</td>
+      <td style="text-align: center">当n很大时，速度很慢</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="关于矩阵不可逆">关于矩阵不可逆</h2>
+
+<p>如果碰到矩阵不可逆的情况，一般有2种方式来解决这个问题，首先是检测是否存在多余的特征变量，即多个变量之间线性相关，这会导致这个问题。其次检测是否特征变量太多，可以选择删除某些变量，或者使用正规化来解决这个问题。</p>
+
+<p><strong>Week 2 ends here.</strong></p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#ml" class="page__taxonomy-item" rel="tag">ml</a>
+    
+    </span>
+  </p>
+
+
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2018-12-12T20:44:00+08:00">December 12, 2018</time></p>
+        
+      </footer>
+
+      <section class="page__share">
+  
+    <h4 class="page__share-title">Share on</h4>
+  
+
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Machine_learning+2%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-12%2FMachine_Learning-2.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-12%2FMachine_Learning-2.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-12%2FMachine_Learning-2.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+
+      
+  <nav class="pagination">
+    
+      <a href="/posts/2018-12/Machine_Learning-1.html" class="pagination--pager" title="Machine_learning 1
+">Previous</a>
+    
+    
+      <a href="/posts/2018-12/Machine_Learning-3.html" class="pagination--pager" title="Machine_learning 3
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      <h4 class="page__related-title">You may also enjoy</h4>
+      <div class="grid__wrapper">
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-11/Dirary_November.html" rel="permalink">Dirary_november
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  每日所作所得
+
+
+
+
+11月1日
+</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/Software_Security_Project.html" rel="permalink">Software_security_project
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  Malware
+vs2010
+
+
+
+
+InfoCollection
+
+configure
+
+
+
+warning
+
+
+
+</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/Pacman_Helper.html" rel="permalink">Pacman_helper
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  pacman 手册
+
+
+
+
+archlinux pacman 命令
+arch wiki
+
+pacman -Sy 仅同步源
+
+pacman -Syu 同步源，并更新系统
+
+pacman -Su –ignore foo 升级时不升级包foo
+
+pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/%E5%8D%81%E6%9C%88%E6%97%A5%E8%AE%B0.html" rel="permalink">十月日记
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  每日所作所得
+
+
+
+
+10月1日
+
+周日，上课前最后一天，算是给自己放了最后一天假期
+
+10月2日
+
+上了第一天的课，主要是os，一脸蒙蔽。
+</p>
+  </article>
+</div>
+
+        
+      </div>
+    </div>
+  
+  
+</div>
+
+    </div>
+
+    
+      <div class="search-content">
+        <div class="search-content__inner-wrap"><form class="search-content__form" onkeydown="return event.key != 'Enter';">
+    <label class="sr-only" for="search">
+      Enter your search term...
+    </label>
+    <input type="search" id="search" class="search-input" tabindex="-1" placeholder="Enter your search term..." />
+  </form>
+  <div id="results" class="results"></div></div>
+
+      </div>
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+        
+      
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2019 Blogger. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+
+
+
+
+<script src="/assets/js/lunr/lunr.min.js"></script>
+<script src="/assets/js/lunr/lunr-store.js"></script>
+<script src="/assets/js/lunr/lunr-en.js"></script>
+
+
+
+
+    
+  <script>
+    var disqus_config = function () {
+      this.page.url = "http://localhost:4000/posts/2018-12/Machine_Learning-2.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.identifier = "/posts/2018-12/Machine_Learning-2"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    (function() { // DON'T EDIT BELOW THIS LINE
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zjgcjy-github-io.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  </script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+  
+
+
+
+
+
+  </body>
+</html>

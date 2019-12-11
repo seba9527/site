@@ -1,0 +1,813 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.17.2 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Pip Using  -  My way, though far away</title>
+<meta name="description" content="pip install这篇文章主要是讲的如何在win32/64构架下在python2.7/3.5安装pip第三方拓展包管理，进行有效的科学计算，机器学习，大数据处理，CTF（笑）。安装pip现在无论是python2.7/3.5以上都自带了pip包管理器，在cmd中直接输入pip，有效即可使用，不行的话github上手动安装:git clone https://github.com/pypa/pipcd pippython get-pip.py查看与更新pip install -U pip   #更新pippip install somepackage    #安装somepackage模块pip install     #列出已经安装的模块pip install --upgrade somepackage   #升级somepackage模块pip uninstall somepackage     #卸载somepackage模块pip install somepackage.whl   #使用whl文件安装somepackage模块查看版本在cmd中，输入python进入python（也可在IDE中进行）。import pipprint(pip.pep425tags.get_supported())界面上输出当前python的版本信息,例如：cp27&#39;, &#39;cp27m&#39;, &#39;win_amd64      python 2.7 win64cp27&#39;, &#39;cp27m&#39;, &#39;win_win32        python 2.7 win32  (python2.7默认是32位)cp35&#39;, &#39;cp35m&#39;, &#39;win_amd64      python3.5 win64之后对应于自己的系统和版本，到http://www.lfd.uci.edu/~gohlke/pythonlibs 网站下查找需要的第三方包。因为大多数第三方包都需要numpy作为基础，所以以下内容以numpy为例安装Numpy在安装之前还需要说明一下，该网址提供的都说whl文件，类似于zip压缩包，需要安装一个拓展。pip install wheel然后找到你下载的包就行了，例如，我的是python2.7+win64：numpy-1.13.0rc2+mkl-cp27-cp27m-win_amd64.whl 文件。打开cmd，输入pip install +whl文件的全名，安装whl。pip install numpy-1.13.0rc2+mkl-cp27-cp27m-win_amd64.whl按Enter后，等待安装完成。没什么问题的话就成功了。忘记截图了。测试import numpy from *random.rand(4,4)若输出一个4*4的随机矩阵，则安装成功。安装Scipy方法和上面一样。安装效果如下。（可以看到，需要先安装numpy才行，不然会安装失败。）pip install scipy-0.19.0-cp27-cp27m-win_amd64.whlProcessing scipy-0.19.0-cp27-cp27m-win_amd64.whlRequirement already satisfied: numpy&gt;=1.8.2 in c:\python27\lib\site-packages (from scipy==0.19.0)Installing collected packages: scipySuccessfully installed scipy-0.19.0安装pillowpillow是用来图像处理用的，CTF比赛中也经常使用-_-。pip install Pillow-4.1.1-cp27-cp27m-win_amd64.whlProcessing pillow-4.1.1-cp27-cp27m-win_amd64.whlCollecting olefile (from Pillow==4.1.1)  Downloading olefile-0.44.zip (74kB)    100% |████████████████████████████████| 81kB 124kB/sBuilding wheels for collected packages: olefile  Running setup.py bdist_wheel for olefile ... done  Stored in directory: C:\Users\*****\AppData\Local\pip\Cache\wheels\cc7bd00345397059149a10b0259ef38b867935ea2ecff99a9bSuccessfully built olefileInstalling collected packages: olefile, PillowSuccessfully installed Pillow-4.1.1 olefile-0.44">
+
+
+  <meta name="author" content="zjgcjy">
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="My way, though far away">
+<meta property="og:title" content="Pip Using">
+<meta property="og:url" content="http://localhost:4000/posts/2018-01/pip-using.html">
+
+
+  <meta property="og:description" content="pip install这篇文章主要是讲的如何在win32/64构架下在python2.7/3.5安装pip第三方拓展包管理，进行有效的科学计算，机器学习，大数据处理，CTF（笑）。安装pip现在无论是python2.7/3.5以上都自带了pip包管理器，在cmd中直接输入pip，有效即可使用，不行的话github上手动安装:git clone https://github.com/pypa/pipcd pippython get-pip.py查看与更新pip install -U pip   #更新pippip install somepackage    #安装somepackage模块pip install     #列出已经安装的模块pip install --upgrade somepackage   #升级somepackage模块pip uninstall somepackage     #卸载somepackage模块pip install somepackage.whl   #使用whl文件安装somepackage模块查看版本在cmd中，输入python进入python（也可在IDE中进行）。import pipprint(pip.pep425tags.get_supported())界面上输出当前python的版本信息,例如：cp27&#39;, &#39;cp27m&#39;, &#39;win_amd64      python 2.7 win64cp27&#39;, &#39;cp27m&#39;, &#39;win_win32        python 2.7 win32  (python2.7默认是32位)cp35&#39;, &#39;cp35m&#39;, &#39;win_amd64      python3.5 win64之后对应于自己的系统和版本，到http://www.lfd.uci.edu/~gohlke/pythonlibs 网站下查找需要的第三方包。因为大多数第三方包都需要numpy作为基础，所以以下内容以numpy为例安装Numpy在安装之前还需要说明一下，该网址提供的都说whl文件，类似于zip压缩包，需要安装一个拓展。pip install wheel然后找到你下载的包就行了，例如，我的是python2.7+win64：numpy-1.13.0rc2+mkl-cp27-cp27m-win_amd64.whl 文件。打开cmd，输入pip install +whl文件的全名，安装whl。pip install numpy-1.13.0rc2+mkl-cp27-cp27m-win_amd64.whl按Enter后，等待安装完成。没什么问题的话就成功了。忘记截图了。测试import numpy from *random.rand(4,4)若输出一个4*4的随机矩阵，则安装成功。安装Scipy方法和上面一样。安装效果如下。（可以看到，需要先安装numpy才行，不然会安装失败。）pip install scipy-0.19.0-cp27-cp27m-win_amd64.whlProcessing scipy-0.19.0-cp27-cp27m-win_amd64.whlRequirement already satisfied: numpy&gt;=1.8.2 in c:\python27\lib\site-packages (from scipy==0.19.0)Installing collected packages: scipySuccessfully installed scipy-0.19.0安装pillowpillow是用来图像处理用的，CTF比赛中也经常使用-_-。pip install Pillow-4.1.1-cp27-cp27m-win_amd64.whlProcessing pillow-4.1.1-cp27-cp27m-win_amd64.whlCollecting olefile (from Pillow==4.1.1)  Downloading olefile-0.44.zip (74kB)    100% |████████████████████████████████| 81kB 124kB/sBuilding wheels for collected packages: olefile  Running setup.py bdist_wheel for olefile ... done  Stored in directory: C:\Users\*****\AppData\Local\pip\Cache\wheels\cc7bd00345397059149a10b0259ef38b867935ea2ecff99a9bSuccessfully built olefileInstalling collected packages: olefile, PillowSuccessfully installed Pillow-4.1.1 olefile-0.44">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+
+
+
+  <meta name="twitter:site" content="@zjgcjy">
+  <meta name="twitter:title" content="Pip Using">
+  <meta name="twitter:description" content="pip install这篇文章主要是讲的如何在win32/64构架下在python2.7/3.5安装pip第三方拓展包管理，进行有效的科学计算，机器学习，大数据处理，CTF（笑）。安装pip现在无论是python2.7/3.5以上都自带了pip包管理器，在cmd中直接输入pip，有效即可使用，不行的话github上手动安装:git clone https://github.com/pypa/pipcd pippython get-pip.py查看与更新pip install -U pip   #更新pippip install somepackage    #安装somepackage模块pip install     #列出已经安装的模块pip install --upgrade somepackage   #升级somepackage模块pip uninstall somepackage     #卸载somepackage模块pip install somepackage.whl   #使用whl文件安装somepackage模块查看版本在cmd中，输入python进入python（也可在IDE中进行）。import pipprint(pip.pep425tags.get_supported())界面上输出当前python的版本信息,例如：cp27&#39;, &#39;cp27m&#39;, &#39;win_amd64      python 2.7 win64cp27&#39;, &#39;cp27m&#39;, &#39;win_win32        python 2.7 win32  (python2.7默认是32位)cp35&#39;, &#39;cp35m&#39;, &#39;win_amd64      python3.5 win64之后对应于自己的系统和版本，到http://www.lfd.uci.edu/~gohlke/pythonlibs 网站下查找需要的第三方包。因为大多数第三方包都需要numpy作为基础，所以以下内容以numpy为例安装Numpy在安装之前还需要说明一下，该网址提供的都说whl文件，类似于zip压缩包，需要安装一个拓展。pip install wheel然后找到你下载的包就行了，例如，我的是python2.7+win64：numpy-1.13.0rc2+mkl-cp27-cp27m-win_amd64.whl 文件。打开cmd，输入pip install +whl文件的全名，安装whl。pip install numpy-1.13.0rc2+mkl-cp27-cp27m-win_amd64.whl按Enter后，等待安装完成。没什么问题的话就成功了。忘记截图了。测试import numpy from *random.rand(4,4)若输出一个4*4的随机矩阵，则安装成功。安装Scipy方法和上面一样。安装效果如下。（可以看到，需要先安装numpy才行，不然会安装失败。）pip install scipy-0.19.0-cp27-cp27m-win_amd64.whlProcessing scipy-0.19.0-cp27-cp27m-win_amd64.whlRequirement already satisfied: numpy&gt;=1.8.2 in c:\python27\lib\site-packages (from scipy==0.19.0)Installing collected packages: scipySuccessfully installed scipy-0.19.0安装pillowpillow是用来图像处理用的，CTF比赛中也经常使用-_-。pip install Pillow-4.1.1-cp27-cp27m-win_amd64.whlProcessing pillow-4.1.1-cp27-cp27m-win_amd64.whlCollecting olefile (from Pillow==4.1.1)  Downloading olefile-0.44.zip (74kB)    100% |████████████████████████████████| 81kB 124kB/sBuilding wheels for collected packages: olefile  Running setup.py bdist_wheel for olefile ... done  Stored in directory: C:\Users\*****\AppData\Local\pip\Cache\wheels\cc7bd00345397059149a10b0259ef38b867935ea2ecff99a9bSuccessfully built olefileInstalling collected packages: olefile, PillowSuccessfully installed Pillow-4.1.1 olefile-0.44">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2018-01/pip-using.html">
+
+  
+    <meta name="twitter:card" content="summary">
+    
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+    
+  
+
+  
+
+
+
+  <meta property="article:published_time" content="2018-01-29T20:47:00+08:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/posts/2018-01/pip-using.html">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Blogger",
+      "url": "http://localhost:4000/",
+      "sameAs": ["https://twitter.com/","https://github.com/"]
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="My way, though far away Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/apple-touch-icon.png" alt=""></a>
+        
+        <a class="site-title" href="/">
+          ZJGCJY
+          <span class="site-subtitle">My way, though far away</span>
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/collection-archive/" >Collections</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="search__toggle" type="button">
+          <span class="visually-hidden">Toggle search</span>
+          <svg class="icon" width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15.99 16">
+            <path d="M15.5,13.12L13.19,10.8a1.69,1.69,0,0,0-1.28-.55l-0.06-.06A6.5,6.5,0,0,0,5.77,0,6.5,6.5,0,0,0,2.46,11.59a6.47,6.47,0,0,0,7.74.26l0.05,0.05a1.65,1.65,0,0,0,.5,1.24l2.38,2.38A1.68,1.68,0,0,0,15.5,13.12ZM6.4,2A4.41,4.41,0,1,1,2,6.4,4.43,4.43,0,0,1,6.4,2Z" transform="translate(-.01)"></path>
+          </svg>
+        </button>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#posts" itemprop="item"><span itemprop="name">Posts</span></a>
+          <meta itemprop="position" content="2" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#2018-01" itemprop="item"><span itemprop="name">2018 01</span></a>
+          <meta itemprop="position" content="3" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        <li class="current">Pip Using</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/me.jpg" alt="zjgcjy" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">zjgcjy</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>IIE UCAS, CTFer, Binarian</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+          
+        
+          
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+          
+        
+          
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          
+        
+          
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Pip Using">
+    <meta itemprop="description" content="pip install这篇文章主要是讲的如何在win32/64构架下在python2.7/3.5安装pip第三方拓展包管理，进行有效的科学计算，机器学习，大数据处理，CTF（笑）。安装pip现在无论是python2.7/3.5以上都自带了pip包管理器，在cmd中直接输入pip，有效即可使用，不行的话github上手动安装:git clone https://github.com/pypa/pipcd pippython get-pip.py查看与更新pip install -U pip   #更新pippip install somepackage    #安装somepackage模块pip install     #列出已经安装的模块pip install --upgrade somepackage   #升级somepackage模块pip uninstall somepackage     #卸载somepackage模块pip install somepackage.whl   #使用whl文件安装somepackage模块查看版本在cmd中，输入python进入python（也可在IDE中进行）。import pipprint(pip.pep425tags.get_supported())界面上输出当前python的版本信息,例如：cp27&#39;, &#39;cp27m&#39;, &#39;win_amd64      python 2.7 win64cp27&#39;, &#39;cp27m&#39;, &#39;win_win32        python 2.7 win32  (python2.7默认是32位)cp35&#39;, &#39;cp35m&#39;, &#39;win_amd64      python3.5 win64之后对应于自己的系统和版本，到http://www.lfd.uci.edu/~gohlke/pythonlibs 网站下查找需要的第三方包。因为大多数第三方包都需要numpy作为基础，所以以下内容以numpy为例安装Numpy在安装之前还需要说明一下，该网址提供的都说whl文件，类似于zip压缩包，需要安装一个拓展。pip install wheel然后找到你下载的包就行了，例如，我的是python2.7+win64：numpy-1.13.0rc2+mkl-cp27-cp27m-win_amd64.whl 文件。打开cmd，输入pip install +whl文件的全名，安装whl。pip install numpy-1.13.0rc2+mkl-cp27-cp27m-win_amd64.whl按Enter后，等待安装完成。没什么问题的话就成功了。忘记截图了。测试import numpy from *random.rand(4,4)若输出一个4*4的随机矩阵，则安装成功。安装Scipy方法和上面一样。安装效果如下。（可以看到，需要先安装numpy才行，不然会安装失败。）pip install scipy-0.19.0-cp27-cp27m-win_amd64.whlProcessing scipy-0.19.0-cp27-cp27m-win_amd64.whlRequirement already satisfied: numpy&gt;=1.8.2 in c:\python27\lib\site-packages (from scipy==0.19.0)Installing collected packages: scipySuccessfully installed scipy-0.19.0安装pillowpillow是用来图像处理用的，CTF比赛中也经常使用-_-。pip install Pillow-4.1.1-cp27-cp27m-win_amd64.whlProcessing pillow-4.1.1-cp27-cp27m-win_amd64.whlCollecting olefile (from Pillow==4.1.1)  Downloading olefile-0.44.zip (74kB)    100% |████████████████████████████████| 81kB 124kB/sBuilding wheels for collected packages: olefile  Running setup.py bdist_wheel for olefile ... done  Stored in directory: C:\Users\*****\AppData\Local\pip\Cache\wheels\cc7bd00345397059149a10b0259ef38b867935ea2ecff99a9bSuccessfully built olefileInstalling collected packages: olefile, PillowSuccessfully installed Pillow-4.1.1 olefile-0.44">
+    <meta itemprop="datePublished" content="January 29, 2018">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Pip Using
+</h1>
+          
+            <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+          <aside class="sidebar__right ">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+              <ul class="toc__menu">
+  <li><a href="#pip-install">pip install</a></li>
+  <li><a href="#安装pip">安装pip</a>
+    <ul>
+      <li><a href="#查看与更新">查看与更新</a></li>
+    </ul>
+  </li>
+  <li><a href="#查看版本">查看版本</a></li>
+  <li><a href="#安装numpy">安装Numpy</a></li>
+  <li><a href="#测试">测试</a></li>
+  <li><a href="#安装scipy">安装Scipy</a></li>
+  <li><a href="#安装pillow">安装pillow</a></li>
+</ul>
+            </nav>
+          </aside>
+        
+        <hr />
+
+<h1 id="pip-install">pip install</h1>
+
+<p>这篇文章主要是讲的如何在win32/64构架下在python2.7/3.5安装pip第三方拓展包管理，进行有效的科学计算，机器学习，大数据处理，CTF（笑）。</p>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="530" height="86" src="http://music.163.com/outchain/player?type=2&amp;id=28285910&amp;auto=1&amp;height=66"></iframe>
+
+<h1 id="安装pip">安装pip</h1>
+
+<p>现在无论是python2.7/3.5以上都自带了pip包管理器，在cmd中直接输入pip，有效即可使用，不行的话github上手动安装:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/pypa/pip
+<span class="nb">cd </span>pip
+python get-pip.py
+</code></pre></div></div>
+
+<h2 id="查看与更新">查看与更新</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pip <span class="nb">install</span> <span class="nt">-U</span> pip   <span class="c">#更新pip</span>
+pip <span class="nb">install </span>somepackage    <span class="c">#安装somepackage模块</span>
+pip <span class="nb">install</span>     <span class="c">#列出已经安装的模块</span>
+pip <span class="nb">install</span> <span class="nt">--upgrade</span> somepackage   <span class="c">#升级somepackage模块</span>
+pip uninstall somepackage     <span class="c">#卸载somepackage模块</span>
+pip <span class="nb">install </span>somepackage.whl   <span class="c">#使用whl文件安装somepackage模块</span>
+</code></pre></div></div>
+
+<h1 id="查看版本">查看版本</h1>
+
+<p>在cmd中，输入python进入python（也可在IDE中进行）。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">pip</span>
+<span class="k">print</span><span class="p">(</span><span class="n">pip</span><span class="o">.</span><span class="n">pep425tags</span><span class="o">.</span><span class="n">get_supported</span><span class="p">())</span>
+</code></pre></div></div>
+
+<p>界面上输出当前python的版本信息,例如：</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cp27<span class="s1">', '</span>cp27m<span class="s1">', '</span>win_amd64      python 2.7 win64
+cp27<span class="s1">', '</span>cp27m<span class="s1">', '</span>win_win32        python 2.7 win32  <span class="o">(</span>python2.7默认是32位<span class="o">)</span>
+cp35<span class="s1">', '</span>cp35m<span class="s1">', '</span>win_amd64      python3.5 win64
+</code></pre></div></div>
+
+<p>之后对应于自己的系统和版本，到http://www.lfd.uci.edu/~gohlke/pythonlibs 网站下查找需要的第三方包。因为大多数第三方包都需要numpy作为基础，所以以下内容以numpy为例</p>
+
+<h1 id="安装numpy">安装Numpy</h1>
+
+<p>在安装之前还需要说明一下，该网址提供的都说whl文件，类似于zip压缩包，需要安装一个拓展。</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pip <span class="nb">install </span>wheel
+</code></pre></div></div>
+
+<p>然后找到你下载的包就行了，例如，我的是python2.7+win64：numpy-1.13.0rc2+mkl-cp27-cp27m-win_amd64.whl 文件。打开cmd，输入pip install +whl文件的全名，安装whl。</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pip <span class="nb">install </span>numpy-1.13.0rc2+mkl-cp27-cp27m-win_amd64.whl
+</code></pre></div></div>
+
+<p>按Enter后，等待安装完成。没什么问题的话就成功了。忘记截图了。</p>
+
+<h1 id="测试">测试</h1>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">from</span> <span class="o">*</span>
+<span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>若输出一个4*4的随机矩阵，则安装成功。</p>
+
+<h1 id="安装scipy">安装Scipy</h1>
+
+<p>方法和上面一样。安装效果如下。（可以看到，需要先安装numpy才行，不然会安装失败。）</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pip <span class="nb">install </span>scipy-0.19.0-cp27-cp27m-win_amd64.whl
+Processing scipy-0.19.0-cp27-cp27m-win_amd64.whl
+Requirement already satisfied: numpy&gt;<span class="o">=</span>1.8.2 <span class="k">in </span>c:<span class="se">\p</span>ython27<span class="se">\l</span>ib<span class="se">\s</span>ite-packages <span class="o">(</span>from <span class="nv">scipy</span><span class="o">==</span>0.19.0<span class="o">)</span>
+Installing collected packages: scipy
+Successfully installed scipy-0.19.0
+</code></pre></div></div>
+
+<h1 id="安装pillow">安装pillow</h1>
+
+<p>pillow是用来图像处理用的，CTF比赛中也经常使用-_-。</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pip <span class="nb">install </span>Pillow-4.1.1-cp27-cp27m-win_amd64.whl
+Processing pillow-4.1.1-cp27-cp27m-win_amd64.whl
+Collecting olefile <span class="o">(</span>from <span class="nv">Pillow</span><span class="o">==</span>4.1.1<span class="o">)</span>
+  Downloading olefile-0.44.zip <span class="o">(</span>74kB<span class="o">)</span>
+    100% |████████████████████████████████| 81kB 124kB/s
+Building wheels <span class="k">for </span>collected packages: olefile
+  Running setup.py bdist_wheel <span class="k">for </span>olefile ... <span class="k">done
+  </span>Stored <span class="k">in </span>directory: C:<span class="se">\U</span>sers<span class="se">\*</span><span class="k">****</span><span class="se">\A</span>ppData<span class="se">\L</span>ocal<span class="se">\p</span>ip<span class="se">\C</span>ache<span class="se">\w</span>heels<span class="se">\c</span>c7bd00345397059149a10b0259ef38b867935ea2ecff99a9b
+Successfully built olefile
+Installing collected packages: olefile, Pillow
+Successfully installed Pillow-4.1.1 olefile-0.44
+</code></pre></div></div>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#pip" class="page__taxonomy-item" rel="tag">pip</a>
+    
+    </span>
+  </p>
+
+
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2018-01-29T20:47:00+08:00">January 29, 2018</time></p>
+        
+      </footer>
+
+      <section class="page__share">
+  
+    <h4 class="page__share-title">Share on</h4>
+  
+
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Pip+Using%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-01%2Fpip-using.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-01%2Fpip-using.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-01%2Fpip-using.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+
+      
+  <nav class="pagination">
+    
+      <a href="/posts/2018-01/python3-using.html" class="pagination--pager" title="Python3 Using
+">Previous</a>
+    
+    
+      <a href="/posts/2018-03/Linux%E7%9F%A5%E8%AF%86%E8%A1%A5%E5%85%85.html" class="pagination--pager" title="Linux知识补充
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      <h4 class="page__related-title">You may also enjoy</h4>
+      <div class="grid__wrapper">
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-11/Dirary_November.html" rel="permalink">Dirary_november
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  每日所作所得
+
+
+
+
+11月1日
+</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/Software_Security_Project.html" rel="permalink">Software_security_project
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  Malware
+vs2010
+
+
+
+
+InfoCollection
+
+configure
+
+
+
+warning
+
+
+
+</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/Pacman_Helper.html" rel="permalink">Pacman_helper
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  pacman 手册
+
+
+
+
+archlinux pacman 命令
+arch wiki
+
+pacman -Sy 仅同步源
+
+pacman -Syu 同步源，并更新系统
+
+pacman -Su –ignore foo 升级时不升级包foo
+
+pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/%E5%8D%81%E6%9C%88%E6%97%A5%E8%AE%B0.html" rel="permalink">十月日记
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  每日所作所得
+
+
+
+
+10月1日
+
+周日，上课前最后一天，算是给自己放了最后一天假期
+
+10月2日
+
+上了第一天的课，主要是os，一脸蒙蔽。
+</p>
+  </article>
+</div>
+
+        
+      </div>
+    </div>
+  
+  
+</div>
+
+    </div>
+
+    
+      <div class="search-content">
+        <div class="search-content__inner-wrap"><form class="search-content__form" onkeydown="return event.key != 'Enter';">
+    <label class="sr-only" for="search">
+      Enter your search term...
+    </label>
+    <input type="search" id="search" class="search-input" tabindex="-1" placeholder="Enter your search term..." />
+  </form>
+  <div id="results" class="results"></div></div>
+
+      </div>
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+        
+      
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2019 Blogger. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+
+
+
+
+<script src="/assets/js/lunr/lunr.min.js"></script>
+<script src="/assets/js/lunr/lunr-store.js"></script>
+<script src="/assets/js/lunr/lunr-en.js"></script>
+
+
+
+
+    
+  <script>
+    var disqus_config = function () {
+      this.page.url = "http://localhost:4000/posts/2018-01/pip-using.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.identifier = "/posts/2018-01/pip-using"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    (function() { // DON'T EDIT BELOW THIS LINE
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zjgcjy-github-io.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  </script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+  
+
+
+
+
+
+  </body>
+</html>

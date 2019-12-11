@@ -1,0 +1,1026 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.17.2 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Ms17 010  -  My way, though far away</title>
+<meta name="description" content="  MS17-010永恒之蓝分析PagedPool 和 NoPagedPoolWindows把虚拟地址分为用户地址空间和系统地址空间，用户地址空间是给应用程序使用的，系统地址空间是给系统核心和驱动程序使用的。系统地址空间分为分页池和非分页池。PagedPool是分页内存，简单来说就是物理内存不够时，会把这片内存移动到硬盘上，而NonPagedPool是无论物理内存如何紧缺，都绝对不把这片内存的内容移动到硬盘上。在内核里，PagedPool和 NonPagedPool都是可读可写可执行的， 而且没有类似VirtualProtect之类的函数。分页池是指映射到分页文件的虚拟地址，当要使用该地址时才交换到物理内存中，由系统来调度；非分页池是指直接在物理内存中分配的内存。“页面缓冲池”就是进程占用的分页池中的虚拟内存，是进程调用某些系统功能时，由系统核心或者驱动程序分配的。如果一个程序占用的页面缓冲池内存不断增大，就是内存泄露，通常应该是创建或打开了句柄没有关闭。系统资源主要有四种：分页池、未分页池、系统分页表和系统缓存。系统缓存容易理解，系统分页表则是用来保存所有线程使用到的堆栈（Windows所有的线程都具有自己的堆栈），分页池和未分页池则是所有程序的核心模式组件使用到的内存部分，区别只是未分页池里分配的内存是不能交换到虚拟内存上面的，分页池上的则可以（从而可能保存到磁盘上去，当程序需要这些页面的时候，再读到内存里面来）。例如设备驱动就使用未分页池（假如放到虚拟内存并被交换到磁盘上时可能会发生灾难性的后果）。这些资源短缺的时候系统将会发生不可预料的事情，分页池吃紧的时候系统将会频繁地使用虚拟内存，从而不停读写磁盘减低性能，而未分页池吃紧的时候系统多半已经踏入鬼门关了。总结两句：1.NonPagedPool的总量是有限的（ 具体大小和你物理内存的大小相关）， 而PagedPool的总量较多。申请了内存忘记释放都会造成内存泄漏，但是很明显忘记释放NonPagedPool的后果要严重得多；2.一般来说，PagedPool用来放数据（比如你用ZwQuerySystemInformation枚举内核模块，可以申请一大片PagedPool存放返回的数据），而NonPagedPool用来放代码（你写内核shellcode并需要执行时， 必须使用NonPagedPool存放shellcode）。Windows kernel pool漏洞原理MS17-010漏洞出现在Windows SMB v1中的内核态函数srv!SrvOs2FeaListToNt在处理FEA（File Extended attributes）转换时，在大非分页池（内核的数据结构，Large Non-Paged Kernel Pool）上存在缓冲区溢出。函数srv!SrvOs2FeaListToNt在将FEA list转换成NTFEA(Windows NT FEA) list前会调用srv!SrvOs2FeaListSizeToNt去计算转换后的FEA lsit的大小。然后会进行如下操作：  srv!SrvOs2FeaListSizeToNt会计算FEA list的大小并更新待转换的FEA list的大小。  因为错误的使用WORD强制类型转换，导致计算出来的待转换的FEA list的大小比真正的FEA list大。  因为原先的总大小计算错误，导致当FEA list被转化为NTFEA list时，会在非分页池导致缓冲区溢出。在Srv.sys中的SrvOs2FeaListToNt函数中，会有以下调用关系：SrvOs2FeaListToNt    SrvOs2FeaListSizeToNt        *****bug*****    SrvOs2FeaToNt        memmove            *****crash*****poc下图所示是，调试poc时，crash之后的栈，我们根据栈回溯定位可以看到，srv!SrvOs2FeaListToNt调用了srv!SrvOs2FeaToNt，再调用memmove函数，这里崩掉的原因是memmove函数的参数过大，导致拷贝越界。其中在SrvOs2FeaListSizeToNt中因为有一个DWORD转WORD并赋值的bug，造成在SrvOs2FeaListToNt的一个循环中，SrvOs2FeaToNt被调用的次数会多于预期，而造成SrvOs2FeaToNt中的一个memmove拷贝越界。如果参数大于0x10000，因为word类型的原因，求得的返回值会变大，下图是输入的参数。这时候edi指向了payload，使用pool命令查看：kd&gt; !pool ediPool page 9839a0d8 region is Paged pool*9839a000 : large page allocation, tag is LStr, size is 0x11000 bytesPooltag LStr : SMB1 transaction, Binary : srv.sys所以edi指向的就是传入参数，FEA。当srv!SrvOs2FeaListSizeToNt执行完后，返回值变大。在求得返回值变大之后，srv!SrvOs2FeaListToNt会调用srv!SrvOs2FeaToNt对list进行遍历，而最后一次调用的参数是0xcc00，如下图所示。在这最后一次srv!SrvOs2FeaToNt中，这里就调用memmove从分页池的第二段payload复制到非分页池中，很明显这里的参数是肯定太大了，导致了最后的问题，分页池用完，超预期的长度，越界读取导致bsod。非分页池情况：exp那么EternalBlue是如何利用的呢？首先发送一个SRV buffer除了最后一个数据包。这是因为大非分页池将在会话中最后一个数据包被服务端接收的时候被建立。SMB服务器会把会话中接受到的数据读取并叠加起来放入输入缓冲区中。所有的数据会在TRANS包中被标明。当接收到所有的数据后SMB服务器将会处理这些数据。数据通过CIFS(Common Internet File System)会被分发到SrvOpen2函数中来读取。EternalBlue发送的所有数据会被SMB服务器收到后，SMB服务器会发送SMB ECHO包。因为攻击可以在网速很慢的情况下实现，所以SMB ECHO是很重要的。在我们的分析中，即使我们发送了初始数据，存在漏洞的缓冲区仍然没有被分配在内存中。  FreeHole_A: EternalBlue通过发送SMB v1数据包来完成占位  SMBv2_1n: 发送一组SMB v2数据包  FreeHole_B: 发送另一个占位数据包；必须确保第一个占位的FreeHole_A被释放之前，这块内存被分配  FreeHole_A_CLOSE: 关闭连接，使得第一个占位的内存空间被释放。  SMBv2_2n: 发送一组SMB v2数据包。  FreeHole_B_CLOSE: 关闭连接来释放缓冲区。  FINAL_Vulnerable_Buffer: 发送最后的数据包，这个数据包将会被存储在有漏洞的缓冲区中。windbg调试过程exp最后的结果是srv!SrvTransaction2DispatchTable中的第0xe项被替换。kd&gt; dds srv!SrvTransaction2DispatchTable95744530  9576c56f srv!SrvSmbOpen295744534  95766fe4 srv!SrvSmbFindFirst295744538  9576706d srv!SrvSmbFindNext29574453c  95769a89 srv!SrvSmbQueryFsInformation95744540  9576a2f3 srv!SrvSmbSetFsInformation95744544  95760f65 srv!SrvSmbQueryPathInformation95744548  95761c74 srv!SrvSmbSetPathInformation9574454c  9576077c srv!SrvSmbQueryFileInformation95744550  9576155d srv!SrvSmbSetFileInformation95744554  9576a4e5 srv!SrvSmbFindNotify95744558  9576797a srv!SrvSmbIoctl29574455c  9576a4e5 srv!SrvSmbFindNotify95744560  9576a4e5 srv!SrvSmbFindNotify95744564  957625fb srv!SrvSmbCreateDirectory295744568  9576cf2b srv!SrvTransactionNotImplemented(******bug******)9574456c  9576cf2b srv!SrvTransactionNotImplemented95744570  95753107 srv!SrvSmbGetDfsReferral95744574  95752ff7 srv!SrvSmbReportDfsInconsistency至于为什么会替换这个，应该是最后一次SMB通信就是transaction2，当数据包发过来的时候，会调用这个表，就会执行自定义函数。首先下断点查看是哪里在写向这个地址写值。ba w1 srv!SrvTransaction2DispatchTable+0xe*4可以看到此时：  eip位于HAL地址空间中，显然是不对的  ebx指向srv!SrvTransaction2DispatchTable表头部  eax指向被替换的函数地址。于是我们将整个段保存下来查看。.writemem C:\Users\zjgcj\Desktop\sc.bin ffdff000 l0x1000可以找到shellcode的起始地址。是在ffdff1f1这个地方，位于HAL地址空间中。d&gt; !address ffdff1f1Base Address:           ffdf1000End Address:            ffffffffRegion Size:            0020f000VA Type:                HALwrk中有定義這塊地址的作用，如下：// addressed from 0xffdf0000 - 0xffdfffff are reserved for the system// begin_ntddk begin_ntosp#define KI_USER_SHARED_DATA 0xffdf0000#define SharedUserData ((KUSER_SHARED_DATA * const) KI_USER_SHARED_DATA)kd&gt; u FFDFF1F1ffdff1f1 31c0            xor     eax,eaxffdff1f3 40              inc     eaxffdff1f4 90              nopffdff1f5 7408            je      ffdff1ffffdff1f7 e809000000      call    ffdff205ffdff1fc c22400          ret     24hffdff1ff e8a7000000      call    ffdff2abffdff204 c3              ret这时我们需要知道控制流是如何转移过来的，以及数据流是如何被写到HAL的地址空间中的。ba w1 FFDFF1F1ba e1 FFDFF1F1由于一个地址只能下一个断点，因为先写再执行，所以我们先看写的情况。可以看到，此时程序位于tcp的协议栈中，在执行memcpy的过程中，错误的将srvnet非分页缓冲池中的数据复制到HAL的地址空间中。为什么会发生这样的情况，最后再看。然后我们再来看执行的情况。在srvnet!SrvNetCommonReceiveHandler这个函数中，eax的值被指向了shellcode的地址附近，之后便调用了shellcode。之后我们需要知道这个值是怎么来的。根据网上的资料，我们可以知道如下的函数调用关系。srvnet!SrvNetWskReceiveComplete    srvnet!SrvNetIndicateData        srvnet!SrvNetCommonReceiveHandlersrvnet!SrvNetWskReceiveComplete这个函数是个IRP的完成例程。第三个参数Context是IRP的Context。Context 偏移0×24 处，存放了一个指针，里面存放了连接信息，我们姑且称其为Connection吧。这个Connection 会被作为第一个参数，传入srvnet!SrvNetIndicateData，而紧接着又会被作为第一个参数传入到srvnet!SrvNetCommonReceiveHandler。而Contex 由srvnet!SrvNetAllocateBuffer分配，类型是SRVNET_BUFFFER该结构的0×24处的Connection被损坏了，被修改成了HAL中的地址空间。然后我们再下断点即可。bu srvnet!SrvNetWskReceiveComplete+17 &quot;.if(@edi==ffdff020){} .else{gc}&quot;然后我们可以看到如下的结果，同时我们查看esi所在的地址，是srvnet分配的非分页池。但是其实这段数据是srv中memmove的目的地址，所以这里其实已经越界写了。kd&gt; dd esi885a7010  0000ffff 00000000 00000000 00000000885a7020  00000000 00000000 ffdff100 00000000885a7030  00000000 [***ffdff020***] ffdff100 ffffffff885a7040  10040060 00000000 ffdfef80 00000000885a7050  ffd00010 ffffffff ffd00118 ffffffff885a7060  00000000 00000000 00000000 00000000885a7070  10040060 00000000 00000000 00000000885a7080  ffcfff90 ffffffff 00000000 00000000kd&gt; !pool esiPool page 885a7010 region is Nonpaged pool*885a7000 : large page allocation, tag is LSbf, size is 0x11000 bytesPooltag LSbf : SMB1 buffer descriptor or srvnet allocation, Binary : srvnet.sys为什么这段数据是memmove拷过来的，调试一下就行了，打印出每次的地址喝参数。bp srv!srvOs2FeaToNt+4d &quot;.printf\&quot;memmove from %x to %x length %x\\n\&quot;, poi(@esp+4), poi(@esp), poi(@esp+8);gc&quot;可以看到最后2次复制的长度，且最后一次的长度是a8。ba e1 srv!SrvOs2FeaToNt+0x4d &quot;.if(poi(esp+8) != a8){gc} .else {}&quot;正常情况是在srv.sys对象SMB buffer中，但由于长度过长导致对srvnet.sys分配的buffer越界写。至于为什么会拷贝越界就是前面进行结构体转换的时候，大小计算错误。那么我们回过头再来看，shellcode是在SMB通信的时候写入srv中的非分页池的，在执行完memmove之后，越界写到了srvnet的非分页池中，但是最后shellcode执行的时候是处于HAL中，期间又发生了什么呢。再次下断点调试。ba w1 ffdff1f1可以看到，memmove拷贝的时候，覆盖掉的不仅仅是Context-&gt;Connection。他同时也覆盖了相邻SRVNET_BUFFER.MDL的内容(偏移0x2c起)，从而使得TCP/IP协议栈拷贝到了ffdff1f1内存中。在x86上，ffdf1000开始到ffffffff地址，都是保留给HAL用的。0000ffff0000000000000000000000000000000000000000ffdff1000000000000000000ffdff020*****bug*****ffdff100ffffffff1004006000000000ffdfef80*****bug*****Srvnet 对象buffer中包含两个重要的域：  一个指向指定结构（srvnet_recv）的指针（即上图中的8834e4c0，被ffdff020覆盖），该指针将会在smb(srnet)连接结束或断开时被用于寻址函数地址。  一个用于接收缓冲区的MDL（即上图中的86546160，被ffdfef80覆盖）因此覆盖并控制MDL将导致之后的tcp 栈实现任意写入伪造对象的操作，覆盖并控制该指针可用于将其指向一个攻击者控制的伪造对象，此时断开smb(srvnet)连接即可导致代码执行。总结首先，歹发送SMB 的 Session Setup AndX (0×73) 命令，跟据其响应中的 Native OS 获取 目标操作系统的版本信息。他利用了SMB.SMB_COM_NT_TRANSACT SMB_COM_TRANSACTION2_SECONDARY 在内存中精心布局，形成了一些连续的SRVNET_BUFFER内存区域。然后他关闭了一个链接，从而释放掉一个SRVNET_BUFFER，而这个释放掉的SRVNET_BUFFER空洞恰恰又会被FeaList 分配内存时重用(有图为证)。而SrvOs2FeaListToNt 中的Bug又导致了拷贝时越界，直接覆盖掉了其后的SRVNET_BUFFER，修改了MDL。于是后面的发送的数据就被错误的拷贝到了MDL 指定的内存中，也就是HAL保留的内存。而这时，歹人开始了致命的以一击，发送最后一个SMB_COM_TRANSACTION2_SECONDARY 分片，从而触发了控制转移。参考资料# MS17-010漏洞復現(x32)以及分析深入剖析勒索软件传播方式狄仁杰探案之“永恒之蓝”EternalBlue Shellcode详细分析WannaCry勒索软件中“永恒之蓝”漏洞利用分析MS17-010深入分析“永恒之蓝”漏洞NSA Eternalblue SMB 漏洞分析免考实验与研究——MS17-010漏洞研究EternalBlue工具漏洞利用细节分析NSA武器库之Eternalblue SMB漏洞浅析后记和学姐讨论了，她的意思是在ring3上有程序直接调用了srv.sys，但是根据以下资料，我表示怀疑，而且栈回溯也看不到ring3的应用层，应该是通过os直接控制了。https://www.computerhope.com/https://www.reviversoft.com/zh-cn/processes/srv.syshttps://docs.microsoft.com/zh-cn/windows-hardware/drivers/gettingstarted/what-is-a-driver-">
+
+
+  <meta name="author" content="zjgcjy">
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="My way, though far away">
+<meta property="og:title" content="Ms17 010">
+<meta property="og:url" content="http://localhost:4000/posts/2019-03/MS17-010.html">
+
+
+  <meta property="og:description" content="  MS17-010永恒之蓝分析PagedPool 和 NoPagedPoolWindows把虚拟地址分为用户地址空间和系统地址空间，用户地址空间是给应用程序使用的，系统地址空间是给系统核心和驱动程序使用的。系统地址空间分为分页池和非分页池。PagedPool是分页内存，简单来说就是物理内存不够时，会把这片内存移动到硬盘上，而NonPagedPool是无论物理内存如何紧缺，都绝对不把这片内存的内容移动到硬盘上。在内核里，PagedPool和 NonPagedPool都是可读可写可执行的， 而且没有类似VirtualProtect之类的函数。分页池是指映射到分页文件的虚拟地址，当要使用该地址时才交换到物理内存中，由系统来调度；非分页池是指直接在物理内存中分配的内存。“页面缓冲池”就是进程占用的分页池中的虚拟内存，是进程调用某些系统功能时，由系统核心或者驱动程序分配的。如果一个程序占用的页面缓冲池内存不断增大，就是内存泄露，通常应该是创建或打开了句柄没有关闭。系统资源主要有四种：分页池、未分页池、系统分页表和系统缓存。系统缓存容易理解，系统分页表则是用来保存所有线程使用到的堆栈（Windows所有的线程都具有自己的堆栈），分页池和未分页池则是所有程序的核心模式组件使用到的内存部分，区别只是未分页池里分配的内存是不能交换到虚拟内存上面的，分页池上的则可以（从而可能保存到磁盘上去，当程序需要这些页面的时候，再读到内存里面来）。例如设备驱动就使用未分页池（假如放到虚拟内存并被交换到磁盘上时可能会发生灾难性的后果）。这些资源短缺的时候系统将会发生不可预料的事情，分页池吃紧的时候系统将会频繁地使用虚拟内存，从而不停读写磁盘减低性能，而未分页池吃紧的时候系统多半已经踏入鬼门关了。总结两句：1.NonPagedPool的总量是有限的（ 具体大小和你物理内存的大小相关）， 而PagedPool的总量较多。申请了内存忘记释放都会造成内存泄漏，但是很明显忘记释放NonPagedPool的后果要严重得多；2.一般来说，PagedPool用来放数据（比如你用ZwQuerySystemInformation枚举内核模块，可以申请一大片PagedPool存放返回的数据），而NonPagedPool用来放代码（你写内核shellcode并需要执行时， 必须使用NonPagedPool存放shellcode）。Windows kernel pool漏洞原理MS17-010漏洞出现在Windows SMB v1中的内核态函数srv!SrvOs2FeaListToNt在处理FEA（File Extended attributes）转换时，在大非分页池（内核的数据结构，Large Non-Paged Kernel Pool）上存在缓冲区溢出。函数srv!SrvOs2FeaListToNt在将FEA list转换成NTFEA(Windows NT FEA) list前会调用srv!SrvOs2FeaListSizeToNt去计算转换后的FEA lsit的大小。然后会进行如下操作：  srv!SrvOs2FeaListSizeToNt会计算FEA list的大小并更新待转换的FEA list的大小。  因为错误的使用WORD强制类型转换，导致计算出来的待转换的FEA list的大小比真正的FEA list大。  因为原先的总大小计算错误，导致当FEA list被转化为NTFEA list时，会在非分页池导致缓冲区溢出。在Srv.sys中的SrvOs2FeaListToNt函数中，会有以下调用关系：SrvOs2FeaListToNt    SrvOs2FeaListSizeToNt        *****bug*****    SrvOs2FeaToNt        memmove            *****crash*****poc下图所示是，调试poc时，crash之后的栈，我们根据栈回溯定位可以看到，srv!SrvOs2FeaListToNt调用了srv!SrvOs2FeaToNt，再调用memmove函数，这里崩掉的原因是memmove函数的参数过大，导致拷贝越界。其中在SrvOs2FeaListSizeToNt中因为有一个DWORD转WORD并赋值的bug，造成在SrvOs2FeaListToNt的一个循环中，SrvOs2FeaToNt被调用的次数会多于预期，而造成SrvOs2FeaToNt中的一个memmove拷贝越界。如果参数大于0x10000，因为word类型的原因，求得的返回值会变大，下图是输入的参数。这时候edi指向了payload，使用pool命令查看：kd&gt; !pool ediPool page 9839a0d8 region is Paged pool*9839a000 : large page allocation, tag is LStr, size is 0x11000 bytesPooltag LStr : SMB1 transaction, Binary : srv.sys所以edi指向的就是传入参数，FEA。当srv!SrvOs2FeaListSizeToNt执行完后，返回值变大。在求得返回值变大之后，srv!SrvOs2FeaListToNt会调用srv!SrvOs2FeaToNt对list进行遍历，而最后一次调用的参数是0xcc00，如下图所示。在这最后一次srv!SrvOs2FeaToNt中，这里就调用memmove从分页池的第二段payload复制到非分页池中，很明显这里的参数是肯定太大了，导致了最后的问题，分页池用完，超预期的长度，越界读取导致bsod。非分页池情况：exp那么EternalBlue是如何利用的呢？首先发送一个SRV buffer除了最后一个数据包。这是因为大非分页池将在会话中最后一个数据包被服务端接收的时候被建立。SMB服务器会把会话中接受到的数据读取并叠加起来放入输入缓冲区中。所有的数据会在TRANS包中被标明。当接收到所有的数据后SMB服务器将会处理这些数据。数据通过CIFS(Common Internet File System)会被分发到SrvOpen2函数中来读取。EternalBlue发送的所有数据会被SMB服务器收到后，SMB服务器会发送SMB ECHO包。因为攻击可以在网速很慢的情况下实现，所以SMB ECHO是很重要的。在我们的分析中，即使我们发送了初始数据，存在漏洞的缓冲区仍然没有被分配在内存中。  FreeHole_A: EternalBlue通过发送SMB v1数据包来完成占位  SMBv2_1n: 发送一组SMB v2数据包  FreeHole_B: 发送另一个占位数据包；必须确保第一个占位的FreeHole_A被释放之前，这块内存被分配  FreeHole_A_CLOSE: 关闭连接，使得第一个占位的内存空间被释放。  SMBv2_2n: 发送一组SMB v2数据包。  FreeHole_B_CLOSE: 关闭连接来释放缓冲区。  FINAL_Vulnerable_Buffer: 发送最后的数据包，这个数据包将会被存储在有漏洞的缓冲区中。windbg调试过程exp最后的结果是srv!SrvTransaction2DispatchTable中的第0xe项被替换。kd&gt; dds srv!SrvTransaction2DispatchTable95744530  9576c56f srv!SrvSmbOpen295744534  95766fe4 srv!SrvSmbFindFirst295744538  9576706d srv!SrvSmbFindNext29574453c  95769a89 srv!SrvSmbQueryFsInformation95744540  9576a2f3 srv!SrvSmbSetFsInformation95744544  95760f65 srv!SrvSmbQueryPathInformation95744548  95761c74 srv!SrvSmbSetPathInformation9574454c  9576077c srv!SrvSmbQueryFileInformation95744550  9576155d srv!SrvSmbSetFileInformation95744554  9576a4e5 srv!SrvSmbFindNotify95744558  9576797a srv!SrvSmbIoctl29574455c  9576a4e5 srv!SrvSmbFindNotify95744560  9576a4e5 srv!SrvSmbFindNotify95744564  957625fb srv!SrvSmbCreateDirectory295744568  9576cf2b srv!SrvTransactionNotImplemented(******bug******)9574456c  9576cf2b srv!SrvTransactionNotImplemented95744570  95753107 srv!SrvSmbGetDfsReferral95744574  95752ff7 srv!SrvSmbReportDfsInconsistency至于为什么会替换这个，应该是最后一次SMB通信就是transaction2，当数据包发过来的时候，会调用这个表，就会执行自定义函数。首先下断点查看是哪里在写向这个地址写值。ba w1 srv!SrvTransaction2DispatchTable+0xe*4可以看到此时：  eip位于HAL地址空间中，显然是不对的  ebx指向srv!SrvTransaction2DispatchTable表头部  eax指向被替换的函数地址。于是我们将整个段保存下来查看。.writemem C:\Users\zjgcj\Desktop\sc.bin ffdff000 l0x1000可以找到shellcode的起始地址。是在ffdff1f1这个地方，位于HAL地址空间中。d&gt; !address ffdff1f1Base Address:           ffdf1000End Address:            ffffffffRegion Size:            0020f000VA Type:                HALwrk中有定義這塊地址的作用，如下：// addressed from 0xffdf0000 - 0xffdfffff are reserved for the system// begin_ntddk begin_ntosp#define KI_USER_SHARED_DATA 0xffdf0000#define SharedUserData ((KUSER_SHARED_DATA * const) KI_USER_SHARED_DATA)kd&gt; u FFDFF1F1ffdff1f1 31c0            xor     eax,eaxffdff1f3 40              inc     eaxffdff1f4 90              nopffdff1f5 7408            je      ffdff1ffffdff1f7 e809000000      call    ffdff205ffdff1fc c22400          ret     24hffdff1ff e8a7000000      call    ffdff2abffdff204 c3              ret这时我们需要知道控制流是如何转移过来的，以及数据流是如何被写到HAL的地址空间中的。ba w1 FFDFF1F1ba e1 FFDFF1F1由于一个地址只能下一个断点，因为先写再执行，所以我们先看写的情况。可以看到，此时程序位于tcp的协议栈中，在执行memcpy的过程中，错误的将srvnet非分页缓冲池中的数据复制到HAL的地址空间中。为什么会发生这样的情况，最后再看。然后我们再来看执行的情况。在srvnet!SrvNetCommonReceiveHandler这个函数中，eax的值被指向了shellcode的地址附近，之后便调用了shellcode。之后我们需要知道这个值是怎么来的。根据网上的资料，我们可以知道如下的函数调用关系。srvnet!SrvNetWskReceiveComplete    srvnet!SrvNetIndicateData        srvnet!SrvNetCommonReceiveHandlersrvnet!SrvNetWskReceiveComplete这个函数是个IRP的完成例程。第三个参数Context是IRP的Context。Context 偏移0×24 处，存放了一个指针，里面存放了连接信息，我们姑且称其为Connection吧。这个Connection 会被作为第一个参数，传入srvnet!SrvNetIndicateData，而紧接着又会被作为第一个参数传入到srvnet!SrvNetCommonReceiveHandler。而Contex 由srvnet!SrvNetAllocateBuffer分配，类型是SRVNET_BUFFFER该结构的0×24处的Connection被损坏了，被修改成了HAL中的地址空间。然后我们再下断点即可。bu srvnet!SrvNetWskReceiveComplete+17 &quot;.if(@edi==ffdff020){} .else{gc}&quot;然后我们可以看到如下的结果，同时我们查看esi所在的地址，是srvnet分配的非分页池。但是其实这段数据是srv中memmove的目的地址，所以这里其实已经越界写了。kd&gt; dd esi885a7010  0000ffff 00000000 00000000 00000000885a7020  00000000 00000000 ffdff100 00000000885a7030  00000000 [***ffdff020***] ffdff100 ffffffff885a7040  10040060 00000000 ffdfef80 00000000885a7050  ffd00010 ffffffff ffd00118 ffffffff885a7060  00000000 00000000 00000000 00000000885a7070  10040060 00000000 00000000 00000000885a7080  ffcfff90 ffffffff 00000000 00000000kd&gt; !pool esiPool page 885a7010 region is Nonpaged pool*885a7000 : large page allocation, tag is LSbf, size is 0x11000 bytesPooltag LSbf : SMB1 buffer descriptor or srvnet allocation, Binary : srvnet.sys为什么这段数据是memmove拷过来的，调试一下就行了，打印出每次的地址喝参数。bp srv!srvOs2FeaToNt+4d &quot;.printf\&quot;memmove from %x to %x length %x\\n\&quot;, poi(@esp+4), poi(@esp), poi(@esp+8);gc&quot;可以看到最后2次复制的长度，且最后一次的长度是a8。ba e1 srv!SrvOs2FeaToNt+0x4d &quot;.if(poi(esp+8) != a8){gc} .else {}&quot;正常情况是在srv.sys对象SMB buffer中，但由于长度过长导致对srvnet.sys分配的buffer越界写。至于为什么会拷贝越界就是前面进行结构体转换的时候，大小计算错误。那么我们回过头再来看，shellcode是在SMB通信的时候写入srv中的非分页池的，在执行完memmove之后，越界写到了srvnet的非分页池中，但是最后shellcode执行的时候是处于HAL中，期间又发生了什么呢。再次下断点调试。ba w1 ffdff1f1可以看到，memmove拷贝的时候，覆盖掉的不仅仅是Context-&gt;Connection。他同时也覆盖了相邻SRVNET_BUFFER.MDL的内容(偏移0x2c起)，从而使得TCP/IP协议栈拷贝到了ffdff1f1内存中。在x86上，ffdf1000开始到ffffffff地址，都是保留给HAL用的。0000ffff0000000000000000000000000000000000000000ffdff1000000000000000000ffdff020*****bug*****ffdff100ffffffff1004006000000000ffdfef80*****bug*****Srvnet 对象buffer中包含两个重要的域：  一个指向指定结构（srvnet_recv）的指针（即上图中的8834e4c0，被ffdff020覆盖），该指针将会在smb(srnet)连接结束或断开时被用于寻址函数地址。  一个用于接收缓冲区的MDL（即上图中的86546160，被ffdfef80覆盖）因此覆盖并控制MDL将导致之后的tcp 栈实现任意写入伪造对象的操作，覆盖并控制该指针可用于将其指向一个攻击者控制的伪造对象，此时断开smb(srvnet)连接即可导致代码执行。总结首先，歹发送SMB 的 Session Setup AndX (0×73) 命令，跟据其响应中的 Native OS 获取 目标操作系统的版本信息。他利用了SMB.SMB_COM_NT_TRANSACT SMB_COM_TRANSACTION2_SECONDARY 在内存中精心布局，形成了一些连续的SRVNET_BUFFER内存区域。然后他关闭了一个链接，从而释放掉一个SRVNET_BUFFER，而这个释放掉的SRVNET_BUFFER空洞恰恰又会被FeaList 分配内存时重用(有图为证)。而SrvOs2FeaListToNt 中的Bug又导致了拷贝时越界，直接覆盖掉了其后的SRVNET_BUFFER，修改了MDL。于是后面的发送的数据就被错误的拷贝到了MDL 指定的内存中，也就是HAL保留的内存。而这时，歹人开始了致命的以一击，发送最后一个SMB_COM_TRANSACTION2_SECONDARY 分片，从而触发了控制转移。参考资料# MS17-010漏洞復現(x32)以及分析深入剖析勒索软件传播方式狄仁杰探案之“永恒之蓝”EternalBlue Shellcode详细分析WannaCry勒索软件中“永恒之蓝”漏洞利用分析MS17-010深入分析“永恒之蓝”漏洞NSA Eternalblue SMB 漏洞分析免考实验与研究——MS17-010漏洞研究EternalBlue工具漏洞利用细节分析NSA武器库之Eternalblue SMB漏洞浅析后记和学姐讨论了，她的意思是在ring3上有程序直接调用了srv.sys，但是根据以下资料，我表示怀疑，而且栈回溯也看不到ring3的应用层，应该是通过os直接控制了。https://www.computerhope.com/https://www.reviversoft.com/zh-cn/processes/srv.syshttps://docs.microsoft.com/zh-cn/windows-hardware/drivers/gettingstarted/what-is-a-driver-">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+
+
+
+  <meta name="twitter:site" content="@zjgcjy">
+  <meta name="twitter:title" content="Ms17 010">
+  <meta name="twitter:description" content="  MS17-010永恒之蓝分析PagedPool 和 NoPagedPoolWindows把虚拟地址分为用户地址空间和系统地址空间，用户地址空间是给应用程序使用的，系统地址空间是给系统核心和驱动程序使用的。系统地址空间分为分页池和非分页池。PagedPool是分页内存，简单来说就是物理内存不够时，会把这片内存移动到硬盘上，而NonPagedPool是无论物理内存如何紧缺，都绝对不把这片内存的内容移动到硬盘上。在内核里，PagedPool和 NonPagedPool都是可读可写可执行的， 而且没有类似VirtualProtect之类的函数。分页池是指映射到分页文件的虚拟地址，当要使用该地址时才交换到物理内存中，由系统来调度；非分页池是指直接在物理内存中分配的内存。“页面缓冲池”就是进程占用的分页池中的虚拟内存，是进程调用某些系统功能时，由系统核心或者驱动程序分配的。如果一个程序占用的页面缓冲池内存不断增大，就是内存泄露，通常应该是创建或打开了句柄没有关闭。系统资源主要有四种：分页池、未分页池、系统分页表和系统缓存。系统缓存容易理解，系统分页表则是用来保存所有线程使用到的堆栈（Windows所有的线程都具有自己的堆栈），分页池和未分页池则是所有程序的核心模式组件使用到的内存部分，区别只是未分页池里分配的内存是不能交换到虚拟内存上面的，分页池上的则可以（从而可能保存到磁盘上去，当程序需要这些页面的时候，再读到内存里面来）。例如设备驱动就使用未分页池（假如放到虚拟内存并被交换到磁盘上时可能会发生灾难性的后果）。这些资源短缺的时候系统将会发生不可预料的事情，分页池吃紧的时候系统将会频繁地使用虚拟内存，从而不停读写磁盘减低性能，而未分页池吃紧的时候系统多半已经踏入鬼门关了。总结两句：1.NonPagedPool的总量是有限的（ 具体大小和你物理内存的大小相关）， 而PagedPool的总量较多。申请了内存忘记释放都会造成内存泄漏，但是很明显忘记释放NonPagedPool的后果要严重得多；2.一般来说，PagedPool用来放数据（比如你用ZwQuerySystemInformation枚举内核模块，可以申请一大片PagedPool存放返回的数据），而NonPagedPool用来放代码（你写内核shellcode并需要执行时， 必须使用NonPagedPool存放shellcode）。Windows kernel pool漏洞原理MS17-010漏洞出现在Windows SMB v1中的内核态函数srv!SrvOs2FeaListToNt在处理FEA（File Extended attributes）转换时，在大非分页池（内核的数据结构，Large Non-Paged Kernel Pool）上存在缓冲区溢出。函数srv!SrvOs2FeaListToNt在将FEA list转换成NTFEA(Windows NT FEA) list前会调用srv!SrvOs2FeaListSizeToNt去计算转换后的FEA lsit的大小。然后会进行如下操作：  srv!SrvOs2FeaListSizeToNt会计算FEA list的大小并更新待转换的FEA list的大小。  因为错误的使用WORD强制类型转换，导致计算出来的待转换的FEA list的大小比真正的FEA list大。  因为原先的总大小计算错误，导致当FEA list被转化为NTFEA list时，会在非分页池导致缓冲区溢出。在Srv.sys中的SrvOs2FeaListToNt函数中，会有以下调用关系：SrvOs2FeaListToNt    SrvOs2FeaListSizeToNt        *****bug*****    SrvOs2FeaToNt        memmove            *****crash*****poc下图所示是，调试poc时，crash之后的栈，我们根据栈回溯定位可以看到，srv!SrvOs2FeaListToNt调用了srv!SrvOs2FeaToNt，再调用memmove函数，这里崩掉的原因是memmove函数的参数过大，导致拷贝越界。其中在SrvOs2FeaListSizeToNt中因为有一个DWORD转WORD并赋值的bug，造成在SrvOs2FeaListToNt的一个循环中，SrvOs2FeaToNt被调用的次数会多于预期，而造成SrvOs2FeaToNt中的一个memmove拷贝越界。如果参数大于0x10000，因为word类型的原因，求得的返回值会变大，下图是输入的参数。这时候edi指向了payload，使用pool命令查看：kd&gt; !pool ediPool page 9839a0d8 region is Paged pool*9839a000 : large page allocation, tag is LStr, size is 0x11000 bytesPooltag LStr : SMB1 transaction, Binary : srv.sys所以edi指向的就是传入参数，FEA。当srv!SrvOs2FeaListSizeToNt执行完后，返回值变大。在求得返回值变大之后，srv!SrvOs2FeaListToNt会调用srv!SrvOs2FeaToNt对list进行遍历，而最后一次调用的参数是0xcc00，如下图所示。在这最后一次srv!SrvOs2FeaToNt中，这里就调用memmove从分页池的第二段payload复制到非分页池中，很明显这里的参数是肯定太大了，导致了最后的问题，分页池用完，超预期的长度，越界读取导致bsod。非分页池情况：exp那么EternalBlue是如何利用的呢？首先发送一个SRV buffer除了最后一个数据包。这是因为大非分页池将在会话中最后一个数据包被服务端接收的时候被建立。SMB服务器会把会话中接受到的数据读取并叠加起来放入输入缓冲区中。所有的数据会在TRANS包中被标明。当接收到所有的数据后SMB服务器将会处理这些数据。数据通过CIFS(Common Internet File System)会被分发到SrvOpen2函数中来读取。EternalBlue发送的所有数据会被SMB服务器收到后，SMB服务器会发送SMB ECHO包。因为攻击可以在网速很慢的情况下实现，所以SMB ECHO是很重要的。在我们的分析中，即使我们发送了初始数据，存在漏洞的缓冲区仍然没有被分配在内存中。  FreeHole_A: EternalBlue通过发送SMB v1数据包来完成占位  SMBv2_1n: 发送一组SMB v2数据包  FreeHole_B: 发送另一个占位数据包；必须确保第一个占位的FreeHole_A被释放之前，这块内存被分配  FreeHole_A_CLOSE: 关闭连接，使得第一个占位的内存空间被释放。  SMBv2_2n: 发送一组SMB v2数据包。  FreeHole_B_CLOSE: 关闭连接来释放缓冲区。  FINAL_Vulnerable_Buffer: 发送最后的数据包，这个数据包将会被存储在有漏洞的缓冲区中。windbg调试过程exp最后的结果是srv!SrvTransaction2DispatchTable中的第0xe项被替换。kd&gt; dds srv!SrvTransaction2DispatchTable95744530  9576c56f srv!SrvSmbOpen295744534  95766fe4 srv!SrvSmbFindFirst295744538  9576706d srv!SrvSmbFindNext29574453c  95769a89 srv!SrvSmbQueryFsInformation95744540  9576a2f3 srv!SrvSmbSetFsInformation95744544  95760f65 srv!SrvSmbQueryPathInformation95744548  95761c74 srv!SrvSmbSetPathInformation9574454c  9576077c srv!SrvSmbQueryFileInformation95744550  9576155d srv!SrvSmbSetFileInformation95744554  9576a4e5 srv!SrvSmbFindNotify95744558  9576797a srv!SrvSmbIoctl29574455c  9576a4e5 srv!SrvSmbFindNotify95744560  9576a4e5 srv!SrvSmbFindNotify95744564  957625fb srv!SrvSmbCreateDirectory295744568  9576cf2b srv!SrvTransactionNotImplemented(******bug******)9574456c  9576cf2b srv!SrvTransactionNotImplemented95744570  95753107 srv!SrvSmbGetDfsReferral95744574  95752ff7 srv!SrvSmbReportDfsInconsistency至于为什么会替换这个，应该是最后一次SMB通信就是transaction2，当数据包发过来的时候，会调用这个表，就会执行自定义函数。首先下断点查看是哪里在写向这个地址写值。ba w1 srv!SrvTransaction2DispatchTable+0xe*4可以看到此时：  eip位于HAL地址空间中，显然是不对的  ebx指向srv!SrvTransaction2DispatchTable表头部  eax指向被替换的函数地址。于是我们将整个段保存下来查看。.writemem C:\Users\zjgcj\Desktop\sc.bin ffdff000 l0x1000可以找到shellcode的起始地址。是在ffdff1f1这个地方，位于HAL地址空间中。d&gt; !address ffdff1f1Base Address:           ffdf1000End Address:            ffffffffRegion Size:            0020f000VA Type:                HALwrk中有定義這塊地址的作用，如下：// addressed from 0xffdf0000 - 0xffdfffff are reserved for the system// begin_ntddk begin_ntosp#define KI_USER_SHARED_DATA 0xffdf0000#define SharedUserData ((KUSER_SHARED_DATA * const) KI_USER_SHARED_DATA)kd&gt; u FFDFF1F1ffdff1f1 31c0            xor     eax,eaxffdff1f3 40              inc     eaxffdff1f4 90              nopffdff1f5 7408            je      ffdff1ffffdff1f7 e809000000      call    ffdff205ffdff1fc c22400          ret     24hffdff1ff e8a7000000      call    ffdff2abffdff204 c3              ret这时我们需要知道控制流是如何转移过来的，以及数据流是如何被写到HAL的地址空间中的。ba w1 FFDFF1F1ba e1 FFDFF1F1由于一个地址只能下一个断点，因为先写再执行，所以我们先看写的情况。可以看到，此时程序位于tcp的协议栈中，在执行memcpy的过程中，错误的将srvnet非分页缓冲池中的数据复制到HAL的地址空间中。为什么会发生这样的情况，最后再看。然后我们再来看执行的情况。在srvnet!SrvNetCommonReceiveHandler这个函数中，eax的值被指向了shellcode的地址附近，之后便调用了shellcode。之后我们需要知道这个值是怎么来的。根据网上的资料，我们可以知道如下的函数调用关系。srvnet!SrvNetWskReceiveComplete    srvnet!SrvNetIndicateData        srvnet!SrvNetCommonReceiveHandlersrvnet!SrvNetWskReceiveComplete这个函数是个IRP的完成例程。第三个参数Context是IRP的Context。Context 偏移0×24 处，存放了一个指针，里面存放了连接信息，我们姑且称其为Connection吧。这个Connection 会被作为第一个参数，传入srvnet!SrvNetIndicateData，而紧接着又会被作为第一个参数传入到srvnet!SrvNetCommonReceiveHandler。而Contex 由srvnet!SrvNetAllocateBuffer分配，类型是SRVNET_BUFFFER该结构的0×24处的Connection被损坏了，被修改成了HAL中的地址空间。然后我们再下断点即可。bu srvnet!SrvNetWskReceiveComplete+17 &quot;.if(@edi==ffdff020){} .else{gc}&quot;然后我们可以看到如下的结果，同时我们查看esi所在的地址，是srvnet分配的非分页池。但是其实这段数据是srv中memmove的目的地址，所以这里其实已经越界写了。kd&gt; dd esi885a7010  0000ffff 00000000 00000000 00000000885a7020  00000000 00000000 ffdff100 00000000885a7030  00000000 [***ffdff020***] ffdff100 ffffffff885a7040  10040060 00000000 ffdfef80 00000000885a7050  ffd00010 ffffffff ffd00118 ffffffff885a7060  00000000 00000000 00000000 00000000885a7070  10040060 00000000 00000000 00000000885a7080  ffcfff90 ffffffff 00000000 00000000kd&gt; !pool esiPool page 885a7010 region is Nonpaged pool*885a7000 : large page allocation, tag is LSbf, size is 0x11000 bytesPooltag LSbf : SMB1 buffer descriptor or srvnet allocation, Binary : srvnet.sys为什么这段数据是memmove拷过来的，调试一下就行了，打印出每次的地址喝参数。bp srv!srvOs2FeaToNt+4d &quot;.printf\&quot;memmove from %x to %x length %x\\n\&quot;, poi(@esp+4), poi(@esp), poi(@esp+8);gc&quot;可以看到最后2次复制的长度，且最后一次的长度是a8。ba e1 srv!SrvOs2FeaToNt+0x4d &quot;.if(poi(esp+8) != a8){gc} .else {}&quot;正常情况是在srv.sys对象SMB buffer中，但由于长度过长导致对srvnet.sys分配的buffer越界写。至于为什么会拷贝越界就是前面进行结构体转换的时候，大小计算错误。那么我们回过头再来看，shellcode是在SMB通信的时候写入srv中的非分页池的，在执行完memmove之后，越界写到了srvnet的非分页池中，但是最后shellcode执行的时候是处于HAL中，期间又发生了什么呢。再次下断点调试。ba w1 ffdff1f1可以看到，memmove拷贝的时候，覆盖掉的不仅仅是Context-&gt;Connection。他同时也覆盖了相邻SRVNET_BUFFER.MDL的内容(偏移0x2c起)，从而使得TCP/IP协议栈拷贝到了ffdff1f1内存中。在x86上，ffdf1000开始到ffffffff地址，都是保留给HAL用的。0000ffff0000000000000000000000000000000000000000ffdff1000000000000000000ffdff020*****bug*****ffdff100ffffffff1004006000000000ffdfef80*****bug*****Srvnet 对象buffer中包含两个重要的域：  一个指向指定结构（srvnet_recv）的指针（即上图中的8834e4c0，被ffdff020覆盖），该指针将会在smb(srnet)连接结束或断开时被用于寻址函数地址。  一个用于接收缓冲区的MDL（即上图中的86546160，被ffdfef80覆盖）因此覆盖并控制MDL将导致之后的tcp 栈实现任意写入伪造对象的操作，覆盖并控制该指针可用于将其指向一个攻击者控制的伪造对象，此时断开smb(srvnet)连接即可导致代码执行。总结首先，歹发送SMB 的 Session Setup AndX (0×73) 命令，跟据其响应中的 Native OS 获取 目标操作系统的版本信息。他利用了SMB.SMB_COM_NT_TRANSACT SMB_COM_TRANSACTION2_SECONDARY 在内存中精心布局，形成了一些连续的SRVNET_BUFFER内存区域。然后他关闭了一个链接，从而释放掉一个SRVNET_BUFFER，而这个释放掉的SRVNET_BUFFER空洞恰恰又会被FeaList 分配内存时重用(有图为证)。而SrvOs2FeaListToNt 中的Bug又导致了拷贝时越界，直接覆盖掉了其后的SRVNET_BUFFER，修改了MDL。于是后面的发送的数据就被错误的拷贝到了MDL 指定的内存中，也就是HAL保留的内存。而这时，歹人开始了致命的以一击，发送最后一个SMB_COM_TRANSACTION2_SECONDARY 分片，从而触发了控制转移。参考资料# MS17-010漏洞復現(x32)以及分析深入剖析勒索软件传播方式狄仁杰探案之“永恒之蓝”EternalBlue Shellcode详细分析WannaCry勒索软件中“永恒之蓝”漏洞利用分析MS17-010深入分析“永恒之蓝”漏洞NSA Eternalblue SMB 漏洞分析免考实验与研究——MS17-010漏洞研究EternalBlue工具漏洞利用细节分析NSA武器库之Eternalblue SMB漏洞浅析后记和学姐讨论了，她的意思是在ring3上有程序直接调用了srv.sys，但是根据以下资料，我表示怀疑，而且栈回溯也看不到ring3的应用层，应该是通过os直接控制了。https://www.computerhope.com/https://www.reviversoft.com/zh-cn/processes/srv.syshttps://docs.microsoft.com/zh-cn/windows-hardware/drivers/gettingstarted/what-is-a-driver-">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2019-03/MS17-010.html">
+
+  
+    <meta name="twitter:card" content="summary">
+    
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+    
+  
+
+  
+
+
+
+  <meta property="article:published_time" content="2019-03-20T11:05:00+08:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/posts/2019-03/MS17-010.html">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Blogger",
+      "url": "http://localhost:4000/",
+      "sameAs": ["https://twitter.com/","https://github.com/"]
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="My way, though far away Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/apple-touch-icon.png" alt=""></a>
+        
+        <a class="site-title" href="/">
+          ZJGCJY
+          <span class="site-subtitle">My way, though far away</span>
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/collection-archive/" >Collections</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="search__toggle" type="button">
+          <span class="visually-hidden">Toggle search</span>
+          <svg class="icon" width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15.99 16">
+            <path d="M15.5,13.12L13.19,10.8a1.69,1.69,0,0,0-1.28-.55l-0.06-.06A6.5,6.5,0,0,0,5.77,0,6.5,6.5,0,0,0,2.46,11.59a6.47,6.47,0,0,0,7.74.26l0.05,0.05a1.65,1.65,0,0,0,.5,1.24l2.38,2.38A1.68,1.68,0,0,0,15.5,13.12ZM6.4,2A4.41,4.41,0,1,1,2,6.4,4.43,4.43,0,0,1,6.4,2Z" transform="translate(-.01)"></path>
+          </svg>
+        </button>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#posts" itemprop="item"><span itemprop="name">Posts</span></a>
+          <meta itemprop="position" content="2" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#2019-03" itemprop="item"><span itemprop="name">2019 03</span></a>
+          <meta itemprop="position" content="3" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        <li class="current">Ms17 010</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/me.jpg" alt="zjgcjy" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">zjgcjy</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>IIE UCAS, CTFer, Binarian</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+          
+        
+          
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+          
+        
+          
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          
+        
+          
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Ms17 010">
+    <meta itemprop="description" content="  MS17-010永恒之蓝分析PagedPool 和 NoPagedPoolWindows把虚拟地址分为用户地址空间和系统地址空间，用户地址空间是给应用程序使用的，系统地址空间是给系统核心和驱动程序使用的。系统地址空间分为分页池和非分页池。PagedPool是分页内存，简单来说就是物理内存不够时，会把这片内存移动到硬盘上，而NonPagedPool是无论物理内存如何紧缺，都绝对不把这片内存的内容移动到硬盘上。在内核里，PagedPool和 NonPagedPool都是可读可写可执行的， 而且没有类似VirtualProtect之类的函数。分页池是指映射到分页文件的虚拟地址，当要使用该地址时才交换到物理内存中，由系统来调度；非分页池是指直接在物理内存中分配的内存。“页面缓冲池”就是进程占用的分页池中的虚拟内存，是进程调用某些系统功能时，由系统核心或者驱动程序分配的。如果一个程序占用的页面缓冲池内存不断增大，就是内存泄露，通常应该是创建或打开了句柄没有关闭。系统资源主要有四种：分页池、未分页池、系统分页表和系统缓存。系统缓存容易理解，系统分页表则是用来保存所有线程使用到的堆栈（Windows所有的线程都具有自己的堆栈），分页池和未分页池则是所有程序的核心模式组件使用到的内存部分，区别只是未分页池里分配的内存是不能交换到虚拟内存上面的，分页池上的则可以（从而可能保存到磁盘上去，当程序需要这些页面的时候，再读到内存里面来）。例如设备驱动就使用未分页池（假如放到虚拟内存并被交换到磁盘上时可能会发生灾难性的后果）。这些资源短缺的时候系统将会发生不可预料的事情，分页池吃紧的时候系统将会频繁地使用虚拟内存，从而不停读写磁盘减低性能，而未分页池吃紧的时候系统多半已经踏入鬼门关了。总结两句：1.NonPagedPool的总量是有限的（ 具体大小和你物理内存的大小相关）， 而PagedPool的总量较多。申请了内存忘记释放都会造成内存泄漏，但是很明显忘记释放NonPagedPool的后果要严重得多；2.一般来说，PagedPool用来放数据（比如你用ZwQuerySystemInformation枚举内核模块，可以申请一大片PagedPool存放返回的数据），而NonPagedPool用来放代码（你写内核shellcode并需要执行时， 必须使用NonPagedPool存放shellcode）。Windows kernel pool漏洞原理MS17-010漏洞出现在Windows SMB v1中的内核态函数srv!SrvOs2FeaListToNt在处理FEA（File Extended attributes）转换时，在大非分页池（内核的数据结构，Large Non-Paged Kernel Pool）上存在缓冲区溢出。函数srv!SrvOs2FeaListToNt在将FEA list转换成NTFEA(Windows NT FEA) list前会调用srv!SrvOs2FeaListSizeToNt去计算转换后的FEA lsit的大小。然后会进行如下操作：  srv!SrvOs2FeaListSizeToNt会计算FEA list的大小并更新待转换的FEA list的大小。  因为错误的使用WORD强制类型转换，导致计算出来的待转换的FEA list的大小比真正的FEA list大。  因为原先的总大小计算错误，导致当FEA list被转化为NTFEA list时，会在非分页池导致缓冲区溢出。在Srv.sys中的SrvOs2FeaListToNt函数中，会有以下调用关系：SrvOs2FeaListToNt    SrvOs2FeaListSizeToNt        *****bug*****    SrvOs2FeaToNt        memmove            *****crash*****poc下图所示是，调试poc时，crash之后的栈，我们根据栈回溯定位可以看到，srv!SrvOs2FeaListToNt调用了srv!SrvOs2FeaToNt，再调用memmove函数，这里崩掉的原因是memmove函数的参数过大，导致拷贝越界。其中在SrvOs2FeaListSizeToNt中因为有一个DWORD转WORD并赋值的bug，造成在SrvOs2FeaListToNt的一个循环中，SrvOs2FeaToNt被调用的次数会多于预期，而造成SrvOs2FeaToNt中的一个memmove拷贝越界。如果参数大于0x10000，因为word类型的原因，求得的返回值会变大，下图是输入的参数。这时候edi指向了payload，使用pool命令查看：kd&gt; !pool ediPool page 9839a0d8 region is Paged pool*9839a000 : large page allocation, tag is LStr, size is 0x11000 bytesPooltag LStr : SMB1 transaction, Binary : srv.sys所以edi指向的就是传入参数，FEA。当srv!SrvOs2FeaListSizeToNt执行完后，返回值变大。在求得返回值变大之后，srv!SrvOs2FeaListToNt会调用srv!SrvOs2FeaToNt对list进行遍历，而最后一次调用的参数是0xcc00，如下图所示。在这最后一次srv!SrvOs2FeaToNt中，这里就调用memmove从分页池的第二段payload复制到非分页池中，很明显这里的参数是肯定太大了，导致了最后的问题，分页池用完，超预期的长度，越界读取导致bsod。非分页池情况：exp那么EternalBlue是如何利用的呢？首先发送一个SRV buffer除了最后一个数据包。这是因为大非分页池将在会话中最后一个数据包被服务端接收的时候被建立。SMB服务器会把会话中接受到的数据读取并叠加起来放入输入缓冲区中。所有的数据会在TRANS包中被标明。当接收到所有的数据后SMB服务器将会处理这些数据。数据通过CIFS(Common Internet File System)会被分发到SrvOpen2函数中来读取。EternalBlue发送的所有数据会被SMB服务器收到后，SMB服务器会发送SMB ECHO包。因为攻击可以在网速很慢的情况下实现，所以SMB ECHO是很重要的。在我们的分析中，即使我们发送了初始数据，存在漏洞的缓冲区仍然没有被分配在内存中。  FreeHole_A: EternalBlue通过发送SMB v1数据包来完成占位  SMBv2_1n: 发送一组SMB v2数据包  FreeHole_B: 发送另一个占位数据包；必须确保第一个占位的FreeHole_A被释放之前，这块内存被分配  FreeHole_A_CLOSE: 关闭连接，使得第一个占位的内存空间被释放。  SMBv2_2n: 发送一组SMB v2数据包。  FreeHole_B_CLOSE: 关闭连接来释放缓冲区。  FINAL_Vulnerable_Buffer: 发送最后的数据包，这个数据包将会被存储在有漏洞的缓冲区中。windbg调试过程exp最后的结果是srv!SrvTransaction2DispatchTable中的第0xe项被替换。kd&gt; dds srv!SrvTransaction2DispatchTable95744530  9576c56f srv!SrvSmbOpen295744534  95766fe4 srv!SrvSmbFindFirst295744538  9576706d srv!SrvSmbFindNext29574453c  95769a89 srv!SrvSmbQueryFsInformation95744540  9576a2f3 srv!SrvSmbSetFsInformation95744544  95760f65 srv!SrvSmbQueryPathInformation95744548  95761c74 srv!SrvSmbSetPathInformation9574454c  9576077c srv!SrvSmbQueryFileInformation95744550  9576155d srv!SrvSmbSetFileInformation95744554  9576a4e5 srv!SrvSmbFindNotify95744558  9576797a srv!SrvSmbIoctl29574455c  9576a4e5 srv!SrvSmbFindNotify95744560  9576a4e5 srv!SrvSmbFindNotify95744564  957625fb srv!SrvSmbCreateDirectory295744568  9576cf2b srv!SrvTransactionNotImplemented(******bug******)9574456c  9576cf2b srv!SrvTransactionNotImplemented95744570  95753107 srv!SrvSmbGetDfsReferral95744574  95752ff7 srv!SrvSmbReportDfsInconsistency至于为什么会替换这个，应该是最后一次SMB通信就是transaction2，当数据包发过来的时候，会调用这个表，就会执行自定义函数。首先下断点查看是哪里在写向这个地址写值。ba w1 srv!SrvTransaction2DispatchTable+0xe*4可以看到此时：  eip位于HAL地址空间中，显然是不对的  ebx指向srv!SrvTransaction2DispatchTable表头部  eax指向被替换的函数地址。于是我们将整个段保存下来查看。.writemem C:\Users\zjgcj\Desktop\sc.bin ffdff000 l0x1000可以找到shellcode的起始地址。是在ffdff1f1这个地方，位于HAL地址空间中。d&gt; !address ffdff1f1Base Address:           ffdf1000End Address:            ffffffffRegion Size:            0020f000VA Type:                HALwrk中有定義這塊地址的作用，如下：// addressed from 0xffdf0000 - 0xffdfffff are reserved for the system// begin_ntddk begin_ntosp#define KI_USER_SHARED_DATA 0xffdf0000#define SharedUserData ((KUSER_SHARED_DATA * const) KI_USER_SHARED_DATA)kd&gt; u FFDFF1F1ffdff1f1 31c0            xor     eax,eaxffdff1f3 40              inc     eaxffdff1f4 90              nopffdff1f5 7408            je      ffdff1ffffdff1f7 e809000000      call    ffdff205ffdff1fc c22400          ret     24hffdff1ff e8a7000000      call    ffdff2abffdff204 c3              ret这时我们需要知道控制流是如何转移过来的，以及数据流是如何被写到HAL的地址空间中的。ba w1 FFDFF1F1ba e1 FFDFF1F1由于一个地址只能下一个断点，因为先写再执行，所以我们先看写的情况。可以看到，此时程序位于tcp的协议栈中，在执行memcpy的过程中，错误的将srvnet非分页缓冲池中的数据复制到HAL的地址空间中。为什么会发生这样的情况，最后再看。然后我们再来看执行的情况。在srvnet!SrvNetCommonReceiveHandler这个函数中，eax的值被指向了shellcode的地址附近，之后便调用了shellcode。之后我们需要知道这个值是怎么来的。根据网上的资料，我们可以知道如下的函数调用关系。srvnet!SrvNetWskReceiveComplete    srvnet!SrvNetIndicateData        srvnet!SrvNetCommonReceiveHandlersrvnet!SrvNetWskReceiveComplete这个函数是个IRP的完成例程。第三个参数Context是IRP的Context。Context 偏移0×24 处，存放了一个指针，里面存放了连接信息，我们姑且称其为Connection吧。这个Connection 会被作为第一个参数，传入srvnet!SrvNetIndicateData，而紧接着又会被作为第一个参数传入到srvnet!SrvNetCommonReceiveHandler。而Contex 由srvnet!SrvNetAllocateBuffer分配，类型是SRVNET_BUFFFER该结构的0×24处的Connection被损坏了，被修改成了HAL中的地址空间。然后我们再下断点即可。bu srvnet!SrvNetWskReceiveComplete+17 &quot;.if(@edi==ffdff020){} .else{gc}&quot;然后我们可以看到如下的结果，同时我们查看esi所在的地址，是srvnet分配的非分页池。但是其实这段数据是srv中memmove的目的地址，所以这里其实已经越界写了。kd&gt; dd esi885a7010  0000ffff 00000000 00000000 00000000885a7020  00000000 00000000 ffdff100 00000000885a7030  00000000 [***ffdff020***] ffdff100 ffffffff885a7040  10040060 00000000 ffdfef80 00000000885a7050  ffd00010 ffffffff ffd00118 ffffffff885a7060  00000000 00000000 00000000 00000000885a7070  10040060 00000000 00000000 00000000885a7080  ffcfff90 ffffffff 00000000 00000000kd&gt; !pool esiPool page 885a7010 region is Nonpaged pool*885a7000 : large page allocation, tag is LSbf, size is 0x11000 bytesPooltag LSbf : SMB1 buffer descriptor or srvnet allocation, Binary : srvnet.sys为什么这段数据是memmove拷过来的，调试一下就行了，打印出每次的地址喝参数。bp srv!srvOs2FeaToNt+4d &quot;.printf\&quot;memmove from %x to %x length %x\\n\&quot;, poi(@esp+4), poi(@esp), poi(@esp+8);gc&quot;可以看到最后2次复制的长度，且最后一次的长度是a8。ba e1 srv!SrvOs2FeaToNt+0x4d &quot;.if(poi(esp+8) != a8){gc} .else {}&quot;正常情况是在srv.sys对象SMB buffer中，但由于长度过长导致对srvnet.sys分配的buffer越界写。至于为什么会拷贝越界就是前面进行结构体转换的时候，大小计算错误。那么我们回过头再来看，shellcode是在SMB通信的时候写入srv中的非分页池的，在执行完memmove之后，越界写到了srvnet的非分页池中，但是最后shellcode执行的时候是处于HAL中，期间又发生了什么呢。再次下断点调试。ba w1 ffdff1f1可以看到，memmove拷贝的时候，覆盖掉的不仅仅是Context-&gt;Connection。他同时也覆盖了相邻SRVNET_BUFFER.MDL的内容(偏移0x2c起)，从而使得TCP/IP协议栈拷贝到了ffdff1f1内存中。在x86上，ffdf1000开始到ffffffff地址，都是保留给HAL用的。0000ffff0000000000000000000000000000000000000000ffdff1000000000000000000ffdff020*****bug*****ffdff100ffffffff1004006000000000ffdfef80*****bug*****Srvnet 对象buffer中包含两个重要的域：  一个指向指定结构（srvnet_recv）的指针（即上图中的8834e4c0，被ffdff020覆盖），该指针将会在smb(srnet)连接结束或断开时被用于寻址函数地址。  一个用于接收缓冲区的MDL（即上图中的86546160，被ffdfef80覆盖）因此覆盖并控制MDL将导致之后的tcp 栈实现任意写入伪造对象的操作，覆盖并控制该指针可用于将其指向一个攻击者控制的伪造对象，此时断开smb(srvnet)连接即可导致代码执行。总结首先，歹发送SMB 的 Session Setup AndX (0×73) 命令，跟据其响应中的 Native OS 获取 目标操作系统的版本信息。他利用了SMB.SMB_COM_NT_TRANSACT SMB_COM_TRANSACTION2_SECONDARY 在内存中精心布局，形成了一些连续的SRVNET_BUFFER内存区域。然后他关闭了一个链接，从而释放掉一个SRVNET_BUFFER，而这个释放掉的SRVNET_BUFFER空洞恰恰又会被FeaList 分配内存时重用(有图为证)。而SrvOs2FeaListToNt 中的Bug又导致了拷贝时越界，直接覆盖掉了其后的SRVNET_BUFFER，修改了MDL。于是后面的发送的数据就被错误的拷贝到了MDL 指定的内存中，也就是HAL保留的内存。而这时，歹人开始了致命的以一击，发送最后一个SMB_COM_TRANSACTION2_SECONDARY 分片，从而触发了控制转移。参考资料# MS17-010漏洞復現(x32)以及分析深入剖析勒索软件传播方式狄仁杰探案之“永恒之蓝”EternalBlue Shellcode详细分析WannaCry勒索软件中“永恒之蓝”漏洞利用分析MS17-010深入分析“永恒之蓝”漏洞NSA Eternalblue SMB 漏洞分析免考实验与研究——MS17-010漏洞研究EternalBlue工具漏洞利用细节分析NSA武器库之Eternalblue SMB漏洞浅析后记和学姐讨论了，她的意思是在ring3上有程序直接调用了srv.sys，但是根据以下资料，我表示怀疑，而且栈回溯也看不到ring3的应用层，应该是通过os直接控制了。https://www.computerhope.com/https://www.reviversoft.com/zh-cn/processes/srv.syshttps://docs.microsoft.com/zh-cn/windows-hardware/drivers/gettingstarted/what-is-a-driver-">
+    <meta itemprop="datePublished" content="March 20, 2019">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Ms17 010
+</h1>
+          
+            <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  2 minute read
+
+</p>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+          <aside class="sidebar__right ">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+              <ul class="toc__menu">
+  <li><a href="#pagedpool-和-nopagedpool">PagedPool 和 NoPagedPool</a></li>
+  <li><a href="#漏洞原理">漏洞原理</a></li>
+  <li><a href="#poc">poc</a></li>
+  <li><a href="#exp">exp</a>
+    <ul>
+      <li><a href="#windbg调试过程">windbg调试过程</a></li>
+    </ul>
+  </li>
+  <li><a href="#总结">总结</a>
+    <ul>
+      <li><a href="#参考资料">参考资料</a></li>
+    </ul>
+  </li>
+  <li><a href="#后记">后记</a></li>
+</ul>
+            </nav>
+          </aside>
+        
+        <blockquote>
+  <p>MS17-010永恒之蓝分析</p>
+</blockquote>
+
+<hr />
+
+<h1 id="pagedpool-和-nopagedpool">PagedPool 和 NoPagedPool</h1>
+
+<p>Windows把虚拟地址分为用户地址空间和系统地址空间，用户地址空间是给应用程序使用的，系统地址空间是给系统核心和驱动程序使用的。
+系统地址空间分为分页池和非分页池。<strong>PagedPool</strong>是分页内存，简单来说就是物理内存不够时，会把这片内存移动到硬盘上，而<strong>NonPagedPool</strong>是无论物理内存如何紧缺，都绝对不把这片内存的内容移动到硬盘上。在内核里，<strong>PagedPool</strong>和 <strong>NonPagedPool</strong>都是可读可写可执行的， 而且没有类似<strong>VirtualProtect</strong>之类的函数。</p>
+
+<p>分页池是指映射到分页文件的虚拟地址，当要使用该地址时才交换到物理内存中，由系统来调度；非分页池是指直接在物理内存中分配的内存。“页面缓冲池”就是进程占用的分页池中的虚拟内存，是进程调用某些系统功能时，由系统核心或者驱动程序分配的。如果一个程序占用的页面缓冲池内存不断增大，就是内存泄露，通常应该是创建或打开了句柄没有关闭。</p>
+
+<p>系统资源主要有四种：分页池、未分页池、系统分页表和系统缓存。系统缓存容易理解，系统分页表则是用来保存所有线程使用到的堆栈（Windows所有的线程都具有自己的堆栈），分页池和未分页池则是所有程序的核心模式组件使用到的内存部分，区别只是未分页池里分配的内存是不能交换到虚拟内存上面的，分页池上的则可以（从而可能保存到磁盘上去，当程序需要这些页面的时候，再读到内存里面来）。
+例如设备驱动就使用未分页池（假如放到虚拟内存并被交换到磁盘上时可能会发生灾难性的后果）。这些资源短缺的时候系统将会发生不可预料的事情，分页池吃紧的时候系统将会频繁地使用虚拟内存，从而不停读写磁盘减低性能，而未分页池吃紧的时候系统多半已经踏入鬼门关了。</p>
+
+<p>总结两句：
+<strong>1.NonPagedPool</strong>的总量是有限的（ 具体大小和你物理内存的大小相关）， 而<strong>PagedPool</strong>的总量较多。申请了内存忘记释放都会造成内存泄漏，但是很明显忘记释放<strong>NonPagedPool</strong>的后果要严重得多；
+<strong>2.</strong>一般来说，<strong>PagedPool</strong>用来放数据（比如你用<strong>ZwQuerySystemInformation</strong>枚举内核模块，可以申请一大片<strong>PagedPool</strong>存放返回的数据），而<strong>NonPagedPool</strong>用来放代码（你写内核shellcode并需要执行时， 必须使用<strong>NonPagedPool</strong>存放<strong>shellcode</strong>）。</p>
+
+<p><a href="http://www.cnblogs.com/flycat-2016/p/5449738.html"><strong>Windows kernel pool</strong></a></p>
+
+<h1 id="漏洞原理">漏洞原理</h1>
+
+<p>MS17-010漏洞出现在Windows SMB v1中的内核态函数<code class="highlighter-rouge">srv!SrvOs2FeaListToNt</code>在处理FEA（File Extended attributes）转换时，在大非分页池（内核的数据结构，Large Non-Paged Kernel Pool）上存在缓冲区溢出。函数<code class="highlighter-rouge">srv!SrvOs2FeaListToNt</code>在将FEA list转换成NTFEA(Windows NT FEA) list前会调用<code class="highlighter-rouge">srv!SrvOs2FeaListSizeToNt</code>去计算转换后的FEA lsit的大小。然后会进行如下操作：</p>
+
+<ol>
+  <li><code class="highlighter-rouge">srv!SrvOs2FeaListSizeToNt</code>会计算FEA list的大小并更新待转换的FEA list的大小。</li>
+  <li>因为错误的使用WORD强制类型转换，导致计算出来的待转换的FEA list的大小比真正的FEA list大。</li>
+  <li>因为原先的总大小计算错误，导致当FEA list被转化为NTFEA list时，会在非分页池导致缓冲区溢出。</li>
+</ol>
+
+<p>在<code class="highlighter-rouge">Srv.sys</code>中的<code class="highlighter-rouge">SrvOs2FeaListToNt</code>函数中，会有以下调用关系：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">SrvOs2FeaListToNt</span>
+    <span class="n">SrvOs2FeaListSizeToNt</span>
+        <span class="o">*****</span><span class="n">bug</span><span class="o">*****</span>
+    <span class="n">SrvOs2FeaToNt</span>
+        <span class="n">memmove</span>
+            <span class="o">*****</span><span class="n">crash</span><span class="o">*****</span>
+</code></pre></div></div>
+
+<h1 id="poc">poc</h1>
+
+<p>下图所示是，调试poc时，crash之后的栈，我们根据栈回溯定位可以看到，<code class="highlighter-rouge">srv!SrvOs2FeaListToNt</code>调用了<code class="highlighter-rouge">srv!SrvOs2FeaToNt</code>，再调用<code class="highlighter-rouge">memmove</code>函数，这里崩掉的原因是<code class="highlighter-rouge">memmove</code>函数的参数过大，导致拷贝越界。</p>
+
+<p><img src="images/Snipaste_2019-03-20_12-48-09.png" alt="Snipaste_2019-03-20_12-48-09" /></p>
+
+<p>其中在<code class="highlighter-rouge">SrvOs2FeaListSizeToNt</code>中因为有一个<code class="highlighter-rouge">DWORD转WORD</code>并赋值的bug，造成在<code class="highlighter-rouge">SrvOs2FeaListToNt</code>的一个循环中，<code class="highlighter-rouge">SrvOs2FeaToNt</code>被调用的次数会多于预期，而造成<code class="highlighter-rouge">SrvOs2FeaToNt</code>中的一个<code class="highlighter-rouge">memmove</code>拷贝越界。如果参数大于0x10000，因为word类型的原因，求得的返回值会变大，下图是输入的参数。</p>
+
+<p><img src="images/Snipaste_2019-03-20_15-13-32.png" alt="Snipaste_2019-03-20_15-13-32" /></p>
+
+<p>这时候edi指向了payload，使用pool命令查看：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">kd</span><span class="o">&gt;</span> <span class="o">!</span><span class="n">pool</span> <span class="n">edi</span>
+<span class="n">Pool</span> <span class="n">page</span> <span class="mi">9839</span><span class="n">a0d8</span> <span class="n">region</span> <span class="n">is</span> <span class="n">Paged</span> <span class="n">pool</span>
+<span class="o">*</span><span class="mi">9839</span><span class="n">a000</span> <span class="o">:</span> <span class="n">large</span> <span class="n">page</span> <span class="n">allocation</span><span class="p">,</span> <span class="n">tag</span> <span class="n">is</span> <span class="n">LStr</span><span class="p">,</span> <span class="n">size</span> <span class="n">is</span> <span class="mh">0x11000</span> <span class="n">bytes</span>
+<span class="n">Pooltag</span> <span class="n">LStr</span> <span class="o">:</span> <span class="n">SMB1</span> <span class="n">transaction</span><span class="p">,</span> <span class="n">Binary</span> <span class="o">:</span> <span class="n">srv</span><span class="p">.</span><span class="n">sys</span>
+</code></pre></div></div>
+
+<p>所以edi指向的就是传入参数，FEA。当<code class="highlighter-rouge">srv!SrvOs2FeaListSizeToNt</code>执行完后，返回值变大。</p>
+
+<p><img src="images/Snipaste_2019-03-20_17-36-37.png" alt="Snipaste_2019-03-20_17-36-37" /></p>
+
+<p>在求得返回值变大之后，<code class="highlighter-rouge">srv!SrvOs2FeaListToNt</code>会调用<code class="highlighter-rouge">srv!SrvOs2FeaToNt</code>对list进行遍历，而最后一次调用的参数是<code class="highlighter-rouge">0xcc00</code>，如下图所示。</p>
+
+<p><img src="images/Snipaste_2019-03-20_15-56-09.png" alt="Snipaste_2019-03-20_15-56-09" /></p>
+
+<p>在这最后一次<code class="highlighter-rouge">srv!SrvOs2FeaToNt</code>中，这里就调用<code class="highlighter-rouge">memmove</code>从分页池的第二段payload复制到非分页池中，很明显这里的参数是肯定太大了，导致了最后的问题，分页池用完，超预期的长度，越界读取导致bsod。</p>
+
+<p><img src="images/Snipaste_2019-03-20_19-49-50.png" alt="Snipaste_2019-03-20_19-49-50" /></p>
+
+<p>非分页池情况：</p>
+
+<p><img src="images/Snipaste_2019-03-20_19-50-15.png" alt="Snipaste_2019-03-20_19-50-15" /></p>
+
+<h1 id="exp">exp</h1>
+
+<p>那么EternalBlue是如何利用的呢？首先发送一个SRV buffer除了最后一个数据包。这是因为大非分页池将在会话中最后一个数据包被服务端接收的时候被建立。SMB服务器会把会话中接受到的数据读取并叠加起来放入输入缓冲区中。所有的数据会在TRANS包中被标明。当接收到所有的数据后SMB服务器将会处理这些数据。数据通过CIFS(Common Internet File System)会被分发到SrvOpen2函数中来读取。</p>
+
+<p>EternalBlue发送的所有数据会被SMB服务器收到后，SMB服务器会发送SMB ECHO包。因为攻击可以在网速很慢的情况下实现，所以SMB ECHO是很重要的。</p>
+
+<p>在我们的分析中，即使我们发送了初始数据，存在漏洞的缓冲区仍然没有被分配在内存中。</p>
+
+<ol>
+  <li>FreeHole_A: EternalBlue通过发送SMB v1数据包来完成占位</li>
+  <li>SMBv2_1n: 发送一组SMB v2数据包</li>
+  <li>FreeHole_B: 发送另一个占位数据包；必须确保第一个占位的FreeHole_A被释放之前，这块内存被分配</li>
+  <li>FreeHole_A_CLOSE: 关闭连接，使得第一个占位的内存空间被释放。</li>
+  <li>SMBv2_2n: 发送一组SMB v2数据包。</li>
+  <li>FreeHole_B_CLOSE: 关闭连接来释放缓冲区。</li>
+  <li>FINAL_Vulnerable_Buffer: 发送最后的数据包，这个数据包将会被存储在有漏洞的缓冲区中。</li>
+</ol>
+
+<h2 id="windbg调试过程">windbg调试过程</h2>
+
+<p>exp最后的结果是<code class="highlighter-rouge">srv!SrvTransaction2DispatchTable</code>中的第0xe项被替换。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">kd</span><span class="o">&gt;</span> <span class="n">dds</span> <span class="n">srv</span><span class="o">!</span><span class="n">SrvTransaction2DispatchTable</span>
+<span class="mi">95744530</span>  <span class="mi">9576</span><span class="n">c56f</span> <span class="n">srv</span><span class="o">!</span><span class="n">SrvSmbOpen2</span>
+<span class="mi">95744534</span>  <span class="mi">95766</span><span class="n">fe4</span> <span class="n">srv</span><span class="o">!</span><span class="n">SrvSmbFindFirst2</span>
+<span class="mi">95744538</span>  <span class="mi">9576706</span><span class="n">d</span> <span class="n">srv</span><span class="o">!</span><span class="n">SrvSmbFindNext2</span>
+<span class="mi">9574453</span><span class="n">c</span>  <span class="mi">95769</span><span class="n">a89</span> <span class="n">srv</span><span class="o">!</span><span class="n">SrvSmbQueryFsInformation</span>
+<span class="mi">95744540</span>  <span class="mi">9576</span><span class="n">a2f3</span> <span class="n">srv</span><span class="o">!</span><span class="n">SrvSmbSetFsInformation</span>
+<span class="mi">95744544</span>  <span class="mi">95760</span><span class="n">f65</span> <span class="n">srv</span><span class="o">!</span><span class="n">SrvSmbQueryPathInformation</span>
+<span class="mi">95744548</span>  <span class="mi">95761</span><span class="n">c74</span> <span class="n">srv</span><span class="o">!</span><span class="n">SrvSmbSetPathInformation</span>
+<span class="mi">9574454</span><span class="n">c</span>  <span class="mi">9576077</span><span class="n">c</span> <span class="n">srv</span><span class="o">!</span><span class="n">SrvSmbQueryFileInformation</span>
+<span class="mi">95744550</span>  <span class="mi">9576155</span><span class="n">d</span> <span class="n">srv</span><span class="o">!</span><span class="n">SrvSmbSetFileInformation</span>
+<span class="mi">95744554</span>  <span class="mi">9576</span><span class="n">a4e5</span> <span class="n">srv</span><span class="o">!</span><span class="n">SrvSmbFindNotify</span>
+<span class="mi">95744558</span>  <span class="mi">9576797</span><span class="n">a</span> <span class="n">srv</span><span class="o">!</span><span class="n">SrvSmbIoctl2</span>
+<span class="mi">9574455</span><span class="n">c</span>  <span class="mi">9576</span><span class="n">a4e5</span> <span class="n">srv</span><span class="o">!</span><span class="n">SrvSmbFindNotify</span>
+<span class="mi">95744560</span>  <span class="mi">9576</span><span class="n">a4e5</span> <span class="n">srv</span><span class="o">!</span><span class="n">SrvSmbFindNotify</span>
+<span class="mi">95744564</span>  <span class="mi">957625</span><span class="n">fb</span> <span class="n">srv</span><span class="o">!</span><span class="n">SrvSmbCreateDirectory2</span>
+<span class="mi">95744568</span>  <span class="mi">9576</span><span class="n">cf2b</span> <span class="n">srv</span><span class="o">!</span><span class="n">SrvTransactionNotImplemented</span><span class="p">(</span><span class="o">******</span><span class="n">bug</span><span class="o">******</span><span class="p">)</span>
+<span class="mi">9574456</span><span class="n">c</span>  <span class="mi">9576</span><span class="n">cf2b</span> <span class="n">srv</span><span class="o">!</span><span class="n">SrvTransactionNotImplemented</span>
+<span class="mi">95744570</span>  <span class="mi">95753107</span> <span class="n">srv</span><span class="o">!</span><span class="n">SrvSmbGetDfsReferral</span>
+<span class="mi">95744574</span>  <span class="mi">95752</span><span class="n">ff7</span> <span class="n">srv</span><span class="o">!</span><span class="n">SrvSmbReportDfsInconsistency</span>
+</code></pre></div></div>
+
+<p>至于为什么会替换这个，应该是最后一次SMB通信就是transaction2，当数据包发过来的时候，会调用这个表，就会执行自定义函数。</p>
+
+<p>首先下断点查看是哪里在写向这个地址写值。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ba</span> <span class="n">w1</span> <span class="n">srv</span><span class="o">!</span><span class="n">SrvTransaction2DispatchTable</span><span class="o">+</span><span class="mh">0xe</span><span class="o">*</span><span class="mi">4</span>
+</code></pre></div></div>
+
+<p><img src="images/Snipaste_2019-03-22_09-56-24.png" alt="Snipaste_2019-03-22_09-56-24" /></p>
+
+<p>可以看到此时：</p>
+
+<ol>
+  <li>eip位于HAL地址空间中，显然是不对的</li>
+  <li>ebx指向srv!SrvTransaction2DispatchTable表头部</li>
+  <li>eax指向被替换的函数地址。</li>
+</ol>
+
+<p>于是我们将整个段保存下来查看。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">.</span><span class="n">writemem</span> <span class="n">C</span><span class="o">:</span><span class="err">\</span><span class="n">Users</span><span class="err">\</span><span class="n">zjgcj</span><span class="err">\</span><span class="n">Desktop</span><span class="err">\</span><span class="n">sc</span><span class="p">.</span><span class="n">bin</span> <span class="n">ffdff000</span> <span class="n">l0x1000</span>
+</code></pre></div></div>
+
+<p>可以找到shellcode的起始地址。是在<code class="highlighter-rouge">ffdff1f1</code>这个地方，位于HAL地址空间中。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">d</span><span class="o">&gt;</span> <span class="o">!</span><span class="n">address</span> <span class="n">ffdff1f1</span>
+<span class="n">Base</span> <span class="n">Address</span><span class="o">:</span>           <span class="n">ffdf1000</span>
+<span class="n">End</span> <span class="n">Address</span><span class="o">:</span>            <span class="n">ffffffff</span>
+<span class="n">Region</span> <span class="n">Size</span><span class="o">:</span>            <span class="mo">0020</span><span class="n">f000</span>
+<span class="n">VA</span> <span class="n">Type</span><span class="o">:</span>                <span class="n">HAL</span>
+</code></pre></div></div>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">wrk</span><span class="err">中有定義這塊地址的作用，如下：</span>
+<span class="c1">// addressed from 0xffdf0000 - 0xffdfffff are reserved for the system</span>
+<span class="c1">// begin_ntddk begin_ntosp</span>
+<span class="cp">#define KI_USER_SHARED_DATA 0xffdf0000
+#define SharedUserData ((KUSER_SHARED_DATA * const) KI_USER_SHARED_DATA)
+</span></code></pre></div></div>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">kd</span><span class="o">&gt;</span> <span class="n">u</span> <span class="n">FFDFF1F1</span>
+<span class="n">ffdff1f1</span> <span class="mi">31</span><span class="n">c0</span>            <span class="n">xor</span>     <span class="n">eax</span><span class="p">,</span><span class="n">eax</span>
+<span class="n">ffdff1f3</span> <span class="mi">40</span>              <span class="n">inc</span>     <span class="n">eax</span>
+<span class="n">ffdff1f4</span> <span class="mi">90</span>              <span class="n">nop</span>
+<span class="n">ffdff1f5</span> <span class="mi">7408</span>            <span class="n">je</span>      <span class="n">ffdff1ff</span>
+<span class="n">ffdff1f7</span> <span class="n">e809000000</span>      <span class="n">call</span>    <span class="n">ffdff205</span>
+<span class="n">ffdff1fc</span> <span class="n">c22400</span>          <span class="n">ret</span>     <span class="mi">24</span><span class="n">h</span>
+<span class="n">ffdff1ff</span> <span class="n">e8a7000000</span>      <span class="n">call</span>    <span class="n">ffdff2ab</span>
+<span class="n">ffdff204</span> <span class="n">c3</span>              <span class="n">ret</span>
+</code></pre></div></div>
+
+<p>这时我们需要知道控制流是如何转移过来的，以及数据流是如何被写到HAL的地址空间中的。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ba</span> <span class="n">w1</span> <span class="n">FFDFF1F1</span>
+<span class="n">ba</span> <span class="n">e1</span> <span class="n">FFDFF1F1</span>
+</code></pre></div></div>
+
+<p>由于一个地址只能下一个断点，因为先写再执行，所以我们先看写的情况。</p>
+
+<p><img src="images/Snipaste_2019-03-22_10-26-04.png" alt="Snipaste_2019-03-22_10-26-04" /></p>
+
+<p>可以看到，此时程序位于tcp的协议栈中，在执行memcpy的过程中，错误的将srvnet非分页缓冲池中的数据复制到HAL的地址空间中。为什么会发生这样的情况，最后再看。</p>
+
+<p>然后我们再来看执行的情况。</p>
+
+<p><img src="images/Snipaste_2019-03-22_10-42-25.png" alt="Snipaste_2019-03-22_10-42-25" /></p>
+
+<p>在<code class="highlighter-rouge">srvnet!SrvNetCommonReceiveHandler</code>这个函数中，eax的值被指向了shellcode的地址附近，之后便调用了shellcode。之后我们需要知道这个值是怎么来的。
+根据网上的资料，我们可以知道如下的函数调用关系。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">srvnet</span><span class="o">!</span><span class="n">SrvNetWskReceiveComplete</span>
+    <span class="n">srvnet</span><span class="o">!</span><span class="n">SrvNetIndicateData</span>
+        <span class="n">srvnet</span><span class="o">!</span><span class="n">SrvNetCommonReceiveHandler</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">srvnet!SrvNetWskReceiveComplete</code>这个函数是个IRP的完成例程。第三个参数Context是IRP的Context。Context 偏移0×24 处，存放了一个指针，里面存放了连接信息，我们姑且称其为Connection吧。这个Connection 会被作为第一个参数，传入<code class="highlighter-rouge">srvnet!SrvNetIndicateData</code>，而紧接着又会被作为第一个参数传入到<code class="highlighter-rouge">srvnet!SrvNetCommonReceiveHandler</code>。而Contex 由<code class="highlighter-rouge">srvnet!SrvNetAllocateBuffer</code>分配，类型是<code class="highlighter-rouge">SRVNET_BUFFFER</code></p>
+
+<p><img src="images/1496473220837.png" alt="1496473220837" /></p>
+
+<p>该结构的0×24处的Connection被损坏了，被修改成了HAL中的地址空间。然后我们再下断点即可。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">bu</span> <span class="n">srvnet</span><span class="o">!</span><span class="n">SrvNetWskReceiveComplete</span><span class="o">+</span><span class="mi">17</span> <span class="s">".if(@edi==ffdff020){} .else{gc}"</span>
+</code></pre></div></div>
+
+<p>然后我们可以看到如下的结果，同时我们查看esi所在的地址，是srvnet分配的非分页池。但是其实这段数据是srv中<code class="highlighter-rouge">memmove</code>的目的地址，所以这里其实已经越界写了。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">kd</span><span class="o">&gt;</span> <span class="n">dd</span> <span class="n">esi</span>
+<span class="mi">885</span><span class="n">a7010</span>  <span class="mo">0000</span><span class="n">ffff</span> <span class="mo">00000000</span> <span class="mo">00000000</span> <span class="mo">00000000</span>
+<span class="mi">885</span><span class="n">a7020</span>  <span class="mo">00000000</span> <span class="mo">00000000</span> <span class="n">ffdff100</span> <span class="mo">00000000</span>
+<span class="mi">885</span><span class="n">a7030</span>  <span class="mo">00000000</span> <span class="p">[</span><span class="o">***</span><span class="n">ffdff020</span><span class="o">***</span><span class="p">]</span> <span class="n">ffdff100</span> <span class="n">ffffffff</span>
+<span class="mi">885</span><span class="n">a7040</span>  <span class="mi">10040060</span> <span class="mo">00000000</span> <span class="n">ffdfef80</span> <span class="mo">00000000</span>
+<span class="mi">885</span><span class="n">a7050</span>  <span class="n">ffd00010</span> <span class="n">ffffffff</span> <span class="n">ffd00118</span> <span class="n">ffffffff</span>
+<span class="mi">885</span><span class="n">a7060</span>  <span class="mo">00000000</span> <span class="mo">00000000</span> <span class="mo">00000000</span> <span class="mo">00000000</span>
+<span class="mi">885</span><span class="n">a7070</span>  <span class="mi">10040060</span> <span class="mo">00000000</span> <span class="mo">00000000</span> <span class="mo">00000000</span>
+<span class="mi">885</span><span class="n">a7080</span>  <span class="n">ffcfff90</span> <span class="n">ffffffff</span> <span class="mo">00000000</span> <span class="mo">00000000</span>
+<span class="n">kd</span><span class="o">&gt;</span> <span class="o">!</span><span class="n">pool</span> <span class="n">esi</span>
+<span class="n">Pool</span> <span class="n">page</span> <span class="mi">885</span><span class="n">a7010</span> <span class="n">region</span> <span class="n">is</span> <span class="n">Nonpaged</span> <span class="n">pool</span>
+<span class="o">*</span><span class="mi">885</span><span class="n">a7000</span> <span class="o">:</span> <span class="n">large</span> <span class="n">page</span> <span class="n">allocation</span><span class="p">,</span> <span class="n">tag</span> <span class="n">is</span> <span class="n">LSbf</span><span class="p">,</span> <span class="n">size</span> <span class="n">is</span> <span class="mh">0x11000</span> <span class="n">bytes</span>
+<span class="n">Pooltag</span> <span class="n">LSbf</span> <span class="o">:</span> <span class="n">SMB1</span> <span class="n">buffer</span> <span class="n">descriptor</span> <span class="n">or</span> <span class="n">srvnet</span> <span class="n">allocation</span><span class="p">,</span> <span class="n">Binary</span> <span class="o">:</span> <span class="n">srvnet</span><span class="p">.</span><span class="n">sys</span>
+</code></pre></div></div>
+
+<p>为什么这段数据是<code class="highlighter-rouge">memmove</code>拷过来的，调试一下就行了，打印出每次的地址喝参数。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">bp</span> <span class="n">srv</span><span class="o">!</span><span class="n">srvOs2FeaToNt</span><span class="o">+</span><span class="mi">4</span><span class="n">d</span> <span class="s">".printf</span><span class="se">\"</span><span class="s">memmove from %x to %x length %x</span><span class="se">\\</span><span class="s">n</span><span class="se">\"</span><span class="s">, poi(@esp+4), poi(@esp), poi(@esp+8);gc"</span>
+</code></pre></div></div>
+
+<p>可以看到最后2次复制的长度，且最后一次的长度是a8。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ba</span> <span class="n">e1</span> <span class="n">srv</span><span class="o">!</span><span class="n">SrvOs2FeaToNt</span><span class="o">+</span><span class="mh">0x4d</span> <span class="s">".if(poi(esp+8) != a8){gc} .else {}"</span>
+</code></pre></div></div>
+
+<p>正常情况是在srv.sys对象SMB buffer中，但由于长度过长导致对srvnet.sys分配的buffer越界写。</p>
+
+<p><img src="images/Snipaste_2019-03-22_14-44-24.png" alt="Snipaste_2019-03-22_14-44-24" /></p>
+
+<p>至于为什么会拷贝越界就是前面进行结构体转换的时候，大小计算错误。</p>
+
+<p>那么我们回过头再来看，shellcode是在SMB通信的时候写入srv中的非分页池的，在执行完<code class="highlighter-rouge">memmove</code>之后，越界写到了srvnet的非分页池中，但是最后shellcode执行的时候是处于HAL中，期间又发生了什么呢。再次下断点调试。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ba</span> <span class="n">w1</span> <span class="n">ffdff1f1</span>
+</code></pre></div></div>
+
+<p><img src="images/Snipaste_2019-03-21_15-09-52.png" alt="Snipaste_2019-03-21_15-09-52" /></p>
+
+<p>可以看到，<code class="highlighter-rouge">memmove</code>拷贝的时候，覆盖掉的不仅仅是Context-&gt;Connection。他同时也覆盖了相邻<code class="highlighter-rouge">SRVNET_BUFFER.MDL</code>的内容(偏移0x2c起)，从而使得TCP/IP协议栈拷贝到了<code class="highlighter-rouge">ffdff1f1</code>内存中。在x86上，<code class="highlighter-rouge">ffdf1000</code>开始到<code class="highlighter-rouge">ffffffff</code>地址，都是保留给HAL用的。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="mo">0000</span><span class="n">ffff</span>
+<span class="mo">00000000</span>
+<span class="mo">00000000</span>
+<span class="mo">00000000</span>
+<span class="mo">00000000</span>
+<span class="mo">00000000</span>
+<span class="n">ffdff100</span>
+<span class="mo">00000000</span>
+<span class="mo">00000000</span>
+<span class="n">ffdff020</span><span class="o">*****</span><span class="n">bug</span><span class="o">*****</span>
+<span class="n">ffdff100</span>
+<span class="n">ffffffff</span>
+<span class="mi">10040060</span>
+<span class="mo">00000000</span>
+<span class="n">ffdfef80</span><span class="o">*****</span><span class="n">bug</span><span class="o">*****</span>
+</code></pre></div></div>
+
+<p>Srvnet 对象buffer中包含两个重要的域：</p>
+
+<ol>
+  <li>一个指向指定结构（srvnet_recv）的指针（即上图中的8834e4c0，被ffdff020覆盖），该指针将会在smb(srnet)连接结束或断开
+时被用于寻址函数地址。</li>
+  <li>一个用于接收缓冲区的MDL（即上图中的86546160，被ffdfef80覆盖）</li>
+</ol>
+
+<p>因此覆盖并控制MDL将导致之后的tcp 栈实现任意写入伪造对象的操作，覆盖并控制该指针可用于将其指向一个攻击者控制的伪造对象，此时断开smb(srvnet)连接即可导致代码执行。</p>
+
+<h1 id="总结">总结</h1>
+
+<p>首先，歹发送SMB 的 Session Setup AndX (0×73) 命令，跟据其响应中的 Native OS 获取 目标操作系统的版本信息。</p>
+
+<p>他利用了SMB.SMB_COM_NT_TRANSACT SMB_COM_TRANSACTION2_SECONDARY 在内存中精心布局，形成了一些连续的SRVNET_BUFFER内存区域。然后他关闭了一个链接，从而释放掉一个SRVNET_BUFFER，而这个释放掉的SRVNET_BUFFER空洞恰恰又会被FeaList 分配内存时重用(有图为证)。而SrvOs2FeaListToNt 中的Bug又导致了拷贝时越界，直接覆盖掉了其后的SRVNET_BUFFER，修改了MDL。于是后面的发送的数据就被错误的拷贝到了MDL 指定的内存中，也就是HAL保留的内存。而这时，歹人开始了致命的以一击，发送最后一个SMB_COM_TRANSACTION2_SECONDARY 分片，从而触发了控制转移。</p>
+
+<p><img src="images/14964738412030.png" alt="14964738412030" /></p>
+
+<p><img src="images/t01d84ec3da74c87b19.jpg" alt="t01d84ec3da74c87b19" /></p>
+
+<h2 id="参考资料">参考资料</h2>
+
+<p><a href="https://www.twblogs.net/a/5c18b111bd9eee5e40bbfe4c"># MS17-010漏洞復現(x32)以及分析</a>
+<a href="http://blog.nsfocus.net/ransomware-detail/">深入剖析勒索软件传播方式</a>
+<a href="https://www.freebuf.com/articles/system/136298.html">狄仁杰探案之“永恒之蓝”</a>
+<a href="https://www.anquanke.com/post/id/86392">EternalBlue Shellcode详细分析</a>
+<a href="https://bbs.pediy.com/thread-217734.htm">WannaCry勒索软件中“永恒之蓝”漏洞利用分析</a>
+<a href="https://www.anquanke.com/post/id/86270">MS17-010深入分析“永恒之蓝”漏洞</a>
+<a href="http://blogs.360.cn/post/nsa-eternalblue-smb.html">NSA Eternalblue SMB 漏洞分析</a>
+<a href="https://www.cnblogs.com/Qujinkongyuyin/p/9266958.html">免考实验与研究——MS17-010漏洞研究</a>
+<a href="https://ti.360.net/blog/articles/detailed-analysis-of-eternalblue/">EternalBlue工具漏洞利用细节分析</a>
+<a href="https://blog.csdn.net/qq_32400847/article/details/72810999">NSA武器库之Eternalblue SMB漏洞浅析</a></p>
+
+<h1 id="后记">后记</h1>
+
+<p>和学姐讨论了，她的意思是在ring3上有程序直接调用了srv.sys，但是根据以下资料，我表示怀疑，而且栈回溯也看不到ring3的应用层，应该是通过os直接控制了。</p>
+
+<p><a href="https://www.computerhope.com/">https://www.computerhope.com/</a></p>
+
+<p><a href="https://www.reviversoft.com/zh-cn/processes/srv.sys">https://www.reviversoft.com/zh-cn/processes/srv.sys</a></p>
+
+<p><a href="https://docs.microsoft.com/zh-cn/windows-hardware/drivers/gettingstarted/what-is-a-driver-">https://docs.microsoft.com/zh-cn/windows-hardware/drivers/gettingstarted/what-is-a-driver-</a></p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#cve" class="page__taxonomy-item" rel="tag">cve</a>
+    
+    </span>
+  </p>
+
+
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-03-20T11:05:00+08:00">March 20, 2019</time></p>
+        
+      </footer>
+
+      <section class="page__share">
+  
+    <h4 class="page__share-title">Share on</h4>
+  
+
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Ms17+010%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-03%2FMS17-010.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-03%2FMS17-010.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-03%2FMS17-010.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+
+      
+  <nav class="pagination">
+    
+      <a href="/posts/2019-03/windbg.html" class="pagination--pager" title="Windbg
+">Previous</a>
+    
+    
+      <a href="/posts/2019-03/Xen%E6%89%8B%E5%86%8C.html" class="pagination--pager" title="Xen手册
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      <h4 class="page__related-title">You may also enjoy</h4>
+      <div class="grid__wrapper">
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-11/Dirary_November.html" rel="permalink">Dirary_november
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  每日所作所得
+
+
+
+
+11月1日
+</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/Software_Security_Project.html" rel="permalink">Software_security_project
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  Malware
+vs2010
+
+
+
+
+InfoCollection
+
+configure
+
+
+
+warning
+
+
+
+</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/Pacman_Helper.html" rel="permalink">Pacman_helper
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  pacman 手册
+
+
+
+
+archlinux pacman 命令
+arch wiki
+
+pacman -Sy 仅同步源
+
+pacman -Syu 同步源，并更新系统
+
+pacman -Su –ignore foo 升级时不升级包foo
+
+pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/%E5%8D%81%E6%9C%88%E6%97%A5%E8%AE%B0.html" rel="permalink">十月日记
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  每日所作所得
+
+
+
+
+10月1日
+
+周日，上课前最后一天，算是给自己放了最后一天假期
+
+10月2日
+
+上了第一天的课，主要是os，一脸蒙蔽。
+</p>
+  </article>
+</div>
+
+        
+      </div>
+    </div>
+  
+  
+</div>
+
+    </div>
+
+    
+      <div class="search-content">
+        <div class="search-content__inner-wrap"><form class="search-content__form" onkeydown="return event.key != 'Enter';">
+    <label class="sr-only" for="search">
+      Enter your search term...
+    </label>
+    <input type="search" id="search" class="search-input" tabindex="-1" placeholder="Enter your search term..." />
+  </form>
+  <div id="results" class="results"></div></div>
+
+      </div>
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+        
+      
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2019 Blogger. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+
+
+
+
+<script src="/assets/js/lunr/lunr.min.js"></script>
+<script src="/assets/js/lunr/lunr-store.js"></script>
+<script src="/assets/js/lunr/lunr-en.js"></script>
+
+
+
+
+    
+  <script>
+    var disqus_config = function () {
+      this.page.url = "http://localhost:4000/posts/2019-03/MS17-010.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.identifier = "/posts/2019-03/MS17-010"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    (function() { // DON'T EDIT BELOW THIS LINE
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zjgcjy-github-io.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  </script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+  
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,896 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.17.2 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Docker Using  -  My way, though far away</title>
+<meta name="description" content="  讲一下docker的用法。关于ubuntu16.04安装最新docker的方法，参照官网手册。拉取镜像可以使用docker search ...查找有关镜像然后使用docker pull ...拉取镜像查看镜像查看所有镜像docker images启动镜像有好几种启动方式。直接运行docker run ubuntu:14.04 /bin/echo &#39;Hello world&#39;这跟在本地直接执行 /bin/echo ‘hello world’ 几乎感觉不出任何区别。下面的命令则启动一个 bash 终端，允许用户进行交互。docker run -t -i ubuntu:14.04 /bin/bash其中， -t 选项让Docker分配一个伪终端（pseudo-tty）并绑定到容器的标准输入上， -i 则让容器的标准输入保持打开。守护态运行更多的时候，需要让 Docker 容器在后台以守护态（Daemonized）形式运行。此时，可以通过添加 -d 参数来实现。docker run -d ubuntu:14.04容器启动后会返回一个唯一的 id，也可以通过 docker ps 命令来查看容器信息。docker ps要获取容器的输出信息，可以通过 docker logs 命令。关闭容器可以使用docker stop来终止一个运行中的容器。此外，当Docker容器中指定的应用终结时，容器也自动终止。 对于只启动了一个终端的容器，通过 exit 命令或 Ctrl+d 来退出终端时，所创建的容器立刻终止。终止状态的容器可以用docker ps -a看到。处于终止状态的容器，可以通过docker start命令来重新启动。docker restart命令会将一个运行态的容器终止，然后再重新启动它。进入容器attach方式当采用守护态启动容器时，使用attach可以附加到容器。通过docker ps查看id就可以附加到运行的容器。docker attach -itd 44fc0f0582d9  exec方式docker在1.3.X版本之后还提供了一个新的命令exec用于进入容器，这种方式相对更简单一些，docker exec --help  sudo docker exec -it 775c7c9ee1e1 /bin/bash拷贝文件cp命令用于主机和容器拷贝文件，防止每次都重建dockerfile。docker cp foo.txt mycontainer:/foo.txtdocker cp mycontainer:/foo.txt foo.txtpwn dockerfileFROM ubuntuMAINTAINER zjgcjyLABEL Description=&quot;zjgcjy_pwngame&quot; VERSION=&#39;1.0&#39;# x86_SupportRUN dpkg --add-architecture i386# updateRUN apt-get update# install something basicRUN apt-get install -y libc6:i386 libncurses5:i386 libstdc++6:i386\    &amp;&amp;apt-get install -y socat sudo# copy fileCOPY ./pwn /tmp/pwnCOPY ./flag.txtGOT-AND-PLT/tmp/# add userRUN useradd -U -m pwn# rights configtionRUN chown root:pwn /tmp/flag.txt\    &amp;&amp;chown root:pwn /tmp/pwnRUN chmod  750 /tmp/pwn\    &amp;&amp;chmod 740 /tmp/flag.txt#WORKDIR /tmp/CMD sudo -u pwn socat tcp-l:4444,fork exec:/tmp/pwnEXPOSE 4444docker run -d -p 0.0.0.0:1111:4444 -t pwn构建自定义镜像编写完成Dockerfile之后，可以通过docker build命令来创建镜像。基本的格式为 docker build [选项]路径，该命令将读取指定路径下的Dockerfile，并将该路径下的所有内容发送给Docker服务端，由服务端来创建镜像。因此一般建议放置Dockerfile的目录为空目录docker build -t pwn .删除images1.停止所有的container，这样才能够删除其中的images：docker stop $(docker ps -a -q)如果想要删除所有container的话再加一个指令：docker rm $(docker ps -a -q)2.查看当前有些什么imagesdocker images3.删除images，通过image的id来指定删除谁docker rmi &lt;image id&gt;想要删除untagged images，也就是那些id为&lt;None&gt;的image的话可以用docker rmi $(docker images | grep “^&lt;none&gt;” | awk “{print $3}”)要删除全部image的话docker rmi $(docker images -q)">
+
+
+  <meta name="author" content="zjgcjy">
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="My way, though far away">
+<meta property="og:title" content="Docker Using">
+<meta property="og:url" content="http://localhost:4000/posts/2017-12/Docker-using.html">
+
+
+  <meta property="og:description" content="  讲一下docker的用法。关于ubuntu16.04安装最新docker的方法，参照官网手册。拉取镜像可以使用docker search ...查找有关镜像然后使用docker pull ...拉取镜像查看镜像查看所有镜像docker images启动镜像有好几种启动方式。直接运行docker run ubuntu:14.04 /bin/echo &#39;Hello world&#39;这跟在本地直接执行 /bin/echo ‘hello world’ 几乎感觉不出任何区别。下面的命令则启动一个 bash 终端，允许用户进行交互。docker run -t -i ubuntu:14.04 /bin/bash其中， -t 选项让Docker分配一个伪终端（pseudo-tty）并绑定到容器的标准输入上， -i 则让容器的标准输入保持打开。守护态运行更多的时候，需要让 Docker 容器在后台以守护态（Daemonized）形式运行。此时，可以通过添加 -d 参数来实现。docker run -d ubuntu:14.04容器启动后会返回一个唯一的 id，也可以通过 docker ps 命令来查看容器信息。docker ps要获取容器的输出信息，可以通过 docker logs 命令。关闭容器可以使用docker stop来终止一个运行中的容器。此外，当Docker容器中指定的应用终结时，容器也自动终止。 对于只启动了一个终端的容器，通过 exit 命令或 Ctrl+d 来退出终端时，所创建的容器立刻终止。终止状态的容器可以用docker ps -a看到。处于终止状态的容器，可以通过docker start命令来重新启动。docker restart命令会将一个运行态的容器终止，然后再重新启动它。进入容器attach方式当采用守护态启动容器时，使用attach可以附加到容器。通过docker ps查看id就可以附加到运行的容器。docker attach -itd 44fc0f0582d9  exec方式docker在1.3.X版本之后还提供了一个新的命令exec用于进入容器，这种方式相对更简单一些，docker exec --help  sudo docker exec -it 775c7c9ee1e1 /bin/bash拷贝文件cp命令用于主机和容器拷贝文件，防止每次都重建dockerfile。docker cp foo.txt mycontainer:/foo.txtdocker cp mycontainer:/foo.txt foo.txtpwn dockerfileFROM ubuntuMAINTAINER zjgcjyLABEL Description=&quot;zjgcjy_pwngame&quot; VERSION=&#39;1.0&#39;# x86_SupportRUN dpkg --add-architecture i386# updateRUN apt-get update# install something basicRUN apt-get install -y libc6:i386 libncurses5:i386 libstdc++6:i386\    &amp;&amp;apt-get install -y socat sudo# copy fileCOPY ./pwn /tmp/pwnCOPY ./flag.txtGOT-AND-PLT/tmp/# add userRUN useradd -U -m pwn# rights configtionRUN chown root:pwn /tmp/flag.txt\    &amp;&amp;chown root:pwn /tmp/pwnRUN chmod  750 /tmp/pwn\    &amp;&amp;chmod 740 /tmp/flag.txt#WORKDIR /tmp/CMD sudo -u pwn socat tcp-l:4444,fork exec:/tmp/pwnEXPOSE 4444docker run -d -p 0.0.0.0:1111:4444 -t pwn构建自定义镜像编写完成Dockerfile之后，可以通过docker build命令来创建镜像。基本的格式为 docker build [选项]路径，该命令将读取指定路径下的Dockerfile，并将该路径下的所有内容发送给Docker服务端，由服务端来创建镜像。因此一般建议放置Dockerfile的目录为空目录docker build -t pwn .删除images1.停止所有的container，这样才能够删除其中的images：docker stop $(docker ps -a -q)如果想要删除所有container的话再加一个指令：docker rm $(docker ps -a -q)2.查看当前有些什么imagesdocker images3.删除images，通过image的id来指定删除谁docker rmi &lt;image id&gt;想要删除untagged images，也就是那些id为&lt;None&gt;的image的话可以用docker rmi $(docker images | grep “^&lt;none&gt;” | awk “{print $3}”)要删除全部image的话docker rmi $(docker images -q)">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+
+
+
+  <meta name="twitter:site" content="@zjgcjy">
+  <meta name="twitter:title" content="Docker Using">
+  <meta name="twitter:description" content="  讲一下docker的用法。关于ubuntu16.04安装最新docker的方法，参照官网手册。拉取镜像可以使用docker search ...查找有关镜像然后使用docker pull ...拉取镜像查看镜像查看所有镜像docker images启动镜像有好几种启动方式。直接运行docker run ubuntu:14.04 /bin/echo &#39;Hello world&#39;这跟在本地直接执行 /bin/echo ‘hello world’ 几乎感觉不出任何区别。下面的命令则启动一个 bash 终端，允许用户进行交互。docker run -t -i ubuntu:14.04 /bin/bash其中， -t 选项让Docker分配一个伪终端（pseudo-tty）并绑定到容器的标准输入上， -i 则让容器的标准输入保持打开。守护态运行更多的时候，需要让 Docker 容器在后台以守护态（Daemonized）形式运行。此时，可以通过添加 -d 参数来实现。docker run -d ubuntu:14.04容器启动后会返回一个唯一的 id，也可以通过 docker ps 命令来查看容器信息。docker ps要获取容器的输出信息，可以通过 docker logs 命令。关闭容器可以使用docker stop来终止一个运行中的容器。此外，当Docker容器中指定的应用终结时，容器也自动终止。 对于只启动了一个终端的容器，通过 exit 命令或 Ctrl+d 来退出终端时，所创建的容器立刻终止。终止状态的容器可以用docker ps -a看到。处于终止状态的容器，可以通过docker start命令来重新启动。docker restart命令会将一个运行态的容器终止，然后再重新启动它。进入容器attach方式当采用守护态启动容器时，使用attach可以附加到容器。通过docker ps查看id就可以附加到运行的容器。docker attach -itd 44fc0f0582d9  exec方式docker在1.3.X版本之后还提供了一个新的命令exec用于进入容器，这种方式相对更简单一些，docker exec --help  sudo docker exec -it 775c7c9ee1e1 /bin/bash拷贝文件cp命令用于主机和容器拷贝文件，防止每次都重建dockerfile。docker cp foo.txt mycontainer:/foo.txtdocker cp mycontainer:/foo.txt foo.txtpwn dockerfileFROM ubuntuMAINTAINER zjgcjyLABEL Description=&quot;zjgcjy_pwngame&quot; VERSION=&#39;1.0&#39;# x86_SupportRUN dpkg --add-architecture i386# updateRUN apt-get update# install something basicRUN apt-get install -y libc6:i386 libncurses5:i386 libstdc++6:i386\    &amp;&amp;apt-get install -y socat sudo# copy fileCOPY ./pwn /tmp/pwnCOPY ./flag.txtGOT-AND-PLT/tmp/# add userRUN useradd -U -m pwn# rights configtionRUN chown root:pwn /tmp/flag.txt\    &amp;&amp;chown root:pwn /tmp/pwnRUN chmod  750 /tmp/pwn\    &amp;&amp;chmod 740 /tmp/flag.txt#WORKDIR /tmp/CMD sudo -u pwn socat tcp-l:4444,fork exec:/tmp/pwnEXPOSE 4444docker run -d -p 0.0.0.0:1111:4444 -t pwn构建自定义镜像编写完成Dockerfile之后，可以通过docker build命令来创建镜像。基本的格式为 docker build [选项]路径，该命令将读取指定路径下的Dockerfile，并将该路径下的所有内容发送给Docker服务端，由服务端来创建镜像。因此一般建议放置Dockerfile的目录为空目录docker build -t pwn .删除images1.停止所有的container，这样才能够删除其中的images：docker stop $(docker ps -a -q)如果想要删除所有container的话再加一个指令：docker rm $(docker ps -a -q)2.查看当前有些什么imagesdocker images3.删除images，通过image的id来指定删除谁docker rmi &lt;image id&gt;想要删除untagged images，也就是那些id为&lt;None&gt;的image的话可以用docker rmi $(docker images | grep “^&lt;none&gt;” | awk “{print $3}”)要删除全部image的话docker rmi $(docker images -q)">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2017-12/Docker-using.html">
+
+  
+    <meta name="twitter:card" content="summary">
+    
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+    
+  
+
+  
+
+
+
+  <meta property="article:published_time" content="2017-12-07T02:39:00+08:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/posts/2017-12/Docker-using.html">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Blogger",
+      "url": "http://localhost:4000/",
+      "sameAs": ["https://twitter.com/","https://github.com/"]
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="My way, though far away Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/apple-touch-icon.png" alt=""></a>
+        
+        <a class="site-title" href="/">
+          ZJGCJY
+          <span class="site-subtitle">My way, though far away</span>
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/collection-archive/" >Collections</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="search__toggle" type="button">
+          <span class="visually-hidden">Toggle search</span>
+          <svg class="icon" width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15.99 16">
+            <path d="M15.5,13.12L13.19,10.8a1.69,1.69,0,0,0-1.28-.55l-0.06-.06A6.5,6.5,0,0,0,5.77,0,6.5,6.5,0,0,0,2.46,11.59a6.47,6.47,0,0,0,7.74.26l0.05,0.05a1.65,1.65,0,0,0,.5,1.24l2.38,2.38A1.68,1.68,0,0,0,15.5,13.12ZM6.4,2A4.41,4.41,0,1,1,2,6.4,4.43,4.43,0,0,1,6.4,2Z" transform="translate(-.01)"></path>
+          </svg>
+        </button>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#posts" itemprop="item"><span itemprop="name">Posts</span></a>
+          <meta itemprop="position" content="2" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#2017-12" itemprop="item"><span itemprop="name">2017 12</span></a>
+          <meta itemprop="position" content="3" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        <li class="current">Docker Using</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/me.jpg" alt="zjgcjy" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">zjgcjy</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>IIE UCAS, CTFer, Binarian</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+          
+        
+          
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+          
+        
+          
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          
+        
+          
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Docker Using">
+    <meta itemprop="description" content="  讲一下docker的用法。关于ubuntu16.04安装最新docker的方法，参照官网手册。拉取镜像可以使用docker search ...查找有关镜像然后使用docker pull ...拉取镜像查看镜像查看所有镜像docker images启动镜像有好几种启动方式。直接运行docker run ubuntu:14.04 /bin/echo &#39;Hello world&#39;这跟在本地直接执行 /bin/echo ‘hello world’ 几乎感觉不出任何区别。下面的命令则启动一个 bash 终端，允许用户进行交互。docker run -t -i ubuntu:14.04 /bin/bash其中， -t 选项让Docker分配一个伪终端（pseudo-tty）并绑定到容器的标准输入上， -i 则让容器的标准输入保持打开。守护态运行更多的时候，需要让 Docker 容器在后台以守护态（Daemonized）形式运行。此时，可以通过添加 -d 参数来实现。docker run -d ubuntu:14.04容器启动后会返回一个唯一的 id，也可以通过 docker ps 命令来查看容器信息。docker ps要获取容器的输出信息，可以通过 docker logs 命令。关闭容器可以使用docker stop来终止一个运行中的容器。此外，当Docker容器中指定的应用终结时，容器也自动终止。 对于只启动了一个终端的容器，通过 exit 命令或 Ctrl+d 来退出终端时，所创建的容器立刻终止。终止状态的容器可以用docker ps -a看到。处于终止状态的容器，可以通过docker start命令来重新启动。docker restart命令会将一个运行态的容器终止，然后再重新启动它。进入容器attach方式当采用守护态启动容器时，使用attach可以附加到容器。通过docker ps查看id就可以附加到运行的容器。docker attach -itd 44fc0f0582d9  exec方式docker在1.3.X版本之后还提供了一个新的命令exec用于进入容器，这种方式相对更简单一些，docker exec --help  sudo docker exec -it 775c7c9ee1e1 /bin/bash拷贝文件cp命令用于主机和容器拷贝文件，防止每次都重建dockerfile。docker cp foo.txt mycontainer:/foo.txtdocker cp mycontainer:/foo.txt foo.txtpwn dockerfileFROM ubuntuMAINTAINER zjgcjyLABEL Description=&quot;zjgcjy_pwngame&quot; VERSION=&#39;1.0&#39;# x86_SupportRUN dpkg --add-architecture i386# updateRUN apt-get update# install something basicRUN apt-get install -y libc6:i386 libncurses5:i386 libstdc++6:i386\    &amp;&amp;apt-get install -y socat sudo# copy fileCOPY ./pwn /tmp/pwnCOPY ./flag.txtGOT-AND-PLT/tmp/# add userRUN useradd -U -m pwn# rights configtionRUN chown root:pwn /tmp/flag.txt\    &amp;&amp;chown root:pwn /tmp/pwnRUN chmod  750 /tmp/pwn\    &amp;&amp;chmod 740 /tmp/flag.txt#WORKDIR /tmp/CMD sudo -u pwn socat tcp-l:4444,fork exec:/tmp/pwnEXPOSE 4444docker run -d -p 0.0.0.0:1111:4444 -t pwn构建自定义镜像编写完成Dockerfile之后，可以通过docker build命令来创建镜像。基本的格式为 docker build [选项]路径，该命令将读取指定路径下的Dockerfile，并将该路径下的所有内容发送给Docker服务端，由服务端来创建镜像。因此一般建议放置Dockerfile的目录为空目录docker build -t pwn .删除images1.停止所有的container，这样才能够删除其中的images：docker stop $(docker ps -a -q)如果想要删除所有container的话再加一个指令：docker rm $(docker ps -a -q)2.查看当前有些什么imagesdocker images3.删除images，通过image的id来指定删除谁docker rmi &lt;image id&gt;想要删除untagged images，也就是那些id为&lt;None&gt;的image的话可以用docker rmi $(docker images | grep “^&lt;none&gt;” | awk “{print $3}”)要删除全部image的话docker rmi $(docker images -q)">
+    <meta itemprop="datePublished" content="December 07, 2017">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Docker Using
+</h1>
+          
+            <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  1 minute read
+
+</p>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+          <aside class="sidebar__right ">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+              <ul class="toc__menu">
+  <li><a href="#拉取镜像">拉取镜像</a></li>
+  <li><a href="#查看镜像">查看镜像</a></li>
+  <li><a href="#启动镜像">启动镜像</a>
+    <ul>
+      <li><a href="#直接运行">直接运行</a></li>
+      <li><a href="#守护态运行">守护态运行</a></li>
+    </ul>
+  </li>
+  <li><a href="#关闭容器">关闭容器</a></li>
+  <li><a href="#进入容器">进入容器</a>
+    <ul>
+      <li><a href="#attach方式">attach方式</a></li>
+      <li><a href="#exec方式">exec方式</a></li>
+    </ul>
+  </li>
+  <li><a href="#拷贝文件">拷贝文件</a></li>
+  <li><a href="#pwn-dockerfile">pwn dockerfile</a></li>
+  <li><a href="#构建自定义镜像">构建自定义镜像</a></li>
+  <li><a href="#删除images">删除images</a></li>
+</ul>
+            </nav>
+          </aside>
+        
+        <hr />
+
+<blockquote>
+  <p>讲一下docker的用法。
+关于ubuntu16.04安装最新docker的方法，参照官网手册。</p>
+</blockquote>
+
+<h1 id="拉取镜像">拉取镜像</h1>
+
+<p>可以使用</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker search ...
+</code></pre></div></div>
+
+<p>查找有关镜像
+然后使用</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker pull ...
+</code></pre></div></div>
+
+<p>拉取镜像</p>
+
+<h1 id="查看镜像">查看镜像</h1>
+
+<p>查看所有镜像</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker images
+</code></pre></div></div>
+
+<h1 id="启动镜像">启动镜像</h1>
+
+<p>有好几种启动方式。</p>
+
+<h2 id="直接运行">直接运行</h2>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run ubuntu:14.04 /bin/echo <span class="s1">'Hello world'</span>
+</code></pre></div></div>
+
+<p>这跟在本地直接执行 /bin/echo ‘hello world’ 几乎感觉不出任何区别。
+下面的命令则启动一个 bash 终端，允许用户进行交互。</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">-t</span> <span class="nt">-i</span> ubuntu:14.04 /bin/bash
+</code></pre></div></div>
+
+<p>其中， -t 选项让Docker分配一个伪终端（pseudo-tty）并绑定到容器的标准输入上， -i 则让容器的标准输入保持打开。</p>
+
+<h2 id="守护态运行">守护态运行</h2>
+
+<p>更多的时候，需要让 Docker 容器在后台以守护态（Daemonized）形式运行。此时，可以通过添加 -d 参数来实现。</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run <span class="nt">-d</span> ubuntu:14.04
+</code></pre></div></div>
+
+<p>容器启动后会返回一个唯一的 id，也可以通过 docker ps 命令来查看容器信息。</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker ps
+</code></pre></div></div>
+
+<p>要获取容器的输出信息，可以通过 docker logs 命令。</p>
+
+<h1 id="关闭容器">关闭容器</h1>
+
+<p>可以使用</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker stop
+</code></pre></div></div>
+
+<p>来终止一个运行中的容器。
+此外，当Docker容器中指定的应用终结时，容器也自动终止。 对于只启动了一个终端的容器，通过 exit 命令或 Ctrl+d 来退出终端时，所创建的容器立刻终止。终止状态的容器可以用</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker ps <span class="nt">-a</span>
+</code></pre></div></div>
+
+<p>看到。</p>
+
+<p>处于终止状态的容器，可以通过</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker start
+</code></pre></div></div>
+
+<p>命令来重新启动。</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker restart
+</code></pre></div></div>
+
+<p>命令会将一个运行态的容器终止，然后再重新启动它。</p>
+
+<h1 id="进入容器">进入容器</h1>
+
+<h2 id="attach方式">attach方式</h2>
+
+<p>当采用守护态启动容器时，使用attach可以附加到容器。
+通过docker ps查看id就可以附加到运行的容器。</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker attach <span class="nt">-itd</span> 44fc0f0582d9  
+</code></pre></div></div>
+
+<h2 id="exec方式">exec方式</h2>
+
+<p>docker在1.3.X版本之后还提供了一个新的命令exec用于进入容器，这种方式相对更简单一些，</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker <span class="nb">exec</span> <span class="nt">--help</span>  
+<span class="nb">sudo </span>docker <span class="nb">exec</span> <span class="nt">-it</span> 775c7c9ee1e1 /bin/bash
+</code></pre></div></div>
+
+<h1 id="拷贝文件">拷贝文件</h1>
+
+<p>cp命令用于主机和容器拷贝文件，防止每次都重建dockerfile。</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker <span class="nb">cp </span>foo.txt mycontainer:/foo.txt
+docker <span class="nb">cp </span>mycontainer:/foo.txt foo.txt
+</code></pre></div></div>
+
+<h1 id="pwn-dockerfile">pwn dockerfile</h1>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>FROM ubuntu
+MAINTAINER zjgcjy
+LABEL <span class="nv">Description</span><span class="o">=</span><span class="s2">"zjgcjy_pwngame"</span> <span class="nv">VERSION</span><span class="o">=</span><span class="s1">'1.0'</span>
+<span class="c"># x86_Support</span>
+RUN dpkg <span class="nt">--add-architecture</span> i386
+<span class="c"># update</span>
+RUN apt-get update
+<span class="c"># install something basic</span>
+RUN apt-get <span class="nb">install</span> <span class="nt">-y</span> libc6:i386 libncurses5:i386 libstdc++6:i386<span class="se">\</span>
+    <span class="o">&amp;&amp;</span>apt-get <span class="nb">install</span> <span class="nt">-y</span> socat <span class="nb">sudo</span>
+
+<span class="c"># copy file</span>
+COPY ./pwn /tmp/pwn
+COPY ./flag.txtGOT-AND-PLT/tmp/
+<span class="c"># add user</span>
+RUN useradd <span class="nt">-U</span> <span class="nt">-m</span> pwn
+<span class="c"># rights configtion</span>
+RUN <span class="nb">chown </span>root:pwn /tmp/flag.txt<span class="se">\</span>
+    <span class="o">&amp;&amp;</span><span class="nb">chown </span>root:pwn /tmp/pwn
+RUN <span class="nb">chmod  </span>750 /tmp/pwn<span class="se">\</span>
+    <span class="o">&amp;&amp;</span><span class="nb">chmod </span>740 /tmp/flag.txt
+
+<span class="c">#WORKDIR /tmp/</span>
+CMD <span class="nb">sudo</span> <span class="nt">-u</span> pwn socat tcp-l:4444,fork <span class="nb">exec</span>:/tmp/pwn
+EXPOSE 4444
+
+docker run <span class="nt">-d</span> <span class="nt">-p</span> 0.0.0.0:1111:4444 <span class="nt">-t</span> pwn
+
+</code></pre></div></div>
+
+<h1 id="构建自定义镜像">构建自定义镜像</h1>
+
+<p>编写完成Dockerfile之后，可以通过docker build命令来创建镜像。
+基本的格式为 docker build [选项]路径，该命令将读取指定路径下的Dockerfile，并将该路径下的所有内容发送给Docker服务端，由服务端来创建镜像。因此一般建议放置Dockerfile的目录为空目录</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker build <span class="nt">-t</span> pwn <span class="nb">.</span>
+</code></pre></div></div>
+
+<h1 id="删除images">删除images</h1>
+
+<p>1.停止所有的container，这样才能够删除其中的images：
+docker stop $(docker ps -a -q)
+如果想要删除所有container的话再加一个指令：
+docker rm $(docker ps -a -q)
+2.查看当前有些什么images
+docker images
+3.删除images，通过image的id来指定删除谁
+docker rmi &lt;image id&gt;
+想要删除untagged images，也就是那些id为&lt;None&gt;的image的话可以用
+docker rmi $(docker images | grep “^&lt;none&gt;” | awk “{print $3}”)
+要删除全部image的话
+docker rmi $(docker images -q)</p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#docker" class="page__taxonomy-item" rel="tag">Docker</a>
+    
+    </span>
+  </p>
+
+
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2017-12-07T02:39:00+08:00">December 07, 2017</time></p>
+        
+      </footer>
+
+      <section class="page__share">
+  
+    <h4 class="page__share-title">Share on</h4>
+  
+
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Docker+Using%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-12%2FDocker-using.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-12%2FDocker-using.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-12%2FDocker-using.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+
+      
+  <nav class="pagination">
+    
+      <a href="/posts/2017-10/android-JNI-debugging-2.html" class="pagination--pager" title="Android Jni Debugging 2
+">Previous</a>
+    
+    
+      <a href="/posts/2017-12/got%E5%92%8Cplt%E8%A1%A8.html" class="pagination--pager" title="Got和plt表
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      <h4 class="page__related-title">You may also enjoy</h4>
+      <div class="grid__wrapper">
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-11/Dirary_November.html" rel="permalink">Dirary_november
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  每日所作所得
+
+
+
+
+11月1日
+</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/Software_Security_Project.html" rel="permalink">Software_security_project
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  Malware
+vs2010
+
+
+
+
+InfoCollection
+
+configure
+
+
+
+warning
+
+
+
+</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/Pacman_Helper.html" rel="permalink">Pacman_helper
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  pacman 手册
+
+
+
+
+archlinux pacman 命令
+arch wiki
+
+pacman -Sy 仅同步源
+
+pacman -Syu 同步源，并更新系统
+
+pacman -Su –ignore foo 升级时不升级包foo
+
+pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/%E5%8D%81%E6%9C%88%E6%97%A5%E8%AE%B0.html" rel="permalink">十月日记
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  每日所作所得
+
+
+
+
+10月1日
+
+周日，上课前最后一天，算是给自己放了最后一天假期
+
+10月2日
+
+上了第一天的课，主要是os，一脸蒙蔽。
+</p>
+  </article>
+</div>
+
+        
+      </div>
+    </div>
+  
+  
+</div>
+
+    </div>
+
+    
+      <div class="search-content">
+        <div class="search-content__inner-wrap"><form class="search-content__form" onkeydown="return event.key != 'Enter';">
+    <label class="sr-only" for="search">
+      Enter your search term...
+    </label>
+    <input type="search" id="search" class="search-input" tabindex="-1" placeholder="Enter your search term..." />
+  </form>
+  <div id="results" class="results"></div></div>
+
+      </div>
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+        
+      
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2019 Blogger. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+
+
+
+
+<script src="/assets/js/lunr/lunr.min.js"></script>
+<script src="/assets/js/lunr/lunr-store.js"></script>
+<script src="/assets/js/lunr/lunr-en.js"></script>
+
+
+
+
+    
+  <script>
+    var disqus_config = function () {
+      this.page.url = "http://localhost:4000/posts/2017-12/Docker-using.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.identifier = "/posts/2017-12/Docker-using"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    (function() { // DON'T EDIT BELOW THIS LINE
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zjgcjy-github-io.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  </script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+  
+
+
+
+
+
+  </body>
+</html>

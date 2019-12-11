@@ -1,0 +1,1046 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.17.2 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Idapython实现dump微信gif表情包  -  My way, though far away</title>
+<meta name="description" content="  最近一周都没课了。emm，闲来无事想从微信上下一波表情包。然而微信在我不知不觉中更新了。以前的套路没法用了，于是自己就花时间研究了一下。特记此文。使用的工具主要是IDA，分析的对象是PC新版微信客户端，目标是获取GIF动图。ps:我这指的GIF是指微信表情商店里的表情（只能发送给别人，没办法保存到本地）老版微信如何保存GIF做这件事情的起因就是发现我PC上的微信自己更新了，那么就先安利一下老版本如何截取GIF图片。我使用的是PC版的微信客户端，有关Android版的不在讨论范围内。首先我们找到PC版的用户配置文件夹。一般在文档文件夹下，以微信id表示账号。如下图所示。其中的CustomEmotions就是老版本微信缓存的GIF位置，当我们登陆PC版微信，然后用手机给别人发图的时候。消息同会同步到PC上，其中的GIF图片被处理后保存到这个文件夹内。具体是怎样处理的我也忘了，好像就是改GIF文件头部，其他没有变化。这样我们就能得到GIF了。新版微信对GIF缓存做了什么处理但是微信更新后，此时CustomEmotions文件夹内不会保存任何东西，甚至删除该文件夹也不会影响微信接受消息。这时所有的GIF被保存到CustomEmoV1文件夹内，而且均被加密处理。为了演示效果，我首先将该文件夹清空，然后用手机给别人发图（手动滑稽），效果如下图所示。此时PC上同步显示图片，同时GIF被保存到CustomEmoV1文件夹内，如下图所示。很明显，一张GIF对于一个文件，文件名32位长，可能是MD5。然后我们选择一个文件打开。可以看到文件头被修改成V1MMWX，WX肯定指的就是微信了，V1MM不知道是什么，应该是微信开发人员定义的格式。不仅如此，熟悉GIF格式的童鞋也不难发现，除了文件头，下面的内容也被加密了。下面我就讲一下我是怎么分析这个文件的。如何分析加密数据首先看一下文件的大小是否发生变化。这里我要解释一下的是，我以前曾经从老版的微信上获取过GIF，这些GIF我都保存了，所以可以直接用该GIF和加密后的GIF进行对比，就不截图了。对比的结果是：加密后的大小比加密前的大小多7字节。如何看待这7个字节  我认为其中有6个字节是V1MMWX这个文件头造成的影响。  对100KB左右的文件来说，加密是需要时间的，但是微信是即时通讯工具，开发人员应该不会使用复杂的加密算法。  整体上来说，加密前后数据量大小是一致的。基于以上三点，我猜测就是一个简单的亦或加密。然后我用python的xortool分析了一下该文件。然后自动分析出极大可能解，这里它给出了一个key是0x2b(‘+’)。最后我将得到的文件和原始文件比对。惊人的发现！除了前0x3ff字节不一样，后面的字节都是一样的，也就是说，加密的方式其中之一就是亦或。具体就是对文件从0x400开始的字节亦或0x2b。到现在为止，我已经知道了文件后面一部分的加密方式，如何解密前面一部分呢？我认为还是要抓住V1MM这个文件头，因为这个头是开发人员固定的，那么这个值应该是个明文，或者说是应该是某个exe或者dll中.rdata段的（我只能期望它不是SMC之类动态生成的了）于是我就去微信安装目录下找这个字符串在哪。结合exe和dll的名称、以及更新日期，我很幸运的找到了。找到之后很显然要干什么了。开IDA吧。开始分析WeChatWin.dll由于这个dll相当的大，IDA分析了很久才完，我也是第二次分析这么大的东西（第一次是某CTF的tensorflow），话不多说，直接shift+f12找V1MM字符串的位置。然后我就惊了，ida没找到，估计是类型不对吧。无奈，只好手工定位了。第一次失败了，忘了是FOA了，要转成RVA。算了，直接定位到.rdata基址，直接用偏移，终于发现了V1MM的位置。然后就交叉引用，发现有三处，其中2处由同一个函数引用（另外一处应该是CRT或者编译器函数）进入这个函数分析。直接f5后，能发现关键的几行代码，如下图所示。这几行就是GIF加密后保存的地方了，首先将6字节的V1MMMX复制到cipher指针指向的首地址，然后是2个move函数，也可以理解是memcpy。而且第一个是从cipher指针指向首地址向后移动6字节开始的，那肯定就是上文中未解密的部分了。第二个move又是从第一个move结束的地方开始的，那就是上文提到的异或算法了。由于这段是最后部分，加密都处理完了，我们需要往上看，同时整体把握这个函数的作用。可以发现，该函数应该是一个BOOL类型的函数，若处理成功则返回1，否则返回0。还能发现的是，cipher虽然是个局部变量，但在函数第一行可以发现它被指向了该函数的第二个参数，考虑到是BOOL类型的函数，函数只能返回一个值，那么对这个处理的函数而言，只有可能将文件句柄作为参数传入，修改后才能有效。也就是说该函数的第一个参数应该是文件句柄，而指向加密内容的第二个参数应该是加密后的指针所指向的地方。还有一些地方指的思考，比如a1[1]这个地方的值是什么。if (a1[1] &lt; 0){  return 0;}在函数一开始，就比较a1[1]这个地方的值，小于0则直接返回，我猜测是是文件大小的意思。后面的代码直接验证了我的猜想。看到了熟悉的0x3ff，上文已经提到了，加密的GIF前面0x3ff的加密方式还是未知的，这里直接比较a1[1]和0x3ff的大小，其实就是判断GIF的大小，如果比0x3ff小，那么v7变量就不能想0x3ff，而是文件的大小。也就是说如果GIF本身大小不超过0x3ff，就不会使用第二部分的异或加密。struct a{    int* file;    int size;}分析完这部分，我们可以将该函数的第一个参数转换成结构体，第一个值是文件内容指针，第二个值是文件的大小。关于这个值怎么得到并传入该函数的，不是我们分析的重点。回过头来再看最后一部分传入的第二个参数，其实我们就能分别找到那2个加密的函数。其中绿色框中的2个函数就是加密的2个函数。我们先看第二个函数，也就是异或那个。第二段加密-异或进入这个函数就能看到，很明显的取了一个byte(0x2b)，然后循环异或，具体的过程我就不分析了，只是验证一下，因为最开始的时候我已经用xortool自动分析出来了。有兴趣的可以分析一下，或者动态调试一下看看是怎么加密的。第一段加密-rsa这个第一段加密很复杂，emm看着就不想分析了，看见一串明文crypto\\rsa\\rsa_lib.c更是让我感到绝望。哇，是真的绝望。。。然后就没有然后了，我是没有分析下去。应该是解密不了的。毕竟输出的是一个缓存文件，如果要分析微信是否能读取GIF缓存，或者说读取的格式是怎样的，我的功力还不够。。。（我要弃坑，我要转web）讲道理，上面的路已经不通了，下面开始想想别的方法。如何获取GIF其实方法我刚刚已经提示了，因为这个函数接受的参数就是完整的GIF，这个结构体上面也解释了，只要获取这个结构体就能拿到完整的GIF。因此，我们返回到原来那个函数的入口点，看什么时候结构体参数被引用。显然就是这里了，在将参数传给edi后，后面就判断结构体的第二个属性，即文件长度是否大于0。如果我们能在dll每次运行到这里的时候获取这两个数据，然后dump指定内存，就能拖出这个GIF图，也就不需要解密了。然后我动态调试了很多次，幸运的是并没有触发什么反调试和异常，使用的方式是idapython，首先是手动加载。location = GetRegValue(&#39;edi&#39;)sizeptr = GetRegValue(&#39;edi&#39;) + 0x4start = Dword(location)n = Dword(sizeptr)f = open(os.path.join(savepath, str(count)) + &#39;.gif&#39;, &#39;wb&#39;)for i in xrange(n):    f.write(chr(Byte(start + i)))f.close()然后每次都发个图给别人，PC就会缓存，然后GIF就会被保存下来了。如果每次都是手动加载的话，我记得这段代码是没问题的。但是不想每次都由我自己来下断点然后dump，为了实现自动化，自己也是学习了一波idapython来自定义Debugger Hook。idapython的Debugger Hooks主要用于Hook IDA 内部的调试器，同时可以自定义调试功能。结构如下class DbgHook(DBG_Hooks):    def dbg_process_start(self, pid, tid, ea, name, base, size):        return    def dbg_process_exit(self, pid, tid, ea, code):        return    def dbg_library_load(self, pid, tid, ea, name, base, size):        return    def dbg_bpt(self, tid, ea):        return安装hook的方式如下debugger = DbgHook()debugger.hook()一开始我是在dbg_process_start来自动插入断点的，但是后来发现效果并不会，这一点我之后会说明。我通过定义了MyDbgHook来继承DBG_Hooks，再次载入上面的脚本运行，结果却是这样的。文件里写的都是0xff。除了这种情况还会发生发送多个图片，获取的GIF均是同一个的离奇事件。查了半天不知道哪里出了原因。最后翻idapython的资料，最后发现是api使用不当，但是具体是为什么也没有资料，感觉Dword(ea)和DbgDword(ea)之类的都差不多，可能一个前面有dbg所以是dbg专用的吗。更新后的脚本。location = GetRegValue(&#39;edi&#39;)sizeptr = GetRegValue(&#39;edi&#39;) + 0x4start = DbgDword(location)n = DbgDword(sizeptr)f = open(os.path.join(savepath, str(count))+&#39;.gif&#39;,&#39;wb&#39;)for i in xrange(n):	f.write(chr(Byte(start+i)))f.close()运行结果如下图。更新后，效果好了很多，但是还是有问题，有的能显示，有的GIF显示不了，于是又查了一波idapython资料，最后发现还是api使用不当。。。Byte(ea)、DbgByte(ea)还有DbgRead(ea,n)，其实功能都是一样的，可能是Dbg的方式影响了某些API的实现，导致出现了很多问题。再次更新脚本。location = GetRegValue(&#39;edi&#39;)sizeptr = GetRegValue(&#39;edi&#39;) + 0x4print &quot;[*]\tGif location:[%08x],sizeptr:[%08x]&quot;% (location, sizeptr)start = DbgDword(location)n = DbgDword(sizeptr)print &quot;[*]\tGif start:[%08x],n:[%08x]&quot;% (start, n)dump = DbgRead(start,n)f = open(os.path.join(self.savepath, str(self.count))+&#39;.gif&#39;,&#39;wb&#39;)f.write(dump)f.close()self.count += 1ida日志输出如下图。运行结果如下图。完整代码及说明代码的几点说明：  dbg_process_start是最先加载的，在这里下断点会导致问题。  Modules()用于遍历整个环境中的模块，一开始我是想通过这个下断点的，后来发现DBG_Hooks已经提供了类似的函数，就是dbg_library_load，由于我的目标是WeChatWin.dll，当其加载的时候下断点就行了。  下断点的方式是通过偏移量来实现的，考虑到ASLR或者其他不可抗因素，直接VA下断不可行，通过模块BA+0x1000+offsite来实现，0x1000就是.text的VirtualAddress，详细可以参照PE中的节表。  Dbg模式下请使用ida python对应的API，否则如上文所述会导致未知情况。如将Dword(ea)替换成DbgDword(ea)。# coding:utf-8__author__=&#39;zjgcjy&#39;from idaapi import *from idautils import *from idc import *import os# 没用到，效果不好，或者说dbg_library_load更方便def Modules():    mod = idaapi.module_info_t()    result = idaapi.get_first_module(mod)    while result:        yield idaapi.object_t(name=mod.name, size=mod.size, base=mod.base, rebase_to=mod.rebase_to)        result = idaapi.get_next_module(mod)class MyDbgHook(DBG_Hooks):    #GIF计数	count = 0    #保存目录	savepath = &quot;C:\\Users\\xxxxxx\\Desktop\\emotion&quot;	keyLocation = 0	def dbg_process_start(self, pid, tid, ea, name, base, size):        #不要在这里插入断点		#for i in Modules():		#	if &#39;WeChatWin.dll&#39; in i.name:		#		print &quot;module:[%s]\tsize:[%#x]\tbase:[%#x]\tend:[%#x]&quot; %(i.name, i.size, i.base, i.rebase_to)		#		self.keyLocation = i.base		#self.keyLocation += 0x247970		#AddBpt(self.keyLocation)		#print &#39;keybreakpoint:[%#x]&#39; % self.keyLocation		print &quot;MyDbgHook : Process started, pid=%d tid=%d name=%s&quot; % (pid, tid, name)	def dbg_process_exit(self, pid, tid, ea, code):  	    print &quot;MyDbgHook : Process exited pid=%d tid=%d ea=0x%x code=%d&quot; % (pid, tid, ea, code)	def dbg_library_load(self, pid, tid, ea, name, base, size):  		print &quot;MyDbgHook : Library loaded: pid=%d tid=%d name=%s base=%x&quot; % (pid, tid, name, base)        # 对WeChatWin.dll下断点        if &#39;WeChatWin.dll&#39; in name:			self.keyLocation = base			self.keyLocation = self.keyLocation + 0x1000 + 0x247970			AddBpt(self.keyLocation)			print &#39;keybreakpoint:[%#x]&#39; % self.keyLocation	def dbg_library_unload(self, pid, tid, ea, info):  	    print &quot;MyDbgHook : Library unloaded: pid=%d tid=%d ea=0x%x info=%s&quot; % (pid, tid, ea, info)	    return 0  	def dbg_bpt(self, tid, ea):		print &quot;MyDbgHook : Break point at %s[0x%x] pid=%d&quot; % (GetFunctionName(ea), ea, tid)        #是否到了关键的地址		if GetRegValue(&#39;eip&#39;) == self.keyLocation :			location = GetRegValue(&#39;edi&#39;)			sizeptr = GetRegValue(&#39;edi&#39;) + 0x4			print &quot;[*]\tGif location:[%08x],sizeptr:[%08x]&quot;% (location, sizeptr)			start = DbgDword(location)			n = DbgDword(sizeptr)			print &quot;[*]\tGif start:[%08x],n:[%08x]&quot;% (start, n)			dump = DbgRead(start,n)			f = open(os.path.join(self.savepath, str(self.count))+&#39;.gif&#39;,&#39;wb&#39;)			f.write(dump)			f.close()			self.count = self.count + 1		else:			print &quot;[%x] - [%x]&quot; %(GetRegValue(&#39;eip&#39;),self.keyLocation)		idaapi.continue_process()  		return 0  	def dbg_suspend_process(self):  	    print &quot;MyDbgHook : Process suspended&quot;	def dbg_step_into(self):  	    print &quot;MyDbgHook : Step into&quot;	    self.dbg_step_over()debughook = MyDbgHook()  debughook.hook()print &quot;ok&quot;写在最后通过ida python实现了获取微信GIF的功能，自动化脚本，加载模块自动下断，dump文件。只需要在手机上发送GIF，保存目录下就能得到对应的GIF。速度可以说是很快的。战果">
+
+
+  <meta name="author" content="zjgcjy">
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="My way, though far away">
+<meta property="og:title" content="Idapython实现dump微信gif表情包">
+<meta property="og:url" content="http://localhost:4000/posts/2018-08/IDApython%E5%AE%9E%E7%8E%B0dump%E5%BE%AE%E4%BF%A1GIF%E8%A1%A8%E6%83%85%E5%8C%85.html">
+
+
+  <meta property="og:description" content="  最近一周都没课了。emm，闲来无事想从微信上下一波表情包。然而微信在我不知不觉中更新了。以前的套路没法用了，于是自己就花时间研究了一下。特记此文。使用的工具主要是IDA，分析的对象是PC新版微信客户端，目标是获取GIF动图。ps:我这指的GIF是指微信表情商店里的表情（只能发送给别人，没办法保存到本地）老版微信如何保存GIF做这件事情的起因就是发现我PC上的微信自己更新了，那么就先安利一下老版本如何截取GIF图片。我使用的是PC版的微信客户端，有关Android版的不在讨论范围内。首先我们找到PC版的用户配置文件夹。一般在文档文件夹下，以微信id表示账号。如下图所示。其中的CustomEmotions就是老版本微信缓存的GIF位置，当我们登陆PC版微信，然后用手机给别人发图的时候。消息同会同步到PC上，其中的GIF图片被处理后保存到这个文件夹内。具体是怎样处理的我也忘了，好像就是改GIF文件头部，其他没有变化。这样我们就能得到GIF了。新版微信对GIF缓存做了什么处理但是微信更新后，此时CustomEmotions文件夹内不会保存任何东西，甚至删除该文件夹也不会影响微信接受消息。这时所有的GIF被保存到CustomEmoV1文件夹内，而且均被加密处理。为了演示效果，我首先将该文件夹清空，然后用手机给别人发图（手动滑稽），效果如下图所示。此时PC上同步显示图片，同时GIF被保存到CustomEmoV1文件夹内，如下图所示。很明显，一张GIF对于一个文件，文件名32位长，可能是MD5。然后我们选择一个文件打开。可以看到文件头被修改成V1MMWX，WX肯定指的就是微信了，V1MM不知道是什么，应该是微信开发人员定义的格式。不仅如此，熟悉GIF格式的童鞋也不难发现，除了文件头，下面的内容也被加密了。下面我就讲一下我是怎么分析这个文件的。如何分析加密数据首先看一下文件的大小是否发生变化。这里我要解释一下的是，我以前曾经从老版的微信上获取过GIF，这些GIF我都保存了，所以可以直接用该GIF和加密后的GIF进行对比，就不截图了。对比的结果是：加密后的大小比加密前的大小多7字节。如何看待这7个字节  我认为其中有6个字节是V1MMWX这个文件头造成的影响。  对100KB左右的文件来说，加密是需要时间的，但是微信是即时通讯工具，开发人员应该不会使用复杂的加密算法。  整体上来说，加密前后数据量大小是一致的。基于以上三点，我猜测就是一个简单的亦或加密。然后我用python的xortool分析了一下该文件。然后自动分析出极大可能解，这里它给出了一个key是0x2b(‘+’)。最后我将得到的文件和原始文件比对。惊人的发现！除了前0x3ff字节不一样，后面的字节都是一样的，也就是说，加密的方式其中之一就是亦或。具体就是对文件从0x400开始的字节亦或0x2b。到现在为止，我已经知道了文件后面一部分的加密方式，如何解密前面一部分呢？我认为还是要抓住V1MM这个文件头，因为这个头是开发人员固定的，那么这个值应该是个明文，或者说是应该是某个exe或者dll中.rdata段的（我只能期望它不是SMC之类动态生成的了）于是我就去微信安装目录下找这个字符串在哪。结合exe和dll的名称、以及更新日期，我很幸运的找到了。找到之后很显然要干什么了。开IDA吧。开始分析WeChatWin.dll由于这个dll相当的大，IDA分析了很久才完，我也是第二次分析这么大的东西（第一次是某CTF的tensorflow），话不多说，直接shift+f12找V1MM字符串的位置。然后我就惊了，ida没找到，估计是类型不对吧。无奈，只好手工定位了。第一次失败了，忘了是FOA了，要转成RVA。算了，直接定位到.rdata基址，直接用偏移，终于发现了V1MM的位置。然后就交叉引用，发现有三处，其中2处由同一个函数引用（另外一处应该是CRT或者编译器函数）进入这个函数分析。直接f5后，能发现关键的几行代码，如下图所示。这几行就是GIF加密后保存的地方了，首先将6字节的V1MMMX复制到cipher指针指向的首地址，然后是2个move函数，也可以理解是memcpy。而且第一个是从cipher指针指向首地址向后移动6字节开始的，那肯定就是上文中未解密的部分了。第二个move又是从第一个move结束的地方开始的，那就是上文提到的异或算法了。由于这段是最后部分，加密都处理完了，我们需要往上看，同时整体把握这个函数的作用。可以发现，该函数应该是一个BOOL类型的函数，若处理成功则返回1，否则返回0。还能发现的是，cipher虽然是个局部变量，但在函数第一行可以发现它被指向了该函数的第二个参数，考虑到是BOOL类型的函数，函数只能返回一个值，那么对这个处理的函数而言，只有可能将文件句柄作为参数传入，修改后才能有效。也就是说该函数的第一个参数应该是文件句柄，而指向加密内容的第二个参数应该是加密后的指针所指向的地方。还有一些地方指的思考，比如a1[1]这个地方的值是什么。if (a1[1] &lt; 0){  return 0;}在函数一开始，就比较a1[1]这个地方的值，小于0则直接返回，我猜测是是文件大小的意思。后面的代码直接验证了我的猜想。看到了熟悉的0x3ff，上文已经提到了，加密的GIF前面0x3ff的加密方式还是未知的，这里直接比较a1[1]和0x3ff的大小，其实就是判断GIF的大小，如果比0x3ff小，那么v7变量就不能想0x3ff，而是文件的大小。也就是说如果GIF本身大小不超过0x3ff，就不会使用第二部分的异或加密。struct a{    int* file;    int size;}分析完这部分，我们可以将该函数的第一个参数转换成结构体，第一个值是文件内容指针，第二个值是文件的大小。关于这个值怎么得到并传入该函数的，不是我们分析的重点。回过头来再看最后一部分传入的第二个参数，其实我们就能分别找到那2个加密的函数。其中绿色框中的2个函数就是加密的2个函数。我们先看第二个函数，也就是异或那个。第二段加密-异或进入这个函数就能看到，很明显的取了一个byte(0x2b)，然后循环异或，具体的过程我就不分析了，只是验证一下，因为最开始的时候我已经用xortool自动分析出来了。有兴趣的可以分析一下，或者动态调试一下看看是怎么加密的。第一段加密-rsa这个第一段加密很复杂，emm看着就不想分析了，看见一串明文crypto\\rsa\\rsa_lib.c更是让我感到绝望。哇，是真的绝望。。。然后就没有然后了，我是没有分析下去。应该是解密不了的。毕竟输出的是一个缓存文件，如果要分析微信是否能读取GIF缓存，或者说读取的格式是怎样的，我的功力还不够。。。（我要弃坑，我要转web）讲道理，上面的路已经不通了，下面开始想想别的方法。如何获取GIF其实方法我刚刚已经提示了，因为这个函数接受的参数就是完整的GIF，这个结构体上面也解释了，只要获取这个结构体就能拿到完整的GIF。因此，我们返回到原来那个函数的入口点，看什么时候结构体参数被引用。显然就是这里了，在将参数传给edi后，后面就判断结构体的第二个属性，即文件长度是否大于0。如果我们能在dll每次运行到这里的时候获取这两个数据，然后dump指定内存，就能拖出这个GIF图，也就不需要解密了。然后我动态调试了很多次，幸运的是并没有触发什么反调试和异常，使用的方式是idapython，首先是手动加载。location = GetRegValue(&#39;edi&#39;)sizeptr = GetRegValue(&#39;edi&#39;) + 0x4start = Dword(location)n = Dword(sizeptr)f = open(os.path.join(savepath, str(count)) + &#39;.gif&#39;, &#39;wb&#39;)for i in xrange(n):    f.write(chr(Byte(start + i)))f.close()然后每次都发个图给别人，PC就会缓存，然后GIF就会被保存下来了。如果每次都是手动加载的话，我记得这段代码是没问题的。但是不想每次都由我自己来下断点然后dump，为了实现自动化，自己也是学习了一波idapython来自定义Debugger Hook。idapython的Debugger Hooks主要用于Hook IDA 内部的调试器，同时可以自定义调试功能。结构如下class DbgHook(DBG_Hooks):    def dbg_process_start(self, pid, tid, ea, name, base, size):        return    def dbg_process_exit(self, pid, tid, ea, code):        return    def dbg_library_load(self, pid, tid, ea, name, base, size):        return    def dbg_bpt(self, tid, ea):        return安装hook的方式如下debugger = DbgHook()debugger.hook()一开始我是在dbg_process_start来自动插入断点的，但是后来发现效果并不会，这一点我之后会说明。我通过定义了MyDbgHook来继承DBG_Hooks，再次载入上面的脚本运行，结果却是这样的。文件里写的都是0xff。除了这种情况还会发生发送多个图片，获取的GIF均是同一个的离奇事件。查了半天不知道哪里出了原因。最后翻idapython的资料，最后发现是api使用不当，但是具体是为什么也没有资料，感觉Dword(ea)和DbgDword(ea)之类的都差不多，可能一个前面有dbg所以是dbg专用的吗。更新后的脚本。location = GetRegValue(&#39;edi&#39;)sizeptr = GetRegValue(&#39;edi&#39;) + 0x4start = DbgDword(location)n = DbgDword(sizeptr)f = open(os.path.join(savepath, str(count))+&#39;.gif&#39;,&#39;wb&#39;)for i in xrange(n):	f.write(chr(Byte(start+i)))f.close()运行结果如下图。更新后，效果好了很多，但是还是有问题，有的能显示，有的GIF显示不了，于是又查了一波idapython资料，最后发现还是api使用不当。。。Byte(ea)、DbgByte(ea)还有DbgRead(ea,n)，其实功能都是一样的，可能是Dbg的方式影响了某些API的实现，导致出现了很多问题。再次更新脚本。location = GetRegValue(&#39;edi&#39;)sizeptr = GetRegValue(&#39;edi&#39;) + 0x4print &quot;[*]\tGif location:[%08x],sizeptr:[%08x]&quot;% (location, sizeptr)start = DbgDword(location)n = DbgDword(sizeptr)print &quot;[*]\tGif start:[%08x],n:[%08x]&quot;% (start, n)dump = DbgRead(start,n)f = open(os.path.join(self.savepath, str(self.count))+&#39;.gif&#39;,&#39;wb&#39;)f.write(dump)f.close()self.count += 1ida日志输出如下图。运行结果如下图。完整代码及说明代码的几点说明：  dbg_process_start是最先加载的，在这里下断点会导致问题。  Modules()用于遍历整个环境中的模块，一开始我是想通过这个下断点的，后来发现DBG_Hooks已经提供了类似的函数，就是dbg_library_load，由于我的目标是WeChatWin.dll，当其加载的时候下断点就行了。  下断点的方式是通过偏移量来实现的，考虑到ASLR或者其他不可抗因素，直接VA下断不可行，通过模块BA+0x1000+offsite来实现，0x1000就是.text的VirtualAddress，详细可以参照PE中的节表。  Dbg模式下请使用ida python对应的API，否则如上文所述会导致未知情况。如将Dword(ea)替换成DbgDword(ea)。# coding:utf-8__author__=&#39;zjgcjy&#39;from idaapi import *from idautils import *from idc import *import os# 没用到，效果不好，或者说dbg_library_load更方便def Modules():    mod = idaapi.module_info_t()    result = idaapi.get_first_module(mod)    while result:        yield idaapi.object_t(name=mod.name, size=mod.size, base=mod.base, rebase_to=mod.rebase_to)        result = idaapi.get_next_module(mod)class MyDbgHook(DBG_Hooks):    #GIF计数	count = 0    #保存目录	savepath = &quot;C:\\Users\\xxxxxx\\Desktop\\emotion&quot;	keyLocation = 0	def dbg_process_start(self, pid, tid, ea, name, base, size):        #不要在这里插入断点		#for i in Modules():		#	if &#39;WeChatWin.dll&#39; in i.name:		#		print &quot;module:[%s]\tsize:[%#x]\tbase:[%#x]\tend:[%#x]&quot; %(i.name, i.size, i.base, i.rebase_to)		#		self.keyLocation = i.base		#self.keyLocation += 0x247970		#AddBpt(self.keyLocation)		#print &#39;keybreakpoint:[%#x]&#39; % self.keyLocation		print &quot;MyDbgHook : Process started, pid=%d tid=%d name=%s&quot; % (pid, tid, name)	def dbg_process_exit(self, pid, tid, ea, code):  	    print &quot;MyDbgHook : Process exited pid=%d tid=%d ea=0x%x code=%d&quot; % (pid, tid, ea, code)	def dbg_library_load(self, pid, tid, ea, name, base, size):  		print &quot;MyDbgHook : Library loaded: pid=%d tid=%d name=%s base=%x&quot; % (pid, tid, name, base)        # 对WeChatWin.dll下断点        if &#39;WeChatWin.dll&#39; in name:			self.keyLocation = base			self.keyLocation = self.keyLocation + 0x1000 + 0x247970			AddBpt(self.keyLocation)			print &#39;keybreakpoint:[%#x]&#39; % self.keyLocation	def dbg_library_unload(self, pid, tid, ea, info):  	    print &quot;MyDbgHook : Library unloaded: pid=%d tid=%d ea=0x%x info=%s&quot; % (pid, tid, ea, info)	    return 0  	def dbg_bpt(self, tid, ea):		print &quot;MyDbgHook : Break point at %s[0x%x] pid=%d&quot; % (GetFunctionName(ea), ea, tid)        #是否到了关键的地址		if GetRegValue(&#39;eip&#39;) == self.keyLocation :			location = GetRegValue(&#39;edi&#39;)			sizeptr = GetRegValue(&#39;edi&#39;) + 0x4			print &quot;[*]\tGif location:[%08x],sizeptr:[%08x]&quot;% (location, sizeptr)			start = DbgDword(location)			n = DbgDword(sizeptr)			print &quot;[*]\tGif start:[%08x],n:[%08x]&quot;% (start, n)			dump = DbgRead(start,n)			f = open(os.path.join(self.savepath, str(self.count))+&#39;.gif&#39;,&#39;wb&#39;)			f.write(dump)			f.close()			self.count = self.count + 1		else:			print &quot;[%x] - [%x]&quot; %(GetRegValue(&#39;eip&#39;),self.keyLocation)		idaapi.continue_process()  		return 0  	def dbg_suspend_process(self):  	    print &quot;MyDbgHook : Process suspended&quot;	def dbg_step_into(self):  	    print &quot;MyDbgHook : Step into&quot;	    self.dbg_step_over()debughook = MyDbgHook()  debughook.hook()print &quot;ok&quot;写在最后通过ida python实现了获取微信GIF的功能，自动化脚本，加载模块自动下断，dump文件。只需要在手机上发送GIF，保存目录下就能得到对应的GIF。速度可以说是很快的。战果">
+
+
+
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+
+
+
+  <meta name="twitter:site" content="@zjgcjy">
+  <meta name="twitter:title" content="Idapython实现dump微信gif表情包">
+  <meta name="twitter:description" content="  最近一周都没课了。emm，闲来无事想从微信上下一波表情包。然而微信在我不知不觉中更新了。以前的套路没法用了，于是自己就花时间研究了一下。特记此文。使用的工具主要是IDA，分析的对象是PC新版微信客户端，目标是获取GIF动图。ps:我这指的GIF是指微信表情商店里的表情（只能发送给别人，没办法保存到本地）老版微信如何保存GIF做这件事情的起因就是发现我PC上的微信自己更新了，那么就先安利一下老版本如何截取GIF图片。我使用的是PC版的微信客户端，有关Android版的不在讨论范围内。首先我们找到PC版的用户配置文件夹。一般在文档文件夹下，以微信id表示账号。如下图所示。其中的CustomEmotions就是老版本微信缓存的GIF位置，当我们登陆PC版微信，然后用手机给别人发图的时候。消息同会同步到PC上，其中的GIF图片被处理后保存到这个文件夹内。具体是怎样处理的我也忘了，好像就是改GIF文件头部，其他没有变化。这样我们就能得到GIF了。新版微信对GIF缓存做了什么处理但是微信更新后，此时CustomEmotions文件夹内不会保存任何东西，甚至删除该文件夹也不会影响微信接受消息。这时所有的GIF被保存到CustomEmoV1文件夹内，而且均被加密处理。为了演示效果，我首先将该文件夹清空，然后用手机给别人发图（手动滑稽），效果如下图所示。此时PC上同步显示图片，同时GIF被保存到CustomEmoV1文件夹内，如下图所示。很明显，一张GIF对于一个文件，文件名32位长，可能是MD5。然后我们选择一个文件打开。可以看到文件头被修改成V1MMWX，WX肯定指的就是微信了，V1MM不知道是什么，应该是微信开发人员定义的格式。不仅如此，熟悉GIF格式的童鞋也不难发现，除了文件头，下面的内容也被加密了。下面我就讲一下我是怎么分析这个文件的。如何分析加密数据首先看一下文件的大小是否发生变化。这里我要解释一下的是，我以前曾经从老版的微信上获取过GIF，这些GIF我都保存了，所以可以直接用该GIF和加密后的GIF进行对比，就不截图了。对比的结果是：加密后的大小比加密前的大小多7字节。如何看待这7个字节  我认为其中有6个字节是V1MMWX这个文件头造成的影响。  对100KB左右的文件来说，加密是需要时间的，但是微信是即时通讯工具，开发人员应该不会使用复杂的加密算法。  整体上来说，加密前后数据量大小是一致的。基于以上三点，我猜测就是一个简单的亦或加密。然后我用python的xortool分析了一下该文件。然后自动分析出极大可能解，这里它给出了一个key是0x2b(‘+’)。最后我将得到的文件和原始文件比对。惊人的发现！除了前0x3ff字节不一样，后面的字节都是一样的，也就是说，加密的方式其中之一就是亦或。具体就是对文件从0x400开始的字节亦或0x2b。到现在为止，我已经知道了文件后面一部分的加密方式，如何解密前面一部分呢？我认为还是要抓住V1MM这个文件头，因为这个头是开发人员固定的，那么这个值应该是个明文，或者说是应该是某个exe或者dll中.rdata段的（我只能期望它不是SMC之类动态生成的了）于是我就去微信安装目录下找这个字符串在哪。结合exe和dll的名称、以及更新日期，我很幸运的找到了。找到之后很显然要干什么了。开IDA吧。开始分析WeChatWin.dll由于这个dll相当的大，IDA分析了很久才完，我也是第二次分析这么大的东西（第一次是某CTF的tensorflow），话不多说，直接shift+f12找V1MM字符串的位置。然后我就惊了，ida没找到，估计是类型不对吧。无奈，只好手工定位了。第一次失败了，忘了是FOA了，要转成RVA。算了，直接定位到.rdata基址，直接用偏移，终于发现了V1MM的位置。然后就交叉引用，发现有三处，其中2处由同一个函数引用（另外一处应该是CRT或者编译器函数）进入这个函数分析。直接f5后，能发现关键的几行代码，如下图所示。这几行就是GIF加密后保存的地方了，首先将6字节的V1MMMX复制到cipher指针指向的首地址，然后是2个move函数，也可以理解是memcpy。而且第一个是从cipher指针指向首地址向后移动6字节开始的，那肯定就是上文中未解密的部分了。第二个move又是从第一个move结束的地方开始的，那就是上文提到的异或算法了。由于这段是最后部分，加密都处理完了，我们需要往上看，同时整体把握这个函数的作用。可以发现，该函数应该是一个BOOL类型的函数，若处理成功则返回1，否则返回0。还能发现的是，cipher虽然是个局部变量，但在函数第一行可以发现它被指向了该函数的第二个参数，考虑到是BOOL类型的函数，函数只能返回一个值，那么对这个处理的函数而言，只有可能将文件句柄作为参数传入，修改后才能有效。也就是说该函数的第一个参数应该是文件句柄，而指向加密内容的第二个参数应该是加密后的指针所指向的地方。还有一些地方指的思考，比如a1[1]这个地方的值是什么。if (a1[1] &lt; 0){  return 0;}在函数一开始，就比较a1[1]这个地方的值，小于0则直接返回，我猜测是是文件大小的意思。后面的代码直接验证了我的猜想。看到了熟悉的0x3ff，上文已经提到了，加密的GIF前面0x3ff的加密方式还是未知的，这里直接比较a1[1]和0x3ff的大小，其实就是判断GIF的大小，如果比0x3ff小，那么v7变量就不能想0x3ff，而是文件的大小。也就是说如果GIF本身大小不超过0x3ff，就不会使用第二部分的异或加密。struct a{    int* file;    int size;}分析完这部分，我们可以将该函数的第一个参数转换成结构体，第一个值是文件内容指针，第二个值是文件的大小。关于这个值怎么得到并传入该函数的，不是我们分析的重点。回过头来再看最后一部分传入的第二个参数，其实我们就能分别找到那2个加密的函数。其中绿色框中的2个函数就是加密的2个函数。我们先看第二个函数，也就是异或那个。第二段加密-异或进入这个函数就能看到，很明显的取了一个byte(0x2b)，然后循环异或，具体的过程我就不分析了，只是验证一下，因为最开始的时候我已经用xortool自动分析出来了。有兴趣的可以分析一下，或者动态调试一下看看是怎么加密的。第一段加密-rsa这个第一段加密很复杂，emm看着就不想分析了，看见一串明文crypto\\rsa\\rsa_lib.c更是让我感到绝望。哇，是真的绝望。。。然后就没有然后了，我是没有分析下去。应该是解密不了的。毕竟输出的是一个缓存文件，如果要分析微信是否能读取GIF缓存，或者说读取的格式是怎样的，我的功力还不够。。。（我要弃坑，我要转web）讲道理，上面的路已经不通了，下面开始想想别的方法。如何获取GIF其实方法我刚刚已经提示了，因为这个函数接受的参数就是完整的GIF，这个结构体上面也解释了，只要获取这个结构体就能拿到完整的GIF。因此，我们返回到原来那个函数的入口点，看什么时候结构体参数被引用。显然就是这里了，在将参数传给edi后，后面就判断结构体的第二个属性，即文件长度是否大于0。如果我们能在dll每次运行到这里的时候获取这两个数据，然后dump指定内存，就能拖出这个GIF图，也就不需要解密了。然后我动态调试了很多次，幸运的是并没有触发什么反调试和异常，使用的方式是idapython，首先是手动加载。location = GetRegValue(&#39;edi&#39;)sizeptr = GetRegValue(&#39;edi&#39;) + 0x4start = Dword(location)n = Dword(sizeptr)f = open(os.path.join(savepath, str(count)) + &#39;.gif&#39;, &#39;wb&#39;)for i in xrange(n):    f.write(chr(Byte(start + i)))f.close()然后每次都发个图给别人，PC就会缓存，然后GIF就会被保存下来了。如果每次都是手动加载的话，我记得这段代码是没问题的。但是不想每次都由我自己来下断点然后dump，为了实现自动化，自己也是学习了一波idapython来自定义Debugger Hook。idapython的Debugger Hooks主要用于Hook IDA 内部的调试器，同时可以自定义调试功能。结构如下class DbgHook(DBG_Hooks):    def dbg_process_start(self, pid, tid, ea, name, base, size):        return    def dbg_process_exit(self, pid, tid, ea, code):        return    def dbg_library_load(self, pid, tid, ea, name, base, size):        return    def dbg_bpt(self, tid, ea):        return安装hook的方式如下debugger = DbgHook()debugger.hook()一开始我是在dbg_process_start来自动插入断点的，但是后来发现效果并不会，这一点我之后会说明。我通过定义了MyDbgHook来继承DBG_Hooks，再次载入上面的脚本运行，结果却是这样的。文件里写的都是0xff。除了这种情况还会发生发送多个图片，获取的GIF均是同一个的离奇事件。查了半天不知道哪里出了原因。最后翻idapython的资料，最后发现是api使用不当，但是具体是为什么也没有资料，感觉Dword(ea)和DbgDword(ea)之类的都差不多，可能一个前面有dbg所以是dbg专用的吗。更新后的脚本。location = GetRegValue(&#39;edi&#39;)sizeptr = GetRegValue(&#39;edi&#39;) + 0x4start = DbgDword(location)n = DbgDword(sizeptr)f = open(os.path.join(savepath, str(count))+&#39;.gif&#39;,&#39;wb&#39;)for i in xrange(n):	f.write(chr(Byte(start+i)))f.close()运行结果如下图。更新后，效果好了很多，但是还是有问题，有的能显示，有的GIF显示不了，于是又查了一波idapython资料，最后发现还是api使用不当。。。Byte(ea)、DbgByte(ea)还有DbgRead(ea,n)，其实功能都是一样的，可能是Dbg的方式影响了某些API的实现，导致出现了很多问题。再次更新脚本。location = GetRegValue(&#39;edi&#39;)sizeptr = GetRegValue(&#39;edi&#39;) + 0x4print &quot;[*]\tGif location:[%08x],sizeptr:[%08x]&quot;% (location, sizeptr)start = DbgDword(location)n = DbgDword(sizeptr)print &quot;[*]\tGif start:[%08x],n:[%08x]&quot;% (start, n)dump = DbgRead(start,n)f = open(os.path.join(self.savepath, str(self.count))+&#39;.gif&#39;,&#39;wb&#39;)f.write(dump)f.close()self.count += 1ida日志输出如下图。运行结果如下图。完整代码及说明代码的几点说明：  dbg_process_start是最先加载的，在这里下断点会导致问题。  Modules()用于遍历整个环境中的模块，一开始我是想通过这个下断点的，后来发现DBG_Hooks已经提供了类似的函数，就是dbg_library_load，由于我的目标是WeChatWin.dll，当其加载的时候下断点就行了。  下断点的方式是通过偏移量来实现的，考虑到ASLR或者其他不可抗因素，直接VA下断不可行，通过模块BA+0x1000+offsite来实现，0x1000就是.text的VirtualAddress，详细可以参照PE中的节表。  Dbg模式下请使用ida python对应的API，否则如上文所述会导致未知情况。如将Dword(ea)替换成DbgDword(ea)。# coding:utf-8__author__=&#39;zjgcjy&#39;from idaapi import *from idautils import *from idc import *import os# 没用到，效果不好，或者说dbg_library_load更方便def Modules():    mod = idaapi.module_info_t()    result = idaapi.get_first_module(mod)    while result:        yield idaapi.object_t(name=mod.name, size=mod.size, base=mod.base, rebase_to=mod.rebase_to)        result = idaapi.get_next_module(mod)class MyDbgHook(DBG_Hooks):    #GIF计数	count = 0    #保存目录	savepath = &quot;C:\\Users\\xxxxxx\\Desktop\\emotion&quot;	keyLocation = 0	def dbg_process_start(self, pid, tid, ea, name, base, size):        #不要在这里插入断点		#for i in Modules():		#	if &#39;WeChatWin.dll&#39; in i.name:		#		print &quot;module:[%s]\tsize:[%#x]\tbase:[%#x]\tend:[%#x]&quot; %(i.name, i.size, i.base, i.rebase_to)		#		self.keyLocation = i.base		#self.keyLocation += 0x247970		#AddBpt(self.keyLocation)		#print &#39;keybreakpoint:[%#x]&#39; % self.keyLocation		print &quot;MyDbgHook : Process started, pid=%d tid=%d name=%s&quot; % (pid, tid, name)	def dbg_process_exit(self, pid, tid, ea, code):  	    print &quot;MyDbgHook : Process exited pid=%d tid=%d ea=0x%x code=%d&quot; % (pid, tid, ea, code)	def dbg_library_load(self, pid, tid, ea, name, base, size):  		print &quot;MyDbgHook : Library loaded: pid=%d tid=%d name=%s base=%x&quot; % (pid, tid, name, base)        # 对WeChatWin.dll下断点        if &#39;WeChatWin.dll&#39; in name:			self.keyLocation = base			self.keyLocation = self.keyLocation + 0x1000 + 0x247970			AddBpt(self.keyLocation)			print &#39;keybreakpoint:[%#x]&#39; % self.keyLocation	def dbg_library_unload(self, pid, tid, ea, info):  	    print &quot;MyDbgHook : Library unloaded: pid=%d tid=%d ea=0x%x info=%s&quot; % (pid, tid, ea, info)	    return 0  	def dbg_bpt(self, tid, ea):		print &quot;MyDbgHook : Break point at %s[0x%x] pid=%d&quot; % (GetFunctionName(ea), ea, tid)        #是否到了关键的地址		if GetRegValue(&#39;eip&#39;) == self.keyLocation :			location = GetRegValue(&#39;edi&#39;)			sizeptr = GetRegValue(&#39;edi&#39;) + 0x4			print &quot;[*]\tGif location:[%08x],sizeptr:[%08x]&quot;% (location, sizeptr)			start = DbgDword(location)			n = DbgDword(sizeptr)			print &quot;[*]\tGif start:[%08x],n:[%08x]&quot;% (start, n)			dump = DbgRead(start,n)			f = open(os.path.join(self.savepath, str(self.count))+&#39;.gif&#39;,&#39;wb&#39;)			f.write(dump)			f.close()			self.count = self.count + 1		else:			print &quot;[%x] - [%x]&quot; %(GetRegValue(&#39;eip&#39;),self.keyLocation)		idaapi.continue_process()  		return 0  	def dbg_suspend_process(self):  	    print &quot;MyDbgHook : Process suspended&quot;	def dbg_step_into(self):  	    print &quot;MyDbgHook : Step into&quot;	    self.dbg_step_over()debughook = MyDbgHook()  debughook.hook()print &quot;ok&quot;写在最后通过ida python实现了获取微信GIF的功能，自动化脚本，加载模块自动下断，dump文件。只需要在手机上发送GIF，保存目录下就能得到对应的GIF。速度可以说是很快的。战果">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2018-08/IDApython%E5%AE%9E%E7%8E%B0dump%E5%BE%AE%E4%BF%A1GIF%E8%A1%A8%E6%83%85%E5%8C%85.html">
+
+  
+    <meta name="twitter:card" content="summary">
+    
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+    
+  
+
+  
+
+
+
+  <meta property="article:published_time" content="2018-08-06T21:47:00+08:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="http://localhost:4000/posts/2018-08/IDApython%E5%AE%9E%E7%8E%B0dump%E5%BE%AE%E4%BF%A1GIF%E8%A1%A8%E6%83%85%E5%8C%85.html">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Blogger",
+      "url": "http://localhost:4000/",
+      "sameAs": ["https://twitter.com/","https://github.com/"]
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="My way, though far away Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/apple-touch-icon.png" alt=""></a>
+        
+        <a class="site-title" href="/">
+          ZJGCJY
+          <span class="site-subtitle">My way, though far away</span>
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/collection-archive/" >Collections</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about/" >About</a>
+            </li></ul>
+        
+        <button class="search__toggle" type="button">
+          <span class="visually-hidden">Toggle search</span>
+          <svg class="icon" width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15.99 16">
+            <path d="M15.5,13.12L13.19,10.8a1.69,1.69,0,0,0-1.28-.55l-0.06-.06A6.5,6.5,0,0,0,5.77,0,6.5,6.5,0,0,0,2.46,11.59a6.47,6.47,0,0,0,7.74.26l0.05,0.05a1.65,1.65,0,0,0,.5,1.24l2.38,2.38A1.68,1.68,0,0,0,15.5,13.12ZM6.4,2A4.41,4.41,0,1,1,2,6.4,4.43,4.43,0,0,1,6.4,2Z" transform="translate(-.01)"></path>
+          </svg>
+        </button>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#posts" itemprop="item"><span itemprop="name">Posts</span></a>
+          <meta itemprop="position" content="2" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#2018-08" itemprop="item"><span itemprop="name">2018 08</span></a>
+          <meta itemprop="position" content="3" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        <li class="current">Idapython实现dump微信gif表情包</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/me.jpg" alt="zjgcjy" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">zjgcjy</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>IIE UCAS, CTFer, Binarian</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+          
+        
+          
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+          
+        
+          
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          
+        
+          
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Idapython实现dump微信gif表情包">
+    <meta itemprop="description" content="  最近一周都没课了。emm，闲来无事想从微信上下一波表情包。然而微信在我不知不觉中更新了。以前的套路没法用了，于是自己就花时间研究了一下。特记此文。使用的工具主要是IDA，分析的对象是PC新版微信客户端，目标是获取GIF动图。ps:我这指的GIF是指微信表情商店里的表情（只能发送给别人，没办法保存到本地）老版微信如何保存GIF做这件事情的起因就是发现我PC上的微信自己更新了，那么就先安利一下老版本如何截取GIF图片。我使用的是PC版的微信客户端，有关Android版的不在讨论范围内。首先我们找到PC版的用户配置文件夹。一般在文档文件夹下，以微信id表示账号。如下图所示。其中的CustomEmotions就是老版本微信缓存的GIF位置，当我们登陆PC版微信，然后用手机给别人发图的时候。消息同会同步到PC上，其中的GIF图片被处理后保存到这个文件夹内。具体是怎样处理的我也忘了，好像就是改GIF文件头部，其他没有变化。这样我们就能得到GIF了。新版微信对GIF缓存做了什么处理但是微信更新后，此时CustomEmotions文件夹内不会保存任何东西，甚至删除该文件夹也不会影响微信接受消息。这时所有的GIF被保存到CustomEmoV1文件夹内，而且均被加密处理。为了演示效果，我首先将该文件夹清空，然后用手机给别人发图（手动滑稽），效果如下图所示。此时PC上同步显示图片，同时GIF被保存到CustomEmoV1文件夹内，如下图所示。很明显，一张GIF对于一个文件，文件名32位长，可能是MD5。然后我们选择一个文件打开。可以看到文件头被修改成V1MMWX，WX肯定指的就是微信了，V1MM不知道是什么，应该是微信开发人员定义的格式。不仅如此，熟悉GIF格式的童鞋也不难发现，除了文件头，下面的内容也被加密了。下面我就讲一下我是怎么分析这个文件的。如何分析加密数据首先看一下文件的大小是否发生变化。这里我要解释一下的是，我以前曾经从老版的微信上获取过GIF，这些GIF我都保存了，所以可以直接用该GIF和加密后的GIF进行对比，就不截图了。对比的结果是：加密后的大小比加密前的大小多7字节。如何看待这7个字节  我认为其中有6个字节是V1MMWX这个文件头造成的影响。  对100KB左右的文件来说，加密是需要时间的，但是微信是即时通讯工具，开发人员应该不会使用复杂的加密算法。  整体上来说，加密前后数据量大小是一致的。基于以上三点，我猜测就是一个简单的亦或加密。然后我用python的xortool分析了一下该文件。然后自动分析出极大可能解，这里它给出了一个key是0x2b(‘+’)。最后我将得到的文件和原始文件比对。惊人的发现！除了前0x3ff字节不一样，后面的字节都是一样的，也就是说，加密的方式其中之一就是亦或。具体就是对文件从0x400开始的字节亦或0x2b。到现在为止，我已经知道了文件后面一部分的加密方式，如何解密前面一部分呢？我认为还是要抓住V1MM这个文件头，因为这个头是开发人员固定的，那么这个值应该是个明文，或者说是应该是某个exe或者dll中.rdata段的（我只能期望它不是SMC之类动态生成的了）于是我就去微信安装目录下找这个字符串在哪。结合exe和dll的名称、以及更新日期，我很幸运的找到了。找到之后很显然要干什么了。开IDA吧。开始分析WeChatWin.dll由于这个dll相当的大，IDA分析了很久才完，我也是第二次分析这么大的东西（第一次是某CTF的tensorflow），话不多说，直接shift+f12找V1MM字符串的位置。然后我就惊了，ida没找到，估计是类型不对吧。无奈，只好手工定位了。第一次失败了，忘了是FOA了，要转成RVA。算了，直接定位到.rdata基址，直接用偏移，终于发现了V1MM的位置。然后就交叉引用，发现有三处，其中2处由同一个函数引用（另外一处应该是CRT或者编译器函数）进入这个函数分析。直接f5后，能发现关键的几行代码，如下图所示。这几行就是GIF加密后保存的地方了，首先将6字节的V1MMMX复制到cipher指针指向的首地址，然后是2个move函数，也可以理解是memcpy。而且第一个是从cipher指针指向首地址向后移动6字节开始的，那肯定就是上文中未解密的部分了。第二个move又是从第一个move结束的地方开始的，那就是上文提到的异或算法了。由于这段是最后部分，加密都处理完了，我们需要往上看，同时整体把握这个函数的作用。可以发现，该函数应该是一个BOOL类型的函数，若处理成功则返回1，否则返回0。还能发现的是，cipher虽然是个局部变量，但在函数第一行可以发现它被指向了该函数的第二个参数，考虑到是BOOL类型的函数，函数只能返回一个值，那么对这个处理的函数而言，只有可能将文件句柄作为参数传入，修改后才能有效。也就是说该函数的第一个参数应该是文件句柄，而指向加密内容的第二个参数应该是加密后的指针所指向的地方。还有一些地方指的思考，比如a1[1]这个地方的值是什么。if (a1[1] &lt; 0){  return 0;}在函数一开始，就比较a1[1]这个地方的值，小于0则直接返回，我猜测是是文件大小的意思。后面的代码直接验证了我的猜想。看到了熟悉的0x3ff，上文已经提到了，加密的GIF前面0x3ff的加密方式还是未知的，这里直接比较a1[1]和0x3ff的大小，其实就是判断GIF的大小，如果比0x3ff小，那么v7变量就不能想0x3ff，而是文件的大小。也就是说如果GIF本身大小不超过0x3ff，就不会使用第二部分的异或加密。struct a{    int* file;    int size;}分析完这部分，我们可以将该函数的第一个参数转换成结构体，第一个值是文件内容指针，第二个值是文件的大小。关于这个值怎么得到并传入该函数的，不是我们分析的重点。回过头来再看最后一部分传入的第二个参数，其实我们就能分别找到那2个加密的函数。其中绿色框中的2个函数就是加密的2个函数。我们先看第二个函数，也就是异或那个。第二段加密-异或进入这个函数就能看到，很明显的取了一个byte(0x2b)，然后循环异或，具体的过程我就不分析了，只是验证一下，因为最开始的时候我已经用xortool自动分析出来了。有兴趣的可以分析一下，或者动态调试一下看看是怎么加密的。第一段加密-rsa这个第一段加密很复杂，emm看着就不想分析了，看见一串明文crypto\\rsa\\rsa_lib.c更是让我感到绝望。哇，是真的绝望。。。然后就没有然后了，我是没有分析下去。应该是解密不了的。毕竟输出的是一个缓存文件，如果要分析微信是否能读取GIF缓存，或者说读取的格式是怎样的，我的功力还不够。。。（我要弃坑，我要转web）讲道理，上面的路已经不通了，下面开始想想别的方法。如何获取GIF其实方法我刚刚已经提示了，因为这个函数接受的参数就是完整的GIF，这个结构体上面也解释了，只要获取这个结构体就能拿到完整的GIF。因此，我们返回到原来那个函数的入口点，看什么时候结构体参数被引用。显然就是这里了，在将参数传给edi后，后面就判断结构体的第二个属性，即文件长度是否大于0。如果我们能在dll每次运行到这里的时候获取这两个数据，然后dump指定内存，就能拖出这个GIF图，也就不需要解密了。然后我动态调试了很多次，幸运的是并没有触发什么反调试和异常，使用的方式是idapython，首先是手动加载。location = GetRegValue(&#39;edi&#39;)sizeptr = GetRegValue(&#39;edi&#39;) + 0x4start = Dword(location)n = Dword(sizeptr)f = open(os.path.join(savepath, str(count)) + &#39;.gif&#39;, &#39;wb&#39;)for i in xrange(n):    f.write(chr(Byte(start + i)))f.close()然后每次都发个图给别人，PC就会缓存，然后GIF就会被保存下来了。如果每次都是手动加载的话，我记得这段代码是没问题的。但是不想每次都由我自己来下断点然后dump，为了实现自动化，自己也是学习了一波idapython来自定义Debugger Hook。idapython的Debugger Hooks主要用于Hook IDA 内部的调试器，同时可以自定义调试功能。结构如下class DbgHook(DBG_Hooks):    def dbg_process_start(self, pid, tid, ea, name, base, size):        return    def dbg_process_exit(self, pid, tid, ea, code):        return    def dbg_library_load(self, pid, tid, ea, name, base, size):        return    def dbg_bpt(self, tid, ea):        return安装hook的方式如下debugger = DbgHook()debugger.hook()一开始我是在dbg_process_start来自动插入断点的，但是后来发现效果并不会，这一点我之后会说明。我通过定义了MyDbgHook来继承DBG_Hooks，再次载入上面的脚本运行，结果却是这样的。文件里写的都是0xff。除了这种情况还会发生发送多个图片，获取的GIF均是同一个的离奇事件。查了半天不知道哪里出了原因。最后翻idapython的资料，最后发现是api使用不当，但是具体是为什么也没有资料，感觉Dword(ea)和DbgDword(ea)之类的都差不多，可能一个前面有dbg所以是dbg专用的吗。更新后的脚本。location = GetRegValue(&#39;edi&#39;)sizeptr = GetRegValue(&#39;edi&#39;) + 0x4start = DbgDword(location)n = DbgDword(sizeptr)f = open(os.path.join(savepath, str(count))+&#39;.gif&#39;,&#39;wb&#39;)for i in xrange(n):	f.write(chr(Byte(start+i)))f.close()运行结果如下图。更新后，效果好了很多，但是还是有问题，有的能显示，有的GIF显示不了，于是又查了一波idapython资料，最后发现还是api使用不当。。。Byte(ea)、DbgByte(ea)还有DbgRead(ea,n)，其实功能都是一样的，可能是Dbg的方式影响了某些API的实现，导致出现了很多问题。再次更新脚本。location = GetRegValue(&#39;edi&#39;)sizeptr = GetRegValue(&#39;edi&#39;) + 0x4print &quot;[*]\tGif location:[%08x],sizeptr:[%08x]&quot;% (location, sizeptr)start = DbgDword(location)n = DbgDword(sizeptr)print &quot;[*]\tGif start:[%08x],n:[%08x]&quot;% (start, n)dump = DbgRead(start,n)f = open(os.path.join(self.savepath, str(self.count))+&#39;.gif&#39;,&#39;wb&#39;)f.write(dump)f.close()self.count += 1ida日志输出如下图。运行结果如下图。完整代码及说明代码的几点说明：  dbg_process_start是最先加载的，在这里下断点会导致问题。  Modules()用于遍历整个环境中的模块，一开始我是想通过这个下断点的，后来发现DBG_Hooks已经提供了类似的函数，就是dbg_library_load，由于我的目标是WeChatWin.dll，当其加载的时候下断点就行了。  下断点的方式是通过偏移量来实现的，考虑到ASLR或者其他不可抗因素，直接VA下断不可行，通过模块BA+0x1000+offsite来实现，0x1000就是.text的VirtualAddress，详细可以参照PE中的节表。  Dbg模式下请使用ida python对应的API，否则如上文所述会导致未知情况。如将Dword(ea)替换成DbgDword(ea)。# coding:utf-8__author__=&#39;zjgcjy&#39;from idaapi import *from idautils import *from idc import *import os# 没用到，效果不好，或者说dbg_library_load更方便def Modules():    mod = idaapi.module_info_t()    result = idaapi.get_first_module(mod)    while result:        yield idaapi.object_t(name=mod.name, size=mod.size, base=mod.base, rebase_to=mod.rebase_to)        result = idaapi.get_next_module(mod)class MyDbgHook(DBG_Hooks):    #GIF计数	count = 0    #保存目录	savepath = &quot;C:\\Users\\xxxxxx\\Desktop\\emotion&quot;	keyLocation = 0	def dbg_process_start(self, pid, tid, ea, name, base, size):        #不要在这里插入断点		#for i in Modules():		#	if &#39;WeChatWin.dll&#39; in i.name:		#		print &quot;module:[%s]\tsize:[%#x]\tbase:[%#x]\tend:[%#x]&quot; %(i.name, i.size, i.base, i.rebase_to)		#		self.keyLocation = i.base		#self.keyLocation += 0x247970		#AddBpt(self.keyLocation)		#print &#39;keybreakpoint:[%#x]&#39; % self.keyLocation		print &quot;MyDbgHook : Process started, pid=%d tid=%d name=%s&quot; % (pid, tid, name)	def dbg_process_exit(self, pid, tid, ea, code):  	    print &quot;MyDbgHook : Process exited pid=%d tid=%d ea=0x%x code=%d&quot; % (pid, tid, ea, code)	def dbg_library_load(self, pid, tid, ea, name, base, size):  		print &quot;MyDbgHook : Library loaded: pid=%d tid=%d name=%s base=%x&quot; % (pid, tid, name, base)        # 对WeChatWin.dll下断点        if &#39;WeChatWin.dll&#39; in name:			self.keyLocation = base			self.keyLocation = self.keyLocation + 0x1000 + 0x247970			AddBpt(self.keyLocation)			print &#39;keybreakpoint:[%#x]&#39; % self.keyLocation	def dbg_library_unload(self, pid, tid, ea, info):  	    print &quot;MyDbgHook : Library unloaded: pid=%d tid=%d ea=0x%x info=%s&quot; % (pid, tid, ea, info)	    return 0  	def dbg_bpt(self, tid, ea):		print &quot;MyDbgHook : Break point at %s[0x%x] pid=%d&quot; % (GetFunctionName(ea), ea, tid)        #是否到了关键的地址		if GetRegValue(&#39;eip&#39;) == self.keyLocation :			location = GetRegValue(&#39;edi&#39;)			sizeptr = GetRegValue(&#39;edi&#39;) + 0x4			print &quot;[*]\tGif location:[%08x],sizeptr:[%08x]&quot;% (location, sizeptr)			start = DbgDword(location)			n = DbgDword(sizeptr)			print &quot;[*]\tGif start:[%08x],n:[%08x]&quot;% (start, n)			dump = DbgRead(start,n)			f = open(os.path.join(self.savepath, str(self.count))+&#39;.gif&#39;,&#39;wb&#39;)			f.write(dump)			f.close()			self.count = self.count + 1		else:			print &quot;[%x] - [%x]&quot; %(GetRegValue(&#39;eip&#39;),self.keyLocation)		idaapi.continue_process()  		return 0  	def dbg_suspend_process(self):  	    print &quot;MyDbgHook : Process suspended&quot;	def dbg_step_into(self):  	    print &quot;MyDbgHook : Step into&quot;	    self.dbg_step_over()debughook = MyDbgHook()  debughook.hook()print &quot;ok&quot;写在最后通过ida python实现了获取微信GIF的功能，自动化脚本，加载模块自动下断，dump文件。只需要在手机上发送GIF，保存目录下就能得到对应的GIF。速度可以说是很快的。战果">
+    <meta itemprop="datePublished" content="August 06, 2018">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Idapython实现dump微信gif表情包
+</h1>
+          
+            <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  2 minute read
+
+</p>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+          <aside class="sidebar__right ">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+              <ul class="toc__menu">
+  <li><a href="#老版微信如何保存gif">老版微信如何保存GIF</a></li>
+  <li><a href="#新版微信对gif缓存做了什么处理">新版微信对GIF缓存做了什么处理</a></li>
+  <li><a href="#如何分析加密数据">如何分析加密数据</a>
+    <ul>
+      <li><a href="#如何看待这7个字节">如何看待这7个字节</a></li>
+    </ul>
+  </li>
+  <li><a href="#开始分析wechatwindll">开始分析WeChatWin.dll</a></li>
+  <li><a href="#第二段加密-异或">第二段加密-异或</a></li>
+  <li><a href="#第一段加密-rsa">第一段加密-rsa</a></li>
+  <li><a href="#如何获取gif">如何获取GIF</a></li>
+  <li><a href="#idapython的debugger-hooks">idapython的Debugger Hooks</a></li>
+  <li><a href="#完整代码及说明">完整代码及说明</a></li>
+  <li><a href="#写在最后">写在最后</a></li>
+  <li><a href="#战果">战果</a></li>
+</ul>
+            </nav>
+          </aside>
+        
+        <blockquote>
+  <p>最近一周都没课了。emm，闲来无事想从微信上下一波表情包。然而微信在我不知不觉中更新了。以前的套路没法用了，于是自己就花时间研究了一下。特记此文。
+使用的工具主要是IDA，分析的对象是PC新版微信客户端，目标是获取GIF动图。
+ps:我这指的GIF是指微信表情商店里的表情（只能发送给别人，没办法保存到本地）</p>
+</blockquote>
+
+<h1 id="老版微信如何保存gif">老版微信如何保存GIF</h1>
+
+<p>做这件事情的起因就是发现我PC上的微信自己更新了，那么就先安利一下老版本如何截取GIF图片。我使用的是PC版的微信客户端，有关Android版的不在讨论范围内。</p>
+
+<p>首先我们找到PC版的用户配置文件夹。一般在文档文件夹下，以微信id表示账号。如下图所示。</p>
+
+<p><img src="images/Snipaste_2018-05-06_14-06-40.png" alt="wx" /></p>
+
+<p>其中的<code class="highlighter-rouge">CustomEmotions</code>就是老版本微信缓存的GIF位置，当我们登陆PC版微信，然后用手机给别人发图的时候。消息同会同步到PC上，其中的GIF图片被处理后保存到这个文件夹内。具体是怎样处理的我也忘了，好像就是改GIF文件头部，其他没有变化。这样我们就能得到GIF了。</p>
+
+<h1 id="新版微信对gif缓存做了什么处理">新版微信对GIF缓存做了什么处理</h1>
+
+<p>但是微信更新后，此时<code class="highlighter-rouge">CustomEmotions</code>文件夹内不会保存任何东西，甚至删除该文件夹也不会影响微信接受消息。这时所有的GIF被保存到<code class="highlighter-rouge">CustomEmoV1</code>文件夹内，而且均被加密处理。为了演示效果，我首先将该文件夹清空，然后用手机给别人发图（手动滑稽），效果如下图所示。</p>
+
+<p><img src="images/Snipaste_2018-05-06_14-25-46.png" alt="wx2" /></p>
+
+<p>此时PC上同步显示图片，同时GIF被保存到<code class="highlighter-rouge">CustomEmoV1</code>文件夹内，如下图所示。</p>
+
+<p><img src="images/Snipaste_2018-05-06_14-26-31.png" alt="wx3" /></p>
+
+<p>很明显，一张GIF对于一个文件，文件名32位长，可能是MD5。然后我们选择一个文件打开。</p>
+
+<p><img src="images/Snipaste_2018-05-06_14-33-06.png" alt="wx4" /></p>
+
+<p>可以看到文件头被修改成V1MMWX，WX肯定指的就是微信了，V1MM不知道是什么，应该是微信开发人员定义的格式。不仅如此，熟悉GIF格式的童鞋也不难发现，除了文件头，下面的内容也被加密了。</p>
+
+<p>下面我就讲一下我是怎么分析这个文件的。</p>
+
+<h1 id="如何分析加密数据">如何分析加密数据</h1>
+
+<p>首先看一下文件的大小是否发生变化。这里我要解释一下的是，我以前曾经从老版的微信上获取过GIF，这些GIF我都保存了，所以可以直接用该GIF和加密后的GIF进行对比，就不截图了。对比的结果是：加密后的大小比加密前的大小多7字节。</p>
+
+<h2 id="如何看待这7个字节">如何看待这7个字节</h2>
+
+<ul>
+  <li>我认为其中有6个字节是V1MMWX这个文件头造成的影响。</li>
+  <li>对100KB左右的文件来说，加密是需要时间的，但是微信是即时通讯工具，开发人员应该不会使用复杂的加密算法。</li>
+  <li>整体上来说，加密前后数据量大小是一致的。</li>
+</ul>
+
+<p>基于以上三点，我猜测就是一个简单的亦或加密。然后我用python的xortool分析了一下该文件。</p>
+
+<p><img src="images/Snipaste_2018-05-06_14-54-44.png" alt="wx5" /></p>
+
+<p>然后自动分析出极大可能解，这里它给出了一个key是0x2b(‘+’)。</p>
+
+<p><img src="images/Snipaste_2018-05-06_14-56-46.png" alt="wx6" /></p>
+
+<p>最后我将得到的文件和原始文件比对。</p>
+
+<p><img src="images/Snipaste_2018-05-06_15-01-54.png" alt="wx7" /></p>
+
+<p>惊人的发现！除了前0x3ff字节不一样，后面的字节都是一样的，也就是说，加密的方式其中之一就是亦或。具体就是对文件从0x400开始的字节亦或0x2b。</p>
+
+<p>到现在为止，我已经知道了文件后面一部分的加密方式，如何解密前面一部分呢？我认为还是要抓住V1MM这个文件头，因为这个头是开发人员固定的，那么这个值应该是个明文，或者说是应该是某个exe或者dll中.rdata段的（我只能期望它不是SMC之类动态生成的了）于是我就去微信安装目录下找这个字符串在哪。
+结合exe和dll的名称、以及更新日期，我很幸运的找到了。</p>
+
+<p><img src="images/Snipaste_2018-05-06_15-15-51.png" alt="wx8" /></p>
+
+<p>找到之后很显然要干什么了。开IDA吧。</p>
+
+<h1 id="开始分析wechatwindll">开始分析WeChatWin.dll</h1>
+
+<p>由于这个dll相当的大，IDA分析了很久才完，我也是第二次分析这么大的东西（第一次是某CTF的tensorflow），话不多说，直接shift+f12找V1MM字符串的位置。然后我就惊了，ida没找到，估计是类型不对吧。无奈，只好手工定位了。第一次失败了，忘了是FOA了，要转成RVA。算了，直接定位到.rdata基址，直接用偏移，终于发现了V1MM的位置。</p>
+
+<p><img src="images/Snipaste_2018-05-06_15-25-17.png" alt="wx9" /></p>
+
+<p>然后就交叉引用，发现有三处，其中2处由同一个函数引用（另外一处应该是CRT或者编译器函数）进入这个函数分析。直接f5后，能发现关键的几行代码，如下图所示。</p>
+
+<p><img src="images/Snipaste_2018-05-06_15-31-07.png" alt="wx10" /></p>
+
+<p>这几行就是GIF加密后保存的地方了，首先将6字节的V1MMMX复制到cipher指针指向的首地址，然后是2个move函数，也可以理解是memcpy。而且第一个是从cipher指针指向首地址向后移动6字节开始的，那肯定就是上文中未解密的部分了。第二个move又是从第一个move结束的地方开始的，那就是上文提到的异或算法了。</p>
+
+<p>由于这段是最后部分，加密都处理完了，我们需要往上看，同时整体把握这个函数的作用。</p>
+
+<p><img src="images/Snipaste_2018-05-06_15-43-21.png" alt="wx11" /></p>
+
+<p>可以发现，该函数应该是一个BOOL类型的函数，若处理成功则返回1，否则返回0。还能发现的是，cipher虽然是个局部变量，但在函数第一行可以发现它被指向了该函数的第二个参数，考虑到是BOOL类型的函数，函数只能返回一个值，那么对这个处理的函数而言，只有可能将文件句柄作为参数传入，修改后才能有效。也就是说该函数的第一个参数应该是文件句柄，而指向加密内容的第二个参数应该是加密后的指针所指向的地方。
+还有一些地方指的思考，比如a1[1]这个地方的值是什么。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span> <span class="p">(</span><span class="n">a1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>在函数一开始，就比较a1[1]这个地方的值，小于0则直接返回，我猜测是是文件大小的意思。后面的代码直接验证了我的猜想。</p>
+
+<p><img src="images/Snipaste_2018-05-06_15-57-00.png" alt="wx12" /></p>
+
+<p>看到了熟悉的0x3ff，上文已经提到了，加密的GIF前面0x3ff的加密方式还是未知的，这里直接比较a1[1]和0x3ff的大小，其实就是判断GIF的大小，如果比0x3ff小，那么v7变量就不能想0x3ff，而是文件的大小。也就是说如果GIF本身大小不超过0x3ff，就不会使用第二部分的异或加密。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">a</span>
+<span class="p">{</span>
+    <span class="kt">int</span><span class="o">*</span> <span class="n">file</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">size</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>分析完这部分，我们可以将该函数的第一个参数转换成结构体，第一个值是文件内容指针，第二个值是文件的大小。关于这个值怎么得到并传入该函数的，不是我们分析的重点。</p>
+
+<p><img src="images/Snipaste_2018-05-06_16-05-26.png" alt="wx13" /></p>
+
+<p>回过头来再看最后一部分传入的第二个参数，其实我们就能分别找到那2个加密的函数。其中绿色框中的2个函数就是加密的2个函数。
+我们先看第二个函数，也就是异或那个。</p>
+
+<h1 id="第二段加密-异或">第二段加密-异或</h1>
+
+<p><img src="images/Snipaste_2018-05-06_16-08-53.png" alt="wx14" /></p>
+
+<p>进入这个函数就能看到，很明显的取了一个byte(0x2b)，然后循环异或，具体的过程我就不分析了，只是验证一下，因为最开始的时候我已经用xortool自动分析出来了。有兴趣的可以分析一下，或者动态调试一下看看是怎么加密的。</p>
+
+<h1 id="第一段加密-rsa">第一段加密-rsa</h1>
+
+<p>这个第一段加密很复杂，emm看着就不想分析了，看见一串明文<code class="highlighter-rouge">crypto\\rsa\\rsa_lib.c</code>更是让我感到绝望。</p>
+
+<p><img src="images/Snipaste_2018-05-06_16-18-16.png" alt="wx15" /></p>
+
+<p><img src="images/Snipaste_2018-05-06_16-19-01.png" alt="wx16" /></p>
+
+<p>哇，是真的绝望。。。
+然后就没有然后了，我是没有分析下去。应该是解密不了的。毕竟输出的是一个缓存文件，如果要分析微信是否能读取GIF缓存，或者说读取的格式是怎样的，我的功力还不够。。。（我要弃坑，我要转web）
+讲道理，上面的路已经不通了，下面开始想想别的方法。</p>
+
+<h1 id="如何获取gif">如何获取GIF</h1>
+
+<p>其实方法我刚刚已经提示了，因为这个函数接受的参数就是完整的GIF，这个结构体上面也解释了，只要获取这个结构体就能拿到完整的GIF。因此，我们返回到原来那个函数的入口点，看什么时候结构体参数被引用。</p>
+
+<p><img src="images/Snipaste_2018-05-06_16-37-44.png" alt="wx17" /></p>
+
+<p>显然就是这里了，在将参数传给edi后，后面就判断结构体的第二个属性，即文件长度是否大于0。如果我们能在dll每次运行到这里的时候获取这两个数据，然后dump指定内存，就能拖出这个GIF图，也就不需要解密了。然后我动态调试了很多次，幸运的是并没有触发什么反调试和异常，使用的方式是idapython，首先是手动加载。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">location</span> <span class="o">=</span> <span class="n">GetRegValue</span><span class="p">(</span><span class="s">'edi'</span><span class="p">)</span>
+<span class="n">sizeptr</span> <span class="o">=</span> <span class="n">GetRegValue</span><span class="p">(</span><span class="s">'edi'</span><span class="p">)</span> <span class="o">+</span> <span class="mh">0x4</span>
+<span class="n">start</span> <span class="o">=</span> <span class="n">Dword</span><span class="p">(</span><span class="n">location</span><span class="p">)</span>
+<span class="n">n</span> <span class="o">=</span> <span class="n">Dword</span><span class="p">(</span><span class="n">sizeptr</span><span class="p">)</span>
+<span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">savepath</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">count</span><span class="p">))</span> <span class="o">+</span> <span class="s">'.gif'</span><span class="p">,</span> <span class="s">'wb'</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">chr</span><span class="p">(</span><span class="n">Byte</span><span class="p">(</span><span class="n">start</span> <span class="o">+</span> <span class="n">i</span><span class="p">)))</span>
+<span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>然后每次都发个图给别人，PC就会缓存，然后GIF就会被保存下来了。如果每次都是手动加载的话，我记得这段代码是没问题的。但是不想每次都由我自己来下断点然后dump，为了实现自动化，自己也是学习了一波idapython来自定义Debugger Hook。</p>
+
+<h1 id="idapython的debugger-hooks">idapython的Debugger Hooks</h1>
+
+<p>主要用于Hook IDA 内部的调试器，同时可以自定义调试功能。结构如下</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">DbgHook</span><span class="p">(</span><span class="n">DBG_Hooks</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">dbg_process_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pid</span><span class="p">,</span> <span class="n">tid</span><span class="p">,</span> <span class="n">ea</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+        <span class="k">return</span>
+    <span class="k">def</span> <span class="nf">dbg_process_exit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pid</span><span class="p">,</span> <span class="n">tid</span><span class="p">,</span> <span class="n">ea</span><span class="p">,</span> <span class="n">code</span><span class="p">):</span>
+        <span class="k">return</span>
+    <span class="k">def</span> <span class="nf">dbg_library_load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pid</span><span class="p">,</span> <span class="n">tid</span><span class="p">,</span> <span class="n">ea</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+        <span class="k">return</span>
+    <span class="k">def</span> <span class="nf">dbg_bpt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tid</span><span class="p">,</span> <span class="n">ea</span><span class="p">):</span>
+        <span class="k">return</span>
+</code></pre></div></div>
+
+<p>安装hook的方式如下</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">debugger</span> <span class="o">=</span> <span class="n">DbgHook</span><span class="p">()</span>
+<span class="n">debugger</span><span class="o">.</span><span class="n">hook</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>一开始我是在dbg_process_start来自动插入断点的，但是后来发现效果并不会，这一点我之后会说明。</p>
+
+<p>我通过定义了MyDbgHook来继承DBG_Hooks，再次载入上面的脚本运行，结果却是这样的。</p>
+
+<p><img src="images/Snipaste_2018-05-06_16-53-53.png" alt="wx18" /></p>
+
+<p>文件里写的都是0xff。除了这种情况还会发生发送多个图片，获取的GIF均是同一个的离奇事件。查了半天不知道哪里出了原因。最后翻idapython的资料，最后发现是api使用不当，但是具体是为什么也没有资料，感觉Dword(ea)和DbgDword(ea)之类的都差不多，可能一个前面有dbg所以是dbg专用的吗。
+更新后的脚本。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">location</span> <span class="o">=</span> <span class="n">GetRegValue</span><span class="p">(</span><span class="s">'edi'</span><span class="p">)</span>
+<span class="n">sizeptr</span> <span class="o">=</span> <span class="n">GetRegValue</span><span class="p">(</span><span class="s">'edi'</span><span class="p">)</span> <span class="o">+</span> <span class="mh">0x4</span>
+<span class="n">start</span> <span class="o">=</span> <span class="n">DbgDword</span><span class="p">(</span><span class="n">location</span><span class="p">)</span>
+<span class="n">n</span> <span class="o">=</span> <span class="n">DbgDword</span><span class="p">(</span><span class="n">sizeptr</span><span class="p">)</span>
+<span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">savepath</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">count</span><span class="p">))</span><span class="o">+</span><span class="s">'.gif'</span><span class="p">,</span><span class="s">'wb'</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+	<span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">chr</span><span class="p">(</span><span class="n">Byte</span><span class="p">(</span><span class="n">start</span><span class="o">+</span><span class="n">i</span><span class="p">)))</span>
+<span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>运行结果如下图。</p>
+
+<p><img src="images/Snipaste_2018-05-06_17-04-41.png" alt="wx19" /></p>
+
+<p>更新后，效果好了很多，但是还是有问题，有的能显示，有的GIF显示不了，于是又查了一波idapython资料，最后发现还是api使用不当。。。Byte(ea)、DbgByte(ea)还有DbgRead(ea,n)，其实功能都是一样的，可能是Dbg的方式影响了某些API的实现，导致出现了很多问题。
+再次更新脚本。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">location</span> <span class="o">=</span> <span class="n">GetRegValue</span><span class="p">(</span><span class="s">'edi'</span><span class="p">)</span>
+<span class="n">sizeptr</span> <span class="o">=</span> <span class="n">GetRegValue</span><span class="p">(</span><span class="s">'edi'</span><span class="p">)</span> <span class="o">+</span> <span class="mh">0x4</span>
+<span class="k">print</span> <span class="s">"[*]</span><span class="se">\t</span><span class="s">Gif location:[</span><span class="si">%08</span><span class="s">x],sizeptr:[</span><span class="si">%08</span><span class="s">x]"</span><span class="o">%</span> <span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">sizeptr</span><span class="p">)</span>
+<span class="n">start</span> <span class="o">=</span> <span class="n">DbgDword</span><span class="p">(</span><span class="n">location</span><span class="p">)</span>
+<span class="n">n</span> <span class="o">=</span> <span class="n">DbgDword</span><span class="p">(</span><span class="n">sizeptr</span><span class="p">)</span>
+<span class="k">print</span> <span class="s">"[*]</span><span class="se">\t</span><span class="s">Gif start:[</span><span class="si">%08</span><span class="s">x],n:[</span><span class="si">%08</span><span class="s">x]"</span><span class="o">%</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+<span class="n">dump</span> <span class="o">=</span> <span class="n">DbgRead</span><span class="p">(</span><span class="n">start</span><span class="p">,</span><span class="n">n</span><span class="p">)</span>
+<span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">savepath</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">))</span><span class="o">+</span><span class="s">'.gif'</span><span class="p">,</span><span class="s">'wb'</span><span class="p">)</span>
+<span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dump</span><span class="p">)</span>
+<span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+</code></pre></div></div>
+
+<p>ida日志输出如下图。</p>
+
+<p><img src="images/Snipaste_2018-05-06_17-13-15.png" alt="wx20" /></p>
+
+<p>运行结果如下图。</p>
+
+<p><img src="images/Snipaste_2018-05-06_17-11-09.png" alt="wx21" /></p>
+
+<h1 id="完整代码及说明">完整代码及说明</h1>
+
+<p>代码的几点说明：</p>
+
+<ul>
+  <li>dbg_process_start是最先加载的，在这里下断点会导致问题。</li>
+  <li>Modules()用于遍历整个环境中的模块，一开始我是想通过这个下断点的，后来发现DBG_Hooks已经提供了类似的函数，就是dbg_library_load，由于我的目标是<code class="highlighter-rouge">WeChatWin.dll</code>，当其加载的时候下断点就行了。</li>
+  <li>下断点的方式是通过偏移量来实现的，考虑到ASLR或者其他不可抗因素，直接VA下断不可行，通过模块BA+0x1000+offsite来实现，0x1000就是.text的VirtualAddress，详细可以参照PE中的节表。</li>
+  <li>Dbg模式下请使用ida python对应的API，否则如上文所述会导致未知情况。如将Dword(ea)替换成DbgDword(ea)。</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># coding:utf-8
+</span><span class="n">__author__</span><span class="o">=</span><span class="s">'zjgcjy'</span>
+
+<span class="kn">from</span> <span class="nn">idaapi</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">idautils</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">idc</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c1"># 没用到，效果不好，或者说dbg_library_load更方便
+</span><span class="k">def</span> <span class="nf">Modules</span><span class="p">():</span>
+    <span class="n">mod</span> <span class="o">=</span> <span class="n">idaapi</span><span class="o">.</span><span class="n">module_info_t</span><span class="p">()</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">idaapi</span><span class="o">.</span><span class="n">get_first_module</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
+    <span class="k">while</span> <span class="n">result</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">idaapi</span><span class="o">.</span><span class="n">object_t</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">mod</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">mod</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="n">mod</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="n">rebase_to</span><span class="o">=</span><span class="n">mod</span><span class="o">.</span><span class="n">rebase_to</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">idaapi</span><span class="o">.</span><span class="n">get_next_module</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">MyDbgHook</span><span class="p">(</span><span class="n">DBG_Hooks</span><span class="p">):</span>
+    <span class="c1">#GIF计数
+</span>	<span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="c1">#保存目录
+</span>	<span class="n">savepath</span> <span class="o">=</span> <span class="s">"C:</span><span class="se">\\</span><span class="s">Users</span><span class="se">\\</span><span class="s">xxxxxx</span><span class="se">\\</span><span class="s">Desktop</span><span class="se">\\</span><span class="s">emotion"</span>
+	<span class="n">keyLocation</span> <span class="o">=</span> <span class="mi">0</span>
+
+	<span class="k">def</span> <span class="nf">dbg_process_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pid</span><span class="p">,</span> <span class="n">tid</span><span class="p">,</span> <span class="n">ea</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+        <span class="c1">#不要在这里插入断点
+</span>		<span class="c1">#for i in Modules():
+</span>		<span class="c1">#	if 'WeChatWin.dll' in i.name:
+</span>		<span class="c1">#		print "module:[%s]\tsize:[%#x]\tbase:[%#x]\tend:[%#x]" %(i.name, i.size, i.base, i.rebase_to)
+</span>		<span class="c1">#		self.keyLocation = i.base
+</span>		<span class="c1">#self.keyLocation += 0x247970
+</span>		<span class="c1">#AddBpt(self.keyLocation)
+</span>		<span class="c1">#print 'keybreakpoint:[%#x]' % self.keyLocation
+</span>		<span class="k">print</span> <span class="s">"MyDbgHook : Process started, pid=</span><span class="si">%</span><span class="s">d tid=</span><span class="si">%</span><span class="s">d name=</span><span class="si">%</span><span class="s">s"</span> <span class="o">%</span> <span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="n">tid</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+	<span class="k">def</span> <span class="nf">dbg_process_exit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pid</span><span class="p">,</span> <span class="n">tid</span><span class="p">,</span> <span class="n">ea</span><span class="p">,</span> <span class="n">code</span><span class="p">):</span>  
+	    <span class="k">print</span> <span class="s">"MyDbgHook : Process exited pid=</span><span class="si">%</span><span class="s">d tid=</span><span class="si">%</span><span class="s">d ea=0x</span><span class="si">%</span><span class="s">x code=</span><span class="si">%</span><span class="s">d"</span> <span class="o">%</span> <span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="n">tid</span><span class="p">,</span> <span class="n">ea</span><span class="p">,</span> <span class="n">code</span><span class="p">)</span>
+
+	<span class="k">def</span> <span class="nf">dbg_library_load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pid</span><span class="p">,</span> <span class="n">tid</span><span class="p">,</span> <span class="n">ea</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>  
+		<span class="k">print</span> <span class="s">"MyDbgHook : Library loaded: pid=</span><span class="si">%</span><span class="s">d tid=</span><span class="si">%</span><span class="s">d name=</span><span class="si">%</span><span class="s">s base=</span><span class="si">%</span><span class="s">x"</span> <span class="o">%</span> <span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="n">tid</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">base</span><span class="p">)</span>
+        <span class="c1"># 对WeChatWin.dll下断点
+</span>        <span class="k">if</span> <span class="s">'WeChatWin.dll'</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">keyLocation</span> <span class="o">=</span> <span class="n">base</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">keyLocation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">keyLocation</span> <span class="o">+</span> <span class="mh">0x1000</span> <span class="o">+</span> <span class="mh">0x247970</span>
+			<span class="n">AddBpt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keyLocation</span><span class="p">)</span>
+			<span class="k">print</span> <span class="s">'keybreakpoint:[</span><span class="si">%#</span><span class="s">x]'</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">keyLocation</span>
+
+	<span class="k">def</span> <span class="nf">dbg_library_unload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pid</span><span class="p">,</span> <span class="n">tid</span><span class="p">,</span> <span class="n">ea</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>  
+	    <span class="k">print</span> <span class="s">"MyDbgHook : Library unloaded: pid=</span><span class="si">%</span><span class="s">d tid=</span><span class="si">%</span><span class="s">d ea=0x</span><span class="si">%</span><span class="s">x info=</span><span class="si">%</span><span class="s">s"</span> <span class="o">%</span> <span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="n">tid</span><span class="p">,</span> <span class="n">ea</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+	    <span class="k">return</span> <span class="mi">0</span>  
+
+	<span class="k">def</span> <span class="nf">dbg_bpt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tid</span><span class="p">,</span> <span class="n">ea</span><span class="p">):</span>
+		<span class="k">print</span> <span class="s">"MyDbgHook : Break point at </span><span class="si">%</span><span class="s">s[0x</span><span class="si">%</span><span class="s">x] pid=</span><span class="si">%</span><span class="s">d"</span> <span class="o">%</span> <span class="p">(</span><span class="n">GetFunctionName</span><span class="p">(</span><span class="n">ea</span><span class="p">),</span> <span class="n">ea</span><span class="p">,</span> <span class="n">tid</span><span class="p">)</span>
+        <span class="c1">#是否到了关键的地址
+</span>		<span class="k">if</span> <span class="n">GetRegValue</span><span class="p">(</span><span class="s">'eip'</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">keyLocation</span> <span class="p">:</span>
+			<span class="n">location</span> <span class="o">=</span> <span class="n">GetRegValue</span><span class="p">(</span><span class="s">'edi'</span><span class="p">)</span>
+			<span class="n">sizeptr</span> <span class="o">=</span> <span class="n">GetRegValue</span><span class="p">(</span><span class="s">'edi'</span><span class="p">)</span> <span class="o">+</span> <span class="mh">0x4</span>
+			<span class="k">print</span> <span class="s">"[*]</span><span class="se">\t</span><span class="s">Gif location:[</span><span class="si">%08</span><span class="s">x],sizeptr:[</span><span class="si">%08</span><span class="s">x]"</span><span class="o">%</span> <span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">sizeptr</span><span class="p">)</span>
+			<span class="n">start</span> <span class="o">=</span> <span class="n">DbgDword</span><span class="p">(</span><span class="n">location</span><span class="p">)</span>
+			<span class="n">n</span> <span class="o">=</span> <span class="n">DbgDword</span><span class="p">(</span><span class="n">sizeptr</span><span class="p">)</span>
+			<span class="k">print</span> <span class="s">"[*]</span><span class="se">\t</span><span class="s">Gif start:[</span><span class="si">%08</span><span class="s">x],n:[</span><span class="si">%08</span><span class="s">x]"</span><span class="o">%</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+			<span class="n">dump</span> <span class="o">=</span> <span class="n">DbgRead</span><span class="p">(</span><span class="n">start</span><span class="p">,</span><span class="n">n</span><span class="p">)</span>
+			<span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">savepath</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">))</span><span class="o">+</span><span class="s">'.gif'</span><span class="p">,</span><span class="s">'wb'</span><span class="p">)</span>
+			<span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dump</span><span class="p">)</span>
+			<span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">+</span> <span class="mi">1</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">print</span> <span class="s">"[</span><span class="si">%</span><span class="s">x] - [</span><span class="si">%</span><span class="s">x]"</span> <span class="o">%</span><span class="p">(</span><span class="n">GetRegValue</span><span class="p">(</span><span class="s">'eip'</span><span class="p">),</span><span class="bp">self</span><span class="o">.</span><span class="n">keyLocation</span><span class="p">)</span>
+
+		<span class="n">idaapi</span><span class="o">.</span><span class="n">continue_process</span><span class="p">()</span>  
+		<span class="k">return</span> <span class="mi">0</span>  
+
+	<span class="k">def</span> <span class="nf">dbg_suspend_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  
+	    <span class="k">print</span> <span class="s">"MyDbgHook : Process suspended"</span>
+
+	<span class="k">def</span> <span class="nf">dbg_step_into</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  
+	    <span class="k">print</span> <span class="s">"MyDbgHook : Step into"</span>
+	    <span class="bp">self</span><span class="o">.</span><span class="n">dbg_step_over</span><span class="p">()</span>
+
+<span class="n">debughook</span> <span class="o">=</span> <span class="n">MyDbgHook</span><span class="p">()</span>  
+<span class="n">debughook</span><span class="o">.</span><span class="n">hook</span><span class="p">()</span>
+
+<span class="k">print</span> <span class="s">"ok"</span>
+</code></pre></div></div>
+
+<h1 id="写在最后">写在最后</h1>
+
+<p>通过ida python实现了获取微信GIF的功能，自动化脚本，加载模块自动下断，dump文件。只需要在手机上发送GIF，保存目录下就能得到对应的GIF。速度可以说是很快的。</p>
+
+<h1 id="战果">战果</h1>
+
+<p><img src="images/Snipaste_2018-05-06_17-46-19.png" alt="wx22" /></p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#idapython" class="page__taxonomy-item" rel="tag">idapython</a>
+    
+    </span>
+  </p>
+
+
+
+
+        
+          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2018-08-06T21:47:00+08:00">August 06, 2018</time></p>
+        
+      </footer>
+
+      <section class="page__share">
+  
+    <h4 class="page__share-title">Share on</h4>
+  
+
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Idapython%E5%AE%9E%E7%8E%B0dump%E5%BE%AE%E4%BF%A1gif%E8%A1%A8%E6%83%85%E5%8C%85%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-08%2FIDApython%25E5%25AE%259E%25E7%258E%25B0dump%25E5%25BE%25AE%25E4%25BF%25A1GIF%25E8%25A1%25A8%25E6%2583%2585%25E5%258C%2585.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-08%2FIDApython%25E5%25AE%259E%25E7%258E%25B0dump%25E5%25BE%25AE%25E4%25BF%25A1GIF%25E8%25A1%25A8%25E6%2583%2585%25E5%258C%2585.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-08%2FIDApython%25E5%25AE%259E%25E7%258E%25B0dump%25E5%25BE%25AE%25E4%25BF%25A1GIF%25E8%25A1%25A8%25E6%2583%2585%25E5%258C%2585.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+
+      
+  <nav class="pagination">
+    
+      <a href="/posts/2018-08/hexo-using.html" class="pagination--pager" title="Hexo Using
+">Previous</a>
+    
+    
+      <a href="/posts/2018-08/2018cumtctf%E9%80%86%E5%90%91%E5%87%BA%E9%A2%98%E6%80%9D%E8%B7%AF.html" class="pagination--pager" title="2018cumtctf逆向出题思路
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      <h4 class="page__related-title">You may also enjoy</h4>
+      <div class="grid__wrapper">
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-11/Dirary_November.html" rel="permalink">Dirary_november
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  每日所作所得
+
+
+
+
+11月1日
+</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/Software_Security_Project.html" rel="permalink">Software_security_project
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  Malware
+vs2010
+
+
+
+
+InfoCollection
+
+configure
+
+
+
+warning
+
+
+
+</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/Pacman_Helper.html" rel="permalink">Pacman_helper
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  pacman 手册
+
+
+
+
+archlinux pacman 命令
+arch wiki
+
+pacman -Sy 仅同步源
+
+pacman -Syu 同步源，并更新系统
+
+pacman -Su –ignore foo 升级时不升级包foo
+
+pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/%E5%8D%81%E6%9C%88%E6%97%A5%E8%AE%B0.html" rel="permalink">十月日记
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  每日所作所得
+
+
+
+
+10月1日
+
+周日，上课前最后一天，算是给自己放了最后一天假期
+
+10月2日
+
+上了第一天的课，主要是os，一脸蒙蔽。
+</p>
+  </article>
+</div>
+
+        
+      </div>
+    </div>
+  
+  
+</div>
+
+    </div>
+
+    
+      <div class="search-content">
+        <div class="search-content__inner-wrap"><form class="search-content__form" onkeydown="return event.key != 'Enter';">
+    <label class="sr-only" for="search">
+      Enter your search term...
+    </label>
+    <input type="search" id="search" class="search-input" tabindex="-1" placeholder="Enter your search term..." />
+  </form>
+  <div id="results" class="results"></div></div>
+
+      </div>
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+        
+      
+    
+
+    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2019 Blogger. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+
+
+
+
+<script src="/assets/js/lunr/lunr.min.js"></script>
+<script src="/assets/js/lunr/lunr-store.js"></script>
+<script src="/assets/js/lunr/lunr-en.js"></script>
+
+
+
+
+    
+  <script>
+    var disqus_config = function () {
+      this.page.url = "http://localhost:4000/posts/2018-08/IDApython%E5%AE%9E%E7%8E%B0dump%E5%BE%AE%E4%BF%A1GIF%E8%A1%A8%E6%83%85%E5%8C%85.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.identifier = "/posts/2018-08/IDApython实现dump微信GIF表情包"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    (function() { // DON'T EDIT BELOW THIS LINE
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zjgcjy-github-io.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  </script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+  
+
+
+
+
+
+  </body>
+</html>
