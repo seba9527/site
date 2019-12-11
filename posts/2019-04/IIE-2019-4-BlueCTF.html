@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Iie 2019 4 Bluectf">
-<meta property="og:url" content="http://localhost:4000/posts/2019-04/IIE-2019-4-BlueCTF.html">
+<meta property="og:url" content="https://zjgcjy.github.io/posts/2019-04/IIE-2019-4-BlueCTF.html">
 
 
   <meta property="og:description" content="  UCAS-IIE-2019-4-BlueBCTF writeupbabybaseX  考点      C++    STL：vector    编码转换  main先来看一下主函数的逻辑。发现主要是encode进行了操作，跟进去。encode主要逻辑是一个双层大循环，对输入进行编码然后输出。关于最开始一段代码，是用来分配空间的。len = ((((0xA3D70A3D70A3D70BLL * (138 * (end - p))) &gt;&gt; 64) + 138 * (end - p)) &gt;&gt; 6) - (138 * (end - p) &gt;&gt; 63) + 1;参考链接Hacker’s-Delight得到前面一部分是0.01，乘以138，等于1.38。考虑到没计算后面2部分，这里可以近似等于1.333循环，所以我猜测该段代码实际作用如下。所以根据最后cipher的长度是22，可以得到给plain分配的空间是15左右。核心编码过程d&lt;&lt;8|n   d  r0031    01 170001    00 011732    e4 0a01e4    12 100012    00 120a33    64 0b1064    a1 0a12a1    b7 0b00b7    07 010007    00 07编写脚本编码脚本：#coding:utf-8__author__ = &#39;zjgcjy&#39;import mathtable = &#39;vrYenHCzNgu7FRTDbLiqtBpQZoUS3f5dKWsaM8Gm1EyVJkjw4cA6X92Pxh0OLl+/&#39;plain = &#39;NowYouKnowBa5358&#39;length = int(math.floor(len(plain) * 4.0/3 + 1 ))mod = ord(plain[1]) - ord(plain[0]) + 25r0 = r_next = [0]for i in xrange(len(plain)):    d = ord(plain[i])    j = 0    r_next = []    while d or j &lt; len(r0):        if j &gt;= len(r0):            r0.append(0)        d = r0[j] &lt;&lt; 8 | d        rr = d % mod        r_next.append(rr)        d = d / mod        j += 1    #print r_next    r0 = r_nextif not len(r0) &gt; length:    print r0else:    print &#39;error&#39;cipher = &#39;&#39;.join([table[i] for i in r0])print cipher[::-1]解码脚本：#coding:utf-8__author__ = &#39;zjgcjy&#39;table = &#39;vrYenHCzNgu7FRTDbLiqtBpQZoUS3f5dKWsaM8Gm1EyVJkjw4cA6X92Pxh0OLl+/&#39;cipher = &#39;gmJNxnNCPChRefqDYSU1KZ&#39;r0 = r = [table.index(i) for i in cipher]filterF = lambda x: filter(lambda y: y &gt; 128, x)for mod in xrange(256):    r = r0    flag = &#39;&#39;    for _ in xrange(len(r)):        d = [0]        r_prev = []        for i in xrange(len(r)):            n = d[i] * mod + r[i]            d.append(n &amp; 0xff)            r_prev.append(n &gt;&gt; 8)        flag += chr(d[-1])        r = r_prev[1:]    if filterF(map(ord, flag)) != []:        continue    print hex(mod), flagif __name__ == &#39;__main__&#39;:    print &#39;8535aBwonKuoYwoN&#39;[::-1]babyre  考点      SEH    MISC    一元一次方程求解  main一个伪造的fake flag。产生除0异常。SEH处理编译器对系统SEH机制的封装对于VC的SEH，其每个异常帧的CALL_BACK都统一设为_except_handler4。每进入一个try块里，编译器会将VC_EXCEPTION_REGISTRATION中tryLevel赋值为相应的值。一旦该try块异常发生，系统会先从VC_EXCEPTION_REGISTRATION的handler域中找到_exception_handler4函数（C运行时库函数），然后根据当前tryLevel的值找到scopetable表中这个__try块相应的过滤函数和处理函数对异常进行相应的处理。            Enum      value      explanation                  EXCEPTION_EXECUTE_HANDLER      1      处理异常，从异常处下一条指令继续执行              EXCEPTION_CONTINUE_SERCH      0      不处理异常，继续搜索执行下一个EH              EXCEPTION_CONTINUE_EXECUTION      -1      忽略异常，从异常处继续执行      BOOL __cdecl check11(char *a1){  return (a1[4] + a1[2] + *a1) == 253      &amp;&amp; (a1[7] + a1[5] + a1[3] + a1[1]) == 140      &amp;&amp; *a1 == (a1[1] + 1)      &amp;&amp; a1[1] == (a1[2] + 50)      &amp;&amp; a1[2] == (a1[3] - 47)      &amp;&amp; a1[6] == (a1[4] - 49)      &amp;&amp; a1[6] == (a1[7] - 49)      &amp;&amp; a1[5] == (a1[3] - 1);}使用z3进行约束求解。#coding:utf-8__author__ = &#39;zjgcjy&#39;from z3 import *a1 = [BitVec(&#39;a1[%d]&#39;%i, 8) for i in xrange(8)]s = Solver()s.add(And(	((a1[4] + a1[2] + a1[0]) &amp; 0xff == 253),	((a1[7] + a1[5] + a1[3] + a1[1]) &amp; 0xff == 140),	(a1[0] == a1[1] + 1),	(a1[1] == a1[2] + 50),	(a1[2] == a1[3] - 47),	(a1[6] == a1[4] - 49),	(a1[6] == a1[7] - 49),	(a1[5] == a1[3] - 1),    ))for i in xrange(len(a1)):    s.add(ULE(a1[i], 0x7f))    s.add(UGE(a1[i], 0x20))if s.check() == sat:    m = s.model()    flag = &#39;&#39;    for i in xrange(8):        flag += chr(m[a1[i]].as_long().real)    print flagelse:	print &#39;no&#39;得到结果是fe3bda3d。进行第二部分的检查。解决最后的脚本如下。#coding:utf-8__author__ = &#39;zjgcjy&#39;plain = &#39;fe3bda3d&#39; * 3cipher = &#39;04 09 46 07 1F 03 52 06 1F 3A 41 51 3B 50 40 3B 55 04 40 1B 3B 09 5B 19&#39;.replace(&#39; &#39;, &#39;&#39;).decode(&#39;hex&#39;)xorF = lambda a, b: map(lambda x, y: x ^ y, a, b)flag = xorF(map(ord, plain), map(ord, cipher))print &#39;&#39;.join(map(chr, flag))Thanks">
 
 
 
-  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Iie 2019 4 Bluectf">
   <meta name="twitter:description" content="  UCAS-IIE-2019-4-BlueBCTF writeupbabybaseX  考点      C++    STL：vector    编码转换  main先来看一下主函数的逻辑。发现主要是encode进行了操作，跟进去。encode主要逻辑是一个双层大循环，对输入进行编码然后输出。关于最开始一段代码，是用来分配空间的。len = ((((0xA3D70A3D70A3D70BLL * (138 * (end - p))) &gt;&gt; 64) + 138 * (end - p)) &gt;&gt; 6) - (138 * (end - p) &gt;&gt; 63) + 1;参考链接Hacker’s-Delight得到前面一部分是0.01，乘以138，等于1.38。考虑到没计算后面2部分，这里可以近似等于1.333循环，所以我猜测该段代码实际作用如下。所以根据最后cipher的长度是22，可以得到给plain分配的空间是15左右。核心编码过程d&lt;&lt;8|n   d  r0031    01 170001    00 011732    e4 0a01e4    12 100012    00 120a33    64 0b1064    a1 0a12a1    b7 0b00b7    07 010007    00 07编写脚本编码脚本：#coding:utf-8__author__ = &#39;zjgcjy&#39;import mathtable = &#39;vrYenHCzNgu7FRTDbLiqtBpQZoUS3f5dKWsaM8Gm1EyVJkjw4cA6X92Pxh0OLl+/&#39;plain = &#39;NowYouKnowBa5358&#39;length = int(math.floor(len(plain) * 4.0/3 + 1 ))mod = ord(plain[1]) - ord(plain[0]) + 25r0 = r_next = [0]for i in xrange(len(plain)):    d = ord(plain[i])    j = 0    r_next = []    while d or j &lt; len(r0):        if j &gt;= len(r0):            r0.append(0)        d = r0[j] &lt;&lt; 8 | d        rr = d % mod        r_next.append(rr)        d = d / mod        j += 1    #print r_next    r0 = r_nextif not len(r0) &gt; length:    print r0else:    print &#39;error&#39;cipher = &#39;&#39;.join([table[i] for i in r0])print cipher[::-1]解码脚本：#coding:utf-8__author__ = &#39;zjgcjy&#39;table = &#39;vrYenHCzNgu7FRTDbLiqtBpQZoUS3f5dKWsaM8Gm1EyVJkjw4cA6X92Pxh0OLl+/&#39;cipher = &#39;gmJNxnNCPChRefqDYSU1KZ&#39;r0 = r = [table.index(i) for i in cipher]filterF = lambda x: filter(lambda y: y &gt; 128, x)for mod in xrange(256):    r = r0    flag = &#39;&#39;    for _ in xrange(len(r)):        d = [0]        r_prev = []        for i in xrange(len(r)):            n = d[i] * mod + r[i]            d.append(n &amp; 0xff)            r_prev.append(n &gt;&gt; 8)        flag += chr(d[-1])        r = r_prev[1:]    if filterF(map(ord, flag)) != []:        continue    print hex(mod), flagif __name__ == &#39;__main__&#39;:    print &#39;8535aBwonKuoYwoN&#39;[::-1]babyre  考点      SEH    MISC    一元一次方程求解  main一个伪造的fake flag。产生除0异常。SEH处理编译器对系统SEH机制的封装对于VC的SEH，其每个异常帧的CALL_BACK都统一设为_except_handler4。每进入一个try块里，编译器会将VC_EXCEPTION_REGISTRATION中tryLevel赋值为相应的值。一旦该try块异常发生，系统会先从VC_EXCEPTION_REGISTRATION的handler域中找到_exception_handler4函数（C运行时库函数），然后根据当前tryLevel的值找到scopetable表中这个__try块相应的过滤函数和处理函数对异常进行相应的处理。            Enum      value      explanation                  EXCEPTION_EXECUTE_HANDLER      1      处理异常，从异常处下一条指令继续执行              EXCEPTION_CONTINUE_SERCH      0      不处理异常，继续搜索执行下一个EH              EXCEPTION_CONTINUE_EXECUTION      -1      忽略异常，从异常处继续执行      BOOL __cdecl check11(char *a1){  return (a1[4] + a1[2] + *a1) == 253      &amp;&amp; (a1[7] + a1[5] + a1[3] + a1[1]) == 140      &amp;&amp; *a1 == (a1[1] + 1)      &amp;&amp; a1[1] == (a1[2] + 50)      &amp;&amp; a1[2] == (a1[3] - 47)      &amp;&amp; a1[6] == (a1[4] - 49)      &amp;&amp; a1[6] == (a1[7] - 49)      &amp;&amp; a1[5] == (a1[3] - 1);}使用z3进行约束求解。#coding:utf-8__author__ = &#39;zjgcjy&#39;from z3 import *a1 = [BitVec(&#39;a1[%d]&#39;%i, 8) for i in xrange(8)]s = Solver()s.add(And(	((a1[4] + a1[2] + a1[0]) &amp; 0xff == 253),	((a1[7] + a1[5] + a1[3] + a1[1]) &amp; 0xff == 140),	(a1[0] == a1[1] + 1),	(a1[1] == a1[2] + 50),	(a1[2] == a1[3] - 47),	(a1[6] == a1[4] - 49),	(a1[6] == a1[7] - 49),	(a1[5] == a1[3] - 1),    ))for i in xrange(len(a1)):    s.add(ULE(a1[i], 0x7f))    s.add(UGE(a1[i], 0x20))if s.check() == sat:    m = s.model()    flag = &#39;&#39;    for i in xrange(8):        flag += chr(m[a1[i]].as_long().real)    print flagelse:	print &#39;no&#39;得到结果是fe3bda3d。进行第二部分的检查。解决最后的脚本如下。#coding:utf-8__author__ = &#39;zjgcjy&#39;plain = &#39;fe3bda3d&#39; * 3cipher = &#39;04 09 46 07 1F 03 52 06 1F 3A 41 51 3B 50 40 3B 55 04 40 1B 3B 09 5B 19&#39;.replace(&#39; &#39;, &#39;&#39;).decode(&#39;hex&#39;)xorF = lambda a, b: map(lambda x, y: x ^ y, a, b)flag = xorF(map(ord, plain), map(ord, cipher))print &#39;&#39;.join(map(chr, flag))Thanks">
-  <meta name="twitter:url" content="http://localhost:4000/posts/2019-04/IIE-2019-4-BlueCTF.html">
+  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2019-04/IIE-2019-4-BlueCTF.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="http://localhost:4000/posts/2019-04/IIE-2019-4-BlueCTF.html">
+<link rel="canonical" href="https://zjgcjy.github.io/posts/2019-04/IIE-2019-4-BlueCTF.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "http://localhost:4000/",
+      "url": "https://zjgcjy.github.io/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -704,11 +704,11 @@
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Iie+2019+4+Bluectf%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-04%2FIIE-2019-4-BlueCTF.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Iie+2019+4+Bluectf%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-04%2FIIE-2019-4-BlueCTF.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-04%2FIIE-2019-4-BlueCTF.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-04%2FIIE-2019-4-BlueCTF.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-04%2FIIE-2019-4-BlueCTF.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-04%2FIIE-2019-4-BlueCTF.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -969,7 +969,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "http://localhost:4000/posts/2019-04/IIE-2019-4-BlueCTF.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "https://zjgcjy.github.io/posts/2019-04/IIE-2019-4-BlueCTF.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2019-04/IIE-2019-4-BlueCTF"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

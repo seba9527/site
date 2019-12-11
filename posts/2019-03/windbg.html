@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Windbg">
-<meta property="og:url" content="http://localhost:4000/posts/2019-03/windbg.html">
+<meta property="og:url" content="https://zjgcjy.github.io/posts/2019-03/windbg.html">
 
 
   <meta property="og:description" content="  windbg手册查看变量dv Display Variable的缩写, 查看局部变量.dv /i 查看局部变量, 并显示符号的类型和参数类型.dv /V 查看局部变量, 并显示变量的存储位置.dv /V VariableName 指定需要查看的变量的名字dv 02sample!gGlo*  dv命令可以带有通配符, 来查看具有某命名模式的变量.dt Display Type的缩写. 当变量的类型为复合类型, 比如说结构体或者类, 那么dv命令只会显示变量的地址. dt命令可以将一块内存按照某个数据类型来解析, 其中的数据类型需要作为参数被传递给dt命令.dt KBTest 0x000cff0c 将某内存地址按照某类型来解释并显示.dt 02sample!gGlobal dt命令在显示内存块时, 解析对象的类型.断点WinDBG 提供了多种设断点的命令：bp, bu, bm, ba.bp 命令是在某个地址下断点， 可以 bp 0x7783FEB也可以 bp MyApp!SomeFunction 。 对于后者，WinDBG 会自动找到MyApp!SomeFunction 对应的地址并设置断点。但是使用bp的问题在于：1）当代码修改之后，函数地址改变，该断点仍然保持在相同位置，不一定继续有效； 2）WinDBG 不会把bp断点保存工作空间中 。所以，我比较喜欢用bu 命令。bu命令是针对某个符号下断点。 比如 bu MyApp!SomeFunction 。 在代码被修改之后， 该断点可以随着函数地址改变而自动更新到最新位置。  而且bu 断点会保存在WinDbg工作空间中， 下次启动 Windbg 的时候该断点会自动设置上去。另外，在模块没有被加载的时候，bp 断点会失败（因为函数地址不存在），而bu 断点则可以成功。 新版的WinDBG中 bp失败后会自动被转成bu 。bm 命令也是针对符号下断点。 但是它支持匹配表达式。 很多时候你下好几个断点。 比如，把MyClass 所有的成员函数都下断点： bu MyApp!MyClass::*， 或者把所有以CreateWindow开头的函数都下断点：bu user32!CreateWindow* 。以上三个命令是对代码下断点， 我们还可以对数据下断点。ba命令就是针对数据下断点的命令， 该断点在指定内存被访问时触发。 命令格式为ba Access Size [地址]Access 是访问的方式， 比如 e (执行)， r (读/写)， w (写)Size 是监控访问的位置的大小，以字节为单位。 值为 1、2或4，还可以是 8（64位机）。比如要对内存0x0483DFE进行写操作的时候下断点，可以用命令 ba w4 0x0483DFE其他断点命令:bl  列出所有断点bc  清除断点bd 禁用断点be 启动被bd 命令经用的断点符号ld ModuleName  加载指定模块的符号ld *                  加载所有模块的符号!sym                获取符号加载状态!sym noisy       让调试器显示符号搜索详细信息!sym quiet        默认项，不显示符号搜索信息.sympath         显示和设置符号搜索路径.sympath+       增加符号搜索路径.sympath+ C:\Symbols.symopt            显示当前符号可选项.symopt+ Flags  添加符号可选项.symopt- Flags   移除符号可选项.symfix                           设置符号库路径.sym+ DownstreamStore  添加符号库路径x [Options] Module!Symbol    模式匹配符号信息x /t ..            根据数据类型匹配x /v ..            显示详细信息x /a ..            按照地址排序x /n ..            按照名称排序x /z ..            按照大小排序x !               列出所有模块x ntdll!          列出 ntdll 模块x /t /v ntdll!*    列出 ntdll 模块数据类型和符号类型.reload                            重新加载符号信息.reload [/f | /v]                /f 强制立即加载符号 /v 显示详细信息.reload [/f | /v] Module     Module 为指定模块加载符号信息.reload /f @”ntdll.dll”.reload /f @”C:\WINNT\System32\verifier.dll”模块lm[ v | l | k | u | f ] [m Pattern] 显示已加载的模块lm   显示所有加载和未加载的模块信息lmv 显示已加载模块的详细信息lml  同时显示加载的符号信息lmk 显示内核模块信息lmu 显示用户模块信息lmf  显示镜像路径lmm 匹配模块名称lmD 使用 DML 方式显示lmv m kernel32 显示 kernel32 模块详细信息!dlls         列出所有加载的模块和加载数量!dlls -i      根据初始化顺序!dlls -l      根据加载顺序（默认项）!dlls -m    根据内存顺序!dlls -v     显示更多详细信息!dlls -c _ModuleAddr  _仅显示 ModuleAddr 地址的模块信息!dlls -?     显示帮助!dlls -v -c kernel32 显示 kernel32.dll 的信息!lmi _Module    _显示模块的详细信息，包括加载符号信息!lmi kernel32  显示 kernel32.dll 模块的信息">
 
 
 
-  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Windbg">
   <meta name="twitter:description" content="  windbg手册查看变量dv Display Variable的缩写, 查看局部变量.dv /i 查看局部变量, 并显示符号的类型和参数类型.dv /V 查看局部变量, 并显示变量的存储位置.dv /V VariableName 指定需要查看的变量的名字dv 02sample!gGlo*  dv命令可以带有通配符, 来查看具有某命名模式的变量.dt Display Type的缩写. 当变量的类型为复合类型, 比如说结构体或者类, 那么dv命令只会显示变量的地址. dt命令可以将一块内存按照某个数据类型来解析, 其中的数据类型需要作为参数被传递给dt命令.dt KBTest 0x000cff0c 将某内存地址按照某类型来解释并显示.dt 02sample!gGlobal dt命令在显示内存块时, 解析对象的类型.断点WinDBG 提供了多种设断点的命令：bp, bu, bm, ba.bp 命令是在某个地址下断点， 可以 bp 0x7783FEB也可以 bp MyApp!SomeFunction 。 对于后者，WinDBG 会自动找到MyApp!SomeFunction 对应的地址并设置断点。但是使用bp的问题在于：1）当代码修改之后，函数地址改变，该断点仍然保持在相同位置，不一定继续有效； 2）WinDBG 不会把bp断点保存工作空间中 。所以，我比较喜欢用bu 命令。bu命令是针对某个符号下断点。 比如 bu MyApp!SomeFunction 。 在代码被修改之后， 该断点可以随着函数地址改变而自动更新到最新位置。  而且bu 断点会保存在WinDbg工作空间中， 下次启动 Windbg 的时候该断点会自动设置上去。另外，在模块没有被加载的时候，bp 断点会失败（因为函数地址不存在），而bu 断点则可以成功。 新版的WinDBG中 bp失败后会自动被转成bu 。bm 命令也是针对符号下断点。 但是它支持匹配表达式。 很多时候你下好几个断点。 比如，把MyClass 所有的成员函数都下断点： bu MyApp!MyClass::*， 或者把所有以CreateWindow开头的函数都下断点：bu user32!CreateWindow* 。以上三个命令是对代码下断点， 我们还可以对数据下断点。ba命令就是针对数据下断点的命令， 该断点在指定内存被访问时触发。 命令格式为ba Access Size [地址]Access 是访问的方式， 比如 e (执行)， r (读/写)， w (写)Size 是监控访问的位置的大小，以字节为单位。 值为 1、2或4，还可以是 8（64位机）。比如要对内存0x0483DFE进行写操作的时候下断点，可以用命令 ba w4 0x0483DFE其他断点命令:bl  列出所有断点bc  清除断点bd 禁用断点be 启动被bd 命令经用的断点符号ld ModuleName  加载指定模块的符号ld *                  加载所有模块的符号!sym                获取符号加载状态!sym noisy       让调试器显示符号搜索详细信息!sym quiet        默认项，不显示符号搜索信息.sympath         显示和设置符号搜索路径.sympath+       增加符号搜索路径.sympath+ C:\Symbols.symopt            显示当前符号可选项.symopt+ Flags  添加符号可选项.symopt- Flags   移除符号可选项.symfix                           设置符号库路径.sym+ DownstreamStore  添加符号库路径x [Options] Module!Symbol    模式匹配符号信息x /t ..            根据数据类型匹配x /v ..            显示详细信息x /a ..            按照地址排序x /n ..            按照名称排序x /z ..            按照大小排序x !               列出所有模块x ntdll!          列出 ntdll 模块x /t /v ntdll!*    列出 ntdll 模块数据类型和符号类型.reload                            重新加载符号信息.reload [/f | /v]                /f 强制立即加载符号 /v 显示详细信息.reload [/f | /v] Module     Module 为指定模块加载符号信息.reload /f @”ntdll.dll”.reload /f @”C:\WINNT\System32\verifier.dll”模块lm[ v | l | k | u | f ] [m Pattern] 显示已加载的模块lm   显示所有加载和未加载的模块信息lmv 显示已加载模块的详细信息lml  同时显示加载的符号信息lmk 显示内核模块信息lmu 显示用户模块信息lmf  显示镜像路径lmm 匹配模块名称lmD 使用 DML 方式显示lmv m kernel32 显示 kernel32 模块详细信息!dlls         列出所有加载的模块和加载数量!dlls -i      根据初始化顺序!dlls -l      根据加载顺序（默认项）!dlls -m    根据内存顺序!dlls -v     显示更多详细信息!dlls -c _ModuleAddr  _仅显示 ModuleAddr 地址的模块信息!dlls -?     显示帮助!dlls -v -c kernel32 显示 kernel32.dll 的信息!lmi _Module    _显示模块的详细信息，包括加载符号信息!lmi kernel32  显示 kernel32.dll 模块的信息">
-  <meta name="twitter:url" content="http://localhost:4000/posts/2019-03/windbg.html">
+  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2019-03/windbg.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="http://localhost:4000/posts/2019-03/windbg.html">
+<link rel="canonical" href="https://zjgcjy.github.io/posts/2019-03/windbg.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "http://localhost:4000/",
+      "url": "https://zjgcjy.github.io/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -521,11 +521,11 @@ lmv m kernel32 显示 kernel32 模块详细信息
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Windbg%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-03%2Fwindbg.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Windbg%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-03%2Fwindbg.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-03%2Fwindbg.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-03%2Fwindbg.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-03%2Fwindbg.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-03%2Fwindbg.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -786,7 +786,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "http://localhost:4000/posts/2019-03/windbg.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "https://zjgcjy.github.io/posts/2019-03/windbg.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2019-03/windbg"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

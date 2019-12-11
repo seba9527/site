@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Git_learning 1">
-<meta property="og:url" content="http://localhost:4000/posts/2018-12/Git_Learning-1.html">
+<meta property="og:url" content="https://zjgcjy.github.io/posts/2018-12/Git_Learning-1.html">
 
 
   <meta property="og:description" content="记录一下git的基础用法基本配置如果是本地新建git仓库，可以用git init，使某个文件夹被git所管理。配置用户名和邮箱git config --global user.name &quot;Your Name&quot;git config --global user.email &quot;email@example.com&quot;配置sshssh-keygen -t rsa -C &quot;youremail@example.com&quot;配置gpg如果要对每次的commit都进行认证，可以配置签名，首先生成gpg keygpg --gen-key然后查看GPG key：gpg --list-keys。再获取公钥：gpg --armor --export pub GPG key ID，导入到GitHub中。本地的git配置就是先设置git签名时用的key：git config --global user.signingkey pub GPG key ID。然后设置全局都使用GPG签名：git config --global commit.gpgsign true常用git命令git status查看当前版本中修改内容，如果发现不一致，可以用git diff file查看不同之处。git add/rm用于将新添加的文件/删除的文件和git联系起来，基本上每次commit之前都要add才行。git commitcommit，提交版本，并用m参数加以说明message$ git commit -m &quot;wrote a readme file&quot;[master (root-commit) eaadf4e] wrote a readme file 1 file changed, 2 insertions(+) create mode 100644 readme.txtgit log查看日志提交记录如果输出信息太多，可以加上参数，每次输出一行git log --pretty=onelinegit resetgit版本回溯，在Git中，用HEAD表示当前版本，也就是最新的提交1094adb上一个版本就是HEAD^，上上一个版本就是HEAD^^，当然往上100个版本写成HEAD~100。可以使用这个命令来进行版本后退。主要要添加-- hard参数，否则不起作用$ git reset --hard HEAD^HEAD is now at e475afc add distributed$ git reset --hard HEAD~1HEAD is now at e475afc add distributed或者指定id$git reset --hard commit_idgit reset命令既可以回退版本，也可以把暂存区的修改回退到工作区。当我们用HEAD时，表示最新的版本。例如$ git reset HEAD readme.txtUnstaged changes after reset:M    readme.txtgit reflog记录每一次commit记录，可以配合git reset来用，即如果回到之前版本，再会过去，可以查看commit记录来确定id，再git reset --hard commit_id即可。$ git refloge475afc HEAD@{1}: reset: moving to HEAD^1094adb (HEAD -&gt; master) HEAD@{2}: commit: append GPLe475afc HEAD@{3}: commit: add distributedeaadf4e HEAD@{4}: commit (initial): wrote a readme filegit checkout – filecheckout 文件可以丢弃工作区的修改。如果之前add过，可以回到add当时的状态；如果没有add过，可以回到当前版本的状态（未修改）所以当是修改之后再git add的话，将无法回退，但是没有提交。这时可以用命令git reset HEAD &lt;file&gt;可以把暂存区的修改撤销掉（unstage）。总结  文件没有git add，此时文件在工作区，直接用git checkout -- file可以恢复到上一个版本。  文件已经git add，此时文件在暂存区，但是没有提交，使用git reset HEAD file来抛弃暂存区的修改；此时文件修改只存在于工作区中，再次使用git checkout -- file就能恢复到上一个版本。  git checkout -- file还能来恢复被删除的文件，总之就是用版本库替换当前工作区。">
 
 
 
-  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Git_learning 1">
   <meta name="twitter:description" content="记录一下git的基础用法基本配置如果是本地新建git仓库，可以用git init，使某个文件夹被git所管理。配置用户名和邮箱git config --global user.name &quot;Your Name&quot;git config --global user.email &quot;email@example.com&quot;配置sshssh-keygen -t rsa -C &quot;youremail@example.com&quot;配置gpg如果要对每次的commit都进行认证，可以配置签名，首先生成gpg keygpg --gen-key然后查看GPG key：gpg --list-keys。再获取公钥：gpg --armor --export pub GPG key ID，导入到GitHub中。本地的git配置就是先设置git签名时用的key：git config --global user.signingkey pub GPG key ID。然后设置全局都使用GPG签名：git config --global commit.gpgsign true常用git命令git status查看当前版本中修改内容，如果发现不一致，可以用git diff file查看不同之处。git add/rm用于将新添加的文件/删除的文件和git联系起来，基本上每次commit之前都要add才行。git commitcommit，提交版本，并用m参数加以说明message$ git commit -m &quot;wrote a readme file&quot;[master (root-commit) eaadf4e] wrote a readme file 1 file changed, 2 insertions(+) create mode 100644 readme.txtgit log查看日志提交记录如果输出信息太多，可以加上参数，每次输出一行git log --pretty=onelinegit resetgit版本回溯，在Git中，用HEAD表示当前版本，也就是最新的提交1094adb上一个版本就是HEAD^，上上一个版本就是HEAD^^，当然往上100个版本写成HEAD~100。可以使用这个命令来进行版本后退。主要要添加-- hard参数，否则不起作用$ git reset --hard HEAD^HEAD is now at e475afc add distributed$ git reset --hard HEAD~1HEAD is now at e475afc add distributed或者指定id$git reset --hard commit_idgit reset命令既可以回退版本，也可以把暂存区的修改回退到工作区。当我们用HEAD时，表示最新的版本。例如$ git reset HEAD readme.txtUnstaged changes after reset:M    readme.txtgit reflog记录每一次commit记录，可以配合git reset来用，即如果回到之前版本，再会过去，可以查看commit记录来确定id，再git reset --hard commit_id即可。$ git refloge475afc HEAD@{1}: reset: moving to HEAD^1094adb (HEAD -&gt; master) HEAD@{2}: commit: append GPLe475afc HEAD@{3}: commit: add distributedeaadf4e HEAD@{4}: commit (initial): wrote a readme filegit checkout – filecheckout 文件可以丢弃工作区的修改。如果之前add过，可以回到add当时的状态；如果没有add过，可以回到当前版本的状态（未修改）所以当是修改之后再git add的话，将无法回退，但是没有提交。这时可以用命令git reset HEAD &lt;file&gt;可以把暂存区的修改撤销掉（unstage）。总结  文件没有git add，此时文件在工作区，直接用git checkout -- file可以恢复到上一个版本。  文件已经git add，此时文件在暂存区，但是没有提交，使用git reset HEAD file来抛弃暂存区的修改；此时文件修改只存在于工作区中，再次使用git checkout -- file就能恢复到上一个版本。  git checkout -- file还能来恢复被删除的文件，总之就是用版本库替换当前工作区。">
-  <meta name="twitter:url" content="http://localhost:4000/posts/2018-12/Git_Learning-1.html">
+  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2018-12/Git_Learning-1.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="http://localhost:4000/posts/2018-12/Git_Learning-1.html">
+<link rel="canonical" href="https://zjgcjy.github.io/posts/2018-12/Git_Learning-1.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "http://localhost:4000/",
+      "url": "https://zjgcjy.github.io/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -543,11 +543,11 @@ eaadf4e HEAD@<span class="o">{</span>4<span class="o">}</span>: commit <span cla
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Git_learning+1%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-12%2FGit_Learning-1.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Git_learning+1%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2018-12%2FGit_Learning-1.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-12%2FGit_Learning-1.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2018-12%2FGit_Learning-1.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-12%2FGit_Learning-1.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2018-12%2FGit_Learning-1.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -808,7 +808,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "http://localhost:4000/posts/2018-12/Git_Learning-1.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "https://zjgcjy.github.io/posts/2018-12/Git_Learning-1.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2018-12/Git_Learning-1"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

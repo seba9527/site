@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Android Jni Debugging 2">
-<meta property="og:url" content="http://localhost:4000/posts/2017-10/android-JNI-debugging-2.html">
+<meta property="og:url" content="https://zjgcjy.github.io/posts/2017-10/android-JNI-debugging-2.html">
 
 
   <meta property="og:description" content="  Android Jni调试JNI_OnLoadJNI_ OnLoad函数大概功能就是在程序加载so的时候，会执行JNI_ OnLoad函数，做一系列的准备工作。很多时候，程序猿们会将一些重要信息放在此函数中，而不是通过某种事件来重复触发。包括说将反调试函数放置在此函数中。因此，调试手段发生了改变，上述调试方法基本上被淘汰。当这种调试手法出现之后，将特殊函数，或者反调试函数放在JNI_ OnLoad中也不是那么的安全了。此时，程序猿们通过分析系统对SO文件的加载链接过程发现，JNI_ OnLoad函数并不是最开始执行的。在JNI_ OnLoad函数执行之前，还会执行init段和init_array中的一系列函数。因此，现在的调试方法，都是将断点下在init_array中~至于下断点的方法，可以类比于在JNI_ OnLoad中下断点的方法，在init_ array的函数中下断点。还有一种方法便是通过在linker模块中，通过对其中函数下断点，然后也能单步到init_array中Dump dex文件关键是找到加载dex文件的位置，在调用函数处下断点，比如dvmDexFileOpenPartia，然后看寄存器的值，容易得知：R0寄存器指向的地址就是dex文件在内存中的地址，R1寄存器就是dex文件的大小。IDA脚本：static main(void){  auto fp, begin, end, dexbyte;  fp = fopen(&quot;C:\\dump.dex&quot;, &quot;wb&quot;);  begin = r0;  end = r0 + r1;  for ( dexbyte = begin; dexbyte &lt; end; dexbyte ++ )      fputc(Byte(dexbyte), fp);}当然这只是最简单脱壳方法，很多高级壳会动态修改dex的结构体，比如将codeoffset指向内存中的其他地址，这样的话你dump出来的dex文件其实是不完整的，因为代码段保存在了内存中的其他位置。其他我们知道在so的加载时候有个这个过程：.init-&gt;-&gt;.init array-&gt;-&gt;JNI_ Onload-&gt;-&gt;java_ com_XXX;还有我们在脱壳的过程中会在一些系统级的.so中下断点比如：fopen,fget,dvmdexfileopen,等等而.init以及.init_array一般会作为壳的入口地方，那我们索性叫它外壳级的.so文件这里归纳为三类：应用级别的：java_ com_XXX；外壳级别的：JNI_ Onload,.init,.init_array;系统级别的：fopen,fget,dvmdexfileopen；对于在应用级别的和系统级别的就不说了比较简单容易理解，这里也是在实现篇中会重点说的，看到上面的.so的加载执行过程我们知道如果说反调试放在外壳级别的.so文件的话我们就会遇程序在应用级核心函数一下断点就退出的尴尬，事实上多数的反调试会放在这，那么过反调试就必须要在这些地方下断点，那么我们就重点的说如何在.init_ array和JNI_Onload处理下断点。">
 
 
 
-  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Android Jni Debugging 2">
   <meta name="twitter:description" content="  Android Jni调试JNI_OnLoadJNI_ OnLoad函数大概功能就是在程序加载so的时候，会执行JNI_ OnLoad函数，做一系列的准备工作。很多时候，程序猿们会将一些重要信息放在此函数中，而不是通过某种事件来重复触发。包括说将反调试函数放置在此函数中。因此，调试手段发生了改变，上述调试方法基本上被淘汰。当这种调试手法出现之后，将特殊函数，或者反调试函数放在JNI_ OnLoad中也不是那么的安全了。此时，程序猿们通过分析系统对SO文件的加载链接过程发现，JNI_ OnLoad函数并不是最开始执行的。在JNI_ OnLoad函数执行之前，还会执行init段和init_array中的一系列函数。因此，现在的调试方法，都是将断点下在init_array中~至于下断点的方法，可以类比于在JNI_ OnLoad中下断点的方法，在init_ array的函数中下断点。还有一种方法便是通过在linker模块中，通过对其中函数下断点，然后也能单步到init_array中Dump dex文件关键是找到加载dex文件的位置，在调用函数处下断点，比如dvmDexFileOpenPartia，然后看寄存器的值，容易得知：R0寄存器指向的地址就是dex文件在内存中的地址，R1寄存器就是dex文件的大小。IDA脚本：static main(void){  auto fp, begin, end, dexbyte;  fp = fopen(&quot;C:\\dump.dex&quot;, &quot;wb&quot;);  begin = r0;  end = r0 + r1;  for ( dexbyte = begin; dexbyte &lt; end; dexbyte ++ )      fputc(Byte(dexbyte), fp);}当然这只是最简单脱壳方法，很多高级壳会动态修改dex的结构体，比如将codeoffset指向内存中的其他地址，这样的话你dump出来的dex文件其实是不完整的，因为代码段保存在了内存中的其他位置。其他我们知道在so的加载时候有个这个过程：.init-&gt;-&gt;.init array-&gt;-&gt;JNI_ Onload-&gt;-&gt;java_ com_XXX;还有我们在脱壳的过程中会在一些系统级的.so中下断点比如：fopen,fget,dvmdexfileopen,等等而.init以及.init_array一般会作为壳的入口地方，那我们索性叫它外壳级的.so文件这里归纳为三类：应用级别的：java_ com_XXX；外壳级别的：JNI_ Onload,.init,.init_array;系统级别的：fopen,fget,dvmdexfileopen；对于在应用级别的和系统级别的就不说了比较简单容易理解，这里也是在实现篇中会重点说的，看到上面的.so的加载执行过程我们知道如果说反调试放在外壳级别的.so文件的话我们就会遇程序在应用级核心函数一下断点就退出的尴尬，事实上多数的反调试会放在这，那么过反调试就必须要在这些地方下断点，那么我们就重点的说如何在.init_ array和JNI_Onload处理下断点。">
-  <meta name="twitter:url" content="http://localhost:4000/posts/2017-10/android-JNI-debugging-2.html">
+  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2017-10/android-JNI-debugging-2.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="http://localhost:4000/posts/2017-10/android-JNI-debugging-2.html">
+<link rel="canonical" href="https://zjgcjy.github.io/posts/2017-10/android-JNI-debugging-2.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "http://localhost:4000/",
+      "url": "https://zjgcjy.github.io/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -472,11 +472,11 @@
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Android+Jni+Debugging+2%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-10%2Fandroid-JNI-debugging-2.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Android+Jni+Debugging+2%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-10%2Fandroid-JNI-debugging-2.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-10%2Fandroid-JNI-debugging-2.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-10%2Fandroid-JNI-debugging-2.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-10%2Fandroid-JNI-debugging-2.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-10%2Fandroid-JNI-debugging-2.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -737,7 +737,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "http://localhost:4000/posts/2017-10/android-JNI-debugging-2.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "https://zjgcjy.github.io/posts/2017-10/android-JNI-debugging-2.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2017-10/android-JNI-debugging-2"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

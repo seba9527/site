@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Machine_learning 2">
-<meta property="og:url" content="http://localhost:4000/posts/2018-12/Machine_Learning-2.html">
+<meta property="og:url" content="https://zjgcjy.github.io/posts/2018-12/Machine_Learning-2.html">
 
 
   <meta property="og:description" content="机器学习笔记week2。fighting。多变量线性回归假设现在有n个变量影响最终的结果，我们可以这样设立方程，注意变量均是线性的。其中θ是参量，而x是变量。我们也可以将上述表达式写成矩阵相乘的形式，如下图所示。即多变量代价函数和梯度函数然后我们就能得到估计函数，参数，代价函数的表达式，如下图所示，并且我们将关于θ的参数看成一个整体，作为θ的行向量，然后我们定义梯度下降函数的表达式，即对代价函数中每个变量求偏导数。如下图所示，我们可以对比单变量和多变量的情况，其实类似，由于我们定义了初始值是1，所以所有变量的情况和单变量情况下保持一致。公式如下所示。特征缩放进行特征缩放的意义就是在于，如果多变量之间的差距较大，在进行梯度下降的过程中，我们进行梯度下降的时间会比较慢，次数也比较多，如下图所示。我们将每个变量进行缩放，将其缩放到区间-1到1之间，是比较好的情况。均值归一化如上图所示，我们可以使用变量进行替换。具体方式减去变量的平均值再除以范围（标准差），就能得到一个很好的范围来进行梯度下降。关于学习比例α如何确定α的值是比较困难的，这里视频中提出了一种方法，即画出每一次迭代和代价函数的相应值，用以检测每一次迭代是否正确。如下图所示。同时我们可以选定一个极小值，如果在一次迭代中代价函数的值减小的部分小于极小值，可以认为代价函数已经根据梯度下降算法找到了最小值。如果代价函数随着迭代次数不是逐渐下降的，那我们可以认为α的值设定错误，大多数情况下都是偏大了，如下图所示，这些情况的原因都是α偏大，所以画出图像是一个很好的检测方式来判断α的值是否恰当。多项式线性回归讨论如何拟合多项式，一般的方式是通过换元法，即将变量替代成高次，同时注意控制变量的范围，这里需要和之前特征缩放结合起来，使得变量之间差距不要过大。正规方程正规方程能给出一个标准解法来求解代价函数的最小值，图解如下所示。当你有m个数据，每个数据n个特征值时，根据如下的解法，我们能得到最小值。即梯度下降和正规方程的比较            梯度下降      正规方程                  需要选择α      不需要α              需要很多次迭代      不需要迭代              运算复杂度是n的平方      运算复杂度是n的立方，且需要计算逆矩阵              当n很大时，仍然有效      当n很大时，速度很慢      关于矩阵不可逆如果碰到矩阵不可逆的情况，一般有2种方式来解决这个问题，首先是检测是否存在多余的特征变量，即多个变量之间线性相关，这会导致这个问题。其次检测是否特征变量太多，可以选择删除某些变量，或者使用正规化来解决这个问题。Week 2 ends here.">
 
 
 
-  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Machine_learning 2">
   <meta name="twitter:description" content="机器学习笔记week2。fighting。多变量线性回归假设现在有n个变量影响最终的结果，我们可以这样设立方程，注意变量均是线性的。其中θ是参量，而x是变量。我们也可以将上述表达式写成矩阵相乘的形式，如下图所示。即多变量代价函数和梯度函数然后我们就能得到估计函数，参数，代价函数的表达式，如下图所示，并且我们将关于θ的参数看成一个整体，作为θ的行向量，然后我们定义梯度下降函数的表达式，即对代价函数中每个变量求偏导数。如下图所示，我们可以对比单变量和多变量的情况，其实类似，由于我们定义了初始值是1，所以所有变量的情况和单变量情况下保持一致。公式如下所示。特征缩放进行特征缩放的意义就是在于，如果多变量之间的差距较大，在进行梯度下降的过程中，我们进行梯度下降的时间会比较慢，次数也比较多，如下图所示。我们将每个变量进行缩放，将其缩放到区间-1到1之间，是比较好的情况。均值归一化如上图所示，我们可以使用变量进行替换。具体方式减去变量的平均值再除以范围（标准差），就能得到一个很好的范围来进行梯度下降。关于学习比例α如何确定α的值是比较困难的，这里视频中提出了一种方法，即画出每一次迭代和代价函数的相应值，用以检测每一次迭代是否正确。如下图所示。同时我们可以选定一个极小值，如果在一次迭代中代价函数的值减小的部分小于极小值，可以认为代价函数已经根据梯度下降算法找到了最小值。如果代价函数随着迭代次数不是逐渐下降的，那我们可以认为α的值设定错误，大多数情况下都是偏大了，如下图所示，这些情况的原因都是α偏大，所以画出图像是一个很好的检测方式来判断α的值是否恰当。多项式线性回归讨论如何拟合多项式，一般的方式是通过换元法，即将变量替代成高次，同时注意控制变量的范围，这里需要和之前特征缩放结合起来，使得变量之间差距不要过大。正规方程正规方程能给出一个标准解法来求解代价函数的最小值，图解如下所示。当你有m个数据，每个数据n个特征值时，根据如下的解法，我们能得到最小值。即梯度下降和正规方程的比较            梯度下降      正规方程                  需要选择α      不需要α              需要很多次迭代      不需要迭代              运算复杂度是n的平方      运算复杂度是n的立方，且需要计算逆矩阵              当n很大时，仍然有效      当n很大时，速度很慢      关于矩阵不可逆如果碰到矩阵不可逆的情况，一般有2种方式来解决这个问题，首先是检测是否存在多余的特征变量，即多个变量之间线性相关，这会导致这个问题。其次检测是否特征变量太多，可以选择删除某些变量，或者使用正规化来解决这个问题。Week 2 ends here.">
-  <meta name="twitter:url" content="http://localhost:4000/posts/2018-12/Machine_Learning-2.html">
+  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2018-12/Machine_Learning-2.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="http://localhost:4000/posts/2018-12/Machine_Learning-2.html">
+<link rel="canonical" href="https://zjgcjy.github.io/posts/2018-12/Machine_Learning-2.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "http://localhost:4000/",
+      "url": "https://zjgcjy.github.io/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -541,11 +541,11 @@
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Machine_learning+2%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-12%2FMachine_Learning-2.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Machine_learning+2%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2018-12%2FMachine_Learning-2.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-12%2FMachine_Learning-2.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2018-12%2FMachine_Learning-2.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-12%2FMachine_Learning-2.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2018-12%2FMachine_Learning-2.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -806,7 +806,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "http://localhost:4000/posts/2018-12/Machine_Learning-2.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "https://zjgcjy.github.io/posts/2018-12/Machine_Learning-2.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2018-12/Machine_Learning-2"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

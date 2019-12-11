@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Win32asm 1">
-<meta property="og:url" content="http://localhost:4000/posts/2017-09/Win32ASM-1.html">
+<meta property="og:url" content="https://zjgcjy.github.io/posts/2017-09/Win32ASM-1.html">
 
 
   <meta property="og:description" content="  Windows 环境32位汇编语言程序设计关于Windows的基础知识80x86工作模式实模式相当于是快速8086处理器，保护模式是主要模式，内存寻址为4GB，为了和8086兼容，提供虚拟模式。可以从实模式切换到保护模式，再切换到虚拟模式。实模式和虚拟模式无法直接相互切换。实模式处理器复位或加电以实模式启动，寻址方式和8086方式相同，不能对内存进行分页管理，指令寻址中的地址就是实际内存的物理地址，所有段可读可写。中断处理方式和8086相同，采用中断向量表来确定中断位置。包括两个字节的段地址和两个字节的偏移量。可以使用32位寄存器，所有指令工作在ring 0级。保护模式所有32位地址线负责寻址，物理寻址空间4GB，支持内存分页，使用虚拟内存技术，支持多任务，支持优先级。从实模式切换到保护模式：修改控制寄存器CR0的PE（位0）来实现，之前还需要建立保护模式必须的数据表，包括全局描述符表GDT和中断描述符表IDT。DOS运行在实模式下，Windows运行在保护模式下。虚拟86模式为了在保护模式下运行8086程序，实模式也可以运行，但是是单任务，而保护模式支持多任务，但是许多指令收到限制。以任务模式运行在保护模式之上，内存位1MB，同时使用内存分页技术。MS-DOS运行在虚拟86模式下。（Win7/10已经不是了，这句话只是说XP之前的。）Windows内存管理80386 内存寻址方式由于可以使用全部的32位地址线，所以内存最大位4GB，任意一个通用寄存器就可以间接寻址。表面看段寄存器没什么用了，实际上，虽然在寻址上没有分段的限制，但需要控制某个地址空间是否可以读取，写入，执行的属性和其他参数，需要64位长度的数据，称64位的属性数据为 段描述符。80386段寄存器是16位，无法放下64位信息，所以把所有的信息顺序放在内存指定位置，组成段描述符表。所以段寄存器当作索引用。称为段选择子。段描述符表位置由新引入的2个寄存器来管理。48位的全局描述符表寄存器GDTR和16位局部描述表寄存器LDTR。GDTR指向GDT，通常包括OS的代码段，数据段，堆栈段，和各任务的LDT段，GDT只有一个。LDTR指向LDT，每个任务有个单独的LDT，包括任务单独的代码段，数据段，堆栈段。LDTR是指针，指向LDT对应在GDT位置。段寄存器的第2位TI位表示段描述符的位置，TI=0表示GDT，TI=1表示LDT。以xxxx:yyyyyyyy表示一个虚拟地址，首先看段寄存器的值，为xxxx。根据TI是0还是1确定下一步。且段寄存器始终指向段描述符，只是有的存在GDT，有的存在LDT中。GDT寻址如果TI=0，说明是段描述符在GDT中，根据GDTR中的基址找到GDT的地址，然后根据xxxx的高13位当作位置索引得到段描述符，根据段描述符的基址，限长，优先级得到段的起始地址，加上yyyyyyyy得到线性地址。LDT寻址如果TI=1，说明段描述符在LDT中，首先也是根据GDTR找到GDT的地址，然后根据LDTR的获取LDT的位置索引，在GDT中找到对应的LDT描述符，于是得到LDT的位置，再根据xxxx找到LDT中的段描述符，根据段描述符的基址，限长，优先级得到段的起始地址。再得到线性地址。">
 
 
 
-  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Win32asm 1">
   <meta name="twitter:description" content="  Windows 环境32位汇编语言程序设计关于Windows的基础知识80x86工作模式实模式相当于是快速8086处理器，保护模式是主要模式，内存寻址为4GB，为了和8086兼容，提供虚拟模式。可以从实模式切换到保护模式，再切换到虚拟模式。实模式和虚拟模式无法直接相互切换。实模式处理器复位或加电以实模式启动，寻址方式和8086方式相同，不能对内存进行分页管理，指令寻址中的地址就是实际内存的物理地址，所有段可读可写。中断处理方式和8086相同，采用中断向量表来确定中断位置。包括两个字节的段地址和两个字节的偏移量。可以使用32位寄存器，所有指令工作在ring 0级。保护模式所有32位地址线负责寻址，物理寻址空间4GB，支持内存分页，使用虚拟内存技术，支持多任务，支持优先级。从实模式切换到保护模式：修改控制寄存器CR0的PE（位0）来实现，之前还需要建立保护模式必须的数据表，包括全局描述符表GDT和中断描述符表IDT。DOS运行在实模式下，Windows运行在保护模式下。虚拟86模式为了在保护模式下运行8086程序，实模式也可以运行，但是是单任务，而保护模式支持多任务，但是许多指令收到限制。以任务模式运行在保护模式之上，内存位1MB，同时使用内存分页技术。MS-DOS运行在虚拟86模式下。（Win7/10已经不是了，这句话只是说XP之前的。）Windows内存管理80386 内存寻址方式由于可以使用全部的32位地址线，所以内存最大位4GB，任意一个通用寄存器就可以间接寻址。表面看段寄存器没什么用了，实际上，虽然在寻址上没有分段的限制，但需要控制某个地址空间是否可以读取，写入，执行的属性和其他参数，需要64位长度的数据，称64位的属性数据为 段描述符。80386段寄存器是16位，无法放下64位信息，所以把所有的信息顺序放在内存指定位置，组成段描述符表。所以段寄存器当作索引用。称为段选择子。段描述符表位置由新引入的2个寄存器来管理。48位的全局描述符表寄存器GDTR和16位局部描述表寄存器LDTR。GDTR指向GDT，通常包括OS的代码段，数据段，堆栈段，和各任务的LDT段，GDT只有一个。LDTR指向LDT，每个任务有个单独的LDT，包括任务单独的代码段，数据段，堆栈段。LDTR是指针，指向LDT对应在GDT位置。段寄存器的第2位TI位表示段描述符的位置，TI=0表示GDT，TI=1表示LDT。以xxxx:yyyyyyyy表示一个虚拟地址，首先看段寄存器的值，为xxxx。根据TI是0还是1确定下一步。且段寄存器始终指向段描述符，只是有的存在GDT，有的存在LDT中。GDT寻址如果TI=0，说明是段描述符在GDT中，根据GDTR中的基址找到GDT的地址，然后根据xxxx的高13位当作位置索引得到段描述符，根据段描述符的基址，限长，优先级得到段的起始地址，加上yyyyyyyy得到线性地址。LDT寻址如果TI=1，说明段描述符在LDT中，首先也是根据GDTR找到GDT的地址，然后根据LDTR的获取LDT的位置索引，在GDT中找到对应的LDT描述符，于是得到LDT的位置，再根据xxxx找到LDT中的段描述符，根据段描述符的基址，限长，优先级得到段的起始地址。再得到线性地址。">
-  <meta name="twitter:url" content="http://localhost:4000/posts/2017-09/Win32ASM-1.html">
+  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2017-09/Win32ASM-1.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="http://localhost:4000/posts/2017-09/Win32ASM-1.html">
+<link rel="canonical" href="https://zjgcjy.github.io/posts/2017-09/Win32ASM-1.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "http://localhost:4000/",
+      "url": "https://zjgcjy.github.io/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -493,11 +493,11 @@ MS-DOS运行在虚拟86模式下。（Win7/10已经不是了，这句话只是�
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Win32asm+1%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-09%2FWin32ASM-1.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Win32asm+1%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-09%2FWin32ASM-1.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-09%2FWin32ASM-1.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-09%2FWin32ASM-1.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-09%2FWin32ASM-1.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-09%2FWin32ASM-1.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -758,7 +758,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "http://localhost:4000/posts/2017-09/Win32ASM-1.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "https://zjgcjy.github.io/posts/2017-09/Win32ASM-1.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2017-09/Win32ASM-1"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

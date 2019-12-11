@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Pwnable刷题 8">
-<meta property="og:url" content="http://localhost:4000/posts/2017-08/pwnable%E5%88%B7%E9%A2%98-8.html">
+<meta property="og:url" content="https://zjgcjy.github.io/posts/2017-08/pwnable%E5%88%B7%E9%A2%98-8.html">
 
 
   <meta property="og:description" content="  刷pwnable。。。题目:leg - 2 ptDaddy told me I should study arm.But I prefer to study my leg!爸爸告诉我应该去学习arm汇编但是我更喜欢去学习脚。。。。。。Download : http://pwnable.kr/bin/leg.cDownload : http://pwnable.kr/bin/leg.asmssh leg@pwnable.kr -p2222 (pw:guest)writeup源码：#include &lt;stdio.h&gt;#include &lt;fcntl.h&gt;int key1(){	asm(&quot;mov r3, pc\n&quot;);}int key2(){	asm(	&quot;push	{r6}\n&quot;	&quot;add	r6, pc, $1\n&quot;	&quot;bx	r6\n&quot;	&quot;.code   16\n&quot;	&quot;mov	r3, pc\n&quot;	&quot;add	r3, $0x4\n&quot;	&quot;push	{r3}\n&quot;	&quot;pop	{pc}\n&quot;	&quot;.code	32\n&quot;	&quot;pop	{r6}\n&quot;	);}int key3(){	asm(&quot;mov r3, lr\n&quot;);}int main(){	int key=0;	printf(&quot;Daddy has very strong arm! : &quot;);	scanf(&quot;%d&quot;, &amp;key);	if( (key1()+key2()+key3()) == key ){		printf(&quot;Congratz!\n&quot;);		int fd = open(&quot;flag&quot;, O_RDONLY);		char buf[100];		int r = read(fd, buf, 100);		write(0, buf, r);	}	else{		printf(&quot;I have strong leg :P\n&quot;);	}	return 0;}(gdb) disass mainDump of assembler code for function main:   0x00008d3c &lt;+0&gt;:	push	{r4, r11, lr}   0x00008d40 &lt;+4&gt;:	add	r11, sp, #8   0x00008d44 &lt;+8&gt;:	sub	sp, sp, #12   0x00008d48 &lt;+12&gt;:	mov	r3, #0   0x00008d4c &lt;+16&gt;:	str	r3, [r11, #-16]   0x00008d50 &lt;+20&gt;:	ldr	r0, [pc, #104]	; 0x8dc0 &lt;main+132&gt;   0x00008d54 &lt;+24&gt;:	bl	0xfb6c &lt;printf&gt;   0x00008d58 &lt;+28&gt;:	sub	r3, r11, #16   0x00008d5c &lt;+32&gt;:	ldr	r0, [pc, #96]	; 0x8dc4 &lt;main+136&gt;   0x00008d60 &lt;+36&gt;:	mov	r1, r3   0x00008d64 &lt;+40&gt;:	bl	0xfbd8 &lt;__isoc99_scanf&gt;   0x00008d68 &lt;+44&gt;:	bl	0x8cd4 &lt;key1&gt;   0x00008d6c &lt;+48&gt;:	mov	r4, r0   0x00008d70 &lt;+52&gt;:	bl	0x8cf0 &lt;key2&gt;   0x00008d74 &lt;+56&gt;:	mov	r3, r0   0x00008d78 &lt;+60&gt;:	add	r4, r4, r3   0x00008d7c &lt;+64&gt;:	bl	0x8d20 &lt;key3&gt;   0x00008d80 &lt;+68&gt;:	mov	r3, r0   0x00008d84 &lt;+72&gt;:	add	r2, r4, r3   0x00008d88 &lt;+76&gt;:	ldr	r3, [r11, #-16]   0x00008d8c &lt;+80&gt;:	cmp	r2, r3   0x00008d90 &lt;+84&gt;:	bne	0x8da8 &lt;main+108&gt;   0x00008d94 &lt;+88&gt;:	ldr	r0, [pc, #44]	; 0x8dc8 &lt;main+140&gt;   0x00008d98 &lt;+92&gt;:	bl	0x1050c &lt;puts&gt;   0x00008d9c &lt;+96&gt;:	ldr	r0, [pc, #40]	; 0x8dcc &lt;main+144&gt;   0x00008da0 &lt;+100&gt;:	bl	0xf89c &lt;system&gt;   0x00008da4 &lt;+104&gt;:	b	0x8db0 &lt;main+116&gt;   0x00008da8 &lt;+108&gt;:	ldr	r0, [pc, #32]	; 0x8dd0 &lt;main+148&gt;   0x00008dac &lt;+112&gt;:	bl	0x1050c &lt;puts&gt;   0x00008db0 &lt;+116&gt;:	mov	r3, #0   0x00008db4 &lt;+120&gt;:	mov	r0, r3   0x00008db8 &lt;+124&gt;:	sub	sp, r11, #8   0x00008dbc &lt;+128&gt;:	pop	{r4, r11, pc}   0x00008dc0 &lt;+132&gt;:	andeq	r10, r6, r12, lsl #9   0x00008dc4 &lt;+136&gt;:	andeq	r10, r6, r12, lsr #9   0x00008dc8 &lt;+140&gt;:			; &lt;UNDEFINED&gt; instruction: 0x0006a4b0   0x00008dcc &lt;+144&gt;:			; &lt;UNDEFINED&gt; instruction: 0x0006a4bc   0x00008dd0 &lt;+148&gt;:	andeq	r10, r6, r4, asr #9End of assembler dump.(gdb) disass key1Dump of assembler code for function key1:   0x00008cd4 &lt;+0&gt;:	push	{r11}		; (str r11, [sp, #-4]!)   0x00008cd8 &lt;+4&gt;:	add	r11, sp, #0   0x00008cdc &lt;+8&gt;:	mov	r3, pc   0x00008ce0 &lt;+12&gt;:	mov	r0, r3   0x00008ce4 &lt;+16&gt;:	sub	sp, r11, #0   0x00008ce8 &lt;+20&gt;:	pop	{r11}		; (ldr r11, [sp], #4)   0x00008cec &lt;+24&gt;:	bx	lrEnd of assembler dump.(gdb) disass key2Dump of assembler code for function key2:   0x00008cf0 &lt;+0&gt;:	push	{r11}		; (str r11, [sp, #-4]!)   0x00008cf4 &lt;+4&gt;:	add	r11, sp, #0   0x00008cf8 &lt;+8&gt;:	push	{r6}		; (str r6, [sp, #-4]!)   0x00008cfc &lt;+12&gt;:	add	r6, pc, #1   0x00008d00 &lt;+16&gt;:	bx	r6   0x00008d04 &lt;+20&gt;:	mov	r3, pc   0x00008d06 &lt;+22&gt;:	adds	r3, #4   0x00008d08 &lt;+24&gt;:	push	{r3}   0x00008d0a &lt;+26&gt;:	pop	{pc}   0x00008d0c &lt;+28&gt;:	pop	{r6}		; (ldr r6, [sp], #4)   0x00008d10 &lt;+32&gt;:	mov	r0, r3   0x00008d14 &lt;+36&gt;:	sub	sp, r11, #0   0x00008d18 &lt;+40&gt;:	pop	{r11}		; (ldr r11, [sp], #4)   0x00008d1c &lt;+44&gt;:	bx	lrEnd of assembler dump.(gdb) disass key3Dump of assembler code for function key3:   0x00008d20 &lt;+0&gt;:	push	{r11}		; (str r11, [sp, #-4]!)   0x00008d24 &lt;+4&gt;:	add	r11, sp, #0   0x00008d28 &lt;+8&gt;:	mov	r3, lr   0x00008d2c &lt;+12&gt;:	mov	r0, r3   0x00008d30 &lt;+16&gt;:	sub	sp, r11, #0   0x00008d34 &lt;+20&gt;:	pop	{r11}		; (ldr r11, [sp], #4)   0x00008d38 &lt;+24&gt;:	bx	lrEnd of assembler dump.(gdb)ARM 平台，不懂啊，先留着再说吧。。。。。">
 
 
 
-  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Pwnable刷题 8">
   <meta name="twitter:description" content="  刷pwnable。。。题目:leg - 2 ptDaddy told me I should study arm.But I prefer to study my leg!爸爸告诉我应该去学习arm汇编但是我更喜欢去学习脚。。。。。。Download : http://pwnable.kr/bin/leg.cDownload : http://pwnable.kr/bin/leg.asmssh leg@pwnable.kr -p2222 (pw:guest)writeup源码：#include &lt;stdio.h&gt;#include &lt;fcntl.h&gt;int key1(){	asm(&quot;mov r3, pc\n&quot;);}int key2(){	asm(	&quot;push	{r6}\n&quot;	&quot;add	r6, pc, $1\n&quot;	&quot;bx	r6\n&quot;	&quot;.code   16\n&quot;	&quot;mov	r3, pc\n&quot;	&quot;add	r3, $0x4\n&quot;	&quot;push	{r3}\n&quot;	&quot;pop	{pc}\n&quot;	&quot;.code	32\n&quot;	&quot;pop	{r6}\n&quot;	);}int key3(){	asm(&quot;mov r3, lr\n&quot;);}int main(){	int key=0;	printf(&quot;Daddy has very strong arm! : &quot;);	scanf(&quot;%d&quot;, &amp;key);	if( (key1()+key2()+key3()) == key ){		printf(&quot;Congratz!\n&quot;);		int fd = open(&quot;flag&quot;, O_RDONLY);		char buf[100];		int r = read(fd, buf, 100);		write(0, buf, r);	}	else{		printf(&quot;I have strong leg :P\n&quot;);	}	return 0;}(gdb) disass mainDump of assembler code for function main:   0x00008d3c &lt;+0&gt;:	push	{r4, r11, lr}   0x00008d40 &lt;+4&gt;:	add	r11, sp, #8   0x00008d44 &lt;+8&gt;:	sub	sp, sp, #12   0x00008d48 &lt;+12&gt;:	mov	r3, #0   0x00008d4c &lt;+16&gt;:	str	r3, [r11, #-16]   0x00008d50 &lt;+20&gt;:	ldr	r0, [pc, #104]	; 0x8dc0 &lt;main+132&gt;   0x00008d54 &lt;+24&gt;:	bl	0xfb6c &lt;printf&gt;   0x00008d58 &lt;+28&gt;:	sub	r3, r11, #16   0x00008d5c &lt;+32&gt;:	ldr	r0, [pc, #96]	; 0x8dc4 &lt;main+136&gt;   0x00008d60 &lt;+36&gt;:	mov	r1, r3   0x00008d64 &lt;+40&gt;:	bl	0xfbd8 &lt;__isoc99_scanf&gt;   0x00008d68 &lt;+44&gt;:	bl	0x8cd4 &lt;key1&gt;   0x00008d6c &lt;+48&gt;:	mov	r4, r0   0x00008d70 &lt;+52&gt;:	bl	0x8cf0 &lt;key2&gt;   0x00008d74 &lt;+56&gt;:	mov	r3, r0   0x00008d78 &lt;+60&gt;:	add	r4, r4, r3   0x00008d7c &lt;+64&gt;:	bl	0x8d20 &lt;key3&gt;   0x00008d80 &lt;+68&gt;:	mov	r3, r0   0x00008d84 &lt;+72&gt;:	add	r2, r4, r3   0x00008d88 &lt;+76&gt;:	ldr	r3, [r11, #-16]   0x00008d8c &lt;+80&gt;:	cmp	r2, r3   0x00008d90 &lt;+84&gt;:	bne	0x8da8 &lt;main+108&gt;   0x00008d94 &lt;+88&gt;:	ldr	r0, [pc, #44]	; 0x8dc8 &lt;main+140&gt;   0x00008d98 &lt;+92&gt;:	bl	0x1050c &lt;puts&gt;   0x00008d9c &lt;+96&gt;:	ldr	r0, [pc, #40]	; 0x8dcc &lt;main+144&gt;   0x00008da0 &lt;+100&gt;:	bl	0xf89c &lt;system&gt;   0x00008da4 &lt;+104&gt;:	b	0x8db0 &lt;main+116&gt;   0x00008da8 &lt;+108&gt;:	ldr	r0, [pc, #32]	; 0x8dd0 &lt;main+148&gt;   0x00008dac &lt;+112&gt;:	bl	0x1050c &lt;puts&gt;   0x00008db0 &lt;+116&gt;:	mov	r3, #0   0x00008db4 &lt;+120&gt;:	mov	r0, r3   0x00008db8 &lt;+124&gt;:	sub	sp, r11, #8   0x00008dbc &lt;+128&gt;:	pop	{r4, r11, pc}   0x00008dc0 &lt;+132&gt;:	andeq	r10, r6, r12, lsl #9   0x00008dc4 &lt;+136&gt;:	andeq	r10, r6, r12, lsr #9   0x00008dc8 &lt;+140&gt;:			; &lt;UNDEFINED&gt; instruction: 0x0006a4b0   0x00008dcc &lt;+144&gt;:			; &lt;UNDEFINED&gt; instruction: 0x0006a4bc   0x00008dd0 &lt;+148&gt;:	andeq	r10, r6, r4, asr #9End of assembler dump.(gdb) disass key1Dump of assembler code for function key1:   0x00008cd4 &lt;+0&gt;:	push	{r11}		; (str r11, [sp, #-4]!)   0x00008cd8 &lt;+4&gt;:	add	r11, sp, #0   0x00008cdc &lt;+8&gt;:	mov	r3, pc   0x00008ce0 &lt;+12&gt;:	mov	r0, r3   0x00008ce4 &lt;+16&gt;:	sub	sp, r11, #0   0x00008ce8 &lt;+20&gt;:	pop	{r11}		; (ldr r11, [sp], #4)   0x00008cec &lt;+24&gt;:	bx	lrEnd of assembler dump.(gdb) disass key2Dump of assembler code for function key2:   0x00008cf0 &lt;+0&gt;:	push	{r11}		; (str r11, [sp, #-4]!)   0x00008cf4 &lt;+4&gt;:	add	r11, sp, #0   0x00008cf8 &lt;+8&gt;:	push	{r6}		; (str r6, [sp, #-4]!)   0x00008cfc &lt;+12&gt;:	add	r6, pc, #1   0x00008d00 &lt;+16&gt;:	bx	r6   0x00008d04 &lt;+20&gt;:	mov	r3, pc   0x00008d06 &lt;+22&gt;:	adds	r3, #4   0x00008d08 &lt;+24&gt;:	push	{r3}   0x00008d0a &lt;+26&gt;:	pop	{pc}   0x00008d0c &lt;+28&gt;:	pop	{r6}		; (ldr r6, [sp], #4)   0x00008d10 &lt;+32&gt;:	mov	r0, r3   0x00008d14 &lt;+36&gt;:	sub	sp, r11, #0   0x00008d18 &lt;+40&gt;:	pop	{r11}		; (ldr r11, [sp], #4)   0x00008d1c &lt;+44&gt;:	bx	lrEnd of assembler dump.(gdb) disass key3Dump of assembler code for function key3:   0x00008d20 &lt;+0&gt;:	push	{r11}		; (str r11, [sp, #-4]!)   0x00008d24 &lt;+4&gt;:	add	r11, sp, #0   0x00008d28 &lt;+8&gt;:	mov	r3, lr   0x00008d2c &lt;+12&gt;:	mov	r0, r3   0x00008d30 &lt;+16&gt;:	sub	sp, r11, #0   0x00008d34 &lt;+20&gt;:	pop	{r11}		; (ldr r11, [sp], #4)   0x00008d38 &lt;+24&gt;:	bx	lrEnd of assembler dump.(gdb)ARM 平台，不懂啊，先留着再说吧。。。。。">
-  <meta name="twitter:url" content="http://localhost:4000/posts/2017-08/pwnable%E5%88%B7%E9%A2%98-8.html">
+  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2017-08/pwnable%E5%88%B7%E9%A2%98-8.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="http://localhost:4000/posts/2017-08/pwnable%E5%88%B7%E9%A2%98-8.html">
+<link rel="canonical" href="https://zjgcjy.github.io/posts/2017-08/pwnable%E5%88%B7%E9%A2%98-8.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "http://localhost:4000/",
+      "url": "https://zjgcjy.github.io/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -574,11 +574,11 @@ End of assembler dump.
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Pwnable%E5%88%B7%E9%A2%98+8%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-08%2Fpwnable%25E5%2588%25B7%25E9%25A2%2598-8.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Pwnable%E5%88%B7%E9%A2%98+8%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-08%2Fpwnable%25E5%2588%25B7%25E9%25A2%2598-8.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-08%2Fpwnable%25E5%2588%25B7%25E9%25A2%2598-8.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-08%2Fpwnable%25E5%2588%25B7%25E9%25A2%2598-8.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-08%2Fpwnable%25E5%2588%25B7%25E9%25A2%2598-8.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-08%2Fpwnable%25E5%2588%25B7%25E9%25A2%2598-8.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -839,7 +839,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "http://localhost:4000/posts/2017-08/pwnable%E5%88%B7%E9%A2%98-8.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "https://zjgcjy.github.io/posts/2017-08/pwnable%E5%88%B7%E9%A2%98-8.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2017-08/pwnable刷题-8"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

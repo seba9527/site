@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Got和plt表">
-<meta property="og:url" content="http://localhost:4000/posts/2017-12/got%E5%92%8Cplt%E8%A1%A8.html">
+<meta property="og:url" content="https://zjgcjy.github.io/posts/2017-12/got%E5%92%8Cplt%E8%A1%A8.html">
 
 
   <meta property="og:description" content="  Linux中elf文件链接过程比较重要的两个表，GOT表和PLT表。在ELF文件的动态连接机制中，每一个外部定义的符号在全局偏移表 (Global Offset Table，GOT)中有相应的条目，如果符号是函数则在过程连接表(Procedure Linkage Table，PLT)中也有相应的条目，且一个PLT条目对应一个GOT条目。以简单的例子观察GOT与PLT的变化机制。GOT表概念:每一个外部定义的符号在全局偏移表（Global offset Table）中有相应的条目，GOT位于ELF的数据段中，叫做GOT段。作用：把位置无关的地址计算重定位到一个绝对地址。程序首次调用某个库函数时，运行时连接编辑器（rtld）找到相应的符号，并将它重定位到GOT之后每次调用这个函数都会将控制权直接转向那个位置，而不再调用rtld。PLT表过程连接表(Procedure Linkage Table)，一个PLT条目对应一个GOT条目当main()函数开始，会请求plt中这个函数的对应GOT地址，如果第一次调用那么GOT会重定位到plt，并向栈中压入一个偏移，程序的执行回到_init()函数，rtld得以调用就可以定位printf的符号地址，第二次运行程序再次调用这个函数时程序跳入plt，对应的GOT入口点就是真实的函数入口地址。动态连接器并不会把动态库函数在编译的时候就包含到ELF文件中,仅仅是在这个ELF被加载的时候,才会把那些动态函库数代码加载进来,之前系统只会在ELF文件中的GOT中保留一个调用地址.GOT覆写技术原理：由于GOT表是可写的，把其中的函数地址覆盖为我们shellcode地址，在程序进行调用这个函数时就会执行shellcode。#include &lt;stdio.h&gt;#include &lt;string.h&gt;void win(){	printf(&quot;you win\n&quot;);}int main(){	char array[100];	gets(array);	printf(&quot;you lose\n&quot;);	return 0;}用gdb调试，disass main可以看到main的反汇编代码，我们可以观察到gets@plt和puts@plt这两个函数，为什么后面加了个@plt，因为这个为PLT表中的数据的地址。那为什么反编译中的代码地址为PLT表中的地址呢。Dump of assembler code for function main:   0x00000000004005fd &lt;+0&gt;:	push   rbp   0x00000000004005fe &lt;+1&gt;:	mov    rbp,rsp   0x0000000000400601 &lt;+4&gt;:	sub    rsp,0x70   0x0000000000400605 &lt;+8&gt;:	mov    rax,QWORD PTR fs:0x28   0x000000000040060e &lt;+17&gt;:	mov    QWORD PTR [rbp-0x8],rax   0x0000000000400612 &lt;+21&gt;:	xor    eax,eax   0x0000000000400614 &lt;+23&gt;:	lea    rax,[rbp-0x70]   0x0000000000400618 &lt;+27&gt;:	mov    rdi,rax   0x000000000040061b &lt;+30&gt;:	call   0x4004f0 &lt;gets@plt&gt;   0x0000000000400620 &lt;+35&gt;:	mov    edi,0x4006dc   0x0000000000400625 &lt;+40&gt;:	call   0x4004b0 &lt;puts@plt&gt;   0x000000000040062a &lt;+45&gt;:	mov    eax,0x0   0x000000000040062f &lt;+50&gt;:	mov    rdx,QWORD PTR [rbp-0x8]   0x0000000000400633 &lt;+54&gt;:	xor    rdx,QWORD PTR fs:0x28   0x000000000040063c &lt;+63&gt;:	je     0x400643 &lt;main+70&gt;   0x000000000040063e &lt;+65&gt;:	call   0x4004c0 &lt;__stack_chk_fail@plt&gt;   0x0000000000400643 &lt;+70&gt;:	leave     0x0000000000400644 &lt;+71&gt;:	ret    原因：为了更好的用户体验和内存CPU的利用率，程序编译时会采用两种表进行辅助，一个为PLT表，一个为GOT表，PLT表可以称为内部函数表，GOT表为全局函数表（也可以说是动态函数表这是个人自称），这两个表是相对应的，什么叫做相对应呢，PLT表中的数据就是GOT表中的一个地址，可以理解为一定是一一对应的。PLT表中的每一项的数据内容都是对应的GOT表中一项的地址这个是固定不变的，到这里大家也知道了PLT表中的数据根本不是函数的真实地址，而是GOT表项的地址，好坑啊。其实在大家进入带有@plt标志的函数时，这个函数其实就是个过渡作用，因为GOT表项中的数据才是函数最终的地址，而PLT表中的数据又是GOT表项的地址，我们就可以通过PLT表跳转到GOT表来得到函数真正的地址。可以通过disass gets看看里面的代码：disass getsDump of assembler code for function gets@plt:   0x00000000004004f0 &lt;+0&gt;:	jmp    QWORD PTR [rip+0x200b42]        # 0x601038 &lt;gets@got.plt&gt;   0x00000000004004f6 &lt;+6&gt;:	push   0x4   0x00000000004004fb &lt;+11&gt;:	jmp    0x4004a0End of assembler dump.可以发现，这个函数只有三行代码，第一行跳转，第二行压栈，第三行又是跳转。解释：第一行跳转，它的作用是通过PLT表跳转到GOT表，而在第一次运行某一个函数之前，这个函数PLT表对应的GOT表中的数据为@plt函数中第二行指令的地址，针对图中来说步骤如下：jmp指令跳转到GOT表GOT表中的数据为0x400486跳转到指令地址为0x400486执行push 0x4#这个为在GOT中的下标序号在执行jmp 0x400440而0x400440为PLT[0]的地址PLT[0]的指令会进入动态链接器的入口执行一个函数将真正的函数地址覆盖到GOT表中">
 
 
 
-  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Got和plt表">
   <meta name="twitter:description" content="  Linux中elf文件链接过程比较重要的两个表，GOT表和PLT表。在ELF文件的动态连接机制中，每一个外部定义的符号在全局偏移表 (Global Offset Table，GOT)中有相应的条目，如果符号是函数则在过程连接表(Procedure Linkage Table，PLT)中也有相应的条目，且一个PLT条目对应一个GOT条目。以简单的例子观察GOT与PLT的变化机制。GOT表概念:每一个外部定义的符号在全局偏移表（Global offset Table）中有相应的条目，GOT位于ELF的数据段中，叫做GOT段。作用：把位置无关的地址计算重定位到一个绝对地址。程序首次调用某个库函数时，运行时连接编辑器（rtld）找到相应的符号，并将它重定位到GOT之后每次调用这个函数都会将控制权直接转向那个位置，而不再调用rtld。PLT表过程连接表(Procedure Linkage Table)，一个PLT条目对应一个GOT条目当main()函数开始，会请求plt中这个函数的对应GOT地址，如果第一次调用那么GOT会重定位到plt，并向栈中压入一个偏移，程序的执行回到_init()函数，rtld得以调用就可以定位printf的符号地址，第二次运行程序再次调用这个函数时程序跳入plt，对应的GOT入口点就是真实的函数入口地址。动态连接器并不会把动态库函数在编译的时候就包含到ELF文件中,仅仅是在这个ELF被加载的时候,才会把那些动态函库数代码加载进来,之前系统只会在ELF文件中的GOT中保留一个调用地址.GOT覆写技术原理：由于GOT表是可写的，把其中的函数地址覆盖为我们shellcode地址，在程序进行调用这个函数时就会执行shellcode。#include &lt;stdio.h&gt;#include &lt;string.h&gt;void win(){	printf(&quot;you win\n&quot;);}int main(){	char array[100];	gets(array);	printf(&quot;you lose\n&quot;);	return 0;}用gdb调试，disass main可以看到main的反汇编代码，我们可以观察到gets@plt和puts@plt这两个函数，为什么后面加了个@plt，因为这个为PLT表中的数据的地址。那为什么反编译中的代码地址为PLT表中的地址呢。Dump of assembler code for function main:   0x00000000004005fd &lt;+0&gt;:	push   rbp   0x00000000004005fe &lt;+1&gt;:	mov    rbp,rsp   0x0000000000400601 &lt;+4&gt;:	sub    rsp,0x70   0x0000000000400605 &lt;+8&gt;:	mov    rax,QWORD PTR fs:0x28   0x000000000040060e &lt;+17&gt;:	mov    QWORD PTR [rbp-0x8],rax   0x0000000000400612 &lt;+21&gt;:	xor    eax,eax   0x0000000000400614 &lt;+23&gt;:	lea    rax,[rbp-0x70]   0x0000000000400618 &lt;+27&gt;:	mov    rdi,rax   0x000000000040061b &lt;+30&gt;:	call   0x4004f0 &lt;gets@plt&gt;   0x0000000000400620 &lt;+35&gt;:	mov    edi,0x4006dc   0x0000000000400625 &lt;+40&gt;:	call   0x4004b0 &lt;puts@plt&gt;   0x000000000040062a &lt;+45&gt;:	mov    eax,0x0   0x000000000040062f &lt;+50&gt;:	mov    rdx,QWORD PTR [rbp-0x8]   0x0000000000400633 &lt;+54&gt;:	xor    rdx,QWORD PTR fs:0x28   0x000000000040063c &lt;+63&gt;:	je     0x400643 &lt;main+70&gt;   0x000000000040063e &lt;+65&gt;:	call   0x4004c0 &lt;__stack_chk_fail@plt&gt;   0x0000000000400643 &lt;+70&gt;:	leave     0x0000000000400644 &lt;+71&gt;:	ret    原因：为了更好的用户体验和内存CPU的利用率，程序编译时会采用两种表进行辅助，一个为PLT表，一个为GOT表，PLT表可以称为内部函数表，GOT表为全局函数表（也可以说是动态函数表这是个人自称），这两个表是相对应的，什么叫做相对应呢，PLT表中的数据就是GOT表中的一个地址，可以理解为一定是一一对应的。PLT表中的每一项的数据内容都是对应的GOT表中一项的地址这个是固定不变的，到这里大家也知道了PLT表中的数据根本不是函数的真实地址，而是GOT表项的地址，好坑啊。其实在大家进入带有@plt标志的函数时，这个函数其实就是个过渡作用，因为GOT表项中的数据才是函数最终的地址，而PLT表中的数据又是GOT表项的地址，我们就可以通过PLT表跳转到GOT表来得到函数真正的地址。可以通过disass gets看看里面的代码：disass getsDump of assembler code for function gets@plt:   0x00000000004004f0 &lt;+0&gt;:	jmp    QWORD PTR [rip+0x200b42]        # 0x601038 &lt;gets@got.plt&gt;   0x00000000004004f6 &lt;+6&gt;:	push   0x4   0x00000000004004fb &lt;+11&gt;:	jmp    0x4004a0End of assembler dump.可以发现，这个函数只有三行代码，第一行跳转，第二行压栈，第三行又是跳转。解释：第一行跳转，它的作用是通过PLT表跳转到GOT表，而在第一次运行某一个函数之前，这个函数PLT表对应的GOT表中的数据为@plt函数中第二行指令的地址，针对图中来说步骤如下：jmp指令跳转到GOT表GOT表中的数据为0x400486跳转到指令地址为0x400486执行push 0x4#这个为在GOT中的下标序号在执行jmp 0x400440而0x400440为PLT[0]的地址PLT[0]的指令会进入动态链接器的入口执行一个函数将真正的函数地址覆盖到GOT表中">
-  <meta name="twitter:url" content="http://localhost:4000/posts/2017-12/got%E5%92%8Cplt%E8%A1%A8.html">
+  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2017-12/got%E5%92%8Cplt%E8%A1%A8.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="http://localhost:4000/posts/2017-12/got%E5%92%8Cplt%E8%A1%A8.html">
+<link rel="canonical" href="https://zjgcjy.github.io/posts/2017-12/got%E5%92%8Cplt%E8%A1%A8.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "http://localhost:4000/",
+      "url": "https://zjgcjy.github.io/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -514,11 +514,11 @@ PLT[0]的指令会进入动态链接器的入口
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Got%E5%92%8Cplt%E8%A1%A8%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-12%2Fgot%25E5%2592%258Cplt%25E8%25A1%25A8.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Got%E5%92%8Cplt%E8%A1%A8%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-12%2Fgot%25E5%2592%258Cplt%25E8%25A1%25A8.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-12%2Fgot%25E5%2592%258Cplt%25E8%25A1%25A8.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-12%2Fgot%25E5%2592%258Cplt%25E8%25A1%25A8.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-12%2Fgot%25E5%2592%258Cplt%25E8%25A1%25A8.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-12%2Fgot%25E5%2592%258Cplt%25E8%25A1%25A8.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -779,7 +779,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "http://localhost:4000/posts/2017-12/got%E5%92%8Cplt%E8%A1%A8.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "https://zjgcjy.github.io/posts/2017-12/got%E5%92%8Cplt%E8%A1%A8.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2017-12/got和plt表"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE
