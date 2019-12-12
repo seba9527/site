@@ -444,11 +444,11 @@
 
 <p>下图所示是，调试poc时，crash之后的栈，我们根据栈回溯定位可以看到，<code class="highlighter-rouge">srv!SrvOs2FeaListToNt</code>调用了<code class="highlighter-rouge">srv!SrvOs2FeaToNt</code>，再调用<code class="highlighter-rouge">memmove</code>函数，这里崩掉的原因是<code class="highlighter-rouge">memmove</code>函数的参数过大，导致拷贝越界。</p>
 
-<p><img src="images/Snipaste_2019-03-20_12-48-09.png" alt="Snipaste_2019-03-20_12-48-09" /></p>
+<p><img src="/img/2019-03/Snipaste_2019-03-20_12-48-09.png" alt="Snipaste_2019-03-20_12-48-09" /></p>
 
 <p>其中在<code class="highlighter-rouge">SrvOs2FeaListSizeToNt</code>中因为有一个<code class="highlighter-rouge">DWORD转WORD</code>并赋值的bug，造成在<code class="highlighter-rouge">SrvOs2FeaListToNt</code>的一个循环中，<code class="highlighter-rouge">SrvOs2FeaToNt</code>被调用的次数会多于预期，而造成<code class="highlighter-rouge">SrvOs2FeaToNt</code>中的一个<code class="highlighter-rouge">memmove</code>拷贝越界。如果参数大于0x10000，因为word类型的原因，求得的返回值会变大，下图是输入的参数。</p>
 
-<p><img src="images/Snipaste_2019-03-20_15-13-32.png" alt="Snipaste_2019-03-20_15-13-32" /></p>
+<p><img src="/img/2019-03/Snipaste_2019-03-20_15-13-32.png" alt="Snipaste_2019-03-20_15-13-32" /></p>
 
 <p>这时候edi指向了payload，使用pool命令查看：</p>
 
@@ -460,19 +460,19 @@
 
 <p>所以edi指向的就是传入参数，FEA。当<code class="highlighter-rouge">srv!SrvOs2FeaListSizeToNt</code>执行完后，返回值变大。</p>
 
-<p><img src="images/Snipaste_2019-03-20_17-36-37.png" alt="Snipaste_2019-03-20_17-36-37" /></p>
+<p><img src="/img/2019-03/Snipaste_2019-03-20_17-36-37.png" alt="Snipaste_2019-03-20_17-36-37" /></p>
 
 <p>在求得返回值变大之后，<code class="highlighter-rouge">srv!SrvOs2FeaListToNt</code>会调用<code class="highlighter-rouge">srv!SrvOs2FeaToNt</code>对list进行遍历，而最后一次调用的参数是<code class="highlighter-rouge">0xcc00</code>，如下图所示。</p>
 
-<p><img src="images/Snipaste_2019-03-20_15-56-09.png" alt="Snipaste_2019-03-20_15-56-09" /></p>
+<p><img src="/img/2019-03/Snipaste_2019-03-20_15-56-09.png" alt="Snipaste_2019-03-20_15-56-09" /></p>
 
 <p>在这最后一次<code class="highlighter-rouge">srv!SrvOs2FeaToNt</code>中，这里就调用<code class="highlighter-rouge">memmove</code>从分页池的第二段payload复制到非分页池中，很明显这里的参数是肯定太大了，导致了最后的问题，分页池用完，超预期的长度，越界读取导致bsod。</p>
 
-<p><img src="images/Snipaste_2019-03-20_19-49-50.png" alt="Snipaste_2019-03-20_19-49-50" /></p>
+<p><img src="/img/2019-03/Snipaste_2019-03-20_19-49-50.png" alt="Snipaste_2019-03-20_19-49-50" /></p>
 
 <p>非分页池情况：</p>
 
-<p><img src="images/Snipaste_2019-03-20_19-50-15.png" alt="Snipaste_2019-03-20_19-50-15" /></p>
+<p><img src="/img/2019-03/Snipaste_2019-03-20_19-50-15.png" alt="Snipaste_2019-03-20_19-50-15" /></p>
 
 <h1 id="exp">exp</h1>
 
@@ -524,7 +524,7 @@
 <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ba</span> <span class="n">w1</span> <span class="n">srv</span><span class="o">!</span><span class="n">SrvTransaction2DispatchTable</span><span class="o">+</span><span class="mh">0xe</span><span class="o">*</span><span class="mi">4</span>
 </code></pre></div></div>
 
-<p><img src="images/Snipaste_2019-03-22_09-56-24.png" alt="Snipaste_2019-03-22_09-56-24" /></p>
+<p><img src="/img/2019-03/Snipaste_2019-03-22_09-56-24.png" alt="Snipaste_2019-03-22_09-56-24" /></p>
 
 <p>可以看到此时：</p>
 
@@ -574,13 +574,13 @@
 
 <p>由于一个地址只能下一个断点，因为先写再执行，所以我们先看写的情况。</p>
 
-<p><img src="images/Snipaste_2019-03-22_10-26-04.png" alt="Snipaste_2019-03-22_10-26-04" /></p>
+<p><img src="/img/2019-03/Snipaste_2019-03-22_10-26-04.png" alt="Snipaste_2019-03-22_10-26-04" /></p>
 
 <p>可以看到，此时程序位于tcp的协议栈中，在执行memcpy的过程中，错误的将srvnet非分页缓冲池中的数据复制到HAL的地址空间中。为什么会发生这样的情况，最后再看。</p>
 
 <p>然后我们再来看执行的情况。</p>
 
-<p><img src="images/Snipaste_2019-03-22_10-42-25.png" alt="Snipaste_2019-03-22_10-42-25" /></p>
+<p><img src="/img/2019-03/Snipaste_2019-03-22_10-42-25.png" alt="Snipaste_2019-03-22_10-42-25" /></p>
 
 <p>在<code class="highlighter-rouge">srvnet!SrvNetCommonReceiveHandler</code>这个函数中，eax的值被指向了shellcode的地址附近，之后便调用了shellcode。之后我们需要知道这个值是怎么来的。
 根据网上的资料，我们可以知道如下的函数调用关系。</p>
@@ -592,7 +592,7 @@
 
 <p><code class="highlighter-rouge">srvnet!SrvNetWskReceiveComplete</code>这个函数是个IRP的完成例程。第三个参数Context是IRP的Context。Context 偏移0×24 处，存放了一个指针，里面存放了连接信息，我们姑且称其为Connection吧。这个Connection 会被作为第一个参数，传入<code class="highlighter-rouge">srvnet!SrvNetIndicateData</code>，而紧接着又会被作为第一个参数传入到<code class="highlighter-rouge">srvnet!SrvNetCommonReceiveHandler</code>。而Contex 由<code class="highlighter-rouge">srvnet!SrvNetAllocateBuffer</code>分配，类型是<code class="highlighter-rouge">SRVNET_BUFFFER</code></p>
 
-<p><img src="images/1496473220837.png" alt="1496473220837" /></p>
+<p><img src="/img/2019-03/1496473220837.png" alt="1496473220837" /></p>
 
 <p>该结构的0×24处的Connection被损坏了，被修改成了HAL中的地址空间。然后我们再下断点即可。</p>
 
@@ -628,7 +628,7 @@
 
 <p>正常情况是在srv.sys对象SMB buffer中，但由于长度过长导致对srvnet.sys分配的buffer越界写。</p>
 
-<p><img src="images/Snipaste_2019-03-22_14-44-24.png" alt="Snipaste_2019-03-22_14-44-24" /></p>
+<p><img src="/img/2019-03/Snipaste_2019-03-22_14-44-24.png" alt="Snipaste_2019-03-22_14-44-24" /></p>
 
 <p>至于为什么会拷贝越界就是前面进行结构体转换的时候，大小计算错误。</p>
 
@@ -637,7 +637,7 @@
 <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ba</span> <span class="n">w1</span> <span class="n">ffdff1f1</span>
 </code></pre></div></div>
 
-<p><img src="images/Snipaste_2019-03-21_15-09-52.png" alt="Snipaste_2019-03-21_15-09-52" /></p>
+<p><img src="/img/2019-03/Snipaste_2019-03-21_15-09-52.png" alt="Snipaste_2019-03-21_15-09-52" /></p>
 
 <p>可以看到，<code class="highlighter-rouge">memmove</code>拷贝的时候，覆盖掉的不仅仅是Context-&gt;Connection。他同时也覆盖了相邻<code class="highlighter-rouge">SRVNET_BUFFER.MDL</code>的内容(偏移0x2c起)，从而使得TCP/IP协议栈拷贝到了<code class="highlighter-rouge">ffdff1f1</code>内存中。在x86上，<code class="highlighter-rouge">ffdf1000</code>开始到<code class="highlighter-rouge">ffffffff</code>地址，都是保留给HAL用的。</p>
 
@@ -674,9 +674,9 @@
 
 <p>他利用了SMB.SMB_COM_NT_TRANSACT SMB_COM_TRANSACTION2_SECONDARY 在内存中精心布局，形成了一些连续的SRVNET_BUFFER内存区域。然后他关闭了一个链接，从而释放掉一个SRVNET_BUFFER，而这个释放掉的SRVNET_BUFFER空洞恰恰又会被FeaList 分配内存时重用(有图为证)。而SrvOs2FeaListToNt 中的Bug又导致了拷贝时越界，直接覆盖掉了其后的SRVNET_BUFFER，修改了MDL。于是后面的发送的数据就被错误的拷贝到了MDL 指定的内存中，也就是HAL保留的内存。而这时，歹人开始了致命的以一击，发送最后一个SMB_COM_TRANSACTION2_SECONDARY 分片，从而触发了控制转移。</p>
 
-<p><img src="images/14964738412030.png" alt="14964738412030" /></p>
+<p><img src="/img/2019-03/14964738412030.png" alt="14964738412030" /></p>
 
-<p><img src="images/t01d84ec3da74c87b19.jpg" alt="t01d84ec3da74c87b19" /></p>
+<p><img src="/img/2019-03/t01d84ec3da74c87b19.jpg" alt="t01d84ec3da74c87b19" /></p>
 
 <h2 id="参考资料">参考资料</h2>
 

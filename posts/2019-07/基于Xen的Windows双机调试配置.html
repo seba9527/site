@@ -437,7 +437,7 @@
 
 <p>其中的ip是调试主机的ip，端口号对应了sockpipe创建的端口号，同时指定参数是nodelay。</p>
 
-<p><img src="images/Snipaste_2019-07-24_16-57-50.png" alt="Snipaste_2019-07-24_16-57-50" /></p>
+<p><img src="/img/2019-07/Snipaste_2019-07-24_16-57-50.png" alt="Snipaste_2019-07-24_16-57-50" /></p>
 
 <p>同时配合netstat和top等命令查看是否连接上对应的ip地址，否则虚拟机将无法启动。</p>
 
@@ -450,19 +450,19 @@
 
 <p>如果上文配置正确，正常启动虚拟机，将在设备管理器中看见新添加的一个串口。</p>
 
-<p><img src="images/Snipaste_2019-07-24_17-08-40.png" alt="Snipaste_2019-07-24_17-08-40" /></p>
+<p><img src="/img/2019-07/Snipaste_2019-07-24_17-08-40.png" alt="Snipaste_2019-07-24_17-08-40" /></p>
 
 <p>这时再通过msconfig配置虚拟机，创建一个新的启动项，同时设置成调试模式，指定串口对应的端口号和波特率。</p>
 
-<p><img src="images/Snipaste_2019-07-24_17-00-29.png" alt="Snipaste_2019-07-24_17-00-29" /></p>
+<p><img src="/img/2019-07/Snipaste_2019-07-24_17-00-29.png" alt="Snipaste_2019-07-24_17-00-29" /></p>
 
 <p>之后再通过bcdedit查看创建是否成功。特别是调试类型、端口和可调试选项，如下图所示。</p>
 
-<p><img src="images/Snipaste_2019-07-24_17-03-20.png" alt="Snipaste_2019-07-24_17-03-20" /></p>
+<p><img src="/img/2019-07/Snipaste_2019-07-24_17-03-20.png" alt="Snipaste_2019-07-24_17-03-20" /></p>
 
 <p>然后重新启动虚拟机，并选择调试模式进入。此时windbg将在Windows启动界面回显，sockpipe也会有回显。</p>
 
-<p><img src="images/Snipaste_2019-07-24_17-11-05.png" alt="Snipaste_2019-07-24_17-11-05" /></p>
+<p><img src="/img/2019-07/Snipaste_2019-07-24_17-11-05.png" alt="Snipaste_2019-07-24_17-11-05" /></p>
 
 <h1 id="参考资料">参考资料</h1>
 

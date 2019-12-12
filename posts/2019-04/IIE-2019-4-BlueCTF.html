@@ -424,9 +424,9 @@
 
 <p>先来看一下主函数的逻辑。</p>
 
-<p><img src="images/Snipaste_2019-04-09_16-06-34.png" alt="Snipaste_2019-04-09_16-06-34" /></p>
+<p><img src="/img/2019-04/Snipaste_2019-04-09_16-06-34.png" alt="Snipaste_2019-04-09_16-06-34" /></p>
 
-<p><img src="images/Snipaste_2019-04-09_16-10-35.png" alt="Snipaste_2019-04-09_16-10-35" /></p>
+<p><img src="/img/2019-04/Snipaste_2019-04-09_16-10-35.png" alt="Snipaste_2019-04-09_16-10-35" /></p>
 
 <p>发现主要是encode进行了操作，跟进去。</p>
 
@@ -451,9 +451,9 @@
 
 <h3 id="核心编码过程">核心编码过程</h3>
 
-<p><img src="images/Snipaste_2019-04-09_16-17-01.png" alt="Snipaste_2019-04-09_16-17-01" /></p>
+<p><img src="/img/2019-04/Snipaste_2019-04-09_16-17-01.png" alt="Snipaste_2019-04-09_16-17-01" /></p>
 
-<p><img src="images/Snipaste_2019-04-09_16-19-21.png" alt="Snipaste_2019-04-09_16-19-21" /></p>
+<p><img src="/img/2019-04/Snipaste_2019-04-09_16-19-21.png" alt="Snipaste_2019-04-09_16-19-21" /></p>
 
 <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">d</span><span class="o">&lt;&lt;</span><span class="mi">8</span><span class="o">|</span><span class="n">n</span>   <span class="n">d</span>  <span class="n">r</span>
 <span class="mo">0031</span>    <span class="mo">01</span> <span class="mi">17</span>
@@ -549,21 +549,21 @@
 
 <h2 id="main-1">main</h2>
 
-<p><img src="images/Snipaste_2019-04-09_16-58-42.png" alt="Snipaste_2019-04-09_16-58-42" /></p>
+<p><img src="/img/2019-04/Snipaste_2019-04-09_16-58-42.png" alt="Snipaste_2019-04-09_16-58-42" /></p>
 
 <p>一个伪造的fake flag。</p>
 
-<p><img src="images/Snipaste_2019-04-09_17-04-12.png" alt="Snipaste_2019-04-09_17-04-12" /></p>
+<p><img src="/img/2019-04/Snipaste_2019-04-09_17-04-12.png" alt="Snipaste_2019-04-09_17-04-12" /></p>
 
 <p>产生除0异常。</p>
 
-<p><img src="images/Snipaste_2019-04-09_17-11-15.png" alt="Snipaste_2019-04-09_17-11-15" /></p>
+<p><img src="/img/2019-04/Snipaste_2019-04-09_17-11-15.png" alt="Snipaste_2019-04-09_17-11-15" /></p>
 
 <h2 id="seh处理">SEH处理</h2>
 
 <p><a href="https://www.cnblogs.com/5iedu/p/5223846.html">编译器对系统SEH机制的封装</a></p>
 
-<p><img src="images/Snipaste_2019-04-10_10-07-03.png" alt="Snipaste_2019-04-10_10-07-03" /></p>
+<p><img src="/img/2019-04/Snipaste_2019-04-10_10-07-03.png" alt="Snipaste_2019-04-10_10-07-03" /></p>
 
 <p>对于VC的SEH，其每个异常帧的CALL_BACK都统一设为_except_handler4。每进入一个try块里，编译器会将VC_EXCEPTION_REGISTRATION中tryLevel赋值为相应的值。
 一旦该try块异常发生，系统会先从VC_EXCEPTION_REGISTRATION的handler域中找到_exception_handler4函数（C运行时库函数），然后根据当前tryLevel的值找到scopetable表中这个__try块相应的过滤函数和处理函数对异常进行相应的处理。</p>
@@ -595,7 +595,7 @@
   </tbody>
 </table>
 
-<p><img src="images/Snipaste_2019-04-10_10-47-38.png" alt="Snipaste_2019-04-10_10-47-38" /></p>
+<p><img src="/img/2019-04/Snipaste_2019-04-10_10-47-38.png" alt="Snipaste_2019-04-10_10-47-38" /></p>
 
 <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">BOOL</span> <span class="kr">__cdecl</span> <span class="nf">check11</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">a1</span><span class="p">)</span>
 <span class="p">{</span>
@@ -648,7 +648,7 @@
 
 <p>进行第二部分的检查。</p>
 
-<p><img src="images/Snipaste_2019-04-09_17-14-48.png" alt="Snipaste_2019-04-09_17-14-48" /></p>
+<p><img src="/img/2019-04/Snipaste_2019-04-09_17-14-48.png" alt="Snipaste_2019-04-09_17-14-48" /></p>
 
 <h2 id="解决">解决</h2>
 

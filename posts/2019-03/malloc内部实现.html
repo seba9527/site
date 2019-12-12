@@ -407,7 +407,7 @@
 
 <p>当读到这篇文章时，你应该知道malloc使用系统调用来从os获取内存空间，就像下面说的那样，malloc使用brk或者mmap来获取内存。</p>
 
-<p><img src="images/brk&amp;mmap.png" alt="brk&amp;mmap" /></p>
+<p><img src="/img/2019-03/brk&amp;mmap.png" alt="brk&amp;mmap" /></p>
 
 <h1 id="sbrk">(s)brk</h1>
 
@@ -418,7 +418,7 @@
   <li>开启 ASLR 保护时，start_brk 以及 brk 也会指向同一位置，只是这个位置是在 data/bss 段结尾后的随机偏移处。</li>
 </ul>
 
-<p><img src="images/linuxFlexibleAddressSpaceLayout.png" alt="linuxFlexibleAddressSpaceLayout" /></p>
+<p><img src="/img/2019-03/linuxFlexibleAddressSpaceLayout.png" alt="linuxFlexibleAddressSpaceLayout" /></p>
 
 <p>上图显示的是start_brk是堆段的开始，而brk(程序中断)是堆段的结束。</p>
 

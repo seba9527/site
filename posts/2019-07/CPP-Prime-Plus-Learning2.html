@@ -565,11 +565,11 @@
 
 <p>上面这几行反汇编的结果如下所示。伪代码很奇怪。</p>
 
-<p><img src="images/Snipaste_2019-07-28_10-52-40.png" alt="Snipaste_2019-07-28_10-52-40" /></p>
+<p><img src="/img/2019-07/Snipaste_2019-07-28_10-52-40.png" alt="Snipaste_2019-07-28_10-52-40" /></p>
 
 <p>直接上汇编代码。</p>
 
-<p><img src="images/Snipaste_2019-07-28_10-54-59.png" alt="Snipaste_2019-07-28_10-54-59" /></p>
+<p><img src="/img/2019-07/Snipaste_2019-07-28_10-54-59.png" alt="Snipaste_2019-07-28_10-54-59" /></p>
 
 <p>直接看汇编的话就会发现，前面2个是一样的。即pp和&amp;pp，在实现是一样的。第三个多了一行mov指令，<code class="highlighter-rouge">mov     eax, [rax]</code>所以是第一个元素。第四个多了一行<code class="highlighter-rouge">add     rax, 4</code>，所以是取第二个元素的地址。第五个则是多了上面两行，所以是第二个元素。</p>
 
@@ -745,7 +745,7 @@ C++保留了and、or和not关键字。</p>
 
 <p>引入头文件cctype。</p>
 
-<p><img src="images/Snipaste_2019-07-29_15-54-04.png" alt="Snipaste_2019-07-29_15-54-04" /></p>
+<p><img src="/img/2019-07/Snipaste_2019-07-29_15-54-04.png" alt="Snipaste_2019-07-29_15-54-04" /></p>
 
 <p>其中_ISbit宏如下。</p>
 

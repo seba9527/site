@@ -424,9 +424,9 @@
 
 <p>首先查看main函数，结果如下。</p>
 
-<p><img src="images/Snipaste_2019-05-29_10-24-47.png" alt="Snipaste_2019-05-29_10-24-47" /></p>
+<p><img src="/img/2019-05/Snipaste_2019-05-29_10-24-47.png" alt="Snipaste_2019-05-29_10-24-47" /></p>
 
-<p><img src="images/Snipaste_2019-05-29_10-26-48.png" alt="Snipaste_2019-05-29_10-26-48" /></p>
+<p><img src="/img/2019-05/Snipaste_2019-05-29_10-26-48.png" alt="Snipaste_2019-05-29_10-26-48" /></p>
 
 <p>包含输入长度判断和两段strcmp汇编形式的判断，其中第一段是不相等，第二段是相等。第一段前进行了<code class="highlighter-rouge">rot13（offset=14）</code>编码，两段中间进行了init操作，以及一个关键的check函数。</p>
 
@@ -434,25 +434,25 @@
 
 <p>其中的rot13如下所示，算一下偏移能发现是14。</p>
 
-<p><img src="images/Snipaste_2019-05-29_10-31-22.png" alt="Snipaste_2019-05-29_10-31-22" /></p>
+<p><img src="/img/2019-05/Snipaste_2019-05-29_10-31-22.png" alt="Snipaste_2019-05-29_10-31-22" /></p>
 
 <h2 id="init">init</h2>
 
 <p>初始化列表init函数将字符串进行动态修改，逻辑如下，比较简单，最后得到的table是<code class="highlighter-rouge">NoPqRsTuVwXyZaBcDeFgHiJkLm567234</code></p>
 
-<p><img src="images/Snipaste_2019-05-29_10-29-19.png" alt="Snipaste_2019-05-29_10-29-19" /></p>
+<p><img src="/img/2019-05/Snipaste_2019-05-29_10-29-19.png" alt="Snipaste_2019-05-29_10-29-19" /></p>
 
 <h2 id="base32">base32</h2>
 
 <p>然后进行关键的base32操作，算法比较明显，和base64差不多，32是2的5次方，8bit乘以5即40bit一组。</p>
 
-<p><img src="images/Snipaste_2019-05-29_10-34-08.png" alt="Snipaste_2019-05-29_10-34-08" /></p>
+<p><img src="/img/2019-05/Snipaste_2019-05-29_10-34-08.png" alt="Snipaste_2019-05-29_10-34-08" /></p>
 
 <h2 id="求解">求解</h2>
 
 <p>分别列出rot13和base32算法即可。</p>
 
-<p><img src="images/Snipaste_2019-05-29_10-42-41.png" alt="Snipaste_2019-05-29_10-42-41" /></p>
+<p><img src="/img/2019-05/Snipaste_2019-05-29_10-42-41.png" alt="Snipaste_2019-05-29_10-42-41" /></p>
 
 <p>最后得到 <code class="highlighter-rouge">Y@u_Kn@W_b@s332_@Nd_r0t13</code></p>
 
@@ -472,11 +472,11 @@
 
 <p>首先查看main函数，定义了一堆奇怪变量。然后对输入进行简单检查，满足一个float形式，且大于0，小于10。小数部分长度是7。</p>
 
-<p><img src="images/Snipaste_2019-05-29_10-52-12.png" alt="Snipaste_2019-05-29_10-52-12" /></p>
+<p><img src="/img/2019-05/Snipaste_2019-05-29_10-52-12.png" alt="Snipaste_2019-05-29_10-52-12" /></p>
 
 <p>在输入之后，开始检查，首先判断是不是小数，然后进入关键的check函数，之后和cipher进行对比。最后进行关键的check2判断。</p>
 
-<p><img src="images/Snipaste_2019-05-29_11-20-15.png" alt="Snipaste_2019-05-29_11-20-15" /></p>
+<p><img src="/img/2019-05/Snipaste_2019-05-29_11-20-15.png" alt="Snipaste_2019-05-29_11-20-15" /></p>
 
 <p>check1函数将在下面进行详细说明，首先讨论memcmp和check2的部分。这里memcmp的部分就是对check1的结果和cipher进行对比，对比的值就是一开始定义的常量，只不过逐比特逐比特对比。<code class="highlighter-rouge">(((1 &lt;&lt; (v10 &amp; 0x1F)) &amp; *((_DWORD *)v19 + (v10 &gt;&gt; 5))) != 0) == v23[v10]</code>
 脚本如下。</p>
@@ -502,11 +502,11 @@
 
 <p><code class="highlighter-rouge">sub_EF12C0</code>这个函数的作用是对小数部分进行处理，主要使用sse指令进行处理，创建两个结构体，都是用于分配的空间地址。</p>
 
-<p><img src="images/Snipaste_2019-05-29_14-05-50.png" alt="Snipaste_2019-05-29_14-05-50" /></p>
+<p><img src="/img/2019-05/Snipaste_2019-05-29_14-05-50.png" alt="Snipaste_2019-05-29_14-05-50" /></p>
 
 <p>这里同时也用到了<code class="highlighter-rouge">ffloor</code>函数用于判断输入的整数部分。这里先不讨论整数部分值的情况。大致的算法就是对小数部分进行模拟逼近，从0.5开始逼近，小于则置1，否则置0，然后是0.25，0.125等等。这部分比较好逆向，模拟算法如下，可将小数转换成十六进制（f2h）。</p>
 
-<p><img src="images/Snipaste_2019-05-29_14-10-03.png" alt="Snipaste_2019-05-29_14-10-03" /></p>
+<p><img src="/img/2019-05/Snipaste_2019-05-29_14-10-03.png" alt="Snipaste_2019-05-29_14-10-03" /></p>
 
 <p>在逼近结束后，只会产生3个hex值，最后一个hex值和第二个hex值的部分位，将由整数部分输出。</p>
 
@@ -518,7 +518,7 @@
 
 <p>这里就用idapython配合ida，hook自带的dbg，然后动态下断和获取就行了 ，脚本不上了。就9个值，看下结果就行。</p>
 
-<p><img src="images/Snipaste_2019-05-29_14-27-15.png" alt="Snipaste_2019-05-29_14-27-15" /></p>
+<p><img src="/img/2019-05/Snipaste_2019-05-29_14-27-15.png" alt="Snipaste_2019-05-29_14-27-15" /></p>
 
 <p>可以看到，和上文所说一致，第一列是输入值，第二列是输入check1的参数，第三列是小数部分的值，第四部分是最后的输出值。
 整数部分主要影响第一个hex的值，从0到9只有<code class="highlighter-rouge">fc</code>、<code class="highlighter-rouge">02</code>、<code class="highlighter-rouge">82</code>三个值，最后的cipher第一个hex是<code class="highlighter-rouge">02</code>，可判断大致的输入范围。
@@ -535,7 +535,7 @@
 
 <p>也就是<code class="highlighter-rouge">0x199998</code>和<code class="highlighter-rouge">0x333331</code>。然后写出f2h的逆算法，h2f如下所示。最后对两种情况分别验证即可。</p>
 
-<p><img src="images/Snipaste_2019-05-29_14-43-45.png" alt="Snipaste_2019-05-29_14-43-45" /></p>
+<p><img src="/img/2019-05/Snipaste_2019-05-29_14-43-45.png" alt="Snipaste_2019-05-29_14-43-45" /></p>
 
 <p>最后得到<code class="highlighter-rouge">1.3154329</code>，输入之后发现不满足check2。一开始以为是哪里弄错了，最后发现是精度不对，改成<code class="highlighter-rouge">1.3154328</code>就行了。</p>
 

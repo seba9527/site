@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="https://zjgcjy.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://zjgcjy.github.io/" rel="alternate" type="text/html" /><updated>2019-12-12T16:33:45+08:00</updated><id>https://zjgcjy.github.io/feed.xml</id><title type="html">My way, though far away</title><subtitle>A flexible Blog of zjgcjy</subtitle><author><name>zjgcjy</name></author><entry><title type="html">Dirary_november</title><link href="https://zjgcjy.github.io/posts/2019-11/Dirary_November.html" rel="alternate" type="text/html" title="Dirary_november" /><published>2019-11-01T21:15:00+08:00</published><updated>2019-11-01T21:15:00+08:00</updated><id>https://zjgcjy.github.io/posts/2019-11/Dirary_November</id><content type="html" xml:base="https://zjgcjy.github.io/posts/2019-11/Dirary_November.html">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="https://zjgcjy.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://zjgcjy.github.io/" rel="alternate" type="text/html" /><updated>2019-12-12T16:37:32+08:00</updated><id>https://zjgcjy.github.io/feed.xml</id><title type="html">My way, though far away</title><subtitle>A flexible Blog of zjgcjy</subtitle><author><name>zjgcjy</name></author><entry><title type="html">Dirary_november</title><link href="https://zjgcjy.github.io/posts/2019-11/Dirary_November.html" rel="alternate" type="text/html" title="Dirary_november" /><published>2019-11-01T21:15:00+08:00</published><updated>2019-11-01T21:15:00+08:00</updated><id>https://zjgcjy.github.io/posts/2019-11/Dirary_November</id><content type="html" xml:base="https://zjgcjy.github.io/posts/2019-11/Dirary_November.html">&lt;blockquote&gt;
   &lt;p&gt;每日所作所得&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -15,11 +15,11 @@ vs2010&lt;/p&gt;
 
 &lt;p&gt;configure&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;images/Snipaste_2019-10-31_16-06-11.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/img/2019-10/Snipaste_2019-10-31_16-06-11.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;warning&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;images/Snipaste_2019-10-31_16-07-10.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;</content><author><name>zjgcjy</name></author><category term="malware" /><summary type="html">Malware vs2010 InfoCollection configure warning</summary></entry><entry><title type="html">Pacman_helper</title><link href="https://zjgcjy.github.io/posts/2019-10/Pacman_Helper.html" rel="alternate" type="text/html" title="Pacman_helper" /><published>2019-10-29T21:15:00+08:00</published><updated>2019-10-29T21:15:00+08:00</updated><id>https://zjgcjy.github.io/posts/2019-10/Pacman_Helper</id><content type="html" xml:base="https://zjgcjy.github.io/posts/2019-10/Pacman_Helper.html">&lt;blockquote&gt;
+&lt;p&gt;&lt;img src=&quot;/img/2019-10/Snipaste_2019-10-31_16-07-10.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;</content><author><name>zjgcjy</name></author><category term="malware" /><summary type="html">Malware vs2010 InfoCollection configure warning</summary></entry><entry><title type="html">Pacman_helper</title><link href="https://zjgcjy.github.io/posts/2019-10/Pacman_Helper.html" rel="alternate" type="text/html" title="Pacman_helper" /><published>2019-10-29T21:15:00+08:00</published><updated>2019-10-29T21:15:00+08:00</updated><id>https://zjgcjy.github.io/posts/2019-10/Pacman_Helper</id><content type="html" xml:base="https://zjgcjy.github.io/posts/2019-10/Pacman_Helper.html">&lt;blockquote&gt;
   &lt;p&gt;pacman 手册&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -924,11 +924,11 @@ vs2010&lt;/p&gt;
 
 &lt;p&gt;上面这几行反汇编的结果如下所示。伪代码很奇怪。&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;images/Snipaste_2019-07-28_10-52-40.png&quot; alt=&quot;Snipaste_2019-07-28_10-52-40&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/img/2019-07/Snipaste_2019-07-28_10-52-40.png&quot; alt=&quot;Snipaste_2019-07-28_10-52-40&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;直接上汇编代码。&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;images/Snipaste_2019-07-28_10-54-59.png&quot; alt=&quot;Snipaste_2019-07-28_10-54-59&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/img/2019-07/Snipaste_2019-07-28_10-54-59.png&quot; alt=&quot;Snipaste_2019-07-28_10-54-59&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;直接看汇编的话就会发现，前面2个是一样的。即pp和&amp;amp;pp，在实现是一样的。第三个多了一行mov指令，&lt;code class=&quot;highlighter-rouge&quot;&gt;mov     eax, [rax]&lt;/code&gt;所以是第一个元素。第四个多了一行&lt;code class=&quot;highlighter-rouge&quot;&gt;add     rax, 4&lt;/code&gt;，所以是取第二个元素的地址。第五个则是多了上面两行，所以是第二个元素。&lt;/p&gt;
 
@@ -1104,7 +1104,7 @@ C++保留了and、or和not关键字。&lt;/p&gt;
 
 &lt;p&gt;引入头文件cctype。&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;images/Snipaste_2019-07-29_15-54-04.png&quot; alt=&quot;Snipaste_2019-07-29_15-54-04&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/img/2019-07/Snipaste_2019-07-29_15-54-04.png&quot; alt=&quot;Snipaste_2019-07-29_15-54-04&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;其中_ISbit宏如下。&lt;/p&gt;
 

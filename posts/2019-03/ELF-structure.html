@@ -450,7 +450,7 @@
 
 <p>目标文件既会参与程序链接又会参与程序执行。出于方便性和效率考虑，根据过程的不同，目标文件格式提供了其内容的两种并行视图，如下：</p>
 
-<p><img src="images/object_file_format.png" alt="object_file_format" /></p>
+<p><img src="/img/2019-03/object_file_format.png" alt="object_file_format" /></p>
 
 <p><strong>链接视图</strong>
 文件开始处是 ELF 头部（ <strong>ELF Header</strong>），它给出了整个文件的组织情况。</p>
@@ -489,7 +489,7 @@
 
 <p>其中每个成员都是 e 开头的，它们应该都是 ELF 的缩写。</p>
 
-<p><img src="images/Snipaste_2019-03-04_21-14-07.png" alt="Snipaste_2019-03-04_21-14-07" /></p>
+<p><img src="/img/2019-03/Snipaste_2019-03-04_21-14-07.png" alt="Snipaste_2019-03-04_21-14-07" /></p>
 
 <h1 id="program-header-table">Program Header Table</h1>
 
@@ -508,22 +508,22 @@
 <span class="p">}</span> <span class="n">Elf32_Phdr</span><span class="p">;</span>
 </code></pre></div></div>
 
-<p><img src="images/Snipaste_2019-03-04_21-15-53.png" alt="Snipaste_2019-03-04_21-15-53" /></p>
+<p><img src="/img/2019-03/Snipaste_2019-03-04_21-15-53.png" alt="Snipaste_2019-03-04_21-15-53" /></p>
 
 <p>段和节的包含关系：</p>
 
-<p><img src="images/Snipaste_2019-03-04_21-16-00.png" alt="Snipaste_2019-03-04_21-16-00" /></p>
+<p><img src="/img/2019-03/Snipaste_2019-03-04_21-16-00.png" alt="Snipaste_2019-03-04_21-16-00" /></p>
 
 <h2 id="段内容">段内容</h2>
 
 <p>一个段可能包括一到多个节区，但是这并不会影响程序的加载。尽管如此，我们也必须需要各种各样的数据来使得程序可以执行以及动态链接等等。下面会给出一般情况下的段的内容。对于不同的段来说，它的节的顺序以及所包含的节的个数有所不同。此外，与处理相关的约束可能会改变对应的段的结构。
 代码段只包含只读的指令以及数据。当然这个例子并没有给出所有的可能的段。</p>
 
-<p><img src="images/text_segment.png" alt="text_segment" /></p>
+<p><img src="/img/2019-03/text_segment.png" alt="text_segment" /></p>
 
 <p>数据段包含可写的数据以及以及指令，通常来说，包含以下内容：</p>
 
-<p><img src="images/data_segment.png" alt="data_segment" /></p>
+<p><img src="/img/2019-03/data_segment.png" alt="data_segment" /></p>
 
 <p>程序头部的 PT_DYNAMIC 类型的元素指向指向 .dynamic 节。其中，got 表和 plt 表包含与地址无关的代码相关信息。尽管在这里给出的例子中，plt 节出现在代码段，但是对于不同的处理器来说，可能会有所变动。
 .bss 节的类型为 SHT_NOBITS，这表明它在 ELF 文件中不占用空间，但是它却占用可执行文件的内存镜像的空间。通常情况下，没有被初始化的数据在段的尾部，因此，<code class="highlighter-rouge">p_memsz</code> 才会比 <code class="highlighter-rouge">p_filesz</code> 大。</p>
@@ -553,7 +553,7 @@
 <span class="p">}</span> <span class="n">Elf32_Shdr</span><span class="p">;</span>
 </code></pre></div></div>
 
-<p><img src="images/Snipaste_2019-03-05_09-00-40.png" alt="Snipaste_2019-03-05_09-00-40" /></p>
+<p><img src="/img/2019-03/Snipaste_2019-03-05_09-00-40.png" alt="Snipaste_2019-03-05_09-00-40" /></p>
 
 <h1 id="sections">Sections</h1>
 
@@ -616,7 +616,7 @@
 <span class="p">}</span> <span class="n">Elf32_Sym</span><span class="p">;</span>
 </code></pre></div></div>
 
-<p><img src="images/Snipaste_2019-03-05_09-29-12.png" alt="Snipaste_2019-03-05_09-29-12" /></p>
+<p><img src="/img/2019-03/Snipaste_2019-03-05_09-29-12.png" alt="Snipaste_2019-03-05_09-29-12" /></p>
 
 <h3 id="如何定位">如何定位</h3>
 
@@ -696,7 +696,7 @@
   </li>
 </ul>
 
-<p><img src="images/Snipaste_2019-03-05_10-22-49.png" alt="Snipaste_2019-03-05_10-22-49" /></p>
+<p><img src="/img/2019-03/Snipaste_2019-03-05_10-22-49.png" alt="Snipaste_2019-03-05_10-22-49" /></p>
 
 <h3 id="dynsym">.dynsym</h3>
 
@@ -726,7 +726,7 @@
 
 <p>在这样的情况下，动态链接器使用 Elf_Rel 结构体成员 r_info 中的下标同时作为 .dynsym 段和 gnu.version 段的下标。这样就可以一一对应到每一个符号到底是那个版本的了。</p>
 
-<p><img src="images/Snipaste_2019-03-05_09-54-44.png" alt="Snipaste_2019-03-05_09-54-44" /></p>
+<p><img src="/img/2019-03/Snipaste_2019-03-05_09-54-44.png" alt="Snipaste_2019-03-05_09-54-44" /></p>
 
 <h2 id="relocation-related-sections">Relocation Related Sections</h2>
 
@@ -753,7 +753,7 @@
 
 <p>Elf32_Rela 类型的表项包含明确的补齐信息。 Elf32_Rel 类型的表项在将被修改的位置保存隐式的补齐信息。由于处理器体系结构的原因，这两种形式都存在，甚至是必需的。</p>
 
-<p><img src="images/Snipaste_2019-03-05_10-07-04.png" alt="Snipaste_2019-03-05_10-07-04" /></p>
+<p><img src="/img/2019-03/Snipaste_2019-03-05_10-07-04.png" alt="Snipaste_2019-03-05_10-07-04" /></p>
 
 <h2 id="global-offset-table">Global Offset Table</h2>
 
@@ -792,9 +792,9 @@
 
 <p>.got.plt 后面的项则是程序中不同 .so 中函数的引用地址。下面给出一个相应的关系。</p>
 
-<p><img src="images/got.png" alt="got" /></p>
+<p><img src="/img/2019-03/got.png" alt="got" /></p>
 
-<p><img src="images/Snipaste_2019-03-05_11-41-18.png" alt="Snipaste_2019-03-05_11-41-18" /></p>
+<p><img src="/img/2019-03/Snipaste_2019-03-05_11-41-18.png" alt="Snipaste_2019-03-05_11-41-18" /></p>
 
 <h2 id="procedure-linkage-table">Procedure Linkage Table</h2>
 
@@ -822,7 +822,7 @@
   <li>过程链接表执行之后，程序的控制权将会直接交给 name1 函数，而且此后再也不会调用动态链接器来解析这个函数。也就是说，在 .PLT1 处的 jmp 指令将会直接跳转到 name1 处，而不是再次执行 pushl 指令。</li>
 </ol>
 
-<p><img src="images/lazy-plt.png" alt="lazy-plt" /></p>
+<p><img src="/img/2019-03/lazy-plt.png" alt="lazy-plt" /></p>
 
 
         

@@ -431,21 +431,21 @@ call   0x400460 &lt;__stack_chk_fail@plt&gt;
 
 <p>如果 canary 已经被非法修改，此时程序流程会走到 <code class="highlighter-rouge">__stack_chk_fail</code>。<code class="highlighter-rouge">__stack_chk_fail</code> 也是位于 glibc 中的函数，默认情况下经过 ELF 的延迟绑定，glibc2.28中定义如下。</p>
 
-<p><img src="images/Snipaste_2019-03-01_09-02-40.png" alt="Snipaste_2019-03-01_09-02-40" /></p>
+<p><img src="/img/2019-03/Snipaste_2019-03-01_09-02-40.png" alt="Snipaste_2019-03-01_09-02-40" /></p>
 
-<p><img src="images/Snipaste_2019-03-01_09-05-35.png" alt="Snipaste_2019-03-01_09-05-35" /></p>
+<p><img src="/img/2019-03/Snipaste_2019-03-01_09-05-35.png" alt="Snipaste_2019-03-01_09-05-35" /></p>
 
 <p>这意味可以通过劫持 <code class="highlighter-rouge">__stack_chk_fail</code>的 got 值劫持流程或者利用 <code class="highlighter-rouge">__stack_chk_fail</code> 泄漏内容 (参见 stack smash)。</p>
 
 <p>进一步，对于 Linux 来说，fs 寄存器实际指向的是当前栈的 TLS 结构，fs:0x28 指向的正是 stack_guard。</p>
 
-<p><img src="images/Snipaste_2019-03-01_09-11-25.png" alt="Snipaste_2019-03-01_09-11-25" /></p>
+<p><img src="/img/2019-03/Snipaste_2019-03-01_09-11-25.png" alt="Snipaste_2019-03-01_09-11-25" /></p>
 
 <p>如果存在溢出可以覆盖位于 TLS 中保存的 Canary 值那么就可以实现绕过保护机制。</p>
 
 <p>事实上，TLS 中的值由函数 security_init 进行初始化。</p>
 
-<p><img src="images/Snipaste_2019-03-01_09-12-26.png" alt="Snipaste_2019-03-01_09-12-26" /></p>
+<p><img src="/img/2019-03/Snipaste_2019-03-01_09-12-26.png" alt="Snipaste_2019-03-01_09-12-26" /></p>
 
 <p>Canary 设计为以字节 <code class="highlighter-rouge">\x00</code> 结尾，本意是为了保证 Canary 可以截断字符串。 泄露栈中的 Canary 的思路是覆盖 Canary 的低字节，来打印出剩余的 Canary 部分。 这种利用方式需要存在合适的输出函数，并且可能需要第一溢出泄露 Canary，之后再次溢出控制执行流程。</p>
 
@@ -533,7 +533,7 @@ call   0x400460 &lt;__stack_chk_fail@plt&gt;
 
 <p>首先通过覆盖 Canary 最后一个 <code class="highlighter-rouge">\x00</code> 字节来打印出 4 位的 Canary 之后，计算好偏移，将 Canary 填入到相应的溢出位置，实现 Ret 到 getshell 函数中。</p>
 
-<p><img src="images/Snipaste_2019-02-28_19-59-50.png" alt="Snipaste_2019-02-28_19-59-50" /></p>
+<p><img src="/img/2019-03/Snipaste_2019-02-28_19-59-50.png" alt="Snipaste_2019-02-28_19-59-50" /></p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#!/usr/bin/env python
 # -*- coding: utf-8 -*-
@@ -737,7 +737,7 @@ success("system_addr -&gt; {:#x}".format(system_addr))
 
 <p>已知 Canary 储存在 TLS 中，在函数返回前会使用这个值进行对比。当溢出尺寸较大时，可以同时覆盖栈上储存的 Canary 和 TLS 储存的 Canary 实现绕过。</p>
 
-<p><img src="images/Snipaste_2019-03-01_09-30-43.png" alt="Snipaste_2019-03-01_09-30-43" /></p>
+<p><img src="/img/2019-03/Snipaste_2019-03-01_09-30-43.png" alt="Snipaste_2019-03-01_09-30-43" /></p>
 
 
         
