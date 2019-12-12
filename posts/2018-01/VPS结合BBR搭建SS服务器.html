@@ -1,0 +1,811 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.17.2 by Michael Rose
+  Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>Vps结合bbr搭建ss服务器  -  My way, though far away</title>
+<meta name="description" content="  首先详述一下搭建VPS的过程。这里使用VULTR东京机房的Ubuntu16.04。其次前几天同学给我介绍了一下BBR算法，是Google推出的TCP拥塞避免新方案，亲测效果很好，所以记下来搭建过程。搭建过程首先选择东京机房和Ubuntu16.04，基本功能，5刀每月。因为VULTR支持按时收费，所以方便多了，不用了直接关闭就行。然后XSHELL直连。然后，就需要开始搭建shadowsocks（科学上网） 和 BBR。BBR因为Linux4.9的内核已经支持TCP BBR了，所以我们将内核升级到4.9.10。下载安装包：wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.9.10/linux-image-4.9.10-040910-generic_4.9.10-040910.201702141931_amd64.deb安装:dpkg -i linux-image-4.9.10-040910-generic_4.9.10-040910.201702141931_amd64.deb查看当前系统中都有哪些内核：dpkg -l | grep linux-image删除旧的内核，我这里的旧内核版本是4.8.0-30，所以执行：apt-get purge *4.8*现在再查看内核发现只剩下4.9.10的内核了，更新引导并重启：update-grubreboot重启之后编辑配置文件：vim  /etc/sysctl.conf  在文件末尾加上下面两行：net.core.default_qdisc=fqnet.ipv4.tcp_congestion_control=bbr保存退出后执行 sysctl -p 使配置生效，并启动：lsmod | grep bbr如果看到tcp_bbr则说明启用成功SS然后，你就需要开始搭建你的shadowsocks：apt-get install build-essentialapt-get install python-pippip install --upgrade pippip install setuptoolspip install shadowsocks输入vim /etc/shadowsocks.json，用vi新建一个ss的配置{&quot;server&quot;:&quot;::&quot;,&quot;server_port&quot;: 6666,&quot;local_port&quot;: 1080,&quot;timeout&quot;: 300,&quot;password&quot;: &quot;yourpassword&quot;,&quot;method&quot;:&quot;rc4-md5&quot;,&quot;fast_open&quot;:true,&quot;workers&quot;:1}于是你就完成了shadowsocks的配置，然后:ssserver -c /etc/shadowsocks.json -d start你服务器的ss就跑起来啦！ipv6 -&gt; ipv4使用socat进行转发nohup socat TCP6-LISTEN:6667,fork TCP4:127.0.0.1:6666 &amp;">
+
+
+  <meta name="author" content="zjgcjy">
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="My way, though far away">
+<meta property="og:title" content="Vps结合bbr搭建ss服务器">
+<meta property="og:url" content="https://zjgcjy.github.io/posts/2018-01/VPS%E7%BB%93%E5%90%88BBR%E6%90%AD%E5%BB%BASS%E6%9C%8D%E5%8A%A1%E5%99%A8.html">
+
+
+  <meta property="og:description" content="  首先详述一下搭建VPS的过程。这里使用VULTR东京机房的Ubuntu16.04。其次前几天同学给我介绍了一下BBR算法，是Google推出的TCP拥塞避免新方案，亲测效果很好，所以记下来搭建过程。搭建过程首先选择东京机房和Ubuntu16.04，基本功能，5刀每月。因为VULTR支持按时收费，所以方便多了，不用了直接关闭就行。然后XSHELL直连。然后，就需要开始搭建shadowsocks（科学上网） 和 BBR。BBR因为Linux4.9的内核已经支持TCP BBR了，所以我们将内核升级到4.9.10。下载安装包：wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.9.10/linux-image-4.9.10-040910-generic_4.9.10-040910.201702141931_amd64.deb安装:dpkg -i linux-image-4.9.10-040910-generic_4.9.10-040910.201702141931_amd64.deb查看当前系统中都有哪些内核：dpkg -l | grep linux-image删除旧的内核，我这里的旧内核版本是4.8.0-30，所以执行：apt-get purge *4.8*现在再查看内核发现只剩下4.9.10的内核了，更新引导并重启：update-grubreboot重启之后编辑配置文件：vim  /etc/sysctl.conf  在文件末尾加上下面两行：net.core.default_qdisc=fqnet.ipv4.tcp_congestion_control=bbr保存退出后执行 sysctl -p 使配置生效，并启动：lsmod | grep bbr如果看到tcp_bbr则说明启用成功SS然后，你就需要开始搭建你的shadowsocks：apt-get install build-essentialapt-get install python-pippip install --upgrade pippip install setuptoolspip install shadowsocks输入vim /etc/shadowsocks.json，用vi新建一个ss的配置{&quot;server&quot;:&quot;::&quot;,&quot;server_port&quot;: 6666,&quot;local_port&quot;: 1080,&quot;timeout&quot;: 300,&quot;password&quot;: &quot;yourpassword&quot;,&quot;method&quot;:&quot;rc4-md5&quot;,&quot;fast_open&quot;:true,&quot;workers&quot;:1}于是你就完成了shadowsocks的配置，然后:ssserver -c /etc/shadowsocks.json -d start你服务器的ss就跑起来啦！ipv6 -&gt; ipv4使用socat进行转发nohup socat TCP6-LISTEN:6667,fork TCP4:127.0.0.1:6666 &amp;">
+
+
+
+  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+
+
+
+  <meta name="twitter:site" content="@zjgcjy">
+  <meta name="twitter:title" content="Vps结合bbr搭建ss服务器">
+  <meta name="twitter:description" content="  首先详述一下搭建VPS的过程。这里使用VULTR东京机房的Ubuntu16.04。其次前几天同学给我介绍了一下BBR算法，是Google推出的TCP拥塞避免新方案，亲测效果很好，所以记下来搭建过程。搭建过程首先选择东京机房和Ubuntu16.04，基本功能，5刀每月。因为VULTR支持按时收费，所以方便多了，不用了直接关闭就行。然后XSHELL直连。然后，就需要开始搭建shadowsocks（科学上网） 和 BBR。BBR因为Linux4.9的内核已经支持TCP BBR了，所以我们将内核升级到4.9.10。下载安装包：wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.9.10/linux-image-4.9.10-040910-generic_4.9.10-040910.201702141931_amd64.deb安装:dpkg -i linux-image-4.9.10-040910-generic_4.9.10-040910.201702141931_amd64.deb查看当前系统中都有哪些内核：dpkg -l | grep linux-image删除旧的内核，我这里的旧内核版本是4.8.0-30，所以执行：apt-get purge *4.8*现在再查看内核发现只剩下4.9.10的内核了，更新引导并重启：update-grubreboot重启之后编辑配置文件：vim  /etc/sysctl.conf  在文件末尾加上下面两行：net.core.default_qdisc=fqnet.ipv4.tcp_congestion_control=bbr保存退出后执行 sysctl -p 使配置生效，并启动：lsmod | grep bbr如果看到tcp_bbr则说明启用成功SS然后，你就需要开始搭建你的shadowsocks：apt-get install build-essentialapt-get install python-pippip install --upgrade pippip install setuptoolspip install shadowsocks输入vim /etc/shadowsocks.json，用vi新建一个ss的配置{&quot;server&quot;:&quot;::&quot;,&quot;server_port&quot;: 6666,&quot;local_port&quot;: 1080,&quot;timeout&quot;: 300,&quot;password&quot;: &quot;yourpassword&quot;,&quot;method&quot;:&quot;rc4-md5&quot;,&quot;fast_open&quot;:true,&quot;workers&quot;:1}于是你就完成了shadowsocks的配置，然后:ssserver -c /etc/shadowsocks.json -d start你服务器的ss就跑起来啦！ipv6 -&gt; ipv4使用socat进行转发nohup socat TCP6-LISTEN:6667,fork TCP4:127.0.0.1:6666 &amp;">
+  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2018-01/VPS%E7%BB%93%E5%90%88BBR%E6%90%AD%E5%BB%BASS%E6%9C%8D%E5%8A%A1%E5%99%A8.html">
+
+  
+    <meta name="twitter:card" content="summary">
+    
+      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+    
+  
+
+  
+
+
+
+  <meta property="article:published_time" content="2018-01-07T05:00:00+08:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="https://zjgcjy.github.io/posts/2018-01/VPS%E7%BB%93%E5%90%88BBR%E6%90%AD%E5%BB%BASS%E6%9C%8D%E5%8A%A1%E5%99%A8.html">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Blogger",
+      "url": "https://zjgcjy.github.io/",
+      "sameAs": ["https://twitter.com/","https://github.com/"]
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="My way, though far away Feed">
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--single">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+          <a class="site-logo" href="/"><img src="/assets/images/apple-touch-icon.png" alt=""></a>
+        
+        <a class="site-title" href="/">
+          ZJGCJY
+          <span class="site-subtitle">My way, though far away</span>
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/year-archive/" >Posts</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/" >Tags</a>
+            </li><li class="masthead__menu-item">
+              <a href="/categories/" >Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/collection-archive/" >Collections</a>
+            </li><li class="masthead__menu-item">
+              <a href="/about.html" >About</a>
+            </li></ul>
+        
+        <button class="search__toggle" type="button">
+          <span class="visually-hidden">Toggle search</span>
+          <svg class="icon" width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15.99 16">
+            <path d="M15.5,13.12L13.19,10.8a1.69,1.69,0,0,0-1.28-.55l-0.06-.06A6.5,6.5,0,0,0,5.77,0,6.5,6.5,0,0,0,2.46,11.59a6.47,6.47,0,0,0,7.74.26l0.05,0.05a1.65,1.65,0,0,0,.5,1.24l2.38,2.38A1.68,1.68,0,0,0,15.5,13.12ZM6.4,2A4.41,4.41,0,1,1,2,6.4,4.43,4.43,0,0,1,6.4,2Z" transform="translate(-.01)"></path>
+          </svg>
+        </button>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+  
+    
+
+
+
+<nav class="breadcrumbs">
+  <ol itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    
+    
+      
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1" />
+        </li>
+        <span class="sep">/</span>
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#posts" itemprop="item"><span itemprop="name">Posts</span></a>
+          <meta itemprop="position" content="2" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="/categories/#2018-01" itemprop="item"><span itemprop="name">2018 01</span></a>
+          <meta itemprop="position" content="3" />
+        </li>
+        <span class="sep">/</span>
+      
+    
+      
+      
+        <li class="current">Vps结合bbr搭建ss服务器</li>
+      
+    
+  </ol>
+</nav>
+
+  
+
+
+<div id="main" role="main">
+  
+  <div class="sidebar sticky">
+  
+
+
+<div itemscope itemtype="https://schema.org/Person">
+
+  
+    <div class="author__avatar">
+      
+
+      
+        <img src="/assets/images/me.jpg" alt="zjgcjy" itemprop="image">
+      
+    </div>
+  
+
+  <div class="author__content">
+    
+      <h3 class="author__name" itemprop="name">zjgcjy</h3>
+    
+    
+      <div class="author__bio" itemprop="description">
+        <p>IIE UCAS, CTFer, Binarian</p>
+
+      </div>
+    
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
+          <i class="fa fa-map-marker" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+        </li>
+      
+
+      
+        
+          
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fa fa-link" aria-hidden="true"></i> Website</a></li>
+          
+        
+          
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fa fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+          
+        
+          
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
+          
+        
+          
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          
+        
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      <!--
+  <li>
+    <a href="http://link-to-whatever-social-network.com/user/" itemprop="sameAs" rel="nofollow noopener noreferrer">
+      <i class="fas fa-fw" aria-hidden="true"></i> Custom Social Profile Link
+    </a>
+  </li>
+-->
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Vps结合bbr搭建ss服务器">
+    <meta itemprop="description" content="  首先详述一下搭建VPS的过程。这里使用VULTR东京机房的Ubuntu16.04。其次前几天同学给我介绍了一下BBR算法，是Google推出的TCP拥塞避免新方案，亲测效果很好，所以记下来搭建过程。搭建过程首先选择东京机房和Ubuntu16.04，基本功能，5刀每月。因为VULTR支持按时收费，所以方便多了，不用了直接关闭就行。然后XSHELL直连。然后，就需要开始搭建shadowsocks（科学上网） 和 BBR。BBR因为Linux4.9的内核已经支持TCP BBR了，所以我们将内核升级到4.9.10。下载安装包：wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.9.10/linux-image-4.9.10-040910-generic_4.9.10-040910.201702141931_amd64.deb安装:dpkg -i linux-image-4.9.10-040910-generic_4.9.10-040910.201702141931_amd64.deb查看当前系统中都有哪些内核：dpkg -l | grep linux-image删除旧的内核，我这里的旧内核版本是4.8.0-30，所以执行：apt-get purge *4.8*现在再查看内核发现只剩下4.9.10的内核了，更新引导并重启：update-grubreboot重启之后编辑配置文件：vim  /etc/sysctl.conf  在文件末尾加上下面两行：net.core.default_qdisc=fqnet.ipv4.tcp_congestion_control=bbr保存退出后执行 sysctl -p 使配置生效，并启动：lsmod | grep bbr如果看到tcp_bbr则说明启用成功SS然后，你就需要开始搭建你的shadowsocks：apt-get install build-essentialapt-get install python-pippip install --upgrade pippip install setuptoolspip install shadowsocks输入vim /etc/shadowsocks.json，用vi新建一个ss的配置{&quot;server&quot;:&quot;::&quot;,&quot;server_port&quot;: 6666,&quot;local_port&quot;: 1080,&quot;timeout&quot;: 300,&quot;password&quot;: &quot;yourpassword&quot;,&quot;method&quot;:&quot;rc4-md5&quot;,&quot;fast_open&quot;:true,&quot;workers&quot;:1}于是你就完成了shadowsocks的配置，然后:ssserver -c /etc/shadowsocks.json -d start你服务器的ss就跑起来啦！ipv6 -&gt; ipv4使用socat进行转发nohup socat TCP6-LISTEN:6667,fork TCP4:127.0.0.1:6666 &amp;">
+    <meta itemprop="datePublished" content="January 07, 2018">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">Vps结合bbr搭建ss服务器
+</h1>
+          
+            <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+          
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+          <aside class="sidebar__right ">
+            <nav class="toc">
+              <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
+              <ul class="toc__menu">
+  <li><a href="#搭建过程">搭建过程</a>
+    <ul>
+      <li><a href="#bbr">BBR</a></li>
+      <li><a href="#ss">SS</a></li>
+    </ul>
+  </li>
+  <li><a href="#ipv6---ipv4">ipv6 -&gt; ipv4</a></li>
+</ul>
+            </nav>
+          </aside>
+        
+        <hr />
+
+<blockquote>
+  <p>首先详述一下搭建VPS的过程。这里使用VULTR东京机房的Ubuntu16.04。
+其次前几天同学给我介绍了一下BBR算法，是Google推出的TCP拥塞避免新方案，亲测效果很好，所以记下来搭建过程。</p>
+</blockquote>
+
+<h1 id="搭建过程">搭建过程</h1>
+
+<p>首先选择东京机房和Ubuntu16.04，基本功能，5刀每月。因为VULTR支持按时收费，所以方便多了，不用了直接关闭就行。然后XSHELL直连。
+然后，就需要开始搭建shadowsocks（科学上网） 和 BBR。</p>
+
+<h2 id="bbr">BBR</h2>
+
+<p>因为Linux4.9的内核已经支持TCP BBR了，所以我们将内核升级到4.9.10。</p>
+
+<p>下载安装包：</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>wget http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.9.10/linux-image-4.9.10-040910-generic_4.9.10-040910.201702141931_amd64.deb
+</code></pre></div></div>
+
+<p>安装:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>dpkg <span class="nt">-i</span> linux-image-4.9.10-040910-generic_4.9.10-040910.201702141931_amd64.deb
+</code></pre></div></div>
+
+<p>查看当前系统中都有哪些内核：</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>dpkg <span class="nt">-l</span> | <span class="nb">grep </span>linux-image
+</code></pre></div></div>
+
+<p>删除旧的内核，我这里的旧内核版本是4.8.0-30，所以执行：</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>apt-get purge <span class="k">*</span>4.8<span class="k">*</span>
+</code></pre></div></div>
+
+<p>现在再查看内核发现只剩下4.9.10的内核了，更新引导并重启：</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>update-grub
+reboot
+</code></pre></div></div>
+
+<p>重启之后编辑配置文件：</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vim  /etc/sysctl.conf  
+在文件末尾加上下面两行：
+net.core.default_qdisc<span class="o">=</span>fq
+net.ipv4.tcp_congestion_control<span class="o">=</span>bbr
+</code></pre></div></div>
+
+<p>保存退出后执行 sysctl -p 使配置生效，并启动：</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>lsmod | <span class="nb">grep </span>bbr
+</code></pre></div></div>
+
+<p>如果看到tcp_bbr则说明启用成功</p>
+
+<h2 id="ss">SS</h2>
+
+<p>然后，你就需要开始搭建你的shadowsocks：</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>apt-get <span class="nb">install </span>build-essential
+apt-get <span class="nb">install </span>python-pip
+pip <span class="nb">install</span> <span class="nt">--upgrade</span> pip
+pip <span class="nb">install </span>setuptools
+pip <span class="nb">install </span>shadowsocks
+</code></pre></div></div>
+
+<p>输入vim /etc/shadowsocks.json，用vi新建一个ss的配置</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">{</span>
+<span class="s2">"server"</span>:<span class="s2">"::"</span>,
+<span class="s2">"server_port"</span>: 6666,
+<span class="s2">"local_port"</span>: 1080,
+<span class="s2">"timeout"</span>: 300,
+<span class="s2">"password"</span>: <span class="s2">"yourpassword"</span>,
+<span class="s2">"method"</span>:<span class="s2">"rc4-md5"</span>,
+<span class="s2">"fast_open"</span>:true,
+<span class="s2">"workers"</span>:1
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>于是你就完成了shadowsocks的配置，然后:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ssserver <span class="nt">-c</span> /etc/shadowsocks.json <span class="nt">-d</span> start
+</code></pre></div></div>
+
+<p>你服务器的ss就跑起来啦！</p>
+
+<h1 id="ipv6---ipv4">ipv6 -&gt; ipv4</h1>
+
+<p>使用socat进行转发</p>
+
+<p><code class="highlighter-rouge">nohup socat TCP6-LISTEN:6667,fork TCP4:127.0.0.1:6666 &amp;</code></p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fa fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="/tags/#vps" class="page__taxonomy-item" rel="tag">vps</a>
+    
+    </span>
+  </p>
+
+
+
+
+        
+          <p class="page__date"><strong><i class="fa fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2018-01-07T05:00:00+08:00">January 07, 2018</time></p>
+        
+      </footer>
+
+      <section class="page__share">
+  
+    <h4 class="page__share-title">Share on</h4>
+  
+
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Vps%E7%BB%93%E5%90%88bbr%E6%90%AD%E5%BB%BAss%E6%9C%8D%E5%8A%A1%E5%99%A8%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2018-01%2FVPS%25E7%25BB%2593%25E5%2590%2588BBR%25E6%2590%25AD%25E5%25BB%25BASS%25E6%259C%258D%25E5%258A%25A1%25E5%2599%25A8.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2018-01%2FVPS%25E7%25BB%2593%25E5%2590%2588BBR%25E6%2590%25AD%25E5%25BB%25BASS%25E6%259C%258D%25E5%258A%25A1%25E5%2599%25A8.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2018-01%2FVPS%25E7%25BB%2593%25E5%2590%2588BBR%25E6%2590%25AD%25E5%25BB%25BASS%25E6%259C%258D%25E5%258A%25A1%25E5%2599%25A8.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+
+      
+  <nav class="pagination">
+    
+      <a href="/posts/2017-12/ubuntu-install.html" class="pagination--pager" title="Ubuntu Install
+">Previous</a>
+    
+    
+      <a href="/posts/2018-01/vimium-using.html" class="pagination--pager" title="Vimium Using
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      <h4 class="page__related-title">You may also enjoy</h4>
+      <div class="grid__wrapper">
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-11/Dirary_November.html" rel="permalink">Dirary_november
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  每日所作所得
+
+
+
+
+11月1日
+</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/Software_Security_Project.html" rel="permalink">Software_security_project
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  Malware
+vs2010
+
+
+
+
+InfoCollection
+
+configure
+
+
+
+warning
+
+
+
+</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/Pacman_Helper.html" rel="permalink">Pacman_helper
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  pacman 手册
+
+
+
+
+archlinux pacman 命令
+arch wiki
+
+pacman -Sy 仅同步源
+
+pacman -Syu 同步源，并更新系统
+
+pacman -Su –ignore foo 升级时不升级包foo
+
+pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-10/%E5%8D%81%E6%9C%88%E6%97%A5%E8%AE%B0.html" rel="permalink">十月日记
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  每日所作所得
+
+
+
+
+10月1日
+
+周日，上课前最后一天，算是给自己放了最后一天假期
+
+10月2日
+
+上了第一天的课，主要是os，一脸蒙蔽。
+</p>
+  </article>
+</div>
+
+        
+      </div>
+    </div>
+  
+  
+</div>
+
+    </div>
+
+    
+      <div class="search-content">
+        <div class="search-content__inner-wrap"><form class="search-content__form" onkeydown="return event.key != 'Enter';">
+    <label class="sr-only" for="search">
+      Enter your search term...
+    </label>
+    <input type="search" id="search" class="search-input" tabindex="-1" placeholder="Enter your search term..." />
+  </form>
+  <div id="results" class="results"></div></div>
+
+      </div>
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+
+    
+      
+        
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
+        
+      
+        
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+        
+      
+    
+
+    <li><a href="/feed.xml"><i class="fa fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2019 Blogger. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+  <script src="https://use.fontawesome.com/1d25d6ba93.js"></script>
+
+
+
+
+<script src="/assets/js/lunr/lunr.min.js"></script>
+<script src="/assets/js/lunr/lunr-store.js"></script>
+<script src="/assets/js/lunr/lunr-en.js"></script>
+
+
+
+
+    
+  <script>
+    var disqus_config = function () {
+      this.page.url = "https://zjgcjy.github.io/posts/2018-01/VPS%E7%BB%93%E5%90%88BBR%E6%90%AD%E5%BB%BASS%E6%9C%8D%E5%8A%A1%E5%99%A8.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.identifier = "/posts/2018-01/VPS结合BBR搭建SS服务器"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    (function() { // DON'T EDIT BELOW THIS LINE
+      var d = document, s = d.createElement('script');
+      s.src = 'https://zjgcjy-github-io.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  </script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+  
+
+
+
+
+
+  </body>
+</html>
