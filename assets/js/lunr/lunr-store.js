@@ -852,5 +852,5 @@ var store = [{
         "title": "Dirary_november",
         "excerpt":"   每日所作所得      11月1日  ","categories": [],
         "tags": ["日记"],
-        "url": "https://zjgcjy.github.io/posts/2019-11/Dirary_November.html",
+        "url": "https://zjgcjy.github.io/Dirary_November/",
         "teaser":null}]
