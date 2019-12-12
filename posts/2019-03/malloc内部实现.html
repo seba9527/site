@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Malloc内部实现">
-<meta property="og:url" content="http://localhost:4000/posts/2019-03/malloc%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0.html">
+<meta property="og:url" content="https://zjgcjy.github.io/posts/2019-03/malloc%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0.html">
 
 
   <meta property="og:description" content="  malloc运行参与的系统调用当读到这篇文章时，你应该知道malloc使用系统调用来从os获取内存空间，就像下面说的那样，malloc使用brk或者mmap来获取内存。(s)brk对于堆的操作，操作系统提供了 brk 函数，glibc 库提供了 sbrk 函数，我们可以通过增加brk的大小来向操作系统申请内存。初始时，堆的起始地址 start_brk以及堆的当前末尾 brk指向同一地址。根据是否开启 ASLR，两者的具体位置会有所不同。  不开启 ASLR 保护时，start_brk 以及 brk 会指向 data/bss 段的结尾。  开启 ASLR 保护时，start_brk 以及 brk 也会指向同一位置，只是这个位置是在 data/bss 段结尾后的随机偏移处。上图显示的是start_brk是堆段的开始，而brk(程序中断)是堆段的结束。例子：/* sbrk and brk example */#include &lt;stdio.h&gt;#include &lt;unistd.h&gt;#include &lt;sys/types.h&gt;int main(){        void *curr_brk, *tmp_brk = NULL;        printf(&quot;Welcome to sbrk example:%d\n&quot;, getpid());        /* sbrk(0) gives current program break location */        tmp_brk = curr_brk = sbrk(0);        printf(&quot;Program Break Location1:%p\n&quot;, curr_brk);        getchar();        /* brk(addr) increments/decrements program break location */        brk(curr_brk+4096);        curr_brk = sbrk(0);        printf(&quot;Program break Location2:%p\n&quot;, curr_brk);        getchar();        brk(tmp_brk);        curr_brk = sbrk(0);        printf(&quot;Program Break Location3:%p\n&quot;, curr_brk);        getchar();        return 0;}分析在第一次输出的时候是没有heap段的，因此。  start_brk = current_brk = end_data = 0x804b000.第二次输出就创建了heap段，因此。  start_brk = end_data = 0x804b000  current_brk = 0x804c000.第三次调整了brk的位置，因此。  start_brk = end_data = 0x804b000  current_brk  = 0x804b000.mmapmalloc使用mmap创建一个私有的匿名映射段。私有匿名映射的主要目的是分配新内存(零填充)，并且这个新内存将被调用进程专用。例子：/* Private anonymous mapping example using mmap syscall */#include &lt;stdio.h&gt;#include &lt;sys/mman.h&gt;#include &lt;sys/types.h&gt;#include &lt;sys/stat.h&gt;#include &lt;fcntl.h&gt;#include &lt;unistd.h&gt;#include &lt;stdlib.h&gt;void static inline errExit(const char* msg){        printf(&quot;%s failed. Exiting the process\n&quot;, msg);        exit(-1);}int main(){        int ret = -1;        printf(&quot;Welcome to private anonymous mapping example::PID:%d\n&quot;, getpid());        printf(&quot;Before mmap\n&quot;);        getchar();        char* addr = NULL;        addr = mmap(NULL, (size_t)132*1024, PROT_READ|PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);        if (addr == MAP_FAILED)                errExit(&quot;mmap&quot;);        printf(&quot;After mmap\n&quot;);        getchar();        /* Unmap mapped region. */        ret = munmap(addr, (size_t)132*1024);        if(ret == -1)                errExit(&quot;munmap&quot;);        printf(&quot;After munmap\n&quot;);        getchar();        return 0;}分析在mmap之前，没有heap段在mmap之后，会创建一个具有相应权限的heap段，因为是匿名的，所以不会有heap的标志。在munmap之后，heap段被释放，相应的内存被返还给操作系统。上文翻译自syscalls-used-by-malloc多线程支持在原来的 dlmalloc 实现中，当两个线程同时要申请内存时，只有一个线程可以进入临界区申请内存，而另外一个线程则必须等待直到临界区中不再有线程。这是因为所有的线程共享一个堆。在 glibc 的 ptmalloc 实现中，比较好的一点就是支持了多线程的快速访问。在新的实现中，所有的线程共享多个堆。/* Per thread arena example. */##include &lt;stdio.h&gt;##include &lt;stdlib.h&gt;##include &lt;pthread.h&gt;##include &lt;unistd.h&gt;##include &lt;sys/types.h&gt;void* threadFunc(void* arg) {        printf(&quot;Before malloc in thread 1\n&quot;);        getchar();        char* addr = (char*) malloc(1000);        printf(&quot;After malloc and before free in thread 1\n&quot;);        getchar();        free(addr);        printf(&quot;After free in thread 1\n&quot;);        getchar();}int main() {        pthread_t t1;        void* s;        int ret;        char* addr;        printf(&quot;Welcome to per thread arena example::%d\n&quot;,getpid());        printf(&quot;Before malloc in main thread\n&quot;);        getchar();        addr = (char*) malloc(1000);        printf(&quot;After malloc and before free in main thread\n&quot;);        getchar();        free(addr);        printf(&quot;After free in main thread\n&quot;);        getchar();        ret = pthread_create(&amp;t1, NULL, threadFunc, NULL);        if(ret)        {                printf(&quot;Thread creation error\n&quot;);                return -1;        }        ret = pthread_join(t1, &amp;s);        if(ret)        {                printf(&quot;Thread join error\n&quot;);                return -1;        }        return 0;}分析在主线程中的malloc之前：在下面的输出中，我们可以看到还没有堆段，也没有每个线程堆栈，因为还没有创建thread1。在主线程中的malloc执行之后，heap段被创建，紧紧挨着data段，堆内存是通过调用brk的系统调用来增加heap的大小。尽管我们只请求了1000字节的大小，程序也会分配 132KB的大小。堆内存的这个连续区域称为arena。既然这个区域是由主线程创建的，所以叫main arena。接下来的分配都请求使用这一段区域，直到所有空间用完。当所有空间用完，程序会调用brk来增加heap的大小。同样，当顶部有大量空闲空间时，arena也会收缩。在主线程中的free调用之后，我们可以发现，当被分配的内存区域被free，他背后的内存不会立即释放的操作系统。内存只释放给glibc的malloc库，之后当用户请求内存时，glibc的malloc管理器不会从内核中分配堆，相反的，他会从一个free bins中找到一个chunk。只有当没有空闲的chunk的时候，才会从内核中获取。在thread1进行malloc之前，heap段没有被创建，但是thread1的线程栈被创建。thread1进行malloc之后，线程heap被创建，位于内存区域中，大小是132KB，因此是mmap创建出来的（不想main arena是brk创建出来的）。同样的，用户请求了1000字节的大小，1MB的空间被创建，同时只有132KB的大小空间被设置成读写，并且变成了该线程的heap地址空间，这段连续的区域被叫做这个线程的arena。注意，当请求的空间过大时，并且没有足够的空间来满足用户的请求，无论是main arena还是thread arena都使用mmap系统调用，而不是brk来分配内存。在thread1进行free之后，释放已经分配的内存并不会将heap的内存归还给操作系统。">
 
 
 
-  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Malloc内部实现">
   <meta name="twitter:description" content="  malloc运行参与的系统调用当读到这篇文章时，你应该知道malloc使用系统调用来从os获取内存空间，就像下面说的那样，malloc使用brk或者mmap来获取内存。(s)brk对于堆的操作，操作系统提供了 brk 函数，glibc 库提供了 sbrk 函数，我们可以通过增加brk的大小来向操作系统申请内存。初始时，堆的起始地址 start_brk以及堆的当前末尾 brk指向同一地址。根据是否开启 ASLR，两者的具体位置会有所不同。  不开启 ASLR 保护时，start_brk 以及 brk 会指向 data/bss 段的结尾。  开启 ASLR 保护时，start_brk 以及 brk 也会指向同一位置，只是这个位置是在 data/bss 段结尾后的随机偏移处。上图显示的是start_brk是堆段的开始，而brk(程序中断)是堆段的结束。例子：/* sbrk and brk example */#include &lt;stdio.h&gt;#include &lt;unistd.h&gt;#include &lt;sys/types.h&gt;int main(){        void *curr_brk, *tmp_brk = NULL;        printf(&quot;Welcome to sbrk example:%d\n&quot;, getpid());        /* sbrk(0) gives current program break location */        tmp_brk = curr_brk = sbrk(0);        printf(&quot;Program Break Location1:%p\n&quot;, curr_brk);        getchar();        /* brk(addr) increments/decrements program break location */        brk(curr_brk+4096);        curr_brk = sbrk(0);        printf(&quot;Program break Location2:%p\n&quot;, curr_brk);        getchar();        brk(tmp_brk);        curr_brk = sbrk(0);        printf(&quot;Program Break Location3:%p\n&quot;, curr_brk);        getchar();        return 0;}分析在第一次输出的时候是没有heap段的，因此。  start_brk = current_brk = end_data = 0x804b000.第二次输出就创建了heap段，因此。  start_brk = end_data = 0x804b000  current_brk = 0x804c000.第三次调整了brk的位置，因此。  start_brk = end_data = 0x804b000  current_brk  = 0x804b000.mmapmalloc使用mmap创建一个私有的匿名映射段。私有匿名映射的主要目的是分配新内存(零填充)，并且这个新内存将被调用进程专用。例子：/* Private anonymous mapping example using mmap syscall */#include &lt;stdio.h&gt;#include &lt;sys/mman.h&gt;#include &lt;sys/types.h&gt;#include &lt;sys/stat.h&gt;#include &lt;fcntl.h&gt;#include &lt;unistd.h&gt;#include &lt;stdlib.h&gt;void static inline errExit(const char* msg){        printf(&quot;%s failed. Exiting the process\n&quot;, msg);        exit(-1);}int main(){        int ret = -1;        printf(&quot;Welcome to private anonymous mapping example::PID:%d\n&quot;, getpid());        printf(&quot;Before mmap\n&quot;);        getchar();        char* addr = NULL;        addr = mmap(NULL, (size_t)132*1024, PROT_READ|PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);        if (addr == MAP_FAILED)                errExit(&quot;mmap&quot;);        printf(&quot;After mmap\n&quot;);        getchar();        /* Unmap mapped region. */        ret = munmap(addr, (size_t)132*1024);        if(ret == -1)                errExit(&quot;munmap&quot;);        printf(&quot;After munmap\n&quot;);        getchar();        return 0;}分析在mmap之前，没有heap段在mmap之后，会创建一个具有相应权限的heap段，因为是匿名的，所以不会有heap的标志。在munmap之后，heap段被释放，相应的内存被返还给操作系统。上文翻译自syscalls-used-by-malloc多线程支持在原来的 dlmalloc 实现中，当两个线程同时要申请内存时，只有一个线程可以进入临界区申请内存，而另外一个线程则必须等待直到临界区中不再有线程。这是因为所有的线程共享一个堆。在 glibc 的 ptmalloc 实现中，比较好的一点就是支持了多线程的快速访问。在新的实现中，所有的线程共享多个堆。/* Per thread arena example. */##include &lt;stdio.h&gt;##include &lt;stdlib.h&gt;##include &lt;pthread.h&gt;##include &lt;unistd.h&gt;##include &lt;sys/types.h&gt;void* threadFunc(void* arg) {        printf(&quot;Before malloc in thread 1\n&quot;);        getchar();        char* addr = (char*) malloc(1000);        printf(&quot;After malloc and before free in thread 1\n&quot;);        getchar();        free(addr);        printf(&quot;After free in thread 1\n&quot;);        getchar();}int main() {        pthread_t t1;        void* s;        int ret;        char* addr;        printf(&quot;Welcome to per thread arena example::%d\n&quot;,getpid());        printf(&quot;Before malloc in main thread\n&quot;);        getchar();        addr = (char*) malloc(1000);        printf(&quot;After malloc and before free in main thread\n&quot;);        getchar();        free(addr);        printf(&quot;After free in main thread\n&quot;);        getchar();        ret = pthread_create(&amp;t1, NULL, threadFunc, NULL);        if(ret)        {                printf(&quot;Thread creation error\n&quot;);                return -1;        }        ret = pthread_join(t1, &amp;s);        if(ret)        {                printf(&quot;Thread join error\n&quot;);                return -1;        }        return 0;}分析在主线程中的malloc之前：在下面的输出中，我们可以看到还没有堆段，也没有每个线程堆栈，因为还没有创建thread1。在主线程中的malloc执行之后，heap段被创建，紧紧挨着data段，堆内存是通过调用brk的系统调用来增加heap的大小。尽管我们只请求了1000字节的大小，程序也会分配 132KB的大小。堆内存的这个连续区域称为arena。既然这个区域是由主线程创建的，所以叫main arena。接下来的分配都请求使用这一段区域，直到所有空间用完。当所有空间用完，程序会调用brk来增加heap的大小。同样，当顶部有大量空闲空间时，arena也会收缩。在主线程中的free调用之后，我们可以发现，当被分配的内存区域被free，他背后的内存不会立即释放的操作系统。内存只释放给glibc的malloc库，之后当用户请求内存时，glibc的malloc管理器不会从内核中分配堆，相反的，他会从一个free bins中找到一个chunk。只有当没有空闲的chunk的时候，才会从内核中获取。在thread1进行malloc之前，heap段没有被创建，但是thread1的线程栈被创建。thread1进行malloc之后，线程heap被创建，位于内存区域中，大小是132KB，因此是mmap创建出来的（不想main arena是brk创建出来的）。同样的，用户请求了1000字节的大小，1MB的空间被创建，同时只有132KB的大小空间被设置成读写，并且变成了该线程的heap地址空间，这段连续的区域被叫做这个线程的arena。注意，当请求的空间过大时，并且没有足够的空间来满足用户的请求，无论是main arena还是thread arena都使用mmap系统调用，而不是brk来分配内存。在thread1进行free之后，释放已经分配的内存并不会将heap的内存归还给操作系统。">
-  <meta name="twitter:url" content="http://localhost:4000/posts/2019-03/malloc%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0.html">
+  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2019-03/malloc%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="http://localhost:4000/posts/2019-03/malloc%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0.html">
+<link rel="canonical" href="https://zjgcjy.github.io/posts/2019-03/malloc%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "http://localhost:4000/",
+      "url": "https://zjgcjy.github.io/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -644,11 +644,11 @@
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Malloc%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-03%2Fmalloc%25E5%2586%2585%25E9%2583%25A8%25E5%25AE%259E%25E7%258E%25B0.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Malloc%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-03%2Fmalloc%25E5%2586%2585%25E9%2583%25A8%25E5%25AE%259E%25E7%258E%25B0.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-03%2Fmalloc%25E5%2586%2585%25E9%2583%25A8%25E5%25AE%259E%25E7%258E%25B0.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-03%2Fmalloc%25E5%2586%2585%25E9%2583%25A8%25E5%25AE%259E%25E7%258E%25B0.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-03%2Fmalloc%25E5%2586%2585%25E9%2583%25A8%25E5%25AE%259E%25E7%258E%25B0.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-03%2Fmalloc%25E5%2586%2585%25E9%2583%25A8%25E5%25AE%259E%25E7%258E%25B0.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -909,7 +909,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "http://localhost:4000/posts/2019-03/malloc%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "https://zjgcjy.github.io/posts/2019-03/malloc%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2019-03/malloc内部实现"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

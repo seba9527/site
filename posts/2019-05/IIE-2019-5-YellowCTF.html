@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Iie 2019 5 Yellowctf">
-<meta property="og:url" content="http://localhost:4000/posts/2019-05/IIE-2019-5-YellowCTF.html">
+<meta property="og:url" content="https://zjgcjy.github.io/posts/2019-05/IIE-2019-5-YellowCTF.html">
 
 
   <meta property="og:description" content="  UCAS-IIE-2019-5-Yellow-YCTF writeupre1  考点      rot13    base32    strcmp_asm  main首先查看main函数，结果如下。包含输入长度判断和两段strcmp汇编形式的判断，其中第一段是不相等，第二段是相等。第一段前进行了rot13（offset=14）编码，两段中间进行了init操作，以及一个关键的check函数。rot13（offset=14）其中的rot13如下所示，算一下偏移能发现是14。init初始化列表init函数将字符串进行动态修改，逻辑如下，比较简单，最后得到的table是NoPqRsTuVwXyZaBcDeFgHiJkLm567234base32然后进行关键的base32操作，算法比较明显，和base64差不多，32是2的5次方，8bit乘以5即40bit一组。求解分别列出rot13和base32算法即可。最后得到 Y@u_Kn@W_b@s332_@Nd_r0t13float  考点      方程    float乘以2    整数和小数分开处理    动态调试  main首先查看main函数，定义了一堆奇怪变量。然后对输入进行简单检查，满足一个float形式，且大于0，小于10。小数部分长度是7。在输入之后，开始检查，首先判断是不是小数，然后进入关键的check函数，之后和cipher进行对比。最后进行关键的check2判断。check1函数将在下面进行详细说明，首先讨论memcmp和check2的部分。这里memcmp的部分就是对check1的结果和cipher进行对比，对比的值就是一开始定义的常量，只不过逐比特逐比特对比。(((1 &lt;&lt; (v10 &amp; 0x1F)) &amp; *((_DWORD *)v19 + (v10 &gt;&gt; 5))) != 0) == v23[v10]脚本如下。c = &#39;&#39;&#39;00 01 00 00 00 00 00 00 01 00 01 00 00 00 01 01 \00 00 01 01 00 00 01 01 00 00 01 01 00 00 01 01&#39;&#39;&#39;.split()c = map(lambda x: x[1:], c)cipher = &#39;&#39;for i in xrange(len(c)/8):    t = eval(&#39;0b&#39; + &#39;&#39;.join(c[8*i:8*(i+1)][::-1]))    cipher += hex(t)[2:].rjust(2, &#39;0&#39;)print cipher得到02c5cccc，也就是0xccccc502所以check1函数对输入进行处理后，返回的结果是这个值。如果满足进行check2，就是一个方程，估计是输入值不止一个，所以这里加了一个条件判断（最后发现是精度检查）。check1在check1函数中，主要分为2个部分，分别对输入的整数部分和小数部分进行处理，两个部分对后续的值都有影响。由于大量代码在float格式下存在优化的问题，导致静态逆向存在很大的困难，所以在解题的时候，我主要采用动态调试的方式。这里分为几个部分说明。首先是输入参数，将输入值加上1.234567传入check1函数中。小数部分sub_EF12C0这个函数的作用是对小数部分进行处理，主要使用sse指令进行处理，创建两个结构体，都是用于分配的空间地址。这里同时也用到了ffloor函数用于判断输入的整数部分。这里先不讨论整数部分值的情况。大致的算法就是对小数部分进行模拟逼近，从0.5开始逼近，小于则置1，否则置0，然后是0.25，0.125等等。这部分比较好逆向，模拟算法如下，可将小数转换成十六进制（f2h）。在逼近结束后，只会产生3个hex值，最后一个hex值和第二个hex值的部分位，将由整数部分输出。整数部分在逆向的过程中，发现整数部分用于判断和2的次方的大小关系，也影响了小数部分的输出值。在sub_EF1200函数中对整数部分进行了检测并返回相应的值，由于输入值在0-9之间，这里我也没详细看，大概判断出是不断乘以2的操作。之间用idapython遍历一下就行。idapython这里就用idapython配合ida，hook自带的dbg，然后动态下断和获取就行了 ，脚本不上了。就9个值，看下结果就行。可以看到，和上文所说一致，第一列是输入值，第二列是输入check1的参数，第三列是小数部分的值，第四部分是最后的输出值。整数部分主要影响第一个hex的值，从0到9只有fc、02、82三个值，最后的cipher第一个hex是02，可判断大致的输入范围。由f2h函数可知，第三列的结果符合模拟算法的结果，而第四列的结果是小数部分的值乘以2。当整数部分的值扩大，每当大于2的次方时，小数部分的值又会乘以2，大致关系就是这样。求解虽然能大致得到整数部分的范围，但是其中有个4，所以这里需要分类讨论。将cipher的值去掉最后一个hex，同时去掉一位整数部分的影响，得到0xccccc4  如果值大于4，小数部分的值应该是0xccccc4除以8。  如果值小于4，小数部分的值应该是0xccccc4除以4。也就是0x199998和0x333331。然后写出f2h的逆算法，h2f如下所示。最后对两种情况分别验证即可。最后得到1.3154329，输入之后发现不满足check2。一开始以为是哪里弄错了，最后发现是精度不对，改成1.3154328就行了。">
 
 
 
-  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Iie 2019 5 Yellowctf">
   <meta name="twitter:description" content="  UCAS-IIE-2019-5-Yellow-YCTF writeupre1  考点      rot13    base32    strcmp_asm  main首先查看main函数，结果如下。包含输入长度判断和两段strcmp汇编形式的判断，其中第一段是不相等，第二段是相等。第一段前进行了rot13（offset=14）编码，两段中间进行了init操作，以及一个关键的check函数。rot13（offset=14）其中的rot13如下所示，算一下偏移能发现是14。init初始化列表init函数将字符串进行动态修改，逻辑如下，比较简单，最后得到的table是NoPqRsTuVwXyZaBcDeFgHiJkLm567234base32然后进行关键的base32操作，算法比较明显，和base64差不多，32是2的5次方，8bit乘以5即40bit一组。求解分别列出rot13和base32算法即可。最后得到 Y@u_Kn@W_b@s332_@Nd_r0t13float  考点      方程    float乘以2    整数和小数分开处理    动态调试  main首先查看main函数，定义了一堆奇怪变量。然后对输入进行简单检查，满足一个float形式，且大于0，小于10。小数部分长度是7。在输入之后，开始检查，首先判断是不是小数，然后进入关键的check函数，之后和cipher进行对比。最后进行关键的check2判断。check1函数将在下面进行详细说明，首先讨论memcmp和check2的部分。这里memcmp的部分就是对check1的结果和cipher进行对比，对比的值就是一开始定义的常量，只不过逐比特逐比特对比。(((1 &lt;&lt; (v10 &amp; 0x1F)) &amp; *((_DWORD *)v19 + (v10 &gt;&gt; 5))) != 0) == v23[v10]脚本如下。c = &#39;&#39;&#39;00 01 00 00 00 00 00 00 01 00 01 00 00 00 01 01 \00 00 01 01 00 00 01 01 00 00 01 01 00 00 01 01&#39;&#39;&#39;.split()c = map(lambda x: x[1:], c)cipher = &#39;&#39;for i in xrange(len(c)/8):    t = eval(&#39;0b&#39; + &#39;&#39;.join(c[8*i:8*(i+1)][::-1]))    cipher += hex(t)[2:].rjust(2, &#39;0&#39;)print cipher得到02c5cccc，也就是0xccccc502所以check1函数对输入进行处理后，返回的结果是这个值。如果满足进行check2，就是一个方程，估计是输入值不止一个，所以这里加了一个条件判断（最后发现是精度检查）。check1在check1函数中，主要分为2个部分，分别对输入的整数部分和小数部分进行处理，两个部分对后续的值都有影响。由于大量代码在float格式下存在优化的问题，导致静态逆向存在很大的困难，所以在解题的时候，我主要采用动态调试的方式。这里分为几个部分说明。首先是输入参数，将输入值加上1.234567传入check1函数中。小数部分sub_EF12C0这个函数的作用是对小数部分进行处理，主要使用sse指令进行处理，创建两个结构体，都是用于分配的空间地址。这里同时也用到了ffloor函数用于判断输入的整数部分。这里先不讨论整数部分值的情况。大致的算法就是对小数部分进行模拟逼近，从0.5开始逼近，小于则置1，否则置0，然后是0.25，0.125等等。这部分比较好逆向，模拟算法如下，可将小数转换成十六进制（f2h）。在逼近结束后，只会产生3个hex值，最后一个hex值和第二个hex值的部分位，将由整数部分输出。整数部分在逆向的过程中，发现整数部分用于判断和2的次方的大小关系，也影响了小数部分的输出值。在sub_EF1200函数中对整数部分进行了检测并返回相应的值，由于输入值在0-9之间，这里我也没详细看，大概判断出是不断乘以2的操作。之间用idapython遍历一下就行。idapython这里就用idapython配合ida，hook自带的dbg，然后动态下断和获取就行了 ，脚本不上了。就9个值，看下结果就行。可以看到，和上文所说一致，第一列是输入值，第二列是输入check1的参数，第三列是小数部分的值，第四部分是最后的输出值。整数部分主要影响第一个hex的值，从0到9只有fc、02、82三个值，最后的cipher第一个hex是02，可判断大致的输入范围。由f2h函数可知，第三列的结果符合模拟算法的结果，而第四列的结果是小数部分的值乘以2。当整数部分的值扩大，每当大于2的次方时，小数部分的值又会乘以2，大致关系就是这样。求解虽然能大致得到整数部分的范围，但是其中有个4，所以这里需要分类讨论。将cipher的值去掉最后一个hex，同时去掉一位整数部分的影响，得到0xccccc4  如果值大于4，小数部分的值应该是0xccccc4除以8。  如果值小于4，小数部分的值应该是0xccccc4除以4。也就是0x199998和0x333331。然后写出f2h的逆算法，h2f如下所示。最后对两种情况分别验证即可。最后得到1.3154329，输入之后发现不满足check2。一开始以为是哪里弄错了，最后发现是精度不对，改成1.3154328就行了。">
-  <meta name="twitter:url" content="http://localhost:4000/posts/2019-05/IIE-2019-5-YellowCTF.html">
+  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2019-05/IIE-2019-5-YellowCTF.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="http://localhost:4000/posts/2019-05/IIE-2019-5-YellowCTF.html">
+<link rel="canonical" href="https://zjgcjy.github.io/posts/2019-05/IIE-2019-5-YellowCTF.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "http://localhost:4000/",
+      "url": "https://zjgcjy.github.io/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -576,11 +576,11 @@
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Iie+2019+5+Yellowctf%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-05%2FIIE-2019-5-YellowCTF.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Iie+2019+5+Yellowctf%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-05%2FIIE-2019-5-YellowCTF.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-05%2FIIE-2019-5-YellowCTF.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-05%2FIIE-2019-5-YellowCTF.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-05%2FIIE-2019-5-YellowCTF.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-05%2FIIE-2019-5-YellowCTF.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -841,7 +841,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "http://localhost:4000/posts/2019-05/IIE-2019-5-YellowCTF.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "https://zjgcjy.github.io/posts/2019-05/IIE-2019-5-YellowCTF.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2019-05/IIE-2019-5-YellowCTF"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

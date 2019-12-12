@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Jeb2 3 13mips初次破解">
-<meta property="og:url" content="http://localhost:4000/posts/2018-04/Jeb2-3-13mips%E5%88%9D%E6%AC%A1%E7%A0%B4%E8%A7%A3.html">
+<meta property="og:url" content="https://zjgcjy.github.io/posts/2018-04/Jeb2-3-13mips%E5%88%9D%E6%AC%A1%E7%A0%B4%E8%A7%A3.html">
 
 
   <meta property="og:description" content="  jeb_2.3.13_mips版本初次破解。前期准备因为我也没破解过真正的商业软件，也是头一次尝试吧，结合看雪上的资料，对最新的jeb2.3.13_mips版本进行某些功能的破解。首先下载support包，防止bin目录下，运行wincon脚本，自动解压，然后jeb就运行了。我这不是第一次运行了，所以忘了第一次会干什么，好像是填个许可证吧，根据给出的key算个验证码，然后jeb会给40天免费使用时间。之后会弹一个对话框，提示是试用版本，翻译内容如下：该软件是jeb的限制版本，demo版限制如下：    某些方法限制反编译（Native, Android）    非debug版本应用不支持调试（Android）    不支持多dex合并应用    不允许使用剪贴板    不允许保存项目    任务时间有限    需要网络连接    不允许使用第三方插件然后jeb会加载插件并检测更新。patch jar包这里讲一种方式来patch jar包，通过javassit来实现。javassit也是一个jar包，在官方下载的文件夹里自带了一部分的sample，可以去读一读代码看看各种实现。之后我将给出一些具体的实现方式。本来都想记一下的，奈何最近比较忙，只展示一个延长许可证时间的demo了。许可证时间延长这里的方式就是获取licensing类中的getexpirationtiemstamp方法，然后将方法内容改为return real_license_ts + 345600000;达到延长时间的作用，原理和hook差不多吧。然后打包成jar，在jeb启动前动态加载，hook掉那个方法。达到目的。import javassist.*;public class Main {    public static void patchLicedsing()    {        try{            ClassPool pool = ClassPool.getDefault();            pool.insertClassPath(&quot;C:\\Users\\x\\Desktop\\patch\\jeb.jar&quot;);            CtClass ctClass = pool.get(&quot;com.pnfsoftware.jeb.client.Licensing&quot;);            ctMethod = ctClass.getDeclaredMethod(&quot;getExpirationTimestamp&quot;);            ctMethod.setBody(&quot;return real_license_ts + 345600000;&quot;);            ctClass.writeFile(&quot;C:\\Users\\x\\Desktop&quot;);        }catch(Exception e){            e.printStackTrace();        }    }    public static void main(String[] args) {        patchLicedsing();    }}其他就不写了，最近有点忙。参考资料1参考资料2">
 
 
 
-  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Jeb2 3 13mips初次破解">
   <meta name="twitter:description" content="  jeb_2.3.13_mips版本初次破解。前期准备因为我也没破解过真正的商业软件，也是头一次尝试吧，结合看雪上的资料，对最新的jeb2.3.13_mips版本进行某些功能的破解。首先下载support包，防止bin目录下，运行wincon脚本，自动解压，然后jeb就运行了。我这不是第一次运行了，所以忘了第一次会干什么，好像是填个许可证吧，根据给出的key算个验证码，然后jeb会给40天免费使用时间。之后会弹一个对话框，提示是试用版本，翻译内容如下：该软件是jeb的限制版本，demo版限制如下：    某些方法限制反编译（Native, Android）    非debug版本应用不支持调试（Android）    不支持多dex合并应用    不允许使用剪贴板    不允许保存项目    任务时间有限    需要网络连接    不允许使用第三方插件然后jeb会加载插件并检测更新。patch jar包这里讲一种方式来patch jar包，通过javassit来实现。javassit也是一个jar包，在官方下载的文件夹里自带了一部分的sample，可以去读一读代码看看各种实现。之后我将给出一些具体的实现方式。本来都想记一下的，奈何最近比较忙，只展示一个延长许可证时间的demo了。许可证时间延长这里的方式就是获取licensing类中的getexpirationtiemstamp方法，然后将方法内容改为return real_license_ts + 345600000;达到延长时间的作用，原理和hook差不多吧。然后打包成jar，在jeb启动前动态加载，hook掉那个方法。达到目的。import javassist.*;public class Main {    public static void patchLicedsing()    {        try{            ClassPool pool = ClassPool.getDefault();            pool.insertClassPath(&quot;C:\\Users\\x\\Desktop\\patch\\jeb.jar&quot;);            CtClass ctClass = pool.get(&quot;com.pnfsoftware.jeb.client.Licensing&quot;);            ctMethod = ctClass.getDeclaredMethod(&quot;getExpirationTimestamp&quot;);            ctMethod.setBody(&quot;return real_license_ts + 345600000;&quot;);            ctClass.writeFile(&quot;C:\\Users\\x\\Desktop&quot;);        }catch(Exception e){            e.printStackTrace();        }    }    public static void main(String[] args) {        patchLicedsing();    }}其他就不写了，最近有点忙。参考资料1参考资料2">
-  <meta name="twitter:url" content="http://localhost:4000/posts/2018-04/Jeb2-3-13mips%E5%88%9D%E6%AC%A1%E7%A0%B4%E8%A7%A3.html">
+  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2018-04/Jeb2-3-13mips%E5%88%9D%E6%AC%A1%E7%A0%B4%E8%A7%A3.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="http://localhost:4000/posts/2018-04/Jeb2-3-13mips%E5%88%9D%E6%AC%A1%E7%A0%B4%E8%A7%A3.html">
+<link rel="canonical" href="https://zjgcjy.github.io/posts/2018-04/Jeb2-3-13mips%E5%88%9D%E6%AC%A1%E7%A0%B4%E8%A7%A3.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "http://localhost:4000/",
+      "url": "https://zjgcjy.github.io/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -491,11 +491,11 @@
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Jeb2+3+13mips%E5%88%9D%E6%AC%A1%E7%A0%B4%E8%A7%A3%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-04%2FJeb2-3-13mips%25E5%2588%259D%25E6%25AC%25A1%25E7%25A0%25B4%25E8%25A7%25A3.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Jeb2+3+13mips%E5%88%9D%E6%AC%A1%E7%A0%B4%E8%A7%A3%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2018-04%2FJeb2-3-13mips%25E5%2588%259D%25E6%25AC%25A1%25E7%25A0%25B4%25E8%25A7%25A3.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-04%2FJeb2-3-13mips%25E5%2588%259D%25E6%25AC%25A1%25E7%25A0%25B4%25E8%25A7%25A3.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2018-04%2FJeb2-3-13mips%25E5%2588%259D%25E6%25AC%25A1%25E7%25A0%25B4%25E8%25A7%25A3.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-04%2FJeb2-3-13mips%25E5%2588%259D%25E6%25AC%25A1%25E7%25A0%25B4%25E8%25A7%25A3.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2018-04%2FJeb2-3-13mips%25E5%2588%259D%25E6%25AC%25A1%25E7%25A0%25B4%25E8%25A7%25A3.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -756,7 +756,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "http://localhost:4000/posts/2018-04/Jeb2-3-13mips%E5%88%9D%E6%AC%A1%E7%A0%B4%E8%A7%A3.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "https://zjgcjy.github.io/posts/2018-04/Jeb2-3-13mips%E5%88%9D%E6%AC%A1%E7%A0%B4%E8%A7%A3.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2018-04/Jeb2-3-13mips初次破解"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

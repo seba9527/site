@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Angrlearning 1">
-<meta property="og:url" content="http://localhost:4000/posts/2019-01/AngrLearning-1.html">
+<meta property="og:url" content="https://zjgcjy.github.io/posts/2019-01/AngrLearning-1.html">
 
 
   <meta property="og:description" content="  学习笔记，结合官方文档和网上资料整理，加强理解从angr官方文档的第二章核心概念开始。顶层接口学习一些基本的顶层接口，对angr的概念和对象有个整体的把握。使用angr的第一步总是创建一个angr工程去加载一个文件。工程是你控制angr的基础，有了它，你就能进行分析和模拟刚刚加载的文件。几乎在angr中碰到的所有单个对象在某种形式上都取决于工程的存在。基础特性通过Project对象，我们可以获取程序的基础特性，包括CPU架构、文件名、入口点、大小端序、字长等等的信息。可以看到，Project的特性有很多，其中比较常用的是：arch、analyses、loader、entry、factory、filename、hook等。其中arch是archinfo.Arch的对象，显示了文件的架构，是AMD64。proj.arch.memory_endness则显示了（LE），即小段序。arch.bits代表的是机器的字长位数，即64位物理机。arch.bytes代表了系统的数据长度单位是8byte。entry是执行文件的入口点，filename是文件名。加载器（Loader）从二进制文件中得到运行时的虚拟地址空间是非常复杂的。angr通过CLE模块来加载不同架构的程序，从而分析，其结果可以通过Project的.loader特性中获得。我们可以通过它来观察共享库的加载情况和对加载地址空间进行基本的数据查询。In [21]: proj.loaderOut[21]: &lt;Loaded su_pwn100, maps [0x8048000:0xd008000]&gt;# 查看最小地址In [23]: proj.loader.min_addrOut[23]: 0x8048000# 查看最大地址In [24]: proj.loader.max_addrOut[24]: 0xd008000# 查看主对象的plt表In [26]: proj.loader.main_object.pltOut[26]:{u&#39;__gmon_start__&#39;: 0x80484f0, u&#39;__isoc99_fscanf&#39;: 0x80484d0, u&#39;__isoc99_scanf&#39;: 0x8048550, u&#39;__libc_start_main&#39;: 0x8048510, u&#39;exit&#39;: 0x8048500, u&#39;fopen&#39;: 0x8048540, u&#39;printf&#39;: 0x80484c0, u&#39;puts&#39;: 0x80484e0, u&#39;read&#39;: 0x80484b0, u&#39;setvbuf&#39;: 0x8048530, u&#39;strcmp&#39;: 0x80484a0, u&#39;write&#39;: 0x8048520} # 查看pic开启情况 In [27]: proj.loader.main_object.pic Out[27]: False # 查看程序中是否存在可执行栈 In [28]: proj.loader.main_object.execstack Out[28]: False工厂（factory）在angr中有许多类，并且他们大多数都需要一个工程来实例化。我们提供project.factory，其中对常见的对象提供了许多可用的构造器，这一节也会介绍很多angr的基础概念。块（block）首先，我们有project.factory.block()，可以用来解析给定地址的基本代码块。这是一个重要的事实angr分析代码是以块为单位的，你会获得一个块对象，可以给你提供许多有趣的信息。# 查看块的指令数量大小In [61]: block.instructionsOut[61]: 0xd# 指令地址In [62]: block.instruction_addrsOut[62]:[0x8048560L, 0x8048562L, 0x8048563L, 0x8048565L, 0x8048568L, 0x8048569L, 0x804856aL, 0x804856bL, 0x8048570L, 0x8048575L, 0x8048576L, 0x8048577L, 0x804857cL]同样可以用capstone来反编译代码块，或者使用vex来转换成IR。状态（states）这是关于angr的另一个基本概念，Project对象仅仅代表了程序的初始化镜像。当使用angr进行执行操作时，你操作的都是一种特殊的对象即代表了一个模拟的程序状态，叫做SimState。In [71]: state = proj.factory.entry_state()# 获取程序入口点的状态In [72]: stateOut[72]: &lt;SimState @ 0x8048560&gt;SimState包含了一个程序的内存，寄存器，文件流数据等等。任何可以被执行更改的live data在程序中都有一个状态。使用state.regs和state.mem来获取寄存器内容和内存。# 获取当前状态的eipIn [101]: state.regs.eipOut[101]: &lt;BV32 0x8048560&gt;# 获取ebx寄存器In [102]: state.regs.ebxOut[102]: &lt;BV32 reg_14_5_32{UNINITIALIZED}&gt;# 获取内存，转化为int型In [104]: state.mem[proj.entry].int.resolvedOut[104]: &lt;BV32 0x895eed31&gt;这些不是python类型的数据，是位向量bitvectors，用来代表CPU的运行数据，每个位向量都有length特性来描述数据长度。同时可以尝试将python的int型转成位向量。# BitVectors和python数据相互转换# 产生位向量，32位的值是0x1234In [112]: bv = state.solver.BVV(0x1234,32)Out[113]: &lt;BV32 0x1234&gt;# 求解位向量In [114]: state.solver.eval(bv)Out[114]: 0x1234In [45]: state.solver.eval(state.mem[proj.entry].int.resolved)Out[45]: 0xfa1e0ff3也可以将值存储到寄存器和内存中，或者直接使用python的int，它会被转换成适当大小的位向量。关于mem是令人困惑的，具体怎样使用：  使用数组和下标的形式来访问地址。  使用.&lt;type&gt;来指定某块内存被解释成某种特定的类型。除此之外，均可使用位向量或python类型来给其赋值。  使用.resolved来获取位向量值，使用.concrete来获取python变量类型。对于寄存器而言，会有一些奇怪的变量，如下所示。In [135]: state.regs.ediOut[135]: &lt;BV32 reg_24_10_32{UNINITIALIZED}&gt;这是一个32位的向量，但是它不包含任何数值类型的值。这叫做符号变量，是在符号执行的基础上产生的。模拟管理器（simulation managers）如果一个状态及时反映了给定时间的程序运行，这就肯定会有一种方式来获得其下一个状态。模拟管理器是在angr中首选的接口来进行执行或模拟操作，无论你干什么，都必须和状态有关。让我们展示如何在向前走了几步之后，如何访问我们之前标记过的一个状态。首先，我们创建模拟管理器，构造器的参数可以是一个或多个的状态。In [5]: state = proj.factory.entry_state()Out[6]: &lt;SimState @ 0x8048560&gt;In [7]: simgr = proj.factory.simulation_manager(state)Out[8]: &lt;SimulationManager with 1 active&gt;In [20]: simgr.active[0]Out[20]: &lt;SimState @ 0x8048560&gt;仿真管理器可以包含许多状态的储藏（stash，和git中的git stash差不多，存储状态），默认的stash是activate，是通过我们给的值来初始化的。我们可以查看simgr.activate[0]来查看原始状态。In [18]: simgr.step()Out[18]: &lt;SimulationManager with 1 active&gt;我们刚刚对一个基本块进行了符号执行操作。我们可以查看激活的stash（activate stash），注意到它已经被修改了，但是他的原始状态并没有被修改。你可以安全的使用一个单独的状态作为基础态，然后进行多轮复杂的符号执行等操作。# 新的状态In [21]: simgr.active[0].regs.eipOut[21]: &lt;BV32 0x8048510&gt;# 原始状态In [22]: state.regs.eipOut[22]: &lt;BV32 0x8048560&gt;分析angr中有许多内置的分析工具，你可以用他们来解析一些有趣的信息proj.analyses.包括CFG等等，更多的文档在angr的API文档中有提及。通过一个简单的例子告诉你怎么构建控制流图CFG。In [11]: proj = angr.Project(&#39;./su_pwn100&#39;, auto_load_libs=False)# 取消自动加载库文件In [12]: cfg = proj.analyses.CFGFast()# cfg.graph是networkx DiGraph 实例，参考networkx APIs来使用In [13]: cfg.graphOut[13]: &lt;networkx.classes.digraph.DiGraph at 0x7f9056bfaed0&gt;# 获取给定地址的CFGNodeIn [14]: entry_node = cfg.get_any_node(proj.entry)In [16]: list(cfg.graph.successors(entry_node))Out[16]: [&lt;CFGNode 0x8048510[6]&gt;]">
 
 
 
-  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Angrlearning 1">
   <meta name="twitter:description" content="  学习笔记，结合官方文档和网上资料整理，加强理解从angr官方文档的第二章核心概念开始。顶层接口学习一些基本的顶层接口，对angr的概念和对象有个整体的把握。使用angr的第一步总是创建一个angr工程去加载一个文件。工程是你控制angr的基础，有了它，你就能进行分析和模拟刚刚加载的文件。几乎在angr中碰到的所有单个对象在某种形式上都取决于工程的存在。基础特性通过Project对象，我们可以获取程序的基础特性，包括CPU架构、文件名、入口点、大小端序、字长等等的信息。可以看到，Project的特性有很多，其中比较常用的是：arch、analyses、loader、entry、factory、filename、hook等。其中arch是archinfo.Arch的对象，显示了文件的架构，是AMD64。proj.arch.memory_endness则显示了（LE），即小段序。arch.bits代表的是机器的字长位数，即64位物理机。arch.bytes代表了系统的数据长度单位是8byte。entry是执行文件的入口点，filename是文件名。加载器（Loader）从二进制文件中得到运行时的虚拟地址空间是非常复杂的。angr通过CLE模块来加载不同架构的程序，从而分析，其结果可以通过Project的.loader特性中获得。我们可以通过它来观察共享库的加载情况和对加载地址空间进行基本的数据查询。In [21]: proj.loaderOut[21]: &lt;Loaded su_pwn100, maps [0x8048000:0xd008000]&gt;# 查看最小地址In [23]: proj.loader.min_addrOut[23]: 0x8048000# 查看最大地址In [24]: proj.loader.max_addrOut[24]: 0xd008000# 查看主对象的plt表In [26]: proj.loader.main_object.pltOut[26]:{u&#39;__gmon_start__&#39;: 0x80484f0, u&#39;__isoc99_fscanf&#39;: 0x80484d0, u&#39;__isoc99_scanf&#39;: 0x8048550, u&#39;__libc_start_main&#39;: 0x8048510, u&#39;exit&#39;: 0x8048500, u&#39;fopen&#39;: 0x8048540, u&#39;printf&#39;: 0x80484c0, u&#39;puts&#39;: 0x80484e0, u&#39;read&#39;: 0x80484b0, u&#39;setvbuf&#39;: 0x8048530, u&#39;strcmp&#39;: 0x80484a0, u&#39;write&#39;: 0x8048520} # 查看pic开启情况 In [27]: proj.loader.main_object.pic Out[27]: False # 查看程序中是否存在可执行栈 In [28]: proj.loader.main_object.execstack Out[28]: False工厂（factory）在angr中有许多类，并且他们大多数都需要一个工程来实例化。我们提供project.factory，其中对常见的对象提供了许多可用的构造器，这一节也会介绍很多angr的基础概念。块（block）首先，我们有project.factory.block()，可以用来解析给定地址的基本代码块。这是一个重要的事实angr分析代码是以块为单位的，你会获得一个块对象，可以给你提供许多有趣的信息。# 查看块的指令数量大小In [61]: block.instructionsOut[61]: 0xd# 指令地址In [62]: block.instruction_addrsOut[62]:[0x8048560L, 0x8048562L, 0x8048563L, 0x8048565L, 0x8048568L, 0x8048569L, 0x804856aL, 0x804856bL, 0x8048570L, 0x8048575L, 0x8048576L, 0x8048577L, 0x804857cL]同样可以用capstone来反编译代码块，或者使用vex来转换成IR。状态（states）这是关于angr的另一个基本概念，Project对象仅仅代表了程序的初始化镜像。当使用angr进行执行操作时，你操作的都是一种特殊的对象即代表了一个模拟的程序状态，叫做SimState。In [71]: state = proj.factory.entry_state()# 获取程序入口点的状态In [72]: stateOut[72]: &lt;SimState @ 0x8048560&gt;SimState包含了一个程序的内存，寄存器，文件流数据等等。任何可以被执行更改的live data在程序中都有一个状态。使用state.regs和state.mem来获取寄存器内容和内存。# 获取当前状态的eipIn [101]: state.regs.eipOut[101]: &lt;BV32 0x8048560&gt;# 获取ebx寄存器In [102]: state.regs.ebxOut[102]: &lt;BV32 reg_14_5_32{UNINITIALIZED}&gt;# 获取内存，转化为int型In [104]: state.mem[proj.entry].int.resolvedOut[104]: &lt;BV32 0x895eed31&gt;这些不是python类型的数据，是位向量bitvectors，用来代表CPU的运行数据，每个位向量都有length特性来描述数据长度。同时可以尝试将python的int型转成位向量。# BitVectors和python数据相互转换# 产生位向量，32位的值是0x1234In [112]: bv = state.solver.BVV(0x1234,32)Out[113]: &lt;BV32 0x1234&gt;# 求解位向量In [114]: state.solver.eval(bv)Out[114]: 0x1234In [45]: state.solver.eval(state.mem[proj.entry].int.resolved)Out[45]: 0xfa1e0ff3也可以将值存储到寄存器和内存中，或者直接使用python的int，它会被转换成适当大小的位向量。关于mem是令人困惑的，具体怎样使用：  使用数组和下标的形式来访问地址。  使用.&lt;type&gt;来指定某块内存被解释成某种特定的类型。除此之外，均可使用位向量或python类型来给其赋值。  使用.resolved来获取位向量值，使用.concrete来获取python变量类型。对于寄存器而言，会有一些奇怪的变量，如下所示。In [135]: state.regs.ediOut[135]: &lt;BV32 reg_24_10_32{UNINITIALIZED}&gt;这是一个32位的向量，但是它不包含任何数值类型的值。这叫做符号变量，是在符号执行的基础上产生的。模拟管理器（simulation managers）如果一个状态及时反映了给定时间的程序运行，这就肯定会有一种方式来获得其下一个状态。模拟管理器是在angr中首选的接口来进行执行或模拟操作，无论你干什么，都必须和状态有关。让我们展示如何在向前走了几步之后，如何访问我们之前标记过的一个状态。首先，我们创建模拟管理器，构造器的参数可以是一个或多个的状态。In [5]: state = proj.factory.entry_state()Out[6]: &lt;SimState @ 0x8048560&gt;In [7]: simgr = proj.factory.simulation_manager(state)Out[8]: &lt;SimulationManager with 1 active&gt;In [20]: simgr.active[0]Out[20]: &lt;SimState @ 0x8048560&gt;仿真管理器可以包含许多状态的储藏（stash，和git中的git stash差不多，存储状态），默认的stash是activate，是通过我们给的值来初始化的。我们可以查看simgr.activate[0]来查看原始状态。In [18]: simgr.step()Out[18]: &lt;SimulationManager with 1 active&gt;我们刚刚对一个基本块进行了符号执行操作。我们可以查看激活的stash（activate stash），注意到它已经被修改了，但是他的原始状态并没有被修改。你可以安全的使用一个单独的状态作为基础态，然后进行多轮复杂的符号执行等操作。# 新的状态In [21]: simgr.active[0].regs.eipOut[21]: &lt;BV32 0x8048510&gt;# 原始状态In [22]: state.regs.eipOut[22]: &lt;BV32 0x8048560&gt;分析angr中有许多内置的分析工具，你可以用他们来解析一些有趣的信息proj.analyses.包括CFG等等，更多的文档在angr的API文档中有提及。通过一个简单的例子告诉你怎么构建控制流图CFG。In [11]: proj = angr.Project(&#39;./su_pwn100&#39;, auto_load_libs=False)# 取消自动加载库文件In [12]: cfg = proj.analyses.CFGFast()# cfg.graph是networkx DiGraph 实例，参考networkx APIs来使用In [13]: cfg.graphOut[13]: &lt;networkx.classes.digraph.DiGraph at 0x7f9056bfaed0&gt;# 获取给定地址的CFGNodeIn [14]: entry_node = cfg.get_any_node(proj.entry)In [16]: list(cfg.graph.successors(entry_node))Out[16]: [&lt;CFGNode 0x8048510[6]&gt;]">
-  <meta name="twitter:url" content="http://localhost:4000/posts/2019-01/AngrLearning-1.html">
+  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2019-01/AngrLearning-1.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="http://localhost:4000/posts/2019-01/AngrLearning-1.html">
+<link rel="canonical" href="https://zjgcjy.github.io/posts/2019-01/AngrLearning-1.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "http://localhost:4000/",
+      "url": "https://zjgcjy.github.io/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -637,11 +637,11 @@
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Angrlearning+1%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-01%2FAngrLearning-1.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Angrlearning+1%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-01%2FAngrLearning-1.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-01%2FAngrLearning-1.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-01%2FAngrLearning-1.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-01%2FAngrLearning-1.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-01%2FAngrLearning-1.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -902,7 +902,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "http://localhost:4000/posts/2019-01/AngrLearning-1.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "https://zjgcjy.github.io/posts/2019-01/AngrLearning-1.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2019-01/AngrLearning-1"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

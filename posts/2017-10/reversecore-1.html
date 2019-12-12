@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Reversecore 1">
-<meta property="og:url" content="http://localhost:4000/posts/2017-10/reversecore-1.html">
+<meta property="og:url" content="https://zjgcjy.github.io/posts/2017-10/reversecore-1.html">
 
 
   <meta property="og:description" content="  《逆向工程核心原理》读书笔记-1第二章   简单调试helloworld程序首先熟悉一下基本过程吧，虽然大部分都知道了，但还是从基础的开始看，逆向就是要慢慢来的，不要急。-_-。这里我用的就是ida了，没用od，调试器加载的位置是函数的入口点，不是所谓的主函数地址，一般都是从0x401000开始的，因为涉及到IAD表重定位的问题。而入口点一般在主函数下面。call    ___security_init_cookiejmp     ___tmainCRTStartup主要就2步ASM的过程，第一个call是安全机制检查，应该是canary吧，没详细查过，因为主函数退出之后也有个对吧，应该没错。第二个跳转到mainCRT函数，这是Visual C++启动函数。进入启动函数之后，编译器会做许多前期准备工作，我们要查找的主函数一般靠近最后部分。最明显的标识就是连续push三次了，ia32是这样的，ia64用寄存器可能不相同吧。之后就exit()了，这就是为什么main()里面可以调用exit()直接退出。push    0               ; uTypepush    offset Caption  ; &quot;www.reversecore.com&quot;push    offset Text     ; &quot;Hello World!&quot;push    0               ; hWndcall    ds:MessageBoxWxor     eax, eax主函数ASM如上，没什么好说的。要注意的地方就是在Win32编程中，VC++默认实用Unicode码，内部都是Unicode系列函数。">
 
 
 
-  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Reversecore 1">
   <meta name="twitter:description" content="  《逆向工程核心原理》读书笔记-1第二章   简单调试helloworld程序首先熟悉一下基本过程吧，虽然大部分都知道了，但还是从基础的开始看，逆向就是要慢慢来的，不要急。-_-。这里我用的就是ida了，没用od，调试器加载的位置是函数的入口点，不是所谓的主函数地址，一般都是从0x401000开始的，因为涉及到IAD表重定位的问题。而入口点一般在主函数下面。call    ___security_init_cookiejmp     ___tmainCRTStartup主要就2步ASM的过程，第一个call是安全机制检查，应该是canary吧，没详细查过，因为主函数退出之后也有个对吧，应该没错。第二个跳转到mainCRT函数，这是Visual C++启动函数。进入启动函数之后，编译器会做许多前期准备工作，我们要查找的主函数一般靠近最后部分。最明显的标识就是连续push三次了，ia32是这样的，ia64用寄存器可能不相同吧。之后就exit()了，这就是为什么main()里面可以调用exit()直接退出。push    0               ; uTypepush    offset Caption  ; &quot;www.reversecore.com&quot;push    offset Text     ; &quot;Hello World!&quot;push    0               ; hWndcall    ds:MessageBoxWxor     eax, eax主函数ASM如上，没什么好说的。要注意的地方就是在Win32编程中，VC++默认实用Unicode码，内部都是Unicode系列函数。">
-  <meta name="twitter:url" content="http://localhost:4000/posts/2017-10/reversecore-1.html">
+  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2017-10/reversecore-1.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="http://localhost:4000/posts/2017-10/reversecore-1.html">
+<link rel="canonical" href="https://zjgcjy.github.io/posts/2017-10/reversecore-1.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "http://localhost:4000/",
+      "url": "https://zjgcjy.github.io/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -449,11 +449,11 @@ xor     eax, eax
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Reversecore+1%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-10%2Freversecore-1.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Reversecore+1%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-10%2Freversecore-1.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-10%2Freversecore-1.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-10%2Freversecore-1.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-10%2Freversecore-1.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-10%2Freversecore-1.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -714,7 +714,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "http://localhost:4000/posts/2017-10/reversecore-1.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "https://zjgcjy.github.io/posts/2017-10/reversecore-1.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2017-10/reversecore-1"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE
