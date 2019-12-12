@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Linux知识补充">
-<meta property="og:url" content="https://zjgcjy.github.io/posts/2018-03/Linux%E7%9F%A5%E8%AF%86%E8%A1%A5%E5%85%85.html">
+<meta property="og:url" content="http://localhost:4000/posts/2018-03/Linux%E7%9F%A5%E8%AF%86%E8%A1%A5%E5%85%85.html">
 
 
   <meta property="og:description" content="  本篇是《深入理解计算机系统》的笔记。关于这本书前面的程序结构、硬件电路层我没怎么看，在计组里基本学过，没有深入研究。主要看了后面的Linux系统部分，顺带复习操作系统了。链接——位置无关代码PIC为了使多个进程可以共享一个共享模块的副本，GNU使用加载而无需重定位的代码，即GCC使用-fpic选项生成PIC代码。PIC数据引用无论我们在内存的何处加载目标模块，数据段和代码段之间的距离总是保持不变。因此，代码段中任何指令和数据段中的任何变量之间的距离都是一个常量，与代码段和数据段在内存中的绝对位置无关。编译器在代码段在骑士部分创建GOT表，所有被引用的函数和变量都有一个条目，使得他包含目标的正确的绝对地址。所以在进行PIC数据引用的时候，只要通过GOT就能加载全局变量的地址，而编译器可以通过相对引用来访问GOT，从而实现了对数据的相对访问。PIC函数调用为了使进程在运行时调用由共享库定义的函数，由于编译器没有办法预测函数的运行时地址，所以它的共享模块可以加载到任何地址，GNU编译器使用了延时绑定技术，将过程地址的绑定推迟到第一次调用的时候进行。使用两个表，一个GOT，一个是PLT。GOT是数据段的一部分，PLT是代码段的。PLT是个数组，其中0索引是一个特殊条目，负责跳转到动态连接器中。和PLT一起使用时，GOT0索引和1索引包含动态连接器在解析函数地址所需要的地址。GOT2索引是动态链接器在ld-linux.so的入口点。其余的对于被调函数，不过地址需要在运行的时候再解析，每个GOT项对应一个PLT项。初始时，GOT的项指向对应PLT项的第二条指令(一般是push 偏移量)。延时绑定  第一次调用，代码段通过call指令跳转到PLT表的某个表项。          执行PLT表项中第一条指令，根据GOT表项的数据进行间接跳转。而此时GOT表中存放的是对应的PLT项的下一条指令，所以又跳回了PLT表，相当于直接执行下一条指令。      执行PLT表项中第二条指令，进行push压入偏移量，偏移量表示函数对应在GOT表中的偏移。      执行PLT表项中第三条指令，跳转到PLT0索引处，将GOT1压栈，通过GOT2间接跳转到动态连接器中。动态链接器根据两个参数来决定函数的相对位置，并且重写GOT表项，同时执行函数。        第二次调用，同样是代码段通过call指令跳转到PLT表的某个表项。          执行PLT表项中第一条指令，根据GOT表项的数据进行间接跳转。但是和第一次不一样的是，此时的GOT表项中的数据是所执行函数的地址。所以直接执行函数。      进程关于进程调度这部分就不说了。进程控制每个进程有唯一的进程ID，getpid函数可以返回调用进程的PID。getppid返回他的父进程的PID。#include &lt;sys/types.h&gt;#include &lt;unistd.h&gt;//返回类型`pid_t`是int型的。pid_t getpid(void);pid_t getppid(void);进程的退出和创建#include &lt;stdlib.h&gt;//进程退出。void exit(int status);子进程父进程可以通过fork来创建子进程。#include &lt;sys/types.h&gt;#include &lt;unistd.h&gt;//子进程返回0，父进程返回子进程的PID，错误返回-1。pid_t fork(void);子进程得到的虚拟地址控件和父进程是一样的，包括代码段和数据段，但是pid和父进程不同。通过fork函数的返回值可以判断当前是在父进程还是在子进程中。pid_t==0是子进程，但子进程的PID不为0。需要注意的是，父子进程是并发执行的，两个进程执行的速度不确定，但是父子进程是两个独立的进程，有自己的私有地址空间，变量保持独立。进程休眠#include &lt;unistd.h&gt;unsigned int sleep(unsigned int secs);      //设置休眠时间，返回还要休眠的时间int pause(void);            //总是返回-1，收到型号后恢复。进程加载#include &lt;unistd.h&gt;int execve(const char *filename, const char **argv, const char **envp);其中argv是参数列表，envp是环境变量列表。当main开始执行的时候，用户栈栈底往上依次是envp、argr、argc，然后是libc_start_main的栈帧，再往上是之后的main栈帧。关于fork和execve函数的区别。fork是在新的子进程中运行相同的程序，是一个副本。而execve在当前进程上下文中加载并运行一个新的程序，会覆盖当前进程的地址空间，但是他不创建新的进程，pid是一样的。进程组#include &lt;unistd.h&gt;pid_t getpgrp(void);    //返回当初进程的组进程idint setpgid(pid_t pid, pid_t  pgid);     //改变自己或其他进程的进程组内存管理堆和内存管理地址转换">
 
 
 
-  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Linux知识补充">
   <meta name="twitter:description" content="  本篇是《深入理解计算机系统》的笔记。关于这本书前面的程序结构、硬件电路层我没怎么看，在计组里基本学过，没有深入研究。主要看了后面的Linux系统部分，顺带复习操作系统了。链接——位置无关代码PIC为了使多个进程可以共享一个共享模块的副本，GNU使用加载而无需重定位的代码，即GCC使用-fpic选项生成PIC代码。PIC数据引用无论我们在内存的何处加载目标模块，数据段和代码段之间的距离总是保持不变。因此，代码段中任何指令和数据段中的任何变量之间的距离都是一个常量，与代码段和数据段在内存中的绝对位置无关。编译器在代码段在骑士部分创建GOT表，所有被引用的函数和变量都有一个条目，使得他包含目标的正确的绝对地址。所以在进行PIC数据引用的时候，只要通过GOT就能加载全局变量的地址，而编译器可以通过相对引用来访问GOT，从而实现了对数据的相对访问。PIC函数调用为了使进程在运行时调用由共享库定义的函数，由于编译器没有办法预测函数的运行时地址，所以它的共享模块可以加载到任何地址，GNU编译器使用了延时绑定技术，将过程地址的绑定推迟到第一次调用的时候进行。使用两个表，一个GOT，一个是PLT。GOT是数据段的一部分，PLT是代码段的。PLT是个数组，其中0索引是一个特殊条目，负责跳转到动态连接器中。和PLT一起使用时，GOT0索引和1索引包含动态连接器在解析函数地址所需要的地址。GOT2索引是动态链接器在ld-linux.so的入口点。其余的对于被调函数，不过地址需要在运行的时候再解析，每个GOT项对应一个PLT项。初始时，GOT的项指向对应PLT项的第二条指令(一般是push 偏移量)。延时绑定  第一次调用，代码段通过call指令跳转到PLT表的某个表项。          执行PLT表项中第一条指令，根据GOT表项的数据进行间接跳转。而此时GOT表中存放的是对应的PLT项的下一条指令，所以又跳回了PLT表，相当于直接执行下一条指令。      执行PLT表项中第二条指令，进行push压入偏移量，偏移量表示函数对应在GOT表中的偏移。      执行PLT表项中第三条指令，跳转到PLT0索引处，将GOT1压栈，通过GOT2间接跳转到动态连接器中。动态链接器根据两个参数来决定函数的相对位置，并且重写GOT表项，同时执行函数。        第二次调用，同样是代码段通过call指令跳转到PLT表的某个表项。          执行PLT表项中第一条指令，根据GOT表项的数据进行间接跳转。但是和第一次不一样的是，此时的GOT表项中的数据是所执行函数的地址。所以直接执行函数。      进程关于进程调度这部分就不说了。进程控制每个进程有唯一的进程ID，getpid函数可以返回调用进程的PID。getppid返回他的父进程的PID。#include &lt;sys/types.h&gt;#include &lt;unistd.h&gt;//返回类型`pid_t`是int型的。pid_t getpid(void);pid_t getppid(void);进程的退出和创建#include &lt;stdlib.h&gt;//进程退出。void exit(int status);子进程父进程可以通过fork来创建子进程。#include &lt;sys/types.h&gt;#include &lt;unistd.h&gt;//子进程返回0，父进程返回子进程的PID，错误返回-1。pid_t fork(void);子进程得到的虚拟地址控件和父进程是一样的，包括代码段和数据段，但是pid和父进程不同。通过fork函数的返回值可以判断当前是在父进程还是在子进程中。pid_t==0是子进程，但子进程的PID不为0。需要注意的是，父子进程是并发执行的，两个进程执行的速度不确定，但是父子进程是两个独立的进程，有自己的私有地址空间，变量保持独立。进程休眠#include &lt;unistd.h&gt;unsigned int sleep(unsigned int secs);      //设置休眠时间，返回还要休眠的时间int pause(void);            //总是返回-1，收到型号后恢复。进程加载#include &lt;unistd.h&gt;int execve(const char *filename, const char **argv, const char **envp);其中argv是参数列表，envp是环境变量列表。当main开始执行的时候，用户栈栈底往上依次是envp、argr、argc，然后是libc_start_main的栈帧，再往上是之后的main栈帧。关于fork和execve函数的区别。fork是在新的子进程中运行相同的程序，是一个副本。而execve在当前进程上下文中加载并运行一个新的程序，会覆盖当前进程的地址空间，但是他不创建新的进程，pid是一样的。进程组#include &lt;unistd.h&gt;pid_t getpgrp(void);    //返回当初进程的组进程idint setpgid(pid_t pid, pid_t  pgid);     //改变自己或其他进程的进程组内存管理堆和内存管理地址转换">
-  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2018-03/Linux%E7%9F%A5%E8%AF%86%E8%A1%A5%E5%85%85.html">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2018-03/Linux%E7%9F%A5%E8%AF%86%E8%A1%A5%E5%85%85.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="https://zjgcjy.github.io/posts/2018-03/Linux%E7%9F%A5%E8%AF%86%E8%A1%A5%E5%85%85.html">
+<link rel="canonical" href="http://localhost:4000/posts/2018-03/Linux%E7%9F%A5%E8%AF%86%E8%A1%A5%E5%85%85.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "https://zjgcjy.github.io/",
+      "url": "http://localhost:4000/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -263,26 +263,26 @@
     <ul class="author__urls social-icons">
       
         <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
-          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+          <i class="fa fa-map-marker" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
         </li>
       
 
       
         
           
-            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fa fa-link" aria-hidden="true"></i> Website</a></li>
           
         
           
-            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fa fa-envelope-square" aria-hidden="true"></i> Email</a></li>
           
         
           
-            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
           
         
           
-            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
           
         
       
@@ -521,7 +521,7 @@ PLT是个数组，其中0索引是一个特殊条目，负责跳转到动态连�
   
 
   <p class="page__taxonomy">
-    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <strong><i class="fa fa-tags" aria-hidden="true"></i> Tags: </strong>
     <span itemprop="keywords">
     
       
@@ -535,7 +535,7 @@ PLT是个数组，其中0索引是一个特殊条目，负责跳转到动态连�
 
 
         
-          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2018-03-13T03:50:00+08:00">March 13, 2018</time></p>
+          <p class="page__date"><strong><i class="fa fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2018-03-13T03:50:00+08:00">March 13, 2018</time></p>
         
       </footer>
 
@@ -544,11 +544,11 @@ PLT是个数组，其中0索引是一个特殊条目，负责跳转到动态连�
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Linux%E7%9F%A5%E8%AF%86%E8%A1%A5%E5%85%85%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2018-03%2FLinux%25E7%259F%25A5%25E8%25AF%2586%25E8%25A1%25A5%25E5%2585%2585.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Linux%E7%9F%A5%E8%AF%86%E8%A1%A5%E5%85%85%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-03%2FLinux%25E7%259F%25A5%25E8%25AF%2586%25E8%25A1%25A5%25E5%2585%2585.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2018-03%2FLinux%25E7%259F%25A5%25E8%25AF%2586%25E8%25A1%25A5%25E5%2585%2585.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-03%2FLinux%25E7%259F%25A5%25E8%25AF%2586%25E8%25A1%25A5%25E5%2585%2585.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2018-03%2FLinux%25E7%259F%25A5%25E8%25AF%2586%25E8%25A1%25A5%25E5%2585%2585.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-03%2FLinux%25E7%259F%25A5%25E8%25AF%2586%25E8%25A1%25A5%25E5%2585%2585.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -774,16 +774,16 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
       
         
-          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
         
       
         
-          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
         
       
     
 
-    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    <li><a href="/feed.xml"><i class="fa fa-rss-square" aria-hidden="true"></i> Feed</a></li>
   </ul>
 </div>
 
@@ -794,7 +794,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
 
     
   <script src="/assets/js/main.min.js"></script>
-  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+  <script src="https://use.fontawesome.com/1d25d6ba93.js"></script>
 
 
 
@@ -809,7 +809,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "https://zjgcjy.github.io/posts/2018-03/Linux%E7%9F%A5%E8%AF%86%E8%A1%A5%E5%85%85.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "http://localhost:4000/posts/2018-03/Linux%E7%9F%A5%E8%AF%86%E8%A1%A5%E5%85%85.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2018-03/Linux知识补充"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

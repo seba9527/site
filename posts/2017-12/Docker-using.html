@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Docker Using">
-<meta property="og:url" content="https://zjgcjy.github.io/posts/2017-12/Docker-using.html">
+<meta property="og:url" content="http://localhost:4000/posts/2017-12/Docker-using.html">
 
 
   <meta property="og:description" content="  讲一下docker的用法。关于ubuntu16.04安装最新docker的方法，参照官网手册。拉取镜像可以使用docker search ...查找有关镜像然后使用docker pull ...拉取镜像查看镜像查看所有镜像docker images启动镜像有好几种启动方式。直接运行docker run ubuntu:14.04 /bin/echo &#39;Hello world&#39;这跟在本地直接执行 /bin/echo ‘hello world’ 几乎感觉不出任何区别。下面的命令则启动一个 bash 终端，允许用户进行交互。docker run -t -i ubuntu:14.04 /bin/bash其中， -t 选项让Docker分配一个伪终端（pseudo-tty）并绑定到容器的标准输入上， -i 则让容器的标准输入保持打开。守护态运行更多的时候，需要让 Docker 容器在后台以守护态（Daemonized）形式运行。此时，可以通过添加 -d 参数来实现。docker run -d ubuntu:14.04容器启动后会返回一个唯一的 id，也可以通过 docker ps 命令来查看容器信息。docker ps要获取容器的输出信息，可以通过 docker logs 命令。关闭容器可以使用docker stop来终止一个运行中的容器。此外，当Docker容器中指定的应用终结时，容器也自动终止。 对于只启动了一个终端的容器，通过 exit 命令或 Ctrl+d 来退出终端时，所创建的容器立刻终止。终止状态的容器可以用docker ps -a看到。处于终止状态的容器，可以通过docker start命令来重新启动。docker restart命令会将一个运行态的容器终止，然后再重新启动它。进入容器attach方式当采用守护态启动容器时，使用attach可以附加到容器。通过docker ps查看id就可以附加到运行的容器。docker attach -itd 44fc0f0582d9  exec方式docker在1.3.X版本之后还提供了一个新的命令exec用于进入容器，这种方式相对更简单一些，docker exec --help  sudo docker exec -it 775c7c9ee1e1 /bin/bash拷贝文件cp命令用于主机和容器拷贝文件，防止每次都重建dockerfile。docker cp foo.txt mycontainer:/foo.txtdocker cp mycontainer:/foo.txt foo.txtpwn dockerfileFROM ubuntuMAINTAINER zjgcjyLABEL Description=&quot;zjgcjy_pwngame&quot; VERSION=&#39;1.0&#39;# x86_SupportRUN dpkg --add-architecture i386# updateRUN apt-get update# install something basicRUN apt-get install -y libc6:i386 libncurses5:i386 libstdc++6:i386\    &amp;&amp;apt-get install -y socat sudo# copy fileCOPY ./pwn /tmp/pwnCOPY ./flag.txtGOT-AND-PLT/tmp/# add userRUN useradd -U -m pwn# rights configtionRUN chown root:pwn /tmp/flag.txt\    &amp;&amp;chown root:pwn /tmp/pwnRUN chmod  750 /tmp/pwn\    &amp;&amp;chmod 740 /tmp/flag.txt#WORKDIR /tmp/CMD sudo -u pwn socat tcp-l:4444,fork exec:/tmp/pwnEXPOSE 4444docker run -d -p 0.0.0.0:1111:4444 -t pwn构建自定义镜像编写完成Dockerfile之后，可以通过docker build命令来创建镜像。基本的格式为 docker build [选项]路径，该命令将读取指定路径下的Dockerfile，并将该路径下的所有内容发送给Docker服务端，由服务端来创建镜像。因此一般建议放置Dockerfile的目录为空目录docker build -t pwn .删除images1.停止所有的container，这样才能够删除其中的images：docker stop $(docker ps -a -q)如果想要删除所有container的话再加一个指令：docker rm $(docker ps -a -q)2.查看当前有些什么imagesdocker images3.删除images，通过image的id来指定删除谁docker rmi &lt;image id&gt;想要删除untagged images，也就是那些id为&lt;None&gt;的image的话可以用docker rmi $(docker images | grep “^&lt;none&gt;” | awk “{print $3}”)要删除全部image的话docker rmi $(docker images -q)">
 
 
 
-  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Docker Using">
   <meta name="twitter:description" content="  讲一下docker的用法。关于ubuntu16.04安装最新docker的方法，参照官网手册。拉取镜像可以使用docker search ...查找有关镜像然后使用docker pull ...拉取镜像查看镜像查看所有镜像docker images启动镜像有好几种启动方式。直接运行docker run ubuntu:14.04 /bin/echo &#39;Hello world&#39;这跟在本地直接执行 /bin/echo ‘hello world’ 几乎感觉不出任何区别。下面的命令则启动一个 bash 终端，允许用户进行交互。docker run -t -i ubuntu:14.04 /bin/bash其中， -t 选项让Docker分配一个伪终端（pseudo-tty）并绑定到容器的标准输入上， -i 则让容器的标准输入保持打开。守护态运行更多的时候，需要让 Docker 容器在后台以守护态（Daemonized）形式运行。此时，可以通过添加 -d 参数来实现。docker run -d ubuntu:14.04容器启动后会返回一个唯一的 id，也可以通过 docker ps 命令来查看容器信息。docker ps要获取容器的输出信息，可以通过 docker logs 命令。关闭容器可以使用docker stop来终止一个运行中的容器。此外，当Docker容器中指定的应用终结时，容器也自动终止。 对于只启动了一个终端的容器，通过 exit 命令或 Ctrl+d 来退出终端时，所创建的容器立刻终止。终止状态的容器可以用docker ps -a看到。处于终止状态的容器，可以通过docker start命令来重新启动。docker restart命令会将一个运行态的容器终止，然后再重新启动它。进入容器attach方式当采用守护态启动容器时，使用attach可以附加到容器。通过docker ps查看id就可以附加到运行的容器。docker attach -itd 44fc0f0582d9  exec方式docker在1.3.X版本之后还提供了一个新的命令exec用于进入容器，这种方式相对更简单一些，docker exec --help  sudo docker exec -it 775c7c9ee1e1 /bin/bash拷贝文件cp命令用于主机和容器拷贝文件，防止每次都重建dockerfile。docker cp foo.txt mycontainer:/foo.txtdocker cp mycontainer:/foo.txt foo.txtpwn dockerfileFROM ubuntuMAINTAINER zjgcjyLABEL Description=&quot;zjgcjy_pwngame&quot; VERSION=&#39;1.0&#39;# x86_SupportRUN dpkg --add-architecture i386# updateRUN apt-get update# install something basicRUN apt-get install -y libc6:i386 libncurses5:i386 libstdc++6:i386\    &amp;&amp;apt-get install -y socat sudo# copy fileCOPY ./pwn /tmp/pwnCOPY ./flag.txtGOT-AND-PLT/tmp/# add userRUN useradd -U -m pwn# rights configtionRUN chown root:pwn /tmp/flag.txt\    &amp;&amp;chown root:pwn /tmp/pwnRUN chmod  750 /tmp/pwn\    &amp;&amp;chmod 740 /tmp/flag.txt#WORKDIR /tmp/CMD sudo -u pwn socat tcp-l:4444,fork exec:/tmp/pwnEXPOSE 4444docker run -d -p 0.0.0.0:1111:4444 -t pwn构建自定义镜像编写完成Dockerfile之后，可以通过docker build命令来创建镜像。基本的格式为 docker build [选项]路径，该命令将读取指定路径下的Dockerfile，并将该路径下的所有内容发送给Docker服务端，由服务端来创建镜像。因此一般建议放置Dockerfile的目录为空目录docker build -t pwn .删除images1.停止所有的container，这样才能够删除其中的images：docker stop $(docker ps -a -q)如果想要删除所有container的话再加一个指令：docker rm $(docker ps -a -q)2.查看当前有些什么imagesdocker images3.删除images，通过image的id来指定删除谁docker rmi &lt;image id&gt;想要删除untagged images，也就是那些id为&lt;None&gt;的image的话可以用docker rmi $(docker images | grep “^&lt;none&gt;” | awk “{print $3}”)要删除全部image的话docker rmi $(docker images -q)">
-  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2017-12/Docker-using.html">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2017-12/Docker-using.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="https://zjgcjy.github.io/posts/2017-12/Docker-using.html">
+<link rel="canonical" href="http://localhost:4000/posts/2017-12/Docker-using.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "https://zjgcjy.github.io/",
+      "url": "http://localhost:4000/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -263,26 +263,26 @@
     <ul class="author__urls social-icons">
       
         <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
-          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+          <i class="fa fa-map-marker" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
         </li>
       
 
       
         
           
-            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fa fa-link" aria-hidden="true"></i> Website</a></li>
           
         
           
-            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fa fa-envelope-square" aria-hidden="true"></i> Email</a></li>
           
         
           
-            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
           
         
           
-            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
           
         
       
@@ -585,7 +585,7 @@ docker rmi $(docker images -q)</p>
   
 
   <p class="page__taxonomy">
-    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <strong><i class="fa fa-tags" aria-hidden="true"></i> Tags: </strong>
     <span itemprop="keywords">
     
       
@@ -599,7 +599,7 @@ docker rmi $(docker images -q)</p>
 
 
         
-          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2017-12-07T02:39:00+08:00">December 07, 2017</time></p>
+          <p class="page__date"><strong><i class="fa fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2017-12-07T02:39:00+08:00">December 07, 2017</time></p>
         
       </footer>
 
@@ -608,11 +608,11 @@ docker rmi $(docker images -q)</p>
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Docker+Using%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-12%2FDocker-using.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Docker+Using%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-12%2FDocker-using.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-12%2FDocker-using.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-12%2FDocker-using.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-12%2FDocker-using.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-12%2FDocker-using.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -838,16 +838,16 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
       
         
-          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
         
       
         
-          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
         
       
     
 
-    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    <li><a href="/feed.xml"><i class="fa fa-rss-square" aria-hidden="true"></i> Feed</a></li>
   </ul>
 </div>
 
@@ -858,7 +858,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
 
     
   <script src="/assets/js/main.min.js"></script>
-  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+  <script src="https://use.fontawesome.com/1d25d6ba93.js"></script>
 
 
 
@@ -873,7 +873,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "https://zjgcjy.github.io/posts/2017-12/Docker-using.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "http://localhost:4000/posts/2017-12/Docker-using.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2017-12/Docker-using"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

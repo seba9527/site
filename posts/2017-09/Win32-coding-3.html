@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Win32 Coding 3">
-<meta property="og:url" content="https://zjgcjy.github.io/posts/2017-09/Win32-coding-3.html">
+<meta property="og:url" content="http://localhost:4000/posts/2017-09/Win32-coding-3.html">
 
 
   <meta property="og:description" content="  window程序设计3窗口与消息建立窗口很简单，只需调用CreateWindow函数即可-_-总体结构（重要！）进行Windows程序设计，实际上是在进行一种对象导向的程序设计（OOP）。这一点在Windows中使用得最多的对象上表现最为明显。桌面上最明显的窗口就是应用程序窗口。这些窗口含有显示程序名称的标题列、菜单甚至可能还有工具列和滚动条。另一类窗口是对话框，它可以有标题列也可以没有标题列。窗口以「消息」的形式接收窗口的输入，窗口也用消息与其它窗口通讯。窗口过程程序建立的每一个窗口都有相关的窗口消息处理程序。这个窗口消息处理程序是一个函数，既可以在程序中，也可以在动态链接库中。Windows通过呼叫窗口消息处理程序来给窗口发送消息。窗口消息处理程序根据此消息进行处理，然后将控制传回给Windows。窗口窗口总是根据窗口类来创建的，窗口类标识了传递给窗口的窗口处理函数。并且允许窗口使用同一个窗口过程。在对象导向的程序设计中，对象是程序与数据的组合。窗口是一种对象，其程序是窗口消息处理程序。数据是窗口消息处理程序保存的信息和Windows为每个窗口以及系统中那个窗口类别保存的信息。窗口消息处理程序处理给窗口发送消息。这些消息经常是告知窗口，使用者正使用键盘或者鼠标进行输入。这正是按键窗口知道它被「按下」的奥妙所在。在窗口大小改变，或者窗口表面需要重画时，由其它消息通知窗口。消息循环与消息队列Windows程序开始执行后，Windows为该程序建立一个「消息队列」。这个消息队列用来存放该程序可能建立的各种不同窗口的消息。程序中有一小段程序代码，叫做「消息循环」，用来从队列中取出消息，并且将它们发送给相应的窗口消息处理程序。有些消息直接发送给窗口消息处理程序，不用放入消息队列中。窗口、窗口类、窗口消息处理过程、消息队列、消息循环和窗口消息的相互配合成就了Windows系统。详细过程要建立窗口，上面已经说了，首先要创建一个窗口类，并添加窗口过程。对该例，可以看到winmain中没有调用wndproc函数，但是其中有一个对wndproc的引用。重要的APIRegisterClass()     为程序的窗口注册一个窗口类CreateWindow()      基于窗口类创建一个窗口ShowWindow()        在屏幕中显示窗口UpdataWindow()      指定窗口进行重绘GetMessage()        从消息队列中获取消息DispatchMessage()   将消息分发给窗口过程DefWindowProc()     执行默认的消息处理对于返回值和调用约定而言：WndProc的返回值是LRESULT等价于LONG，类型为CALLBACK,调用约定是__stdcall。WinMain的类型是WINAPI，调用约定也是__stdcall。理解结构与句柄其中还使用了4种特殊的数据结构            结构      含义                  MSG      消息结构              WNDCLASS      窗口类结构              PAINTSTRUCT      绘制结构              RECT      矩形结构      |句柄|含义||——–|—–:|:—-:||HINSTANCE |实例句柄——程序本身||HWND |窗口句柄||HDC |设备句柄|句柄本质上是引用某个对象的值，为32位DWORD。窗口类的注册窗口总是基于窗口类创建的，窗口类确定了窗口消息的窗口过程。在创建窗口之前，必须调用RegisterClass来注册窗口类，参数是一个指向窗口类WNDCLASS结构的指针。typedef struct tagWNDCLASSW {    UINT        style;          //窗口类风格    WNDPROC     lpfnWndProc;    //基于该窗口类的窗口过程长指针    int         cbClsExtra;     //预留的额外空间    int         cbWndExtra;     //预留的额外空间    HINSTANCE   hInstance;      //实例句柄    HICON       hIcon;          //图标句柄：设定图标    HCURSOR     hCursor;        //鼠标句柄：设定鼠标    HBRUSH      hbrBackground;  //刷子句柄：设定背景    LPCWSTR     lpszMenuName;   //设定窗口类菜单    LPCWSTR     lpszClassName;  //窗口类的名字}通常做法：定义一个窗口类的变量 WNDCLASS wndclass，然后对该结构的10个字段进行初始化，并调用RegisterClass。最重要的2个字段是第二个和最后一个。wndclass.lpfnWndProc=WndProc，则wndproc将处理所有基于该窗口类创建的窗口的所有消息。实际是函数指针。将10个字段初始化之后，调用RegisterClass就可以注册窗口类，唯一的参数是指向wndclass的指针。为了防止调用RegisterClass出错，进行一下异常处理。如果为了防止出现其他错误，则利用函数GetLastError可以获知错误原因。创建窗口窗口类只是定义窗口的一般特性，基于窗口类可以创建不同的窗口。调用CreateWindow创建窗口时，可以指定与窗口有关的细节。调用该函数通过独立参数指定。第一个参数是窗口类名称，通过这种方式与窗口类建立联系。程序实例句柄为WinMain中的句柄参数。该函数的返回值是指向该窗口的句柄。在windows中每一个窗口都有句柄，在程序中可以用句柄来对窗口进行引用。显示窗口当CreateWindow完成后，OS已经为窗口分配了内存空间。为了显示在桌面上，需要调用ShowWindow。ShowWindow(HWND hWnd,int nCmdShow);第一个参数指向窗口句柄，第二个是WinMain接受的值，决定这窗口的初始显示方式。UpdateWindow(hwnd)将重绘客户区。消息循环在UpdataWindow之后，窗口在屏幕中就可见了。这时程序必须维护一个消息队列，用于接受键盘输入和鼠标输入。当输入事件发生后，windows会自动将这些事件转换成消息，放置在程序的消息队列中。while (GetMessage(&amp;msg, NULL, 0, 0)){	TranslateMessage(&amp;msg);	DispatchMessage(&amp;msg);}程序通过这段消息循环来从消息队列中获取消息。第一个参数是MSG的变量，第二、三、四为NULL和0，表示程序获取该程序所创建的所有窗口的消息。MSG的结构:typedef struct tagMSG {    HWND        hwnd;           //消息指向的窗口句柄    UINT        message;        //消息标识符,WM_标识    WPARAM      wParam;         //DWORD消息参数    LPARAM      lParam;         //DWORD消息参数    DWORD       time;           //信息进入消息队列的时间    POINT       pt;             //消息进入消息队列的位置} MSG, *PMSG, NEAR *NPMSG, FAR *LPMSG;typedef struct tagPOINT{    LONG  x;            //鼠标x坐标    LONG  y;            //鼠标y坐标} POINT, *PPOINT, NEAR *NPPOINT, FAR *LPPOINT;如果消息队列中的消息不等于WM_QUIT 0x12，则GetMessage将返回非0值，进行循环判断。TranslateMessage(&amp;msg)用来将键盘输入进行转换。DispatchMessage(&amp;msg)将msg结构再次返回给windows。windows将根据消息发送到适当的窗口过程来处理，也就是说是windows调用了窗口过程。当窗口过程处理完毕后，控制权转回windows，而windows将为DispatchMessage继续提供服务，结束之后，进行下一轮GetMessage调用。窗口过程到现在，已经了解了注册窗口类，创建窗口，在屏幕中显示窗口，程序进入消息循环，从消息队列中检索消息。程序可以包含多个窗口过程，但是一个窗口过程总是和一个通过调用RegisterClass注册的特定的窗口类相关联。CreateWindow基于特定的窗口类创建窗口。所以一个窗口类可以创建多个窗口，但是这些窗口的窗口过程都应该是同一个，即在窗口类中注册的那一个。LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)窗口过程的参数与MSG的前4个字段一致。分别是窗口句柄，消息标识符，2个DWORD的消息参数。程序不直接对窗口过程进行调用，总是用windows调用完成。如果希望程序直接调用窗口过程，可以使用SendMessage来实现。消息处理对于消息的处理，由于WINUSER.H中定义了以WM开头的标识符，通常使用switch-case语句来确定窗口收到的消息。对于不进行处理的消息，使用默认窗口过程DefWindowProc来返回。WM_CREATE(0x1)这是窗口过程收到的第一个消息，当windows在WinMain中调用CreateWindow时，windows将窗口过程的第一个参数设置为该窗口的句柄，第二个参数为WM_CREATE，同时窗口过程对该消息进行处理，控制权返回给windows，继续执行WinMain。通常情况下，窗口过程对这个消息进行处理时，对窗口进行一次性的初始化，处理完成后将返回0。WM_PAINT(0xf)窗口过程处理的第二个消息，当客户区部分或全部无效且必须更新时，意味着窗口必须重绘。客户区为什么会无效？  当窗口首次被创建时，整个客户区都是无效的，第一条WM_PAINT将在UpdataWindow之后出现，指示窗口过程进行绘制。  调制窗口的大小时，客户区会无效。  最小化窗口，再恢复时，windows并不会保存客户区的内容，宣布窗口无效，在接受消息后，窗口过程负责重绘。  在拖动窗口导致窗口之间重叠时，windows不负责保存被重叠的部分，重叠部分不再被遮挡时，窗口被标记无效。对该消息的处理框架：hdc = BeginPaint(hwnd, &amp;ps);GetClientRect(hwnd, &amp;rect);DrawText(hdc, TEXT(&quot;Hello, Windows 10!&quot;), -1, &amp;rect,DT_SINGLELINE | DT_CENTER | DT_VCENTER);EndPaint(hwnd, &amp;ps);两个函数的第一个参数是窗口句柄，第二个是指向POINTSTRUCT的指针，其包含窗口过程来对客户区进行重绘。在BeginPaint调用期间，windows会对客户区进行擦除，使用注册窗口类指定的刷子，将使整个客户区有效，并返回设备环境句柄，通过设备环境句柄来显示，无法在客户区外绘制，EndPaint用于释放设备环境句柄，使其无效。如果不对WM_PAINT消息进行处理，则必须交给DefWindowProc处理。GetClientRect第一个是窗口句柄，第二个是RECT的矩形结构指针。DrawText功能就是绘制文本，第一个参数是设备环境句柄，第二个是文本，第三个是-1，表示以0结尾。最后的标识使文本单行显示，并且水平和垂直居中。WM_DESTORY(0x2)该消息表示windows正常销毁窗口，比如关闭窗口时，发出该消息。通过调用PostQuitMessage(0)将WM_QUIT消息插入消息队列，之后GetMessage获取消息，退出消息循环。程序最后返回 msg.wParam ，通常是0，来结束WinMain。总结  窗口过程WndProc总是和RegisterClass的注册窗口类关联，基于该窗口类的窗口使用窗口类指定的窗口过程来对消息进行处理。windows通过调用窗口过程来向窗口发送消息。  WndProc什么时候被windows调用？新建窗口，关闭窗口，窗口大小变动，窗口移动，在客户区发生操作，客户区需要重绘时等等。  窗口过程可以为基于同一窗口类创建的窗口处理消息，即通过hwnd参数，知道是哪个窗口接受消息。队列与非队列消息队列消息就是从消息队列中GetMessage检索出来的，从而投递到窗口过程中。非队列消息是指windows对窗口过程的直接调用，消息被直接发送到窗口过程，比如WM_CREATE和WM_PAINT。窗口过程会接受所有的消息，是窗口的消息中心。">
 
 
 
-  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Win32 Coding 3">
   <meta name="twitter:description" content="  window程序设计3窗口与消息建立窗口很简单，只需调用CreateWindow函数即可-_-总体结构（重要！）进行Windows程序设计，实际上是在进行一种对象导向的程序设计（OOP）。这一点在Windows中使用得最多的对象上表现最为明显。桌面上最明显的窗口就是应用程序窗口。这些窗口含有显示程序名称的标题列、菜单甚至可能还有工具列和滚动条。另一类窗口是对话框，它可以有标题列也可以没有标题列。窗口以「消息」的形式接收窗口的输入，窗口也用消息与其它窗口通讯。窗口过程程序建立的每一个窗口都有相关的窗口消息处理程序。这个窗口消息处理程序是一个函数，既可以在程序中，也可以在动态链接库中。Windows通过呼叫窗口消息处理程序来给窗口发送消息。窗口消息处理程序根据此消息进行处理，然后将控制传回给Windows。窗口窗口总是根据窗口类来创建的，窗口类标识了传递给窗口的窗口处理函数。并且允许窗口使用同一个窗口过程。在对象导向的程序设计中，对象是程序与数据的组合。窗口是一种对象，其程序是窗口消息处理程序。数据是窗口消息处理程序保存的信息和Windows为每个窗口以及系统中那个窗口类别保存的信息。窗口消息处理程序处理给窗口发送消息。这些消息经常是告知窗口，使用者正使用键盘或者鼠标进行输入。这正是按键窗口知道它被「按下」的奥妙所在。在窗口大小改变，或者窗口表面需要重画时，由其它消息通知窗口。消息循环与消息队列Windows程序开始执行后，Windows为该程序建立一个「消息队列」。这个消息队列用来存放该程序可能建立的各种不同窗口的消息。程序中有一小段程序代码，叫做「消息循环」，用来从队列中取出消息，并且将它们发送给相应的窗口消息处理程序。有些消息直接发送给窗口消息处理程序，不用放入消息队列中。窗口、窗口类、窗口消息处理过程、消息队列、消息循环和窗口消息的相互配合成就了Windows系统。详细过程要建立窗口，上面已经说了，首先要创建一个窗口类，并添加窗口过程。对该例，可以看到winmain中没有调用wndproc函数，但是其中有一个对wndproc的引用。重要的APIRegisterClass()     为程序的窗口注册一个窗口类CreateWindow()      基于窗口类创建一个窗口ShowWindow()        在屏幕中显示窗口UpdataWindow()      指定窗口进行重绘GetMessage()        从消息队列中获取消息DispatchMessage()   将消息分发给窗口过程DefWindowProc()     执行默认的消息处理对于返回值和调用约定而言：WndProc的返回值是LRESULT等价于LONG，类型为CALLBACK,调用约定是__stdcall。WinMain的类型是WINAPI，调用约定也是__stdcall。理解结构与句柄其中还使用了4种特殊的数据结构            结构      含义                  MSG      消息结构              WNDCLASS      窗口类结构              PAINTSTRUCT      绘制结构              RECT      矩形结构      |句柄|含义||——–|—–:|:—-:||HINSTANCE |实例句柄——程序本身||HWND |窗口句柄||HDC |设备句柄|句柄本质上是引用某个对象的值，为32位DWORD。窗口类的注册窗口总是基于窗口类创建的，窗口类确定了窗口消息的窗口过程。在创建窗口之前，必须调用RegisterClass来注册窗口类，参数是一个指向窗口类WNDCLASS结构的指针。typedef struct tagWNDCLASSW {    UINT        style;          //窗口类风格    WNDPROC     lpfnWndProc;    //基于该窗口类的窗口过程长指针    int         cbClsExtra;     //预留的额外空间    int         cbWndExtra;     //预留的额外空间    HINSTANCE   hInstance;      //实例句柄    HICON       hIcon;          //图标句柄：设定图标    HCURSOR     hCursor;        //鼠标句柄：设定鼠标    HBRUSH      hbrBackground;  //刷子句柄：设定背景    LPCWSTR     lpszMenuName;   //设定窗口类菜单    LPCWSTR     lpszClassName;  //窗口类的名字}通常做法：定义一个窗口类的变量 WNDCLASS wndclass，然后对该结构的10个字段进行初始化，并调用RegisterClass。最重要的2个字段是第二个和最后一个。wndclass.lpfnWndProc=WndProc，则wndproc将处理所有基于该窗口类创建的窗口的所有消息。实际是函数指针。将10个字段初始化之后，调用RegisterClass就可以注册窗口类，唯一的参数是指向wndclass的指针。为了防止调用RegisterClass出错，进行一下异常处理。如果为了防止出现其他错误，则利用函数GetLastError可以获知错误原因。创建窗口窗口类只是定义窗口的一般特性，基于窗口类可以创建不同的窗口。调用CreateWindow创建窗口时，可以指定与窗口有关的细节。调用该函数通过独立参数指定。第一个参数是窗口类名称，通过这种方式与窗口类建立联系。程序实例句柄为WinMain中的句柄参数。该函数的返回值是指向该窗口的句柄。在windows中每一个窗口都有句柄，在程序中可以用句柄来对窗口进行引用。显示窗口当CreateWindow完成后，OS已经为窗口分配了内存空间。为了显示在桌面上，需要调用ShowWindow。ShowWindow(HWND hWnd,int nCmdShow);第一个参数指向窗口句柄，第二个是WinMain接受的值，决定这窗口的初始显示方式。UpdateWindow(hwnd)将重绘客户区。消息循环在UpdataWindow之后，窗口在屏幕中就可见了。这时程序必须维护一个消息队列，用于接受键盘输入和鼠标输入。当输入事件发生后，windows会自动将这些事件转换成消息，放置在程序的消息队列中。while (GetMessage(&amp;msg, NULL, 0, 0)){	TranslateMessage(&amp;msg);	DispatchMessage(&amp;msg);}程序通过这段消息循环来从消息队列中获取消息。第一个参数是MSG的变量，第二、三、四为NULL和0，表示程序获取该程序所创建的所有窗口的消息。MSG的结构:typedef struct tagMSG {    HWND        hwnd;           //消息指向的窗口句柄    UINT        message;        //消息标识符,WM_标识    WPARAM      wParam;         //DWORD消息参数    LPARAM      lParam;         //DWORD消息参数    DWORD       time;           //信息进入消息队列的时间    POINT       pt;             //消息进入消息队列的位置} MSG, *PMSG, NEAR *NPMSG, FAR *LPMSG;typedef struct tagPOINT{    LONG  x;            //鼠标x坐标    LONG  y;            //鼠标y坐标} POINT, *PPOINT, NEAR *NPPOINT, FAR *LPPOINT;如果消息队列中的消息不等于WM_QUIT 0x12，则GetMessage将返回非0值，进行循环判断。TranslateMessage(&amp;msg)用来将键盘输入进行转换。DispatchMessage(&amp;msg)将msg结构再次返回给windows。windows将根据消息发送到适当的窗口过程来处理，也就是说是windows调用了窗口过程。当窗口过程处理完毕后，控制权转回windows，而windows将为DispatchMessage继续提供服务，结束之后，进行下一轮GetMessage调用。窗口过程到现在，已经了解了注册窗口类，创建窗口，在屏幕中显示窗口，程序进入消息循环，从消息队列中检索消息。程序可以包含多个窗口过程，但是一个窗口过程总是和一个通过调用RegisterClass注册的特定的窗口类相关联。CreateWindow基于特定的窗口类创建窗口。所以一个窗口类可以创建多个窗口，但是这些窗口的窗口过程都应该是同一个，即在窗口类中注册的那一个。LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)窗口过程的参数与MSG的前4个字段一致。分别是窗口句柄，消息标识符，2个DWORD的消息参数。程序不直接对窗口过程进行调用，总是用windows调用完成。如果希望程序直接调用窗口过程，可以使用SendMessage来实现。消息处理对于消息的处理，由于WINUSER.H中定义了以WM开头的标识符，通常使用switch-case语句来确定窗口收到的消息。对于不进行处理的消息，使用默认窗口过程DefWindowProc来返回。WM_CREATE(0x1)这是窗口过程收到的第一个消息，当windows在WinMain中调用CreateWindow时，windows将窗口过程的第一个参数设置为该窗口的句柄，第二个参数为WM_CREATE，同时窗口过程对该消息进行处理，控制权返回给windows，继续执行WinMain。通常情况下，窗口过程对这个消息进行处理时，对窗口进行一次性的初始化，处理完成后将返回0。WM_PAINT(0xf)窗口过程处理的第二个消息，当客户区部分或全部无效且必须更新时，意味着窗口必须重绘。客户区为什么会无效？  当窗口首次被创建时，整个客户区都是无效的，第一条WM_PAINT将在UpdataWindow之后出现，指示窗口过程进行绘制。  调制窗口的大小时，客户区会无效。  最小化窗口，再恢复时，windows并不会保存客户区的内容，宣布窗口无效，在接受消息后，窗口过程负责重绘。  在拖动窗口导致窗口之间重叠时，windows不负责保存被重叠的部分，重叠部分不再被遮挡时，窗口被标记无效。对该消息的处理框架：hdc = BeginPaint(hwnd, &amp;ps);GetClientRect(hwnd, &amp;rect);DrawText(hdc, TEXT(&quot;Hello, Windows 10!&quot;), -1, &amp;rect,DT_SINGLELINE | DT_CENTER | DT_VCENTER);EndPaint(hwnd, &amp;ps);两个函数的第一个参数是窗口句柄，第二个是指向POINTSTRUCT的指针，其包含窗口过程来对客户区进行重绘。在BeginPaint调用期间，windows会对客户区进行擦除，使用注册窗口类指定的刷子，将使整个客户区有效，并返回设备环境句柄，通过设备环境句柄来显示，无法在客户区外绘制，EndPaint用于释放设备环境句柄，使其无效。如果不对WM_PAINT消息进行处理，则必须交给DefWindowProc处理。GetClientRect第一个是窗口句柄，第二个是RECT的矩形结构指针。DrawText功能就是绘制文本，第一个参数是设备环境句柄，第二个是文本，第三个是-1，表示以0结尾。最后的标识使文本单行显示，并且水平和垂直居中。WM_DESTORY(0x2)该消息表示windows正常销毁窗口，比如关闭窗口时，发出该消息。通过调用PostQuitMessage(0)将WM_QUIT消息插入消息队列，之后GetMessage获取消息，退出消息循环。程序最后返回 msg.wParam ，通常是0，来结束WinMain。总结  窗口过程WndProc总是和RegisterClass的注册窗口类关联，基于该窗口类的窗口使用窗口类指定的窗口过程来对消息进行处理。windows通过调用窗口过程来向窗口发送消息。  WndProc什么时候被windows调用？新建窗口，关闭窗口，窗口大小变动，窗口移动，在客户区发生操作，客户区需要重绘时等等。  窗口过程可以为基于同一窗口类创建的窗口处理消息，即通过hwnd参数，知道是哪个窗口接受消息。队列与非队列消息队列消息就是从消息队列中GetMessage检索出来的，从而投递到窗口过程中。非队列消息是指windows对窗口过程的直接调用，消息被直接发送到窗口过程，比如WM_CREATE和WM_PAINT。窗口过程会接受所有的消息，是窗口的消息中心。">
-  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2017-09/Win32-coding-3.html">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2017-09/Win32-coding-3.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="https://zjgcjy.github.io/posts/2017-09/Win32-coding-3.html">
+<link rel="canonical" href="http://localhost:4000/posts/2017-09/Win32-coding-3.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "https://zjgcjy.github.io/",
+      "url": "http://localhost:4000/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -263,26 +263,26 @@
     <ul class="author__urls social-icons">
       
         <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
-          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+          <i class="fa fa-map-marker" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
         </li>
       
 
       
         
           
-            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fa fa-link" aria-hidden="true"></i> Website</a></li>
           
         
           
-            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fa fa-envelope-square" aria-hidden="true"></i> Email</a></li>
           
         
           
-            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
           
         
           
-            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
           
         
       
@@ -649,7 +649,7 @@ DrawText功能就是绘制文本，第一个参数是设备环境句柄，第二
   
 
   <p class="page__taxonomy">
-    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <strong><i class="fa fa-tags" aria-hidden="true"></i> Tags: </strong>
     <span itemprop="keywords">
     
       
@@ -667,7 +667,7 @@ DrawText功能就是绘制文本，第一个参数是设备环境句柄，第二
 
 
         
-          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2017-09-25T03:51:00+08:00">September 25, 2017</time></p>
+          <p class="page__date"><strong><i class="fa fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2017-09-25T03:51:00+08:00">September 25, 2017</time></p>
         
       </footer>
 
@@ -676,11 +676,11 @@ DrawText功能就是绘制文本，第一个参数是设备环境句柄，第二
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Win32+Coding+3%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-09%2FWin32-coding-3.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Win32+Coding+3%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-09%2FWin32-coding-3.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-09%2FWin32-coding-3.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-09%2FWin32-coding-3.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-09%2FWin32-coding-3.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-09%2FWin32-coding-3.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -906,16 +906,16 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
       
         
-          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
         
       
         
-          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
         
       
     
 
-    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    <li><a href="/feed.xml"><i class="fa fa-rss-square" aria-hidden="true"></i> Feed</a></li>
   </ul>
 </div>
 
@@ -926,7 +926,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
 
     
   <script src="/assets/js/main.min.js"></script>
-  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+  <script src="https://use.fontawesome.com/1d25d6ba93.js"></script>
 
 
 
@@ -941,7 +941,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "https://zjgcjy.github.io/posts/2017-09/Win32-coding-3.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "http://localhost:4000/posts/2017-09/Win32-coding-3.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2017-09/Win32-coding-3"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

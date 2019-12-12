@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Git Using">
-<meta property="og:url" content="https://zjgcjy.github.io/posts/2018-01/git-using.html">
+<meta property="og:url" content="http://localhost:4000/posts/2018-01/git-using.html">
 
 
   <meta property="og:description" content="  会用git已经好久，但是熟练程度并不是很好，而且许多用法并不清楚，这么好的分布式管理系统我怎么能不学呢，GitHub上空荡荡的我都不好意思了-_-git初始化在安装完成之后，需要最后一步进行设置，直接调用cmd。git config --global user.name &quot;zjgcjy&quot;git config --global user.email &quot;zjgcjy@gmail.com&quot;git config --list     查看当前系统的用户信息（git信息）git 创建版本库版本库，又名仓库，英文名：repository，git可以用来追踪仓库的变化，简单来说又可以离线进行处理，所以又叫分布式版本控制。创建一个空目录mkdir learngitcd learngitpwd把这个目录变成git可以管理的目录git initInitialized empty Git repository in H:/learngit/.git/此时的目录下会多一个.git目录，但是是隐藏的，.git是用来跟踪版本的，使用ls -ah可以看到该目录。现在我们开始写一个readme.txt文件vim readme.txtgit is version control system.git is free software.把文件加到仓库（缓冲）git add readme.txt如果没有任何显示，基本上表示成功。把文件提交到仓库（提交）git commit  -m &quot;wrote a readme.txt&quot;git commit -m 后面跟的是本次提交的说明，git commit提交成功之后会有提示，一个文件被改动，新加入两条指令。注意，git commit 一次可以提交许多内容，所以可以多次git add之后，把所有要提交的文件存入缓冲区，然后一次性全部提交。git add file1.txtgit add file2.txt  file3.txtgit commit -m&quot;commit 3 files&quot;时光机之前已经成功提交了一个文件了，现在要看下版本的问题，什么是版本，如果进行版本的控制，于是，我们继续修改readme.txt文件。再修改Git is a distributed version control system.Git is free software.然后 git status 查看结果。$ git statusOn branch masterChanges not staged for commit:  (use &quot;git add &lt;file&gt;...&quot; to update what will be committed)  (use &quot;git checkout -- &lt;file&gt;...&quot; to discard changes in working directory)        modified:   readme.txtno changes added to commit (use &quot;git add&quot; and/or &quot;git commit -a&quot;)git diff命令git status用来查看当前仓库的状态，分支是主线。但是结果还没有提交，git add用来添加，git commit -a用来提交， git checkout用来回滚到初始版本。对于不一样的版本，可以用git diff 命令。$ git diffwarning: LF will be replaced by CRLF in readme.txt.The file will have its original line endings in your working directory.diff --git a/readme.txt b/readme.txtindex 1668572..4d53f0e 100644--- a/readme.txt+++ b/readme.txt@@ -1,2 +1,2 @@-git is a version control system.+git is a distributed version control system. git is free software.从上可以很明显的看到对readme.txt进行的操作，第一行加了分布式，其他都没有变。此时再添加提交就行了。再次提交$ git commit -m &quot;add distributed&quot;[master 009a23d] add distributed 1 file changed, 1 insertion(+), 1 deletion(-)再次git status的时，git告诉我们当前没有需要提交的修改，而且，工作目录是干净。版本回退与更新使用git log命令查看历史提交记录，如果看到的信息太多，可以加参数。git log --pretty=oneline 39a5195a73869cfe42cfab7fd9be768c185e69af (HEAD -&gt; master) appe    nd GPL 009a23d32fd41043cf8e86b842d3c8426aea74b9 add distributed c8b834f0e0fd0967c9fa10793f427ddd392be0be wrote a readme file回退在Git中，必须知道当前的版本，HEAD表示当前的版本，HEAD^表示上一个版本，HEAD^^表示上上一个版本，HEAD~数字，表示以上的某一个版本。把当前版本回退到上一个版本，可以使用 git reset命令$ git reset --hard HEAD^HEAD is now at 009a23d add distributedGit版本在内部的更改只是采用更改头指针的方式，所以Git的版本回退速度特别快。更新使用git reflog 命令查看所有的提交记录$ git reflog009a23d (HEAD -&gt; master) HEAD@{0}: reset: moving to HEAD^39a5195 HEAD@{1}: commit: append GPL009a23d (HEAD -&gt; master) HEAD@{2}: commit: add distributedc8b834f HEAD@{3}: commit (initial): wrote a readme file可以看到每一条commit id的记录，可以再次使用 git reset –hard commit id（39a5195） 再次更新，回到append GPL版本。工作区与暂存区把文件添加到Git去的时候一共分两步。第一步：用 git add 保存到暂存区。 第二步： 用 git commit 提交更改，就是把暂存区的内容提交到当前分支。当创建Git的时候。默认的分支是master，所以提交到master。git status 用来查看修改未被提交的文件，以及未被提交到分支的文件。管理修改">
 
 
 
-  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Git Using">
   <meta name="twitter:description" content="  会用git已经好久，但是熟练程度并不是很好，而且许多用法并不清楚，这么好的分布式管理系统我怎么能不学呢，GitHub上空荡荡的我都不好意思了-_-git初始化在安装完成之后，需要最后一步进行设置，直接调用cmd。git config --global user.name &quot;zjgcjy&quot;git config --global user.email &quot;zjgcjy@gmail.com&quot;git config --list     查看当前系统的用户信息（git信息）git 创建版本库版本库，又名仓库，英文名：repository，git可以用来追踪仓库的变化，简单来说又可以离线进行处理，所以又叫分布式版本控制。创建一个空目录mkdir learngitcd learngitpwd把这个目录变成git可以管理的目录git initInitialized empty Git repository in H:/learngit/.git/此时的目录下会多一个.git目录，但是是隐藏的，.git是用来跟踪版本的，使用ls -ah可以看到该目录。现在我们开始写一个readme.txt文件vim readme.txtgit is version control system.git is free software.把文件加到仓库（缓冲）git add readme.txt如果没有任何显示，基本上表示成功。把文件提交到仓库（提交）git commit  -m &quot;wrote a readme.txt&quot;git commit -m 后面跟的是本次提交的说明，git commit提交成功之后会有提示，一个文件被改动，新加入两条指令。注意，git commit 一次可以提交许多内容，所以可以多次git add之后，把所有要提交的文件存入缓冲区，然后一次性全部提交。git add file1.txtgit add file2.txt  file3.txtgit commit -m&quot;commit 3 files&quot;时光机之前已经成功提交了一个文件了，现在要看下版本的问题，什么是版本，如果进行版本的控制，于是，我们继续修改readme.txt文件。再修改Git is a distributed version control system.Git is free software.然后 git status 查看结果。$ git statusOn branch masterChanges not staged for commit:  (use &quot;git add &lt;file&gt;...&quot; to update what will be committed)  (use &quot;git checkout -- &lt;file&gt;...&quot; to discard changes in working directory)        modified:   readme.txtno changes added to commit (use &quot;git add&quot; and/or &quot;git commit -a&quot;)git diff命令git status用来查看当前仓库的状态，分支是主线。但是结果还没有提交，git add用来添加，git commit -a用来提交， git checkout用来回滚到初始版本。对于不一样的版本，可以用git diff 命令。$ git diffwarning: LF will be replaced by CRLF in readme.txt.The file will have its original line endings in your working directory.diff --git a/readme.txt b/readme.txtindex 1668572..4d53f0e 100644--- a/readme.txt+++ b/readme.txt@@ -1,2 +1,2 @@-git is a version control system.+git is a distributed version control system. git is free software.从上可以很明显的看到对readme.txt进行的操作，第一行加了分布式，其他都没有变。此时再添加提交就行了。再次提交$ git commit -m &quot;add distributed&quot;[master 009a23d] add distributed 1 file changed, 1 insertion(+), 1 deletion(-)再次git status的时，git告诉我们当前没有需要提交的修改，而且，工作目录是干净。版本回退与更新使用git log命令查看历史提交记录，如果看到的信息太多，可以加参数。git log --pretty=oneline 39a5195a73869cfe42cfab7fd9be768c185e69af (HEAD -&gt; master) appe    nd GPL 009a23d32fd41043cf8e86b842d3c8426aea74b9 add distributed c8b834f0e0fd0967c9fa10793f427ddd392be0be wrote a readme file回退在Git中，必须知道当前的版本，HEAD表示当前的版本，HEAD^表示上一个版本，HEAD^^表示上上一个版本，HEAD~数字，表示以上的某一个版本。把当前版本回退到上一个版本，可以使用 git reset命令$ git reset --hard HEAD^HEAD is now at 009a23d add distributedGit版本在内部的更改只是采用更改头指针的方式，所以Git的版本回退速度特别快。更新使用git reflog 命令查看所有的提交记录$ git reflog009a23d (HEAD -&gt; master) HEAD@{0}: reset: moving to HEAD^39a5195 HEAD@{1}: commit: append GPL009a23d (HEAD -&gt; master) HEAD@{2}: commit: add distributedc8b834f HEAD@{3}: commit (initial): wrote a readme file可以看到每一条commit id的记录，可以再次使用 git reset –hard commit id（39a5195） 再次更新，回到append GPL版本。工作区与暂存区把文件添加到Git去的时候一共分两步。第一步：用 git add 保存到暂存区。 第二步： 用 git commit 提交更改，就是把暂存区的内容提交到当前分支。当创建Git的时候。默认的分支是master，所以提交到master。git status 用来查看修改未被提交的文件，以及未被提交到分支的文件。管理修改">
-  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2018-01/git-using.html">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2018-01/git-using.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="https://zjgcjy.github.io/posts/2018-01/git-using.html">
+<link rel="canonical" href="http://localhost:4000/posts/2018-01/git-using.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "https://zjgcjy.github.io/",
+      "url": "http://localhost:4000/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -263,26 +263,26 @@
     <ul class="author__urls social-icons">
       
         <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
-          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+          <i class="fa fa-map-marker" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
         </li>
       
 
       
         
           
-            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fa fa-link" aria-hidden="true"></i> Website</a></li>
           
         
           
-            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fa fa-envelope-square" aria-hidden="true"></i> Email</a></li>
           
         
           
-            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
           
         
           
-            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
           
         
       
@@ -574,7 +574,7 @@ c8b834f HEAD@<span class="o">{</span>3<span class="o">}</span>: commit <span cla
   
 
   <p class="page__taxonomy">
-    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <strong><i class="fa fa-tags" aria-hidden="true"></i> Tags: </strong>
     <span itemprop="keywords">
     
       
@@ -588,7 +588,7 @@ c8b834f HEAD@<span class="o">{</span>3<span class="o">}</span>: commit <span cla
 
 
         
-          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2018-01-16T05:48:00+08:00">January 16, 2018</time></p>
+          <p class="page__date"><strong><i class="fa fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2018-01-16T05:48:00+08:00">January 16, 2018</time></p>
         
       </footer>
 
@@ -597,11 +597,11 @@ c8b834f HEAD@<span class="o">{</span>3<span class="o">}</span>: commit <span cla
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Git+Using%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2018-01%2Fgit-using.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Git+Using%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-01%2Fgit-using.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2018-01%2Fgit-using.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-01%2Fgit-using.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2018-01%2Fgit-using.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-01%2Fgit-using.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -827,16 +827,16 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
       
         
-          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
         
       
         
-          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
         
       
     
 
-    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    <li><a href="/feed.xml"><i class="fa fa-rss-square" aria-hidden="true"></i> Feed</a></li>
   </ul>
 </div>
 
@@ -847,7 +847,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
 
     
   <script src="/assets/js/main.min.js"></script>
-  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+  <script src="https://use.fontawesome.com/1d25d6ba93.js"></script>
 
 
 
@@ -862,7 +862,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "https://zjgcjy.github.io/posts/2018-01/git-using.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "http://localhost:4000/posts/2018-01/git-using.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2018-01/git-using"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Angrdocpart 1">
-<meta property="og:url" content="https://zjgcjy.github.io/posts/2018-04/angrDocPart-1.html">
+<meta property="og:url" content="http://localhost:4000/posts/2018-04/angrDocPart-1.html">
 
 
   <meta property="og:description" content="  angr 文档自理解式翻译从angr第二章核心概念开始，第一节 顶层接口顶层接口在开始学习angr之前，你需要对angr的概念和怎样去构建一些基础的angr对象有一个整体的把握。我们会通过测试当前在你加载执行文件后获得了什么来复习这些知识。（什么鬼-_-）你的第一个步使用angr总是加载一个文件来生成一个工程。import angrproj = angr.Project(&#39;./su_pwn100&#39;)工程是你控制angr的基础，有了它，你就能进行分析和模拟刚刚加载的文件。几乎在angr中碰到的所有单个对象在某种形式上都取决于工程的存在。基础性能首先，我们的工程有一些基础的性能：CPU架构，文件名，入口点等等。In [5]: import monkeyhex    # 格式化16进制输出In [6]: proj.archOut[6]: &lt;Arch X86 (LE)&gt;In [7]: proj.entryOut[7]: 0x8048560In [8]: proj.filename   Out[8]: &#39;./su_pwn100&#39;# proj属性proj.analyses             proj.hook_symbol_batch    proj.storageproj.arch                 proj.hooked_by            proj.store_functionproj.entry                proj.is_hooked            proj.surveyorsproj.execute              proj.is_symbol_hooked     proj.terminate_executionproj.factory              proj.kb                   proj.unhookproj.filename             proj.load_function        proj.unhook_symbolproj.hook                 proj.loader               proj.hook_symbol          proj.simos可以看到，proj的属性有很多，其中比较常用的是：arch、analyses、loader、entry、factory、filename、hook等。arch是archinfo.Arch的实例对象，显示了文件的架构，这个例子是x86架构小段架构（LE）。它还包含了很多CPU运行的数据，比如arch.bits代表的是机器的数据长度，arch.bytes（不清楚是什么含义）。entry是执行文件的入口点，filename是文件名。加载器从一个二进制文件中到运行时的虚拟地址空间是非常复杂的。我们有一个模块叫做CLE。CLE的结果，叫做加载器，可以在.loader属性中获得。我们之后再详细讨论这个问题，但是现在我们只需要知道，我们可以通过它来观察共享库的加载情况和对加载地址空间进行基本的数据查询。In [21]: proj.loaderOut[21]: &lt;Loaded su_pwn100, maps [0x8048000:0xd008000]&gt;# 查看共享库In [22]: proj.loader.shared_objectsOut[22]: OrderedDict([(&#39;su_pwn100&#39;, &lt;ELF Object su_pwn100, maps [0x8048000:0x804a087]&gt;),(u&#39;libc.so.6&#39;, &lt;ELF Object libc-2.23.so, maps [0x9000000:0x91b5a1b]&gt;),(u&#39;ld-linux.so.2&#39;, &lt;ELF Object ld-2.23.so, maps [0xa000000:0xa024917]&gt;)])# 查看最小地址In [23]: proj.loader.min_addrOut[23]: 0x8048000# 查看最大地址In [24]: proj.loader.max_addrOut[24]: 0xd008000# 查看主对象In [25]: proj.loader.main_objectOut[25]: &lt;ELF Object su_pwn100, maps [0x8048000:0x804a087]&gt;# 查看主对象的plt表In [26]: proj.loader.main_object.pltOut[26]:{u&#39;__gmon_start__&#39;: 0x80484f0, u&#39;__isoc99_fscanf&#39;: 0x80484d0, u&#39;__isoc99_scanf&#39;: 0x8048550, u&#39;__libc_start_main&#39;: 0x8048510, u&#39;exit&#39;: 0x8048500, u&#39;fopen&#39;: 0x8048540, u&#39;printf&#39;: 0x80484c0, u&#39;puts&#39;: 0x80484e0, u&#39;read&#39;: 0x80484b0, u&#39;setvbuf&#39;: 0x8048530, u&#39;strcmp&#39;: 0x80484a0, u&#39;write&#39;: 0x8048520} # 查看pic开启情况 In [27]: proj.loader.main_object.pic Out[27]: False # 查看程序中是否存在可执行栈 In [28]: proj.loader.main_object.execstack Out[28]: False工厂在angr中有许多类，并且他们大多数都需要一个工程来实例化。我们提供project.factory，其中对常见的对象提供了许多可用的构造器，我们可以经常使用，而不是使你随处乱晃-_-。这一节也会作为许多基础的angr概念的介绍。块首先，我们有project.factory.block()，可以用来解析给定地址的代码基本块。这是一个重要的事实-angr分析代码是以块为单位的，你会获得一个块对象，可以给你提供许多有趣的信息。# 获取入口点的块In [55]: block = proj.factory.block(proj.entry)# 块信息，大小In [56]: blockOut[56]: &lt;Block for 0x8048560, 33 bytes&gt;# pretty-print 查看汇编代码In [57]: block.pp()0x8048560:	xor	ebp, ebp0x8048562:	pop	esi0x8048563:	mov	ecx, esp0x8048565:	and	esp, 0xfffffff00x8048568:	push	eax0x8048569:	push	esp0x804856a:	push	edx0x804856b:	push	0x80488300x8048570:	push	0x80487c00x8048575:	push	ecx0x8048576:	push	esi0x8048577:	push	0x80487240x804857c:	call	0x8048510# 查看块的指令数量大小In [61]: block.instructionsOut[61]: 0xd# 指令地址In [62]: block.instruction_addrsOut[62]:[0x8048560L, 0x8048562L, 0x8048563L, 0x8048565L, 0x8048568L, 0x8048569L, 0x804856aL, 0x804856bL, 0x8048570L, 0x8048575L, 0x8048576L, 0x8048577L, 0x804857cL]状态这儿是关于angr的另一个事实，Project对象仅仅代表了程序的初始化镜像。当你使用angr操作执行时，你操作的都是一种特殊的对象即代表了一个模拟的程序状态对象SimState。In [71]: state = proj.factory.entry_state()# 获取程序入口点的状态In [72]: stateOut[72]: &lt;SimState @ 0x8048560&gt;SimState包含了一个程序的内存，寄存器，文件流数据等等。任何可以被执行更改的活数据在程序中都有一个状态。我们会讲怎样去和这些状态进行交互，但是现在，让我们使用state.regs和state.mem来获取寄存器内容和内存。# 获取当前状态的eipIn [101]: state.regs.eipOut[101]: &lt;BV32 0x8048560&gt;# 获取ebx寄存器In [102]: state.regs.ebxOut[102]: &lt;BV32 reg_14_5_32{UNINITIALIZED}&gt;# 获取内存，转化为int型In [104]: state.mem[proj.entry].int.resolvedOut[104]: &lt;BV32 0x895eed31&gt;这些不是python整形，是位向量，用来代表CPU的运行数据，每个位向量都有length属性获取宽度。我们马上就要知道怎么去使用这些数据了，但是现在，可以尝试将python的int型转成位向量。# 产生位向量，32位的值是0x1234In [112]: bv = state.solver.BVV(0x1234,32)Out[113]: &lt;BV32 0x1234&gt;# 求解位向量In [114]: state.solver.eval(bv)Out[114]: 0x1234你们也可以将值存储到寄存器和内存中，或者你可以直接使用python的int，它会被转换成适当大小的位向量。# 将位向量直接打入寄存器In [124]: state.regs.esi = state.solver.BVV(0x12345678,32)Out[125]: &lt;BV32 0x12345678&gt;# 将python的int值直接赋给内存中In [126]: s = state.mem[0x200]Out[127]: &lt;&lt;untyped&gt; &lt;unresolvable&gt; at 0x200&gt;In [128]: s.long = 0x5000In [131]: s.int.resolvedOut[131]: &lt;BV32 0x5000&gt;关于mem接口是令人困惑的，因为他使用了python魔法。怎样使用：使用数组和下标的样式来访问地址；使用.&lt;type&gt;来指定某块内存被解释成某种特定的类型。除此之外，均可使用位向量或python类型来给其赋值，使用.resolved来获取位向量值，使用.concrete来获取python变量类型。更多的用法将在以后提及。对于寄存器而言，会有一些奇怪的变量，如下所示。In [135]: state.regs.ediOut[135]: &lt;BV32 reg_24_10_32{UNINITIALIZED}&gt;这是一个32位的向量，但是它不包含任何数值类型的值，而且它有个名字。这叫做符号变量，是在符号执行的基础上产生的。别慌，我们过两章就会讨论到了。仿真管理器如果一个状态及时反映了给定时间的程序运行，这就必须有一种方式来及时得到下一个状态。仿真模拟器是在angr中首选的接口来进行执行或模拟操作，无论你干什么，都必须和状态有关。作为一个简短的介绍，让我们展示当我向前一段基本块后怎样标记我们之前访问过的一个状态。首先，我们创建仿真模拟器，构造器的参数可以是一个状态或状态列表。In [5]: state = proj.factory.entry_state()Out[6]: &lt;SimState @ 0x8048560&gt;In [7]: simgr = proj.factory.simulation_manager(state)Out[8]: &lt;SimulationManager with 1 active&gt;In [20]: simgr.active[0]Out[20]: &lt;SimState @ 0x8048560&gt;仿真管理器可以包含许多状态的藏物（stash），默认的藏物是activate，是由我们已经通过的状态来初始化的。我们可以查看simgr.activate[0]来查看原始状态。现在，准备好，我们开始执行。In [18]: simgr.step()Out[18]: &lt;SimulationManager with 1 active&gt;我们刚刚对一个基本块进行了符号执行操作。我们可以对激活藏物（activate stash）再次查看，注意到它已经被修改了，但是他的原始状态并没有被修改。你可以安全的使用一个单独的状态作为基础态，然后进行多轮复杂的执行。# 新的状态In [21]: simgr.active[0].regs.eipOut[21]: &lt;BV32 0x8048510&gt;# 原始状态In [22]: state.regs.eipOut[22]: &lt;BV32 0x8048560&gt;分析angr中有许多内置的分析工具，你可以用他们来解析一些有趣的信息proj.analyses.包括CFG等等，更多的文档在angr的API文档中有提及。这有个简单的例子告诉你怎么构建控制流图CFG。In [11]: proj = angr.Project(&#39;./su_pwn100&#39;, auto_load_libs=False)In [12]: cfg = proj.analyses.CFGFast()# cfg.graph是networkx DiGraph 实例，参考networkx APIs来使用In [13]: cfg.graphOut[13]: &lt;networkx.classes.digraph.DiGraph at 0x7f9056bfaed0&gt;# 获取给定地址的CFGNodeIn [14]: entry_node = cfg.get_any_node(proj.entry)In [16]: list(cfg.graph.successors(entry_node))Out[16]: [&lt;CFGNode 0x8048510[6]&gt;]又怎么了现在，你已经知道了许多重要的angr概念：基础块、状态、位向量、仿真管理器和分析。不过，除了把angr当作调试器外，你甚至不能做其他有意思的事情。继续读把，你会解锁更深层次的能力。">
 
 
 
-  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Angrdocpart 1">
   <meta name="twitter:description" content="  angr 文档自理解式翻译从angr第二章核心概念开始，第一节 顶层接口顶层接口在开始学习angr之前，你需要对angr的概念和怎样去构建一些基础的angr对象有一个整体的把握。我们会通过测试当前在你加载执行文件后获得了什么来复习这些知识。（什么鬼-_-）你的第一个步使用angr总是加载一个文件来生成一个工程。import angrproj = angr.Project(&#39;./su_pwn100&#39;)工程是你控制angr的基础，有了它，你就能进行分析和模拟刚刚加载的文件。几乎在angr中碰到的所有单个对象在某种形式上都取决于工程的存在。基础性能首先，我们的工程有一些基础的性能：CPU架构，文件名，入口点等等。In [5]: import monkeyhex    # 格式化16进制输出In [6]: proj.archOut[6]: &lt;Arch X86 (LE)&gt;In [7]: proj.entryOut[7]: 0x8048560In [8]: proj.filename   Out[8]: &#39;./su_pwn100&#39;# proj属性proj.analyses             proj.hook_symbol_batch    proj.storageproj.arch                 proj.hooked_by            proj.store_functionproj.entry                proj.is_hooked            proj.surveyorsproj.execute              proj.is_symbol_hooked     proj.terminate_executionproj.factory              proj.kb                   proj.unhookproj.filename             proj.load_function        proj.unhook_symbolproj.hook                 proj.loader               proj.hook_symbol          proj.simos可以看到，proj的属性有很多，其中比较常用的是：arch、analyses、loader、entry、factory、filename、hook等。arch是archinfo.Arch的实例对象，显示了文件的架构，这个例子是x86架构小段架构（LE）。它还包含了很多CPU运行的数据，比如arch.bits代表的是机器的数据长度，arch.bytes（不清楚是什么含义）。entry是执行文件的入口点，filename是文件名。加载器从一个二进制文件中到运行时的虚拟地址空间是非常复杂的。我们有一个模块叫做CLE。CLE的结果，叫做加载器，可以在.loader属性中获得。我们之后再详细讨论这个问题，但是现在我们只需要知道，我们可以通过它来观察共享库的加载情况和对加载地址空间进行基本的数据查询。In [21]: proj.loaderOut[21]: &lt;Loaded su_pwn100, maps [0x8048000:0xd008000]&gt;# 查看共享库In [22]: proj.loader.shared_objectsOut[22]: OrderedDict([(&#39;su_pwn100&#39;, &lt;ELF Object su_pwn100, maps [0x8048000:0x804a087]&gt;),(u&#39;libc.so.6&#39;, &lt;ELF Object libc-2.23.so, maps [0x9000000:0x91b5a1b]&gt;),(u&#39;ld-linux.so.2&#39;, &lt;ELF Object ld-2.23.so, maps [0xa000000:0xa024917]&gt;)])# 查看最小地址In [23]: proj.loader.min_addrOut[23]: 0x8048000# 查看最大地址In [24]: proj.loader.max_addrOut[24]: 0xd008000# 查看主对象In [25]: proj.loader.main_objectOut[25]: &lt;ELF Object su_pwn100, maps [0x8048000:0x804a087]&gt;# 查看主对象的plt表In [26]: proj.loader.main_object.pltOut[26]:{u&#39;__gmon_start__&#39;: 0x80484f0, u&#39;__isoc99_fscanf&#39;: 0x80484d0, u&#39;__isoc99_scanf&#39;: 0x8048550, u&#39;__libc_start_main&#39;: 0x8048510, u&#39;exit&#39;: 0x8048500, u&#39;fopen&#39;: 0x8048540, u&#39;printf&#39;: 0x80484c0, u&#39;puts&#39;: 0x80484e0, u&#39;read&#39;: 0x80484b0, u&#39;setvbuf&#39;: 0x8048530, u&#39;strcmp&#39;: 0x80484a0, u&#39;write&#39;: 0x8048520} # 查看pic开启情况 In [27]: proj.loader.main_object.pic Out[27]: False # 查看程序中是否存在可执行栈 In [28]: proj.loader.main_object.execstack Out[28]: False工厂在angr中有许多类，并且他们大多数都需要一个工程来实例化。我们提供project.factory，其中对常见的对象提供了许多可用的构造器，我们可以经常使用，而不是使你随处乱晃-_-。这一节也会作为许多基础的angr概念的介绍。块首先，我们有project.factory.block()，可以用来解析给定地址的代码基本块。这是一个重要的事实-angr分析代码是以块为单位的，你会获得一个块对象，可以给你提供许多有趣的信息。# 获取入口点的块In [55]: block = proj.factory.block(proj.entry)# 块信息，大小In [56]: blockOut[56]: &lt;Block for 0x8048560, 33 bytes&gt;# pretty-print 查看汇编代码In [57]: block.pp()0x8048560:	xor	ebp, ebp0x8048562:	pop	esi0x8048563:	mov	ecx, esp0x8048565:	and	esp, 0xfffffff00x8048568:	push	eax0x8048569:	push	esp0x804856a:	push	edx0x804856b:	push	0x80488300x8048570:	push	0x80487c00x8048575:	push	ecx0x8048576:	push	esi0x8048577:	push	0x80487240x804857c:	call	0x8048510# 查看块的指令数量大小In [61]: block.instructionsOut[61]: 0xd# 指令地址In [62]: block.instruction_addrsOut[62]:[0x8048560L, 0x8048562L, 0x8048563L, 0x8048565L, 0x8048568L, 0x8048569L, 0x804856aL, 0x804856bL, 0x8048570L, 0x8048575L, 0x8048576L, 0x8048577L, 0x804857cL]状态这儿是关于angr的另一个事实，Project对象仅仅代表了程序的初始化镜像。当你使用angr操作执行时，你操作的都是一种特殊的对象即代表了一个模拟的程序状态对象SimState。In [71]: state = proj.factory.entry_state()# 获取程序入口点的状态In [72]: stateOut[72]: &lt;SimState @ 0x8048560&gt;SimState包含了一个程序的内存，寄存器，文件流数据等等。任何可以被执行更改的活数据在程序中都有一个状态。我们会讲怎样去和这些状态进行交互，但是现在，让我们使用state.regs和state.mem来获取寄存器内容和内存。# 获取当前状态的eipIn [101]: state.regs.eipOut[101]: &lt;BV32 0x8048560&gt;# 获取ebx寄存器In [102]: state.regs.ebxOut[102]: &lt;BV32 reg_14_5_32{UNINITIALIZED}&gt;# 获取内存，转化为int型In [104]: state.mem[proj.entry].int.resolvedOut[104]: &lt;BV32 0x895eed31&gt;这些不是python整形，是位向量，用来代表CPU的运行数据，每个位向量都有length属性获取宽度。我们马上就要知道怎么去使用这些数据了，但是现在，可以尝试将python的int型转成位向量。# 产生位向量，32位的值是0x1234In [112]: bv = state.solver.BVV(0x1234,32)Out[113]: &lt;BV32 0x1234&gt;# 求解位向量In [114]: state.solver.eval(bv)Out[114]: 0x1234你们也可以将值存储到寄存器和内存中，或者你可以直接使用python的int，它会被转换成适当大小的位向量。# 将位向量直接打入寄存器In [124]: state.regs.esi = state.solver.BVV(0x12345678,32)Out[125]: &lt;BV32 0x12345678&gt;# 将python的int值直接赋给内存中In [126]: s = state.mem[0x200]Out[127]: &lt;&lt;untyped&gt; &lt;unresolvable&gt; at 0x200&gt;In [128]: s.long = 0x5000In [131]: s.int.resolvedOut[131]: &lt;BV32 0x5000&gt;关于mem接口是令人困惑的，因为他使用了python魔法。怎样使用：使用数组和下标的样式来访问地址；使用.&lt;type&gt;来指定某块内存被解释成某种特定的类型。除此之外，均可使用位向量或python类型来给其赋值，使用.resolved来获取位向量值，使用.concrete来获取python变量类型。更多的用法将在以后提及。对于寄存器而言，会有一些奇怪的变量，如下所示。In [135]: state.regs.ediOut[135]: &lt;BV32 reg_24_10_32{UNINITIALIZED}&gt;这是一个32位的向量，但是它不包含任何数值类型的值，而且它有个名字。这叫做符号变量，是在符号执行的基础上产生的。别慌，我们过两章就会讨论到了。仿真管理器如果一个状态及时反映了给定时间的程序运行，这就必须有一种方式来及时得到下一个状态。仿真模拟器是在angr中首选的接口来进行执行或模拟操作，无论你干什么，都必须和状态有关。作为一个简短的介绍，让我们展示当我向前一段基本块后怎样标记我们之前访问过的一个状态。首先，我们创建仿真模拟器，构造器的参数可以是一个状态或状态列表。In [5]: state = proj.factory.entry_state()Out[6]: &lt;SimState @ 0x8048560&gt;In [7]: simgr = proj.factory.simulation_manager(state)Out[8]: &lt;SimulationManager with 1 active&gt;In [20]: simgr.active[0]Out[20]: &lt;SimState @ 0x8048560&gt;仿真管理器可以包含许多状态的藏物（stash），默认的藏物是activate，是由我们已经通过的状态来初始化的。我们可以查看simgr.activate[0]来查看原始状态。现在，准备好，我们开始执行。In [18]: simgr.step()Out[18]: &lt;SimulationManager with 1 active&gt;我们刚刚对一个基本块进行了符号执行操作。我们可以对激活藏物（activate stash）再次查看，注意到它已经被修改了，但是他的原始状态并没有被修改。你可以安全的使用一个单独的状态作为基础态，然后进行多轮复杂的执行。# 新的状态In [21]: simgr.active[0].regs.eipOut[21]: &lt;BV32 0x8048510&gt;# 原始状态In [22]: state.regs.eipOut[22]: &lt;BV32 0x8048560&gt;分析angr中有许多内置的分析工具，你可以用他们来解析一些有趣的信息proj.analyses.包括CFG等等，更多的文档在angr的API文档中有提及。这有个简单的例子告诉你怎么构建控制流图CFG。In [11]: proj = angr.Project(&#39;./su_pwn100&#39;, auto_load_libs=False)In [12]: cfg = proj.analyses.CFGFast()# cfg.graph是networkx DiGraph 实例，参考networkx APIs来使用In [13]: cfg.graphOut[13]: &lt;networkx.classes.digraph.DiGraph at 0x7f9056bfaed0&gt;# 获取给定地址的CFGNodeIn [14]: entry_node = cfg.get_any_node(proj.entry)In [16]: list(cfg.graph.successors(entry_node))Out[16]: [&lt;CFGNode 0x8048510[6]&gt;]又怎么了现在，你已经知道了许多重要的angr概念：基础块、状态、位向量、仿真管理器和分析。不过，除了把angr当作调试器外，你甚至不能做其他有意思的事情。继续读把，你会解锁更深层次的能力。">
-  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2018-04/angrDocPart-1.html">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2018-04/angrDocPart-1.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="https://zjgcjy.github.io/posts/2018-04/angrDocPart-1.html">
+<link rel="canonical" href="http://localhost:4000/posts/2018-04/angrDocPart-1.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "https://zjgcjy.github.io/",
+      "url": "http://localhost:4000/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -263,26 +263,26 @@
     <ul class="author__urls social-icons">
       
         <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
-          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+          <i class="fa fa-map-marker" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
         </li>
       
 
       
         
           
-            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fa fa-link" aria-hidden="true"></i> Website</a></li>
           
         
           
-            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fa fa-envelope-square" aria-hidden="true"></i> Email</a></li>
           
         
           
-            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
           
         
           
-            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
           
         
       
@@ -653,7 +653,7 @@ entry是执行文件的入口点，filename是文件名。</p>
   
 
   <p class="page__taxonomy">
-    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <strong><i class="fa fa-tags" aria-hidden="true"></i> Tags: </strong>
     <span itemprop="keywords">
     
       
@@ -667,7 +667,7 @@ entry是执行文件的入口点，filename是文件名。</p>
 
 
         
-          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2018-04-01T17:25:00+08:00">April 01, 2018</time></p>
+          <p class="page__date"><strong><i class="fa fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2018-04-01T17:25:00+08:00">April 01, 2018</time></p>
         
       </footer>
 
@@ -676,11 +676,11 @@ entry是执行文件的入口点，filename是文件名。</p>
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Angrdocpart+1%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2018-04%2FangrDocPart-1.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Angrdocpart+1%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-04%2FangrDocPart-1.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2018-04%2FangrDocPart-1.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-04%2FangrDocPart-1.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2018-04%2FangrDocPart-1.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-04%2FangrDocPart-1.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -906,16 +906,16 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
       
         
-          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
         
       
         
-          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
         
       
     
 
-    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    <li><a href="/feed.xml"><i class="fa fa-rss-square" aria-hidden="true"></i> Feed</a></li>
   </ul>
 </div>
 
@@ -926,7 +926,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
 
     
   <script src="/assets/js/main.min.js"></script>
-  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+  <script src="https://use.fontawesome.com/1d25d6ba93.js"></script>
 
 
 
@@ -941,7 +941,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "https://zjgcjy.github.io/posts/2018-04/angrDocPart-1.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "http://localhost:4000/posts/2018-04/angrDocPart-1.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2018-04/angrDocPart-1"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

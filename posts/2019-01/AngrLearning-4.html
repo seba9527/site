@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Angrlearning 4">
-<meta property="og:url" content="https://zjgcjy.github.io/posts/2019-01/AngrLearning-4.html">
+<meta property="og:url" content="http://localhost:4000/posts/2019-01/AngrLearning-4.html">
 
 
   <meta property="og:description" content="  学习笔记，结合官方文档和网上资料整理，加强理解从angr第二章第四节开始 程序状态程序状态——内存，寄存器和其他到目前为止，我们只学习了angr中的模拟程序状态。(SimState 对象)。用这种最原始的方式来理解angr中的很多基本的概念和操作。这里你将学习angr中静态对象的数据结构和如何更有效的进行交互。复习：读写内存和寄存器如果你依次阅读指南，你已经知道如何对内存和寄存器进行访问了。state.regs 提供了寄存器名作为属性来获取访问。state.mem提供了以下标的方式来获取具体的内存地址，并指定一个特殊的值类型。 另外，你应该知道如何和ASTs进行交互，这样你就能理解位向量类型可以被存储在寄存器和内存中。# 获取mem[rip]的值In [33]: state.mem[state.regs.rip].int64_tOut[33]: &lt;int64_t &lt;BV64 0x8949ed31fa1e0ff3&gt; at 0x402110&gt;# 解析mem[rip]的值In [34]: state.mem[state.regs.rip].int64_t.resolvedOut[34]: &lt;BV64 0x8949ed31fa1e0ff3&gt;# 保存该值到rbpIn [35]: state.regs.rbp = state.mem[state.regs.rip].int64_t.resolvedOut[36]: &lt;BV64 0x8949ed31fa1e0ff3&gt;# rax += mem[rip + 8]In [37]: state.regs.rax += state.mem[state.regs.rip + 8].int64_t.resolvedOut[38]: &lt;BV64 0xe48348e289485eed&gt;# 获取mem[rbp]的值In [39]: state.mem[state.regs.rbp].int64_tOut[39]: WARNING | 2019-02-18 13:56:38,626 | angr.state_plugins.symbolic_memory | Memory address 0x8949ed31fa1e0ff3 has an unspecified value; Generating an unconstrained value of 8 bytes.&lt;int64_t &lt;BV64 mem_8949ed31fa1e0ff3_453_64{UNINITIALIZED}&gt; at 0x8949ed31fa1e0ff3&gt;In [40]: state.mem[state.regs.rbp].int64_t.resolvedOut[40]: &lt;BV64 mem_8949ed31fa1e0ff3_453_64{UNINITIALIZED}&gt;基本的执行之前的时候，我们展示了如何使用模拟器来展示一些基本的执行操作，我们将在下一节展示模拟管理器的全部功能，但是现在我们可以使用一些比较简单的接口来展示如何进行符号执行，通过使用state.step()，这个方法将会执行一步符号执行操作并且返沪i一个对象，叫做SimSuccessors。不同于正常的模拟，符号执行可以产生很多种不同的后继状态，这些状态将被分类成几种。现在我们关心的是.successors属性，这是一个列表，包含了所有基于给定状态的所有后续状态。为什么是列表，而不是一个单独的后继状态呢。这是因为在angr中，angr进行符号执行的流程仅仅是将一个个单独的指令编译到程序中，执行他们来改变一个模拟状态。当遇到像条件判断语句，如果变量是符号值会怎么样呢。在angr的某处深度下，该条件会被执行，这样的话，结果就包含该约束条件。这是正确的，但是下一个问题是，我们到底在判断语句处如何选择流程。答案是，我们两边都选择，我们生成了2条完整的分离的后继状态，一个模拟条件正确的路线，一个模拟相反的条件的路线，这样的话，无论我们之后使用约束求解器来求解哪一个状态，状态所拥有的条件都将确保我们得到有效的输入，这些条件将导致状态执行和给定状态相同的路径。为了展示这个，我们使用一个例子，如果你看源代码，会发现认证机制是有后门的，任何用户名可以通过sosneaky来认证成管理员。#!/usr/bin/env pythonimport angrimport sysdef basic_symbolic_execution():    p = angr.Project(&#39;fauxware&#39;)    state = p.factory.entry_state()    sm = p.factory.simulation_manager(state)    sm.run(until=lambda sm_: len(sm_.active) &gt; 1)    # posix表示可移植操作系统接口，angr中指符合posix环境的状态，数据存储和交互机制。    # dumps(fd)表示从标准输入、标准输出、标准错误中dumps信息    input_0 = sm.active[0].posix.dumps(0)    input_1 = sm.active[1].posix.dumps(0)    if b&#39;SOSNEAKY&#39; in input_0:        return input_0    else:        return input_1def test():    r = basic_symbolic_execution()    assert b&#39;SOSNEAKY&#39; in rif __name__ == &#39;__main__&#39;:    sys.stdout.buffer.write(basic_symbolic_execution())程序中标准输入流中获取数据，angr默认情况下是无符号的数据流，为了进行约束求解，并且获取到能满足这些约束的输入值，我们需要对实际的标准输入流获得一个引用。# 路径一标准输入In [90]: simgr.active[0].posix.dumps(0)Out[90]: b&#39;\x00\x00\x00\x00\x00\x00\x00\x00\x00SOSNEAKY\x00&#39;# 路径一标准输出In [91]: simgr.active[0].posix.dumps(1)Out[91]: b&#39;Username: \nPassword: \nWelcome to the admin console, trusted user!\n&#39;# 路径二标准输入In [92]: simgr.active[1].posix.dumps(0)Out[92]: b&#39;\x00\x00\x00\x00\x00\x00\x00\x00\x00S\x80\x80\x80\x80\x80\x80\x00\x00&#39;# 路径二标准输出In [93]: simgr.active[1].posix.dumps(1)Out[93]: b&#39;Username: \nPassword: \n&#39;通过使用angr找到它的后门，我们正在参与一个庞大的潮流，即对如何使用符号执行从二进制文件中提取意义有一个基本的了解。状态预设到目前位置，无论什么时候我们使用状态，我们都使用project.factory.entry_state()。这只是其中一个状态构造函数，其他函数如下。  .blank_state()构造状态使用一个空的状态，大部分其中的数据都是未初始化的。当访问数据时，未初始化的符号值会被返回。  .entry_state()状态构造器在主程序的入口点创建状态。  .full_init_state()状态构造器会去执行主程序入口点前，所有需要被初始化的部分，比如共享库和预初始化内容。当所有都完成后，它会跳转到入口点。  .call_state() 状态构造器准备执行一个给定函数。所有的这些构造器可以指定许多参数。TODO：  所有这些构造器可以使用地址参数来指定开始解析的地址。  If you’re executing in an environment that can take command line arguments or an environment, you can pass a list of arguments through args and a dictionary of environment variables through env into entry_state and full_init_state. The values in these structures can be strings or bitvectors, and will be serialized into the state as the arguments and environment to the simulated execution. The default args is an empty list, so if the program you’re analyzing expects to find at least an argv[0], you should always provide that!  If you’d like to have argc be symbolic, you can pass a symbolic bitvector as argc to the entry_state and full_init_state constructors. Be careful, though: if you do this, you should also add a constraint to the resulting state that your value for argc cannot be larger than the number of args you passed into args.  To use the call state, you should call it with .call_state(addr, arg1, arg2, ...), where addr is the address of the function you want to call and argN is the Nth argument to that function, either as a python integer, string, or array, or a bitvector. If you want to have memory allocated and actually pass in a pointer to an object, you should wrap it in an PointerWrapper, i.e. angr.PointerWrapper(&quot;point to me!&quot;). The results of this API can be a little unpredictable, but we’re working on it.  To specify the calling convention used for a function with call_state, you can pass a SimCC instance as the cc argument.内存的底层接口state.mem接口对从内存中加载特定类型的数据是很方便的，但是当我想要去进行原始加载和存储时，会非常麻烦。事实上，这种方式只是一种访问内存的逻辑方法，即在内存中填充位向量。我们可以使用.load(addr, size)和.store(addr, val)方法。# 存储In [11]: state.memory.store(0x10, state.solver.BVV(0x123456789abcdef0123456789abcdef, 128))# 加载In [21]: state.memory.load(0x10,16)Out[21]: &lt;BV128 0x123456789abcdef0123456789abcdef&gt;但是，我们可以发现，这种情况下是大端序，因为这个方式的主要目的是存储没有附加语义的数据段，所以是按照语义来进行的。如果需要使用小端序，加载的时候，需要指定加载的顺序方式。In [50]: state.memory.store(0, state.solver.BVV(0x123456789abcdef, 64))# 小端序In [51]: state.memory.load(0, 8, endness=archinfo.Endness.LE)Out[51]: &lt;BV64 0xefcdab8967452301&gt;# 寄存器存储In [58]: state.registers.store(state.regs.rip, state.solver.BVV(0x123456789ef, 64))# 寄存器加载In [59]: state.registers.load(state.regs.rip)Out[59]: &lt;BV64 0x123456789ef&gt;状态选项TODO状态插件所有存储在SimState中的内容，实际上都存储在附加到该状态的插件中。几乎所有我们讨论过的属性都是插件。memory, registers, mem, regs, solver等等，这种设计使得代码模块化，并且可以快速开发新功能。全局插件state.globals是最简单的差距，用于提供标准python字典接口。允许你存储任意数据。历史插件state.history 是一个很重要的差距，用于存储和历史有关的数据，即这个状态在执行过程中经历的路径中的数据。它实际上是一个链式的历史记录节点，每一个展示了一次执行轮次，你可以通过state.history.parent.parent遍历整个链表。为了使结构更加方便来工作，这个插件也提供了许多高效的生成器，来对特定的值进行迭代。history.recent_NAME 是程序最近访问的一个值，对应的所有值存在于history.NAME列表中。如果我们想要获取立即值，可以通过.hardcopy属性来获取列表中的所有值，默认情况下是生成器，需要手动生成。  history.descriptions 列表，描述每一轮执行的字符串信息。  history.bbl_addrs 基本块地址列表，每一轮可能不止一个，因为不是所有和二进制代码有关的基本块也会存在，比如一些被angr所hook的代码。  history.jumpkinds 状态历史中每个控制流转换的处理列表，如VEX枚举字符串  history.guards 保护状态遇到的每个分支的条件列表。（不能用？）  history.events 语义上一些有趣的事件列表，在程序执行过程中发生，比如存在符号跳转条件，程序弹出一个对话框，或者突然结束运行。  history.actions通常是空的，但是如果你添加 angr.options.refs选项到状态中，它会弹出程序执行过程中内存、寄存器或者终止代码的日志。调用栈插件angr将会跟踪模拟程序的栈调用。在每一次call指令后，一个栈帧会被添加到栈调用的最顶部，每当堆栈指针下降到调用最顶层帧，就会弹出一个帧，这允许angr健壮地存储当前模拟函数的本地数据。和history一样，调用栈插件也是节点链表，但是没有提供迭代器，可以直接访问，使用state.callstack.next 来获取每一个栈帧，如果只要最顶层的，使用 state.callstack。  callstack.func_addr 当前执行的函数地址。  callstack.call_site_addr 调用当前函数的基本块的地址。  callstack.stack_ptr 当前函数入口点栈指针的值。  callstack.ret_addr 当前函数的返回地址。更多关于IO复制和合并状态能快速进行复制，这样我们就能进行多种操作。通过state.copy()。状态也能进行快速合并# merge will return a tuple. the first element is the merged state# the second element is a symbolic variable describing a state flag# the third element is a boolean describing whether any merging was done&gt;&gt;&gt;  (s_merged, m, anything_merged)  = s1.merge(s2)# this is now an expression that can resolve to &quot;AAAA&quot; *or* &quot;BBBB&quot;&gt;&gt;&gt; aaaa_or_bbbb = s_merged.mem[0x1000].uint32_t">
 
 
 
-  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Angrlearning 4">
   <meta name="twitter:description" content="  学习笔记，结合官方文档和网上资料整理，加强理解从angr第二章第四节开始 程序状态程序状态——内存，寄存器和其他到目前为止，我们只学习了angr中的模拟程序状态。(SimState 对象)。用这种最原始的方式来理解angr中的很多基本的概念和操作。这里你将学习angr中静态对象的数据结构和如何更有效的进行交互。复习：读写内存和寄存器如果你依次阅读指南，你已经知道如何对内存和寄存器进行访问了。state.regs 提供了寄存器名作为属性来获取访问。state.mem提供了以下标的方式来获取具体的内存地址，并指定一个特殊的值类型。 另外，你应该知道如何和ASTs进行交互，这样你就能理解位向量类型可以被存储在寄存器和内存中。# 获取mem[rip]的值In [33]: state.mem[state.regs.rip].int64_tOut[33]: &lt;int64_t &lt;BV64 0x8949ed31fa1e0ff3&gt; at 0x402110&gt;# 解析mem[rip]的值In [34]: state.mem[state.regs.rip].int64_t.resolvedOut[34]: &lt;BV64 0x8949ed31fa1e0ff3&gt;# 保存该值到rbpIn [35]: state.regs.rbp = state.mem[state.regs.rip].int64_t.resolvedOut[36]: &lt;BV64 0x8949ed31fa1e0ff3&gt;# rax += mem[rip + 8]In [37]: state.regs.rax += state.mem[state.regs.rip + 8].int64_t.resolvedOut[38]: &lt;BV64 0xe48348e289485eed&gt;# 获取mem[rbp]的值In [39]: state.mem[state.regs.rbp].int64_tOut[39]: WARNING | 2019-02-18 13:56:38,626 | angr.state_plugins.symbolic_memory | Memory address 0x8949ed31fa1e0ff3 has an unspecified value; Generating an unconstrained value of 8 bytes.&lt;int64_t &lt;BV64 mem_8949ed31fa1e0ff3_453_64{UNINITIALIZED}&gt; at 0x8949ed31fa1e0ff3&gt;In [40]: state.mem[state.regs.rbp].int64_t.resolvedOut[40]: &lt;BV64 mem_8949ed31fa1e0ff3_453_64{UNINITIALIZED}&gt;基本的执行之前的时候，我们展示了如何使用模拟器来展示一些基本的执行操作，我们将在下一节展示模拟管理器的全部功能，但是现在我们可以使用一些比较简单的接口来展示如何进行符号执行，通过使用state.step()，这个方法将会执行一步符号执行操作并且返沪i一个对象，叫做SimSuccessors。不同于正常的模拟，符号执行可以产生很多种不同的后继状态，这些状态将被分类成几种。现在我们关心的是.successors属性，这是一个列表，包含了所有基于给定状态的所有后续状态。为什么是列表，而不是一个单独的后继状态呢。这是因为在angr中，angr进行符号执行的流程仅仅是将一个个单独的指令编译到程序中，执行他们来改变一个模拟状态。当遇到像条件判断语句，如果变量是符号值会怎么样呢。在angr的某处深度下，该条件会被执行，这样的话，结果就包含该约束条件。这是正确的，但是下一个问题是，我们到底在判断语句处如何选择流程。答案是，我们两边都选择，我们生成了2条完整的分离的后继状态，一个模拟条件正确的路线，一个模拟相反的条件的路线，这样的话，无论我们之后使用约束求解器来求解哪一个状态，状态所拥有的条件都将确保我们得到有效的输入，这些条件将导致状态执行和给定状态相同的路径。为了展示这个，我们使用一个例子，如果你看源代码，会发现认证机制是有后门的，任何用户名可以通过sosneaky来认证成管理员。#!/usr/bin/env pythonimport angrimport sysdef basic_symbolic_execution():    p = angr.Project(&#39;fauxware&#39;)    state = p.factory.entry_state()    sm = p.factory.simulation_manager(state)    sm.run(until=lambda sm_: len(sm_.active) &gt; 1)    # posix表示可移植操作系统接口，angr中指符合posix环境的状态，数据存储和交互机制。    # dumps(fd)表示从标准输入、标准输出、标准错误中dumps信息    input_0 = sm.active[0].posix.dumps(0)    input_1 = sm.active[1].posix.dumps(0)    if b&#39;SOSNEAKY&#39; in input_0:        return input_0    else:        return input_1def test():    r = basic_symbolic_execution()    assert b&#39;SOSNEAKY&#39; in rif __name__ == &#39;__main__&#39;:    sys.stdout.buffer.write(basic_symbolic_execution())程序中标准输入流中获取数据，angr默认情况下是无符号的数据流，为了进行约束求解，并且获取到能满足这些约束的输入值，我们需要对实际的标准输入流获得一个引用。# 路径一标准输入In [90]: simgr.active[0].posix.dumps(0)Out[90]: b&#39;\x00\x00\x00\x00\x00\x00\x00\x00\x00SOSNEAKY\x00&#39;# 路径一标准输出In [91]: simgr.active[0].posix.dumps(1)Out[91]: b&#39;Username: \nPassword: \nWelcome to the admin console, trusted user!\n&#39;# 路径二标准输入In [92]: simgr.active[1].posix.dumps(0)Out[92]: b&#39;\x00\x00\x00\x00\x00\x00\x00\x00\x00S\x80\x80\x80\x80\x80\x80\x00\x00&#39;# 路径二标准输出In [93]: simgr.active[1].posix.dumps(1)Out[93]: b&#39;Username: \nPassword: \n&#39;通过使用angr找到它的后门，我们正在参与一个庞大的潮流，即对如何使用符号执行从二进制文件中提取意义有一个基本的了解。状态预设到目前位置，无论什么时候我们使用状态，我们都使用project.factory.entry_state()。这只是其中一个状态构造函数，其他函数如下。  .blank_state()构造状态使用一个空的状态，大部分其中的数据都是未初始化的。当访问数据时，未初始化的符号值会被返回。  .entry_state()状态构造器在主程序的入口点创建状态。  .full_init_state()状态构造器会去执行主程序入口点前，所有需要被初始化的部分，比如共享库和预初始化内容。当所有都完成后，它会跳转到入口点。  .call_state() 状态构造器准备执行一个给定函数。所有的这些构造器可以指定许多参数。TODO：  所有这些构造器可以使用地址参数来指定开始解析的地址。  If you’re executing in an environment that can take command line arguments or an environment, you can pass a list of arguments through args and a dictionary of environment variables through env into entry_state and full_init_state. The values in these structures can be strings or bitvectors, and will be serialized into the state as the arguments and environment to the simulated execution. The default args is an empty list, so if the program you’re analyzing expects to find at least an argv[0], you should always provide that!  If you’d like to have argc be symbolic, you can pass a symbolic bitvector as argc to the entry_state and full_init_state constructors. Be careful, though: if you do this, you should also add a constraint to the resulting state that your value for argc cannot be larger than the number of args you passed into args.  To use the call state, you should call it with .call_state(addr, arg1, arg2, ...), where addr is the address of the function you want to call and argN is the Nth argument to that function, either as a python integer, string, or array, or a bitvector. If you want to have memory allocated and actually pass in a pointer to an object, you should wrap it in an PointerWrapper, i.e. angr.PointerWrapper(&quot;point to me!&quot;). The results of this API can be a little unpredictable, but we’re working on it.  To specify the calling convention used for a function with call_state, you can pass a SimCC instance as the cc argument.内存的底层接口state.mem接口对从内存中加载特定类型的数据是很方便的，但是当我想要去进行原始加载和存储时，会非常麻烦。事实上，这种方式只是一种访问内存的逻辑方法，即在内存中填充位向量。我们可以使用.load(addr, size)和.store(addr, val)方法。# 存储In [11]: state.memory.store(0x10, state.solver.BVV(0x123456789abcdef0123456789abcdef, 128))# 加载In [21]: state.memory.load(0x10,16)Out[21]: &lt;BV128 0x123456789abcdef0123456789abcdef&gt;但是，我们可以发现，这种情况下是大端序，因为这个方式的主要目的是存储没有附加语义的数据段，所以是按照语义来进行的。如果需要使用小端序，加载的时候，需要指定加载的顺序方式。In [50]: state.memory.store(0, state.solver.BVV(0x123456789abcdef, 64))# 小端序In [51]: state.memory.load(0, 8, endness=archinfo.Endness.LE)Out[51]: &lt;BV64 0xefcdab8967452301&gt;# 寄存器存储In [58]: state.registers.store(state.regs.rip, state.solver.BVV(0x123456789ef, 64))# 寄存器加载In [59]: state.registers.load(state.regs.rip)Out[59]: &lt;BV64 0x123456789ef&gt;状态选项TODO状态插件所有存储在SimState中的内容，实际上都存储在附加到该状态的插件中。几乎所有我们讨论过的属性都是插件。memory, registers, mem, regs, solver等等，这种设计使得代码模块化，并且可以快速开发新功能。全局插件state.globals是最简单的差距，用于提供标准python字典接口。允许你存储任意数据。历史插件state.history 是一个很重要的差距，用于存储和历史有关的数据，即这个状态在执行过程中经历的路径中的数据。它实际上是一个链式的历史记录节点，每一个展示了一次执行轮次，你可以通过state.history.parent.parent遍历整个链表。为了使结构更加方便来工作，这个插件也提供了许多高效的生成器，来对特定的值进行迭代。history.recent_NAME 是程序最近访问的一个值，对应的所有值存在于history.NAME列表中。如果我们想要获取立即值，可以通过.hardcopy属性来获取列表中的所有值，默认情况下是生成器，需要手动生成。  history.descriptions 列表，描述每一轮执行的字符串信息。  history.bbl_addrs 基本块地址列表，每一轮可能不止一个，因为不是所有和二进制代码有关的基本块也会存在，比如一些被angr所hook的代码。  history.jumpkinds 状态历史中每个控制流转换的处理列表，如VEX枚举字符串  history.guards 保护状态遇到的每个分支的条件列表。（不能用？）  history.events 语义上一些有趣的事件列表，在程序执行过程中发生，比如存在符号跳转条件，程序弹出一个对话框，或者突然结束运行。  history.actions通常是空的，但是如果你添加 angr.options.refs选项到状态中，它会弹出程序执行过程中内存、寄存器或者终止代码的日志。调用栈插件angr将会跟踪模拟程序的栈调用。在每一次call指令后，一个栈帧会被添加到栈调用的最顶部，每当堆栈指针下降到调用最顶层帧，就会弹出一个帧，这允许angr健壮地存储当前模拟函数的本地数据。和history一样，调用栈插件也是节点链表，但是没有提供迭代器，可以直接访问，使用state.callstack.next 来获取每一个栈帧，如果只要最顶层的，使用 state.callstack。  callstack.func_addr 当前执行的函数地址。  callstack.call_site_addr 调用当前函数的基本块的地址。  callstack.stack_ptr 当前函数入口点栈指针的值。  callstack.ret_addr 当前函数的返回地址。更多关于IO复制和合并状态能快速进行复制，这样我们就能进行多种操作。通过state.copy()。状态也能进行快速合并# merge will return a tuple. the first element is the merged state# the second element is a symbolic variable describing a state flag# the third element is a boolean describing whether any merging was done&gt;&gt;&gt;  (s_merged, m, anything_merged)  = s1.merge(s2)# this is now an expression that can resolve to &quot;AAAA&quot; *or* &quot;BBBB&quot;&gt;&gt;&gt; aaaa_or_bbbb = s_merged.mem[0x1000].uint32_t">
-  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2019-01/AngrLearning-4.html">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2019-01/AngrLearning-4.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="https://zjgcjy.github.io/posts/2019-01/AngrLearning-4.html">
+<link rel="canonical" href="http://localhost:4000/posts/2019-01/AngrLearning-4.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "https://zjgcjy.github.io/",
+      "url": "http://localhost:4000/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -263,26 +263,26 @@
     <ul class="author__urls social-icons">
       
         <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
-          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+          <i class="fa fa-map-marker" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
         </li>
       
 
       
         
           
-            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fa fa-link" aria-hidden="true"></i> Website</a></li>
           
         
           
-            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fa fa-envelope-square" aria-hidden="true"></i> Email</a></li>
           
         
           
-            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
           
         
           
-            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
           
         
       
@@ -624,7 +624,7 @@
   
 
   <p class="page__taxonomy">
-    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <strong><i class="fa fa-tags" aria-hidden="true"></i> Tags: </strong>
     <span itemprop="keywords">
     
       
@@ -638,7 +638,7 @@
 
 
         
-          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-01-20T21:25:00+08:00">January 20, 2019</time></p>
+          <p class="page__date"><strong><i class="fa fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-01-20T21:25:00+08:00">January 20, 2019</time></p>
         
       </footer>
 
@@ -647,11 +647,11 @@
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Angrlearning+4%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-01%2FAngrLearning-4.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Angrlearning+4%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-01%2FAngrLearning-4.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-01%2FAngrLearning-4.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-01%2FAngrLearning-4.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-01%2FAngrLearning-4.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-01%2FAngrLearning-4.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -877,16 +877,16 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
       
         
-          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
         
       
         
-          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
         
       
     
 
-    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    <li><a href="/feed.xml"><i class="fa fa-rss-square" aria-hidden="true"></i> Feed</a></li>
   </ul>
 </div>
 
@@ -897,7 +897,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
 
     
   <script src="/assets/js/main.min.js"></script>
-  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+  <script src="https://use.fontawesome.com/1d25d6ba93.js"></script>
 
 
 
@@ -912,7 +912,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "https://zjgcjy.github.io/posts/2019-01/AngrLearning-4.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "http://localhost:4000/posts/2019-01/AngrLearning-4.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2019-01/AngrLearning-4"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

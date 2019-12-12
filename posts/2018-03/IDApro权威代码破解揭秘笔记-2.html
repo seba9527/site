@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Idapro权威代码破解揭秘笔记 2">
-<meta property="og:url" content="https://zjgcjy.github.io/posts/2018-03/IDApro%E6%9D%83%E5%A8%81%E4%BB%A3%E7%A0%81%E7%A0%B4%E8%A7%A3%E6%8F%AD%E7%A7%98%E7%AC%94%E8%AE%B0-2.html">
+<meta property="og:url" content="http://localhost:4000/posts/2018-03/IDApro%E6%9D%83%E5%A8%81%E4%BB%A3%E7%A0%81%E7%A0%B4%E8%A7%A3%E6%8F%AD%E7%A7%98%E7%AC%94%E8%AE%B0-2.html">
 
 
   <meta property="og:description" content="  本篇是关于《IDApro权威代码破解揭秘》的笔记。主要是一些IDA的实战技巧。这部分由于涉及到调试的部分，我就不截图了。写一些要点。建立缓冲区在IDA中，连续分配的局部变量，IDA默认都是一个一个分配的，这就导致如果是一个数组的话，识别起来会很困难，导致代码被曲解。方法是建立缓冲区。指定数组的首地址和大小，IDA便能自动进行优化，从而将很多零散的局部变量转换成基地址加偏移量的数组形式。断点关于断点的内容，之前也写过。断点hash寻找DLL类似于一个windows的shellcode，例如对kernel32.dll的导出表进行遍历，同时对名字进行散列，与已知的散列值进行匹配，可以查找像LoadLibrary()、GetProcAddress()等函数的地址。详细说明可以GoogleSkape. Understanding Windows Shellcodehit marking关于bin的流程分析，最常用的分析方式是hit marking。即记录对每个消息的判断树的调用路径，在每次函数或块的开始设置断点。当断点被触发时，记下访问顺序，同时让程序继续运行到下一个块。最后把触发断点的列表进行排序得到hit list，通过list中的函数，我们可以拼凑出消息的结构。编写hit marking 插件主要就是掌握下IDApython脚本的编写，这部分以前也有学习过，不过没有系统学习，idapython的资料也比较少，可以GoogleThe Beginner’s Guide to IDAPython关于内置的跟踪功能，使用idapython编写脚本进行自动化分析。下面给出书上的列题代码，但是我是试过之后，发现只设置了断点，而断点并没有启动，有点问题，而且每一个断点没有记录断点的经过次数，而这方面的资料比较少，目前我还不知道是怎么回事。# coding:utf-8__author__=&#39;zjgcjy&#39;from idaapi import *def test():	for i in xrange(get_func_qty()):		f = getn_func(i)		print &quot;Function %s at 0x%x &quot; % (GetFunctionName(f.startEA), f.startEA)		add_bpt(f.startEA, 1, 4)		SetBptAttr(f.startEA, BPTATTR_FLAGS, BPT_ENABLED | BPT_TRACE) # 这里必须设置BPT_ENABLED，否则没有作用。	print &quot;[*] Set %d breakpoints.&quot; % GetBptQty()	#for i in xrange(get_func_qty()):	#	b =bpt_t()	#	getn_bpt(i, b)	#	b.flags ^=BPT_BRK	#	b.flags |=BPT_TRACE	#	update_bpt(b)def main():	test()if __name__ == &#39;__main__&#39;:	main()主要的问题就是没有生成hit list，依然不知道函数或模块调用的次数，只有在断点列表中可以找到。在《IDApro权威指南》中也没有找到相应的说明。-_-附上第二个脚本，使用hook进行实时调试。可以自动定义FuncPath类中的处理函数。# coding:utf-8__author__=&#39;zjgcjy&#39;from idaapi import *from idautils import *from idc import *count = 0# 从DBG_Hooks类继承class FuncPath(DBG_Hooks):    # 断点处理函数    def dbg_bpt(self, tid, ea):    	global count          count += 1        print &quot;[*] Hit: 0x%08x the %d time&quot; % (ea, count)          #        #        #        #        return 1# 移除先前的调试try:      if debugger:          print(&quot;Removing previous hook ...&quot;)          debugger.unhook()  except:      pass# 建立一个对象debugger = FuncPath ()# 将钩子装入IDA内建调试器debugger.hook()current_addr = ScreenEA()# 遍历函数设置跟踪断点for function in Functions(SegStart( current_addr ), SegEnd( current_addr )):    AddBpt( function )    SetBptAttr( function, BPTATTR_FLAGS, BPT_ENABLED|BPT_TRACE)num_breakpoints = GetBptQty()print &quot;[*] Set %d breakpoints.&quot; % num_breakpoints">
 
 
 
-  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Idapro权威代码破解揭秘笔记 2">
   <meta name="twitter:description" content="  本篇是关于《IDApro权威代码破解揭秘》的笔记。主要是一些IDA的实战技巧。这部分由于涉及到调试的部分，我就不截图了。写一些要点。建立缓冲区在IDA中，连续分配的局部变量，IDA默认都是一个一个分配的，这就导致如果是一个数组的话，识别起来会很困难，导致代码被曲解。方法是建立缓冲区。指定数组的首地址和大小，IDA便能自动进行优化，从而将很多零散的局部变量转换成基地址加偏移量的数组形式。断点关于断点的内容，之前也写过。断点hash寻找DLL类似于一个windows的shellcode，例如对kernel32.dll的导出表进行遍历，同时对名字进行散列，与已知的散列值进行匹配，可以查找像LoadLibrary()、GetProcAddress()等函数的地址。详细说明可以GoogleSkape. Understanding Windows Shellcodehit marking关于bin的流程分析，最常用的分析方式是hit marking。即记录对每个消息的判断树的调用路径，在每次函数或块的开始设置断点。当断点被触发时，记下访问顺序，同时让程序继续运行到下一个块。最后把触发断点的列表进行排序得到hit list，通过list中的函数，我们可以拼凑出消息的结构。编写hit marking 插件主要就是掌握下IDApython脚本的编写，这部分以前也有学习过，不过没有系统学习，idapython的资料也比较少，可以GoogleThe Beginner’s Guide to IDAPython关于内置的跟踪功能，使用idapython编写脚本进行自动化分析。下面给出书上的列题代码，但是我是试过之后，发现只设置了断点，而断点并没有启动，有点问题，而且每一个断点没有记录断点的经过次数，而这方面的资料比较少，目前我还不知道是怎么回事。# coding:utf-8__author__=&#39;zjgcjy&#39;from idaapi import *def test():	for i in xrange(get_func_qty()):		f = getn_func(i)		print &quot;Function %s at 0x%x &quot; % (GetFunctionName(f.startEA), f.startEA)		add_bpt(f.startEA, 1, 4)		SetBptAttr(f.startEA, BPTATTR_FLAGS, BPT_ENABLED | BPT_TRACE) # 这里必须设置BPT_ENABLED，否则没有作用。	print &quot;[*] Set %d breakpoints.&quot; % GetBptQty()	#for i in xrange(get_func_qty()):	#	b =bpt_t()	#	getn_bpt(i, b)	#	b.flags ^=BPT_BRK	#	b.flags |=BPT_TRACE	#	update_bpt(b)def main():	test()if __name__ == &#39;__main__&#39;:	main()主要的问题就是没有生成hit list，依然不知道函数或模块调用的次数，只有在断点列表中可以找到。在《IDApro权威指南》中也没有找到相应的说明。-_-附上第二个脚本，使用hook进行实时调试。可以自动定义FuncPath类中的处理函数。# coding:utf-8__author__=&#39;zjgcjy&#39;from idaapi import *from idautils import *from idc import *count = 0# 从DBG_Hooks类继承class FuncPath(DBG_Hooks):    # 断点处理函数    def dbg_bpt(self, tid, ea):    	global count          count += 1        print &quot;[*] Hit: 0x%08x the %d time&quot; % (ea, count)          #        #        #        #        return 1# 移除先前的调试try:      if debugger:          print(&quot;Removing previous hook ...&quot;)          debugger.unhook()  except:      pass# 建立一个对象debugger = FuncPath ()# 将钩子装入IDA内建调试器debugger.hook()current_addr = ScreenEA()# 遍历函数设置跟踪断点for function in Functions(SegStart( current_addr ), SegEnd( current_addr )):    AddBpt( function )    SetBptAttr( function, BPTATTR_FLAGS, BPT_ENABLED|BPT_TRACE)num_breakpoints = GetBptQty()print &quot;[*] Set %d breakpoints.&quot; % num_breakpoints">
-  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2018-03/IDApro%E6%9D%83%E5%A8%81%E4%BB%A3%E7%A0%81%E7%A0%B4%E8%A7%A3%E6%8F%AD%E7%A7%98%E7%AC%94%E8%AE%B0-2.html">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2018-03/IDApro%E6%9D%83%E5%A8%81%E4%BB%A3%E7%A0%81%E7%A0%B4%E8%A7%A3%E6%8F%AD%E7%A7%98%E7%AC%94%E8%AE%B0-2.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="https://zjgcjy.github.io/posts/2018-03/IDApro%E6%9D%83%E5%A8%81%E4%BB%A3%E7%A0%81%E7%A0%B4%E8%A7%A3%E6%8F%AD%E7%A7%98%E7%AC%94%E8%AE%B0-2.html">
+<link rel="canonical" href="http://localhost:4000/posts/2018-03/IDApro%E6%9D%83%E5%A8%81%E4%BB%A3%E7%A0%81%E7%A0%B4%E8%A7%A3%E6%8F%AD%E7%A7%98%E7%AC%94%E8%AE%B0-2.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "https://zjgcjy.github.io/",
+      "url": "http://localhost:4000/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -263,26 +263,26 @@
     <ul class="author__urls social-icons">
       
         <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
-          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+          <i class="fa fa-map-marker" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
         </li>
       
 
       
         
           
-            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fa fa-link" aria-hidden="true"></i> Website</a></li>
           
         
           
-            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fa fa-envelope-square" aria-hidden="true"></i> Email</a></li>
           
         
           
-            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
           
         
           
-            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
           
         
       
@@ -513,7 +513,7 @@ print "[*] Set %d breakpoints." % num_breakpoints
   
 
   <p class="page__taxonomy">
-    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <strong><i class="fa fa-tags" aria-hidden="true"></i> Tags: </strong>
     <span itemprop="keywords">
     
       
@@ -531,7 +531,7 @@ print "[*] Set %d breakpoints." % num_breakpoints
 
 
         
-          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2018-03-15T03:02:00+08:00">March 15, 2018</time></p>
+          <p class="page__date"><strong><i class="fa fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2018-03-15T03:02:00+08:00">March 15, 2018</time></p>
         
       </footer>
 
@@ -540,11 +540,11 @@ print "[*] Set %d breakpoints." % num_breakpoints
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Idapro%E6%9D%83%E5%A8%81%E4%BB%A3%E7%A0%81%E7%A0%B4%E8%A7%A3%E6%8F%AD%E7%A7%98%E7%AC%94%E8%AE%B0+2%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2018-03%2FIDApro%25E6%259D%2583%25E5%25A8%2581%25E4%25BB%25A3%25E7%25A0%2581%25E7%25A0%25B4%25E8%25A7%25A3%25E6%258F%25AD%25E7%25A7%2598%25E7%25AC%2594%25E8%25AE%25B0-2.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Idapro%E6%9D%83%E5%A8%81%E4%BB%A3%E7%A0%81%E7%A0%B4%E8%A7%A3%E6%8F%AD%E7%A7%98%E7%AC%94%E8%AE%B0+2%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-03%2FIDApro%25E6%259D%2583%25E5%25A8%2581%25E4%25BB%25A3%25E7%25A0%2581%25E7%25A0%25B4%25E8%25A7%25A3%25E6%258F%25AD%25E7%25A7%2598%25E7%25AC%2594%25E8%25AE%25B0-2.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2018-03%2FIDApro%25E6%259D%2583%25E5%25A8%2581%25E4%25BB%25A3%25E7%25A0%2581%25E7%25A0%25B4%25E8%25A7%25A3%25E6%258F%25AD%25E7%25A7%2598%25E7%25AC%2594%25E8%25AE%25B0-2.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-03%2FIDApro%25E6%259D%2583%25E5%25A8%2581%25E4%25BB%25A3%25E7%25A0%2581%25E7%25A0%25B4%25E8%25A7%25A3%25E6%258F%25AD%25E7%25A7%2598%25E7%25AC%2594%25E8%25AE%25B0-2.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2018-03%2FIDApro%25E6%259D%2583%25E5%25A8%2581%25E4%25BB%25A3%25E7%25A0%2581%25E7%25A0%25B4%25E8%25A7%25A3%25E6%258F%25AD%25E7%25A7%2598%25E7%25AC%2594%25E8%25AE%25B0-2.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-03%2FIDApro%25E6%259D%2583%25E5%25A8%2581%25E4%25BB%25A3%25E7%25A0%2581%25E7%25A0%25B4%25E8%25A7%25A3%25E6%258F%25AD%25E7%25A7%2598%25E7%25AC%2594%25E8%25AE%25B0-2.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -770,16 +770,16 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
       
         
-          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
         
       
         
-          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
         
       
     
 
-    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    <li><a href="/feed.xml"><i class="fa fa-rss-square" aria-hidden="true"></i> Feed</a></li>
   </ul>
 </div>
 
@@ -790,7 +790,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
 
     
   <script src="/assets/js/main.min.js"></script>
-  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+  <script src="https://use.fontawesome.com/1d25d6ba93.js"></script>
 
 
 
@@ -805,7 +805,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "https://zjgcjy.github.io/posts/2018-03/IDApro%E6%9D%83%E5%A8%81%E4%BB%A3%E7%A0%81%E7%A0%B4%E8%A7%A3%E6%8F%AD%E7%A7%98%E7%AC%94%E8%AE%B0-2.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "http://localhost:4000/posts/2018-03/IDApro%E6%9D%83%E5%A8%81%E4%BB%A3%E7%A0%81%E7%A0%B4%E8%A7%A3%E6%8F%AD%E7%A7%98%E7%AC%94%E8%AE%B0-2.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2018-03/IDApro权威代码破解揭秘笔记-2"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

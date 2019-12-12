@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Pintools使用">
-<meta property="og:url" content="https://zjgcjy.github.io/posts/2019-04/pintools%E4%BD%BF%E7%94%A8.html">
+<meta property="og:url" content="http://localhost:4000/posts/2019-04/pintools%E4%BD%BF%E7%94%A8.html">
 
 
   <meta property="og:description" content="  Pintools 使用手册参考文档Intel PinTools 安装使用教程pintool的搭建和使用示例Intel Pin基础下载解压wget https://software.intel.com/sites/landingpage/pintool/downloads/pin-3.7-97619-g0d0c92f4f-gcc-linux.tar.gztar -xzf pin-3.7-97619-g0d0c92f4f-gcc-linux.tar.gz测试（失败）我们可以 先运行一个 demo 进行测试。在这个例子中我们将生成一个名为 insmix 的工具，这个工具是用来统计应用程序执行的 x86 指令的数量的。通过如下指令打开 insmix 工具所在目录，并生成该工具：cd pin-3.7-97619-g0d0c92f4f-gcc-linux/source/tools/Insmixmake如果执行成功的话，应该可以在 source/tools/Insmix/obj-intel64/ 目录下找到文件insmix.so。此时我们返回到 pin 的根目录，然后输入如下指令将 insmix 工具附加在 ls 指令上并由 pin 运行 ls 指令：cd ../../.././pin.sh -t source/tools/Insmix/obj-intel64/insmix.so -- ls运行结束后结果文件输出在 pin 根目录下，即 insmix.out。这一段是网上的教程，我这里测试失败了，不知道为什么，编译不能通过。官方测试文档pintool_docs不翻译了，都能看懂。To build all examples in a directory for ia32 architecture:$ cd source/tools/ManualExamples$ make all TARGET=ia32To build all examples in a directory for intel64 architecture:$ cd source/tools/ManualExamples$ make all TARGET=intel64To build and run a specific example (e.g., inscount0):$ cd source/tools/ManualExamples$ make inscount0.test TARGET=intel64To build a specific example without running it (e.g., inscount0):$ cd source/tools/ManualExamples$ make obj-intel64/inscount0.so TARGET=intel64The above applies to the Intel(R) 64 architecture. For the IA-32 architecture, use TARGET=ia32 instead.$ cd source/tools/ManualExamples$ make obj-ia32/inscount0.so TARGET=ia32示例统计指令长度$ ../../../pin -t obj-intel64/inscount0.so -- /bin/lsMakefile          atrace.o     imageload.out  itrace      proccountMakefile.example  imageload    inscount0      itrace.o    proccount.oatrace            imageload.o  inscount0.o    itrace.out$ cat inscount.outCount 422838自定义输出文件$ ../../../pin -t obj-intel64/inscount0.so -o inscount0.log -- /bin/ls">
 
 
 
-  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Pintools使用">
   <meta name="twitter:description" content="  Pintools 使用手册参考文档Intel PinTools 安装使用教程pintool的搭建和使用示例Intel Pin基础下载解压wget https://software.intel.com/sites/landingpage/pintool/downloads/pin-3.7-97619-g0d0c92f4f-gcc-linux.tar.gztar -xzf pin-3.7-97619-g0d0c92f4f-gcc-linux.tar.gz测试（失败）我们可以 先运行一个 demo 进行测试。在这个例子中我们将生成一个名为 insmix 的工具，这个工具是用来统计应用程序执行的 x86 指令的数量的。通过如下指令打开 insmix 工具所在目录，并生成该工具：cd pin-3.7-97619-g0d0c92f4f-gcc-linux/source/tools/Insmixmake如果执行成功的话，应该可以在 source/tools/Insmix/obj-intel64/ 目录下找到文件insmix.so。此时我们返回到 pin 的根目录，然后输入如下指令将 insmix 工具附加在 ls 指令上并由 pin 运行 ls 指令：cd ../../.././pin.sh -t source/tools/Insmix/obj-intel64/insmix.so -- ls运行结束后结果文件输出在 pin 根目录下，即 insmix.out。这一段是网上的教程，我这里测试失败了，不知道为什么，编译不能通过。官方测试文档pintool_docs不翻译了，都能看懂。To build all examples in a directory for ia32 architecture:$ cd source/tools/ManualExamples$ make all TARGET=ia32To build all examples in a directory for intel64 architecture:$ cd source/tools/ManualExamples$ make all TARGET=intel64To build and run a specific example (e.g., inscount0):$ cd source/tools/ManualExamples$ make inscount0.test TARGET=intel64To build a specific example without running it (e.g., inscount0):$ cd source/tools/ManualExamples$ make obj-intel64/inscount0.so TARGET=intel64The above applies to the Intel(R) 64 architecture. For the IA-32 architecture, use TARGET=ia32 instead.$ cd source/tools/ManualExamples$ make obj-ia32/inscount0.so TARGET=ia32示例统计指令长度$ ../../../pin -t obj-intel64/inscount0.so -- /bin/lsMakefile          atrace.o     imageload.out  itrace      proccountMakefile.example  imageload    inscount0      itrace.o    proccount.oatrace            imageload.o  inscount0.o    itrace.out$ cat inscount.outCount 422838自定义输出文件$ ../../../pin -t obj-intel64/inscount0.so -o inscount0.log -- /bin/ls">
-  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2019-04/pintools%E4%BD%BF%E7%94%A8.html">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2019-04/pintools%E4%BD%BF%E7%94%A8.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="https://zjgcjy.github.io/posts/2019-04/pintools%E4%BD%BF%E7%94%A8.html">
+<link rel="canonical" href="http://localhost:4000/posts/2019-04/pintools%E4%BD%BF%E7%94%A8.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "https://zjgcjy.github.io/",
+      "url": "http://localhost:4000/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -263,26 +263,26 @@
     <ul class="author__urls social-icons">
       
         <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
-          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+          <i class="fa fa-map-marker" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
         </li>
       
 
       
         
           
-            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fa fa-link" aria-hidden="true"></i> Website</a></li>
           
         
           
-            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fa fa-envelope-square" aria-hidden="true"></i> Email</a></li>
           
         
           
-            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
           
         
           
-            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
           
         
       
@@ -489,7 +489,7 @@ Count 422838
   
 
   <p class="page__taxonomy">
-    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <strong><i class="fa fa-tags" aria-hidden="true"></i> Tags: </strong>
     <span itemprop="keywords">
     
       
@@ -503,7 +503,7 @@ Count 422838
 
 
         
-          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-04-11T10:13:00+08:00">April 11, 2019</time></p>
+          <p class="page__date"><strong><i class="fa fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-04-11T10:13:00+08:00">April 11, 2019</time></p>
         
       </footer>
 
@@ -512,11 +512,11 @@ Count 422838
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Pintools%E4%BD%BF%E7%94%A8%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-04%2Fpintools%25E4%25BD%25BF%25E7%2594%25A8.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Pintools%E4%BD%BF%E7%94%A8%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-04%2Fpintools%25E4%25BD%25BF%25E7%2594%25A8.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-04%2Fpintools%25E4%25BD%25BF%25E7%2594%25A8.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-04%2Fpintools%25E4%25BD%25BF%25E7%2594%25A8.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-04%2Fpintools%25E4%25BD%25BF%25E7%2594%25A8.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-04%2Fpintools%25E4%25BD%25BF%25E7%2594%25A8.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -742,16 +742,16 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
       
         
-          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
         
       
         
-          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
         
       
     
 
-    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    <li><a href="/feed.xml"><i class="fa fa-rss-square" aria-hidden="true"></i> Feed</a></li>
   </ul>
 </div>
 
@@ -762,7 +762,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
 
     
   <script src="/assets/js/main.min.js"></script>
-  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+  <script src="https://use.fontawesome.com/1d25d6ba93.js"></script>
 
 
 
@@ -777,7 +777,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "https://zjgcjy.github.io/posts/2019-04/pintools%E4%BD%BF%E7%94%A8.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "http://localhost:4000/posts/2019-04/pintools%E4%BD%BF%E7%94%A8.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2019-04/pintools使用"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

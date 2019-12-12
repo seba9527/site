@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Angrlearning 2">
-<meta property="og:url" content="https://zjgcjy.github.io/posts/2019-01/AngrLearning-2.html">
+<meta property="og:url" content="http://localhost:4000/posts/2019-01/AngrLearning-2.html">
 
 
   <meta property="og:description" content="  angr 学习笔记，结合官方文档和网上资料整理，加强理解从angr第二章第二节开始 加载二进制文件-CLE和angr工程加载器（loader）加载对象CLE加载器展示了加载对象的全貌，加载并映射到一个单独的地址空间中。每一个文件都被加载器的backend识别，以处理各种不同的文件格式。而且，内存中的对象可能不对应任何一个文件，比如是为了支持线程局部存储（tls），而外部对象则用来保证提供未解析的符号。通过使用loader.all_objects，获取整个CLE已经加载的对象列表，以及更有针对性的分类情况等等：# loader对象In [4]: proj.loaderOut[4]: &lt;Loaded true, maps [0x400000:0x5008000]&gt;# 所有对象In [5]: proj.loader.all_objectsOut[5]:[&lt;ELF Object true, maps [0x400000:0x409217]&gt;, &lt;ELF Object libc-2.28.so, maps [0x1000000:0x11c363f]&gt;, &lt;ELF Object ld-2.28.so, maps [0x2000000:0x202b117]&gt;, &lt;ELFTLSObject Object cle##tls, maps [0x3000000:0x3015010]&gt;, &lt;ExternObject Object cle##externs, maps [0x4000000:0x4008000]&gt;, &lt;KernelObject Object cle##kernel, maps [0x5000000:0x5008000]&gt;]# 主对象In [6]: proj.loader.main_objectOut[6]: &lt;ELF Object true, maps [0x400000:0x409217]&gt;# 共享对象In [7]: proj.loader.shared_objectsOut[7]:OrderedDict([(&#39;true&#39;, &lt;ELF Object true, maps [0x400000:0x409217]&gt;),             (&#39;libc.so.6&#39;,              &lt;ELF Object libc-2.28.so, maps [0x1000000:0x11c363f]&gt;),             (&#39;ld-linux-x86-64.so.2&#39;,              &lt;ELF Object ld-2.28.so, maps [0x2000000:0x202b117]&gt;)])# 还有extern kernel等等# 查看某个地址属于的对象In [16]: proj.loader.find_object_containing(0x1000000)Out[16]: &lt;ELF Object libc-2.28.so, maps [0x1000000:0x11c363f]&gt;我们可以直接和这些对象进行交互，以获得我们想要的元数据：In [38]: obj = proj.loader.main_object# 入口点In [39]: obj.entryOut[39]: 0x8048560# 最低地址In [40]: obj.min_addrOut[40]: 0x8048000# 最高地址In [41]: obj.max_addrOut[41]: 0x804a087# 段In [42]: obj.segmentsOut[42]: &lt;Regions: [&lt;ELFSegment flags=0x4, vaddr=0x400000, memsize=0x1168, filesize=0x1168, offset=0x0&gt;,&lt;ELFSegment flags=0x5, vaddr=0x402000, memsize=0x30f1, filesize=0x30f1, offset=0x2000&gt;,&lt;ELFSegment flags=0x4, vaddr=0x406000, memsize=0x1b00, filesize=0x1b00, offset=0x6000&gt;,&lt;ELFSegment flags=0x6, vaddr=0x408c70, memsize=0x5a8, filesize=0x410, offset=0x7c70&gt;]&gt;# 节In [43]: obj.sectionsOut[43]: &lt;Regions: [&lt;Unnamed | offset 0x0, vaddr 0x0, size 0x0&gt;, &lt;.interp | offset 0x154, vaddr 0x8048154, size 0x13&gt;, &lt;.note.ABI-tag | offset 0x168, vaddr 0x8048168, size 0x20&gt;, &lt;.note.gnu.build-id | offset 0x188, vaddr 0x8048188, size 0x24&gt;, &lt;.gnu.hash | offset 0x1ac, vaddr 0x80481ac, size 0x2c&gt;, &lt;.dynsym | offset 0x1d8, vaddr 0x80481d8, size 0x100&gt;, &lt;.dynstr | offset 0x2d8, vaddr 0x80482d8, size 0xb6&gt;, &lt;.gnu.version | offset 0x38e, vaddr 0x804838e, size 0x20&gt;, &lt;.gnu.version_r | offset 0x3b0, vaddr 0x80483b0, size 0x40&gt;, &lt;.rel.dyn | offset 0x3f0, vaddr 0x80483f0, size 0x18&gt;, &lt;.rel.plt | offset 0x408, vaddr 0x8048408, size 0x60&gt;, &lt;.init | offset 0x468, vaddr 0x8048468, size 0x23&gt;, &lt;.plt | offset 0x490, vaddr 0x8048490, size 0xd0&gt;, &lt;.text | offset 0x560, vaddr 0x8048560, size 0x2d2&gt;, &lt;.fini | offset 0x834, vaddr 0x8048834, size 0x14&gt;, &lt;.rodata | offset 0x848, vaddr 0x8048848, size 0x9b&gt;, &lt;.eh_frame_hdr | offset 0x8e4, vaddr 0x80488e4, size 0x34&gt;, &lt;.eh_frame | offset 0x918, vaddr 0x8048918, size 0xd0&gt;, &lt;.init_array | offset 0xf08, vaddr 0x8049f08, size 0x4&gt;, &lt;.fini_array | offset 0xf0c, vaddr 0x8049f0c, size 0x4&gt;, &lt;.jcr | offset 0xf10, vaddr 0x8049f10, size 0x4&gt;, &lt;.dynamic | offset 0xf14, vaddr 0x8049f14, size 0xe8&gt;, &lt;.got | offset 0xffc, vaddr 0x8049ffc, size 0x4&gt;, &lt;.got.plt | offset 0x1000, vaddr 0x804a000, size 0x3c&gt;, &lt;.data | offset 0x103c, vaddr 0x804a03c, size 0x8&gt;, &lt;.bss | offset 0x1044, vaddr 0x804a060, size 0x28&gt;, &lt;.comment | offset 0x1044, vaddr 0x0, size 0x2b&gt;, &lt;.shstrtab | offset 0x106f, vaddr 0x0, size 0x106&gt;, &lt;.symtab | offset 0x1628, vaddr 0x0, size 0x4f0&gt;, &lt;.strtab | offset 0x1b18, vaddr 0x0, size 0x32a&gt;]&gt;# 根据地址找节In [29]: main.find_section_containing(main.entry)Out[29]: &lt;.text | offset 0x2020, vaddr 0x402020, size 0x30c3&gt;# 根据地址找段In [30]: main.find_segment_containing(main.entry)Out[30]: &lt;ELFSegment flags=0x5, vaddr=0x402000, memsize=0x30f1, filesize=0x30f1, offset=0x2000&gt;# plt表函数地址（未开启pic可用）In [56]: obj.plt[&#39;write&#39;]Out[56]: 0x8048520# 反查函数名（未开启pic可用）In [57]: obj.reverse_plt[0x8048520]Out[57]: u&#39;write&#39;# 打印指定的基地址和cle实际映射的基地址# 链接地址（开启pic会是0）In [34]: main.linked_baseOut[34]: 0x0# 实际映射地址In [35]: main.mapped_baseOut[35]: 0x400000符号和重定位当你在使用CLE的时候也可以和符号进行工作，符号是可执行格式的基本概念，将函数名和地址相映射。最简单的方式从CLE中获取符号是使用loader.find_symbol，可以通过名字或者地址，返回一个符号对象。# 解析read函数In [15]: proj.loader.find_symbol(&#39;read&#39;)Out[15]: &lt;Symbol &quot;read&quot; in libc.so.6 at 0x90d5b00&gt;# 解析write函数In [16]: proj.loader.find_symbol(&#39;write&#39;)Out[16]: &lt;Symbol &quot;write&quot; in libc.so.6 at 0x90d5b70&gt;# 解析system函数In [17]: proj.loader.find_symbol(&#39;system&#39;)Out[17]: &lt;Symbol &quot;system&quot; in libc.so.6 at 0x903ada0&gt;一个符号最有用的属性是它的名字、所有者和地址，但是符号的地址是模糊的，一个符号有3种地址。  .rebased_addr是在全局地址空间中的地址，也就是打印的地址。  .linked_addr是相对应链接基址的偏移量。  .relative_addr是RVA，相对应目标基地址的偏移量。# 寻找free符号In [91]: free = proj.loader.find_symbol(&#39;free&#39;)In [92]: freeOut[92]: &lt;Symbol &quot;free&quot; in libc.so.6 at 0x1085f20&gt;# free的名字In [93]: free.nameOut[93]: &#39;free&#39;# free在整个地址空间中的地址In [94]: free.rebased_addrOut[94]: 0x1085f20# 相对于文件基地址的偏移量（链接时候的地址，参见proj.loader.main_object.linked_base）In [95]: free.linked_addrOut[95]: 0x85f20# 相对于对象基地址的偏移量In [96]: free.relative_addrOut[96]: 0x85f20# 所有者In [97]: free.ownerOut[97]: &lt;ELF Object libc-2.28.so, maps [0x1000000:0x11c363f]&gt;为了提供调试信息，符号也支持动态链接，libc提供malloc作为一个导出符号，然后主程序依附它。如果我们让CLE从主程序中给出一个符号，它会说这是一个导入符号。导入符号不具有和其相关有意义的地址信息，但是他们会提供一个引用符号，指向那个曾经解析他们的符号，用.resolvedby。# 在主程序中解析，若符号不存在就无解。在loader则使用find_symble来查找In [43]: main_read = proj.loader.main_object.get_symbol(&#39;read&#39;)Out[45]: &lt;Symbol &quot;read&quot; in su_pwn100 (import)&gt;# 反向解析In [46]: main_read.resolvedbyOut[46]: &lt;Symbol &quot;read&quot; in libc.so.6 at 0x90d5b00&gt;导出和导入符号的联系应该被注册到程序中一块叫重定位的地方。重定位的任务是：当匹配到导出符号时，将格式化导出符号的地址。我们可以使用obj.relocs来查看重定位表，或者用obj.imports来查看所有的导入符号，这里没有和导出符号相关的列表。In [18]: obj.importsOut[18]:{u&#39;__gmon_start__&#39;: &lt;cle.backends.elf.relocation.i386.R_386_JMP_SLOT at 0x7f171f5f4950&gt;, u&#39;__isoc99_fscanf&#39;: &lt;cle.backends.elf.relocation.i386.R_386_JMP_SLOT at 0x7f171f5f4810&gt;, u&#39;__isoc99_scanf&#39;: &lt;cle.backends.elf.relocation.i386.R_386_JMP_SLOT at 0x7f171f5f4c10&gt;, u&#39;__libc_start_main&#39;: &lt;cle.backends.elf.relocation.i386.R_386_JMP_SLOT at 0x7f171f5f47d0&gt;, u&#39;exit&#39;: &lt;cle.backends.elf.relocation.i386.R_386_JMP_SLOT at 0x7f171f5f4850&gt;, u&#39;fopen&#39;: &lt;cle.backends.elf.relocation.i386.R_386_JMP_SLOT at 0x7f171f5f4a50&gt;, u&#39;printf&#39;: &lt;cle.backends.elf.relocation.i386.R_386_JMP_SLOT at 0x7f171f5f4410&gt;, u&#39;puts&#39;: &lt;cle.backends.elf.relocation.i386.R_386_JMP_SLOT at 0x7f171f5f4750&gt;, u&#39;read&#39;: &lt;cle.backends.elf.relocation.i386.R_386_JMP_SLOT at 0x7f171f5f4310&gt;, u&#39;setvbuf&#39;: &lt;cle.backends.elf.relocation.i386.R_386_JMP_SLOT at 0x7f171f5f48d0&gt;, u&#39;strcmp&#39;: &lt;cle.backends.elf.relocation.i386.R_386_JMP_SLOT at 0x7f171f5f4510&gt;, u&#39;write&#39;: &lt;cle.backends.elf.relocation.i386.R_386_JMP_SLOT at 0x7f171f5f4990&gt;}一个重定位有关的导入符号可以通过.symbol来访问，或者import，或者查看重定位表relocs。地址都是通用的，也可以通过.own_obj来访问其解析着。如果一个导入符号不能被任何一个导出解析，例如共享库丢失了，导入函数解析失败，CLE会自动声明一个额外的对象，loader.extern_obj，称其提供了该导出符号。加载选项如果你使用.angr.Project来加载某些东西，并且为加载器提供信息，可以给构造器提供关键的参数，它将会传递给CLE。这里我们将复习一些常用和重要的选项。基础选项我们已经讨论过了auto_load_libs，它禁止angr去自动地解析共享依赖关系，默认开启。相对的选项是except_missing_libs，如果开启，当文件的共享库不能被解析时，会产生异常。你可以给force_load_libs传字符串列表，其中的值将会被视为未被解决的共享库。给skip_libs传参可以阻止某个lib被解析。另外可以使用ld_path自定义共享库的地址。默认的共享库位置是程序的同目录、当前的项目目录、系统共享库。执行文件前的选项如果你想要指定一些特殊的参数只应用于特殊的文件时，CLE允许你那样做。参数main_opts和lib_opts使用字典作为选项，main_opts从选项名映射到选项值，lib_opts从库名映射到一个从选项名映射到选项值的字典。你可以使用的选项有很多，一些常用的如下：  backend使用什么后端，类或名  base_addr自定义基址  entry_point自定义入口点  arch自定义架构例子：angr.Project(main_opts={&#39;backend&#39;: &#39;ida&#39;, &#39;custom_arch&#39;: &#39;i386&#39;}, lib_opts={&#39;libc.so.6&#39;: {&#39;backend&#39;: &#39;elf&#39;}})后端backendsCLE当前有许多后端来静态加载elf、pe、cgc、mach-o、elf-dump文件，也可以加载ida文件，把文件加载到平坦内存中。CLE大多数情况下会自动分析当前的文件来选择恰当的后端，我们没必要手动指定，除非你在处理一些特殊的东西。你可以通过字典选项中的key来强制CLE来使用具体的后端，就如上文所述。一些后端不会自动的指定使用什么类型的架构，所以必须手动指定arch。这个值不需要和angr架构列表中的值匹配，angr会自动识别你指定的架构。关于后端的值可以参考API。一般情况下都不需要指定，在使用ida文件时需要指定。符号化功能总结默认的，angr工程尝试将所有的外部调用替换为库函数，通过的这种方式被称作模拟程序-仅仅只有python的函数能高效地模拟这个状态。我们应用了一整套的函数来作为模拟程序，这些内置的函数是在angr.SIM_PROCEDURES中可获得。命名是两级的，第一级是包名，第二级是库函数名。执行这其中的函数而不是你系统中实际的库函数，使得分析更加可跟踪，但以一些潜在的不准确为代价。对给定的函数没有这样的可替代情况时：  如果auto_load_libs开启，（默认开启）真实的库函数是会执行的，这可能不是你想要的结果，但这取决于实际情况。例如：有的函数是极端复杂难以分析，如果尝试执行将可能造成路径状态爆炸。  如果auto_load_libs关闭，那么外部函数是未解析的，那么程序将会解析他们成为一个抽象的stub进行模拟，被叫做ReturnUnconstrained。它每次调用将返回一个独特的无约束的符号值。  如果use_sim_procedures（这是angr.Project的参数）关闭，（默认开启）只有由外部对象提供的符号会被替换成模拟程序，它们将被替换成ReturnUnconstrained，只返回一个符号值。  你可以指定一个特殊的符号来防止某些函数被替换，通过angr.Project的exclude_sim_procedures_list和exclude_sim_procedures_func参数。  参考angr.Project._register_object来获得准确用法。hook这种用python摘要来替代库代码的方式就是hook，你也可以自己做。当执行模拟的时候，每一步angr都会检测当前的地址是否被hook，如果被hook，运行hook代码而不是原本地址的代码。你也可以使用proj.hook(addr, hook)API来使用，hook参数是模拟程序实例，你可以管理工程的hooks通过.is_hooked，.unhook和unhook_by。通过使用一个可以替换的API来hook地址，就能使用自己设置的函数了，即通过proj.hook(addr)作为装饰器。如果你真这么做了，你可以指定一个可选项length关键字当hook结束后来使程序跳转到多少字节远。In [10]: stub_func = angr.SIM_PROCEDURES[&#39;stubs&#39;][&#39;ReturnUnconstrained&#39;]# 地址hookIn [11]: proj.hook(0x10000,stub_func)CRITICAL | 2018-04-11 10:50:56,311 | angr.project | Hooking with a SimProcedure class is deprecated! Please hook with an instance.# 地址是否hookIn [14]: proj.is_hooked(0x10000)Out[14]: True# 被谁hookIn [21]: proj.hooked_by(0x10000)Out[21]: &lt;SimProcedure ReturnUnconstrained&gt;# 取消hookIn [15]: proj.unhook(0x10000)# 自定义hook函数，定义完就执行自动hook，立即生效In [25]: @proj.hook(0x2000, length=5)   ....: def my_hook(state):   ....:     state.regs.eax = 52   ....:# 检测hookIn [26]: proj.is_hooked(0x2000)Out[26]: True# 被谁hookIn [31]: proj.hooked_by(0x2000)Out[31]: &lt;SimProcedure UserHook&gt;更多的是，你可以使用proj.hook_symbol(name, hook)第一个参数是符号名，当符号存在时hook地址。一种重要的使用方式就是扩大angr的内置库模拟程序。因为这些库只是类，你可以生成子类，重写他们的行为，并在hook中使用他们的子类。到目前还好到现在为止，你应该对分析发生的事进行怎样的控制有了比较好的理解，在CLE加载器和angr工程层面中。你也应该理解angr使用合理的尝试通过hook复杂的库函数，使用模拟程序总结函数的影响来化简它的分析。为了掌握可以在CLE加载器所做的所有事，请参考CLE API文档。">
 
 
 
-  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Angrlearning 2">
   <meta name="twitter:description" content="  angr 学习笔记，结合官方文档和网上资料整理，加强理解从angr第二章第二节开始 加载二进制文件-CLE和angr工程加载器（loader）加载对象CLE加载器展示了加载对象的全貌，加载并映射到一个单独的地址空间中。每一个文件都被加载器的backend识别，以处理各种不同的文件格式。而且，内存中的对象可能不对应任何一个文件，比如是为了支持线程局部存储（tls），而外部对象则用来保证提供未解析的符号。通过使用loader.all_objects，获取整个CLE已经加载的对象列表，以及更有针对性的分类情况等等：# loader对象In [4]: proj.loaderOut[4]: &lt;Loaded true, maps [0x400000:0x5008000]&gt;# 所有对象In [5]: proj.loader.all_objectsOut[5]:[&lt;ELF Object true, maps [0x400000:0x409217]&gt;, &lt;ELF Object libc-2.28.so, maps [0x1000000:0x11c363f]&gt;, &lt;ELF Object ld-2.28.so, maps [0x2000000:0x202b117]&gt;, &lt;ELFTLSObject Object cle##tls, maps [0x3000000:0x3015010]&gt;, &lt;ExternObject Object cle##externs, maps [0x4000000:0x4008000]&gt;, &lt;KernelObject Object cle##kernel, maps [0x5000000:0x5008000]&gt;]# 主对象In [6]: proj.loader.main_objectOut[6]: &lt;ELF Object true, maps [0x400000:0x409217]&gt;# 共享对象In [7]: proj.loader.shared_objectsOut[7]:OrderedDict([(&#39;true&#39;, &lt;ELF Object true, maps [0x400000:0x409217]&gt;),             (&#39;libc.so.6&#39;,              &lt;ELF Object libc-2.28.so, maps [0x1000000:0x11c363f]&gt;),             (&#39;ld-linux-x86-64.so.2&#39;,              &lt;ELF Object ld-2.28.so, maps [0x2000000:0x202b117]&gt;)])# 还有extern kernel等等# 查看某个地址属于的对象In [16]: proj.loader.find_object_containing(0x1000000)Out[16]: &lt;ELF Object libc-2.28.so, maps [0x1000000:0x11c363f]&gt;我们可以直接和这些对象进行交互，以获得我们想要的元数据：In [38]: obj = proj.loader.main_object# 入口点In [39]: obj.entryOut[39]: 0x8048560# 最低地址In [40]: obj.min_addrOut[40]: 0x8048000# 最高地址In [41]: obj.max_addrOut[41]: 0x804a087# 段In [42]: obj.segmentsOut[42]: &lt;Regions: [&lt;ELFSegment flags=0x4, vaddr=0x400000, memsize=0x1168, filesize=0x1168, offset=0x0&gt;,&lt;ELFSegment flags=0x5, vaddr=0x402000, memsize=0x30f1, filesize=0x30f1, offset=0x2000&gt;,&lt;ELFSegment flags=0x4, vaddr=0x406000, memsize=0x1b00, filesize=0x1b00, offset=0x6000&gt;,&lt;ELFSegment flags=0x6, vaddr=0x408c70, memsize=0x5a8, filesize=0x410, offset=0x7c70&gt;]&gt;# 节In [43]: obj.sectionsOut[43]: &lt;Regions: [&lt;Unnamed | offset 0x0, vaddr 0x0, size 0x0&gt;, &lt;.interp | offset 0x154, vaddr 0x8048154, size 0x13&gt;, &lt;.note.ABI-tag | offset 0x168, vaddr 0x8048168, size 0x20&gt;, &lt;.note.gnu.build-id | offset 0x188, vaddr 0x8048188, size 0x24&gt;, &lt;.gnu.hash | offset 0x1ac, vaddr 0x80481ac, size 0x2c&gt;, &lt;.dynsym | offset 0x1d8, vaddr 0x80481d8, size 0x100&gt;, &lt;.dynstr | offset 0x2d8, vaddr 0x80482d8, size 0xb6&gt;, &lt;.gnu.version | offset 0x38e, vaddr 0x804838e, size 0x20&gt;, &lt;.gnu.version_r | offset 0x3b0, vaddr 0x80483b0, size 0x40&gt;, &lt;.rel.dyn | offset 0x3f0, vaddr 0x80483f0, size 0x18&gt;, &lt;.rel.plt | offset 0x408, vaddr 0x8048408, size 0x60&gt;, &lt;.init | offset 0x468, vaddr 0x8048468, size 0x23&gt;, &lt;.plt | offset 0x490, vaddr 0x8048490, size 0xd0&gt;, &lt;.text | offset 0x560, vaddr 0x8048560, size 0x2d2&gt;, &lt;.fini | offset 0x834, vaddr 0x8048834, size 0x14&gt;, &lt;.rodata | offset 0x848, vaddr 0x8048848, size 0x9b&gt;, &lt;.eh_frame_hdr | offset 0x8e4, vaddr 0x80488e4, size 0x34&gt;, &lt;.eh_frame | offset 0x918, vaddr 0x8048918, size 0xd0&gt;, &lt;.init_array | offset 0xf08, vaddr 0x8049f08, size 0x4&gt;, &lt;.fini_array | offset 0xf0c, vaddr 0x8049f0c, size 0x4&gt;, &lt;.jcr | offset 0xf10, vaddr 0x8049f10, size 0x4&gt;, &lt;.dynamic | offset 0xf14, vaddr 0x8049f14, size 0xe8&gt;, &lt;.got | offset 0xffc, vaddr 0x8049ffc, size 0x4&gt;, &lt;.got.plt | offset 0x1000, vaddr 0x804a000, size 0x3c&gt;, &lt;.data | offset 0x103c, vaddr 0x804a03c, size 0x8&gt;, &lt;.bss | offset 0x1044, vaddr 0x804a060, size 0x28&gt;, &lt;.comment | offset 0x1044, vaddr 0x0, size 0x2b&gt;, &lt;.shstrtab | offset 0x106f, vaddr 0x0, size 0x106&gt;, &lt;.symtab | offset 0x1628, vaddr 0x0, size 0x4f0&gt;, &lt;.strtab | offset 0x1b18, vaddr 0x0, size 0x32a&gt;]&gt;# 根据地址找节In [29]: main.find_section_containing(main.entry)Out[29]: &lt;.text | offset 0x2020, vaddr 0x402020, size 0x30c3&gt;# 根据地址找段In [30]: main.find_segment_containing(main.entry)Out[30]: &lt;ELFSegment flags=0x5, vaddr=0x402000, memsize=0x30f1, filesize=0x30f1, offset=0x2000&gt;# plt表函数地址（未开启pic可用）In [56]: obj.plt[&#39;write&#39;]Out[56]: 0x8048520# 反查函数名（未开启pic可用）In [57]: obj.reverse_plt[0x8048520]Out[57]: u&#39;write&#39;# 打印指定的基地址和cle实际映射的基地址# 链接地址（开启pic会是0）In [34]: main.linked_baseOut[34]: 0x0# 实际映射地址In [35]: main.mapped_baseOut[35]: 0x400000符号和重定位当你在使用CLE的时候也可以和符号进行工作，符号是可执行格式的基本概念，将函数名和地址相映射。最简单的方式从CLE中获取符号是使用loader.find_symbol，可以通过名字或者地址，返回一个符号对象。# 解析read函数In [15]: proj.loader.find_symbol(&#39;read&#39;)Out[15]: &lt;Symbol &quot;read&quot; in libc.so.6 at 0x90d5b00&gt;# 解析write函数In [16]: proj.loader.find_symbol(&#39;write&#39;)Out[16]: &lt;Symbol &quot;write&quot; in libc.so.6 at 0x90d5b70&gt;# 解析system函数In [17]: proj.loader.find_symbol(&#39;system&#39;)Out[17]: &lt;Symbol &quot;system&quot; in libc.so.6 at 0x903ada0&gt;一个符号最有用的属性是它的名字、所有者和地址，但是符号的地址是模糊的，一个符号有3种地址。  .rebased_addr是在全局地址空间中的地址，也就是打印的地址。  .linked_addr是相对应链接基址的偏移量。  .relative_addr是RVA，相对应目标基地址的偏移量。# 寻找free符号In [91]: free = proj.loader.find_symbol(&#39;free&#39;)In [92]: freeOut[92]: &lt;Symbol &quot;free&quot; in libc.so.6 at 0x1085f20&gt;# free的名字In [93]: free.nameOut[93]: &#39;free&#39;# free在整个地址空间中的地址In [94]: free.rebased_addrOut[94]: 0x1085f20# 相对于文件基地址的偏移量（链接时候的地址，参见proj.loader.main_object.linked_base）In [95]: free.linked_addrOut[95]: 0x85f20# 相对于对象基地址的偏移量In [96]: free.relative_addrOut[96]: 0x85f20# 所有者In [97]: free.ownerOut[97]: &lt;ELF Object libc-2.28.so, maps [0x1000000:0x11c363f]&gt;为了提供调试信息，符号也支持动态链接，libc提供malloc作为一个导出符号，然后主程序依附它。如果我们让CLE从主程序中给出一个符号，它会说这是一个导入符号。导入符号不具有和其相关有意义的地址信息，但是他们会提供一个引用符号，指向那个曾经解析他们的符号，用.resolvedby。# 在主程序中解析，若符号不存在就无解。在loader则使用find_symble来查找In [43]: main_read = proj.loader.main_object.get_symbol(&#39;read&#39;)Out[45]: &lt;Symbol &quot;read&quot; in su_pwn100 (import)&gt;# 反向解析In [46]: main_read.resolvedbyOut[46]: &lt;Symbol &quot;read&quot; in libc.so.6 at 0x90d5b00&gt;导出和导入符号的联系应该被注册到程序中一块叫重定位的地方。重定位的任务是：当匹配到导出符号时，将格式化导出符号的地址。我们可以使用obj.relocs来查看重定位表，或者用obj.imports来查看所有的导入符号，这里没有和导出符号相关的列表。In [18]: obj.importsOut[18]:{u&#39;__gmon_start__&#39;: &lt;cle.backends.elf.relocation.i386.R_386_JMP_SLOT at 0x7f171f5f4950&gt;, u&#39;__isoc99_fscanf&#39;: &lt;cle.backends.elf.relocation.i386.R_386_JMP_SLOT at 0x7f171f5f4810&gt;, u&#39;__isoc99_scanf&#39;: &lt;cle.backends.elf.relocation.i386.R_386_JMP_SLOT at 0x7f171f5f4c10&gt;, u&#39;__libc_start_main&#39;: &lt;cle.backends.elf.relocation.i386.R_386_JMP_SLOT at 0x7f171f5f47d0&gt;, u&#39;exit&#39;: &lt;cle.backends.elf.relocation.i386.R_386_JMP_SLOT at 0x7f171f5f4850&gt;, u&#39;fopen&#39;: &lt;cle.backends.elf.relocation.i386.R_386_JMP_SLOT at 0x7f171f5f4a50&gt;, u&#39;printf&#39;: &lt;cle.backends.elf.relocation.i386.R_386_JMP_SLOT at 0x7f171f5f4410&gt;, u&#39;puts&#39;: &lt;cle.backends.elf.relocation.i386.R_386_JMP_SLOT at 0x7f171f5f4750&gt;, u&#39;read&#39;: &lt;cle.backends.elf.relocation.i386.R_386_JMP_SLOT at 0x7f171f5f4310&gt;, u&#39;setvbuf&#39;: &lt;cle.backends.elf.relocation.i386.R_386_JMP_SLOT at 0x7f171f5f48d0&gt;, u&#39;strcmp&#39;: &lt;cle.backends.elf.relocation.i386.R_386_JMP_SLOT at 0x7f171f5f4510&gt;, u&#39;write&#39;: &lt;cle.backends.elf.relocation.i386.R_386_JMP_SLOT at 0x7f171f5f4990&gt;}一个重定位有关的导入符号可以通过.symbol来访问，或者import，或者查看重定位表relocs。地址都是通用的，也可以通过.own_obj来访问其解析着。如果一个导入符号不能被任何一个导出解析，例如共享库丢失了，导入函数解析失败，CLE会自动声明一个额外的对象，loader.extern_obj，称其提供了该导出符号。加载选项如果你使用.angr.Project来加载某些东西，并且为加载器提供信息，可以给构造器提供关键的参数，它将会传递给CLE。这里我们将复习一些常用和重要的选项。基础选项我们已经讨论过了auto_load_libs，它禁止angr去自动地解析共享依赖关系，默认开启。相对的选项是except_missing_libs，如果开启，当文件的共享库不能被解析时，会产生异常。你可以给force_load_libs传字符串列表，其中的值将会被视为未被解决的共享库。给skip_libs传参可以阻止某个lib被解析。另外可以使用ld_path自定义共享库的地址。默认的共享库位置是程序的同目录、当前的项目目录、系统共享库。执行文件前的选项如果你想要指定一些特殊的参数只应用于特殊的文件时，CLE允许你那样做。参数main_opts和lib_opts使用字典作为选项，main_opts从选项名映射到选项值，lib_opts从库名映射到一个从选项名映射到选项值的字典。你可以使用的选项有很多，一些常用的如下：  backend使用什么后端，类或名  base_addr自定义基址  entry_point自定义入口点  arch自定义架构例子：angr.Project(main_opts={&#39;backend&#39;: &#39;ida&#39;, &#39;custom_arch&#39;: &#39;i386&#39;}, lib_opts={&#39;libc.so.6&#39;: {&#39;backend&#39;: &#39;elf&#39;}})后端backendsCLE当前有许多后端来静态加载elf、pe、cgc、mach-o、elf-dump文件，也可以加载ida文件，把文件加载到平坦内存中。CLE大多数情况下会自动分析当前的文件来选择恰当的后端，我们没必要手动指定，除非你在处理一些特殊的东西。你可以通过字典选项中的key来强制CLE来使用具体的后端，就如上文所述。一些后端不会自动的指定使用什么类型的架构，所以必须手动指定arch。这个值不需要和angr架构列表中的值匹配，angr会自动识别你指定的架构。关于后端的值可以参考API。一般情况下都不需要指定，在使用ida文件时需要指定。符号化功能总结默认的，angr工程尝试将所有的外部调用替换为库函数，通过的这种方式被称作模拟程序-仅仅只有python的函数能高效地模拟这个状态。我们应用了一整套的函数来作为模拟程序，这些内置的函数是在angr.SIM_PROCEDURES中可获得。命名是两级的，第一级是包名，第二级是库函数名。执行这其中的函数而不是你系统中实际的库函数，使得分析更加可跟踪，但以一些潜在的不准确为代价。对给定的函数没有这样的可替代情况时：  如果auto_load_libs开启，（默认开启）真实的库函数是会执行的，这可能不是你想要的结果，但这取决于实际情况。例如：有的函数是极端复杂难以分析，如果尝试执行将可能造成路径状态爆炸。  如果auto_load_libs关闭，那么外部函数是未解析的，那么程序将会解析他们成为一个抽象的stub进行模拟，被叫做ReturnUnconstrained。它每次调用将返回一个独特的无约束的符号值。  如果use_sim_procedures（这是angr.Project的参数）关闭，（默认开启）只有由外部对象提供的符号会被替换成模拟程序，它们将被替换成ReturnUnconstrained，只返回一个符号值。  你可以指定一个特殊的符号来防止某些函数被替换，通过angr.Project的exclude_sim_procedures_list和exclude_sim_procedures_func参数。  参考angr.Project._register_object来获得准确用法。hook这种用python摘要来替代库代码的方式就是hook，你也可以自己做。当执行模拟的时候，每一步angr都会检测当前的地址是否被hook，如果被hook，运行hook代码而不是原本地址的代码。你也可以使用proj.hook(addr, hook)API来使用，hook参数是模拟程序实例，你可以管理工程的hooks通过.is_hooked，.unhook和unhook_by。通过使用一个可以替换的API来hook地址，就能使用自己设置的函数了，即通过proj.hook(addr)作为装饰器。如果你真这么做了，你可以指定一个可选项length关键字当hook结束后来使程序跳转到多少字节远。In [10]: stub_func = angr.SIM_PROCEDURES[&#39;stubs&#39;][&#39;ReturnUnconstrained&#39;]# 地址hookIn [11]: proj.hook(0x10000,stub_func)CRITICAL | 2018-04-11 10:50:56,311 | angr.project | Hooking with a SimProcedure class is deprecated! Please hook with an instance.# 地址是否hookIn [14]: proj.is_hooked(0x10000)Out[14]: True# 被谁hookIn [21]: proj.hooked_by(0x10000)Out[21]: &lt;SimProcedure ReturnUnconstrained&gt;# 取消hookIn [15]: proj.unhook(0x10000)# 自定义hook函数，定义完就执行自动hook，立即生效In [25]: @proj.hook(0x2000, length=5)   ....: def my_hook(state):   ....:     state.regs.eax = 52   ....:# 检测hookIn [26]: proj.is_hooked(0x2000)Out[26]: True# 被谁hookIn [31]: proj.hooked_by(0x2000)Out[31]: &lt;SimProcedure UserHook&gt;更多的是，你可以使用proj.hook_symbol(name, hook)第一个参数是符号名，当符号存在时hook地址。一种重要的使用方式就是扩大angr的内置库模拟程序。因为这些库只是类，你可以生成子类，重写他们的行为，并在hook中使用他们的子类。到目前还好到现在为止，你应该对分析发生的事进行怎样的控制有了比较好的理解，在CLE加载器和angr工程层面中。你也应该理解angr使用合理的尝试通过hook复杂的库函数，使用模拟程序总结函数的影响来化简它的分析。为了掌握可以在CLE加载器所做的所有事，请参考CLE API文档。">
-  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2019-01/AngrLearning-2.html">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2019-01/AngrLearning-2.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="https://zjgcjy.github.io/posts/2019-01/AngrLearning-2.html">
+<link rel="canonical" href="http://localhost:4000/posts/2019-01/AngrLearning-2.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "https://zjgcjy.github.io/",
+      "url": "http://localhost:4000/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -263,26 +263,26 @@
     <ul class="author__urls social-icons">
       
         <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
-          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+          <i class="fa fa-map-marker" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
         </li>
       
 
       
         
           
-            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fa fa-link" aria-hidden="true"></i> Website</a></li>
           
         
           
-            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fa fa-envelope-square" aria-hidden="true"></i> Email</a></li>
           
         
           
-            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
           
         
           
-            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
           
         
       
@@ -719,7 +719,7 @@
   
 
   <p class="page__taxonomy">
-    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <strong><i class="fa fa-tags" aria-hidden="true"></i> Tags: </strong>
     <span itemprop="keywords">
     
       
@@ -733,7 +733,7 @@
 
 
         
-          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-01-18T21:22:00+08:00">January 18, 2019</time></p>
+          <p class="page__date"><strong><i class="fa fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-01-18T21:22:00+08:00">January 18, 2019</time></p>
         
       </footer>
 
@@ -742,11 +742,11 @@
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Angrlearning+2%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-01%2FAngrLearning-2.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Angrlearning+2%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-01%2FAngrLearning-2.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-01%2FAngrLearning-2.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-01%2FAngrLearning-2.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-01%2FAngrLearning-2.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-01%2FAngrLearning-2.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -972,16 +972,16 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
       
         
-          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
         
       
         
-          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
         
       
     
 
-    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    <li><a href="/feed.xml"><i class="fa fa-rss-square" aria-hidden="true"></i> Feed</a></li>
   </ul>
 </div>
 
@@ -992,7 +992,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
 
     
   <script src="/assets/js/main.min.js"></script>
-  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+  <script src="https://use.fontawesome.com/1d25d6ba93.js"></script>
 
 
 
@@ -1007,7 +1007,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "https://zjgcjy.github.io/posts/2019-01/AngrLearning-2.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "http://localhost:4000/posts/2019-01/AngrLearning-2.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2019-01/AngrLearning-2"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

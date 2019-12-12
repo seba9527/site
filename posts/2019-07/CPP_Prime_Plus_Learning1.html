@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Cpp_prime_plus_learning1">
-<meta property="og:url" content="https://zjgcjy.github.io/posts/2019-07/CPP_Prime_Plus_Learning1.html">
+<meta property="og:url" content="http://localhost:4000/posts/2019-07/CPP_Prime_Plus_Learning1.html">
 
 
   <meta property="og:description" content="  C++ Prime Plus 读书笔记1第1章到第3章 包括一些预备知识和基本数据类型和代码格式C++简介C++继承了C语言的优点，同时新添加了内容，包括面向对象编程（OOP）和泛型编程。关于C语言的编程原理，有这么几点。最开始是过程性语言，强调数据和算法，但是这种方式阅读起来很困难，修改也很复杂。所以逐渐发展成为结构化编程的方法，将分支限制为小组行为中的结构。另一个原则是自顶向下的原则，将大任务分解成小任务，然后各个击破。总体来看，结构化编程反应了过程性编程的思想，即通过执行的操作来构思一个程序。在OOP提出来后，这种思维强调的是数据，试图让语言来满足问题的要求，是设计与问题的本质相关的数据格式。然后设计出相应的类来表示这些数据格式，同时设置相应的方法，对数据进行操作，从低级数据操作高级数据，是一种自下向上的编程方法。OOP还有助于复用代码和信息隐藏，多态和继承能派生出新类和新的方法。泛型编程是C++支持的另一种编程模式，它强调的是独立于数据格式的任务，即模板类。创建C++文件如何让C++文件运行起来主要分三步，第一步是编写源代码，第二步是编译源代码，生成的代码是目标代码，也就是机器语言。但是这个时候文件还不能运行，还要进行链接，链接的过程就是将程序运行需要的库函数和标准启动函数组合起来，形成可执行代码。为了支持某些新特性，有些编译器，比如g++编译源代码的命令：g++ -std=c++0x use_auto.cpp常见的C++文件拓展名如下表所示。            C++实现      拓展名                  UNIX      C cc cxx  c              GNU  C++      C cc cxx cpp c++              Visual C++      cpp cxx cc      第一章的内容其实没什么重要的东西，了解一下就行了。下面是第二章的内容。C++语句C++支持命名空间的用法，这种技术旨在编写大型程序时能将多个同名函数进行区分，有助于组织结构。using namespace std;如果只需要使用其中几个对象，可以直接这样写，上面的写法有点偷懒了。using std::cout;using std::cin;using std::endl;也可以直接不使用命名空间。std::cout;std::cin;std::endl;关于换行符，endl和转义字符不一样的一点在于，endl会确保程序继续运行前刷新输出缓冲区，而转义字符‘\n’则不一定，有时候不会输出，需要设置输出缓冲区的刷新模式。C++中的类指定了对象执行的所有操作。对特定对象执行这些操作，需要给对象发送消息，一般分为两种方法，第一种是使用类的方法，第二种是使用运算符重载。函数在使用库函数的时候，如果找不到对应的函数，需要手动设置，如下所示。UNIXCC sqrt.C -lmLinuxg++ sqrt.C -lm数据使用sizeof运算符可以求类型或者变量的长度。//可以查看变量的范围#include&lt;climits&gt;C++特有的初始化语法，通过新添加的大括号初始化器，初始化常规变量的形式和类变量的形式更像。int p(80);关于无符号和有符号数据的范围，C++不保证符号整数的上溢和下溢。关于数据格式，如果使用标准输入输出流，以不同格式输出的方法如下。int a(10);// 10进制cout &lt;&lt; dec;cout &lt;&lt; a;// 16进制cout &lt;&lt; hex;cout &lt;&lt; a;//8进制cout &lt;&lt; oct;cout &lt;&lt; a;整形数据格式与类型在整数后加l或L表示是long常量，u或U是unsigned int常量，ul或uL表示unsigned long常量，uLL表示unsigned long long常量。对于不带后缀的十进制数，使用int，long 或者long long类型。对于不带后缀的十六进制，使用int，unsigned int，long，unsigned long，long long，unsigned long long。这是因为十六进制经常用来表示内存地址，而地址是非负的，无符号的。cout对象有成员函数put，用来显示一个字符。C++中字符用单引号，字符串用双引号。关于转义字符，问号是需要转义的（参见三字母词）。C++中表示Unicode编码使用\u或者\U前缀，\uabcd或者\Uabcdef12，这种数据对应11标准中的char16_t和char32_t。char16_t ch1 = u&#39;q&#39;;char32_t ch2 = U&#39;\U0000222B&#39;;还有一种宽字符类型是wchar_t，这是一种拓展集合，使用2个字节。由于cin和cout只适合处理char类型，对于wchar_t类型，使用iostream头文件中的wcin和wcout。wchar_t bob = L&#39;P&#39;;wcout &lt;&lt; bob &lt;&lt; L&quot;tall&quot; &lt;&lt; endl;浮点数格式浮点数的表示格式就两种，第一种是常规方法，第二种是E表示法。浮点类型主要有float，double和long double三种，这是根据有效位数和指数的最小范围来划分的。通常float有32位，double有64位，long double是128位，可以从cfloat或float.h文件中查看范围限制。浮点变量默认是double类型，后缀F表示float类型，L表示long double类型。在C++中，float类型只能表示数据中的前6位有效，double是13位有效。运算符求模运算符满足以下规则(a/b)*b + a%b = a关于类型转换，在使用初始化列表的时候，类型只能向低精度类型转换，否则编译将不能通过。const int code = 66;int x = 66;char c1 = {66};//可以char c2 = {1234};//不可以char c3 = {code};//可以char c4 = {x};//不可以在表达式中，如果不存在浮点数，则所有的变量都会进行整形提升，即转换成int，然后进行计算，最后再转换成对应的原始数据类型。在C++中强制类型转换类似于函数调用。(long)var  //Clong(var)  //C++C++引入了新的类型转换函数，static_cast用于将数值类型转换成另一种数值类型。static_cast&lt;typeName&gt; (value)C++11中引入了新的变量类型，auto，能根据初始化的数据自动判断变量。">
 
 
 
-  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Cpp_prime_plus_learning1">
   <meta name="twitter:description" content="  C++ Prime Plus 读书笔记1第1章到第3章 包括一些预备知识和基本数据类型和代码格式C++简介C++继承了C语言的优点，同时新添加了内容，包括面向对象编程（OOP）和泛型编程。关于C语言的编程原理，有这么几点。最开始是过程性语言，强调数据和算法，但是这种方式阅读起来很困难，修改也很复杂。所以逐渐发展成为结构化编程的方法，将分支限制为小组行为中的结构。另一个原则是自顶向下的原则，将大任务分解成小任务，然后各个击破。总体来看，结构化编程反应了过程性编程的思想，即通过执行的操作来构思一个程序。在OOP提出来后，这种思维强调的是数据，试图让语言来满足问题的要求，是设计与问题的本质相关的数据格式。然后设计出相应的类来表示这些数据格式，同时设置相应的方法，对数据进行操作，从低级数据操作高级数据，是一种自下向上的编程方法。OOP还有助于复用代码和信息隐藏，多态和继承能派生出新类和新的方法。泛型编程是C++支持的另一种编程模式，它强调的是独立于数据格式的任务，即模板类。创建C++文件如何让C++文件运行起来主要分三步，第一步是编写源代码，第二步是编译源代码，生成的代码是目标代码，也就是机器语言。但是这个时候文件还不能运行，还要进行链接，链接的过程就是将程序运行需要的库函数和标准启动函数组合起来，形成可执行代码。为了支持某些新特性，有些编译器，比如g++编译源代码的命令：g++ -std=c++0x use_auto.cpp常见的C++文件拓展名如下表所示。            C++实现      拓展名                  UNIX      C cc cxx  c              GNU  C++      C cc cxx cpp c++              Visual C++      cpp cxx cc      第一章的内容其实没什么重要的东西，了解一下就行了。下面是第二章的内容。C++语句C++支持命名空间的用法，这种技术旨在编写大型程序时能将多个同名函数进行区分，有助于组织结构。using namespace std;如果只需要使用其中几个对象，可以直接这样写，上面的写法有点偷懒了。using std::cout;using std::cin;using std::endl;也可以直接不使用命名空间。std::cout;std::cin;std::endl;关于换行符，endl和转义字符不一样的一点在于，endl会确保程序继续运行前刷新输出缓冲区，而转义字符‘\n’则不一定，有时候不会输出，需要设置输出缓冲区的刷新模式。C++中的类指定了对象执行的所有操作。对特定对象执行这些操作，需要给对象发送消息，一般分为两种方法，第一种是使用类的方法，第二种是使用运算符重载。函数在使用库函数的时候，如果找不到对应的函数，需要手动设置，如下所示。UNIXCC sqrt.C -lmLinuxg++ sqrt.C -lm数据使用sizeof运算符可以求类型或者变量的长度。//可以查看变量的范围#include&lt;climits&gt;C++特有的初始化语法，通过新添加的大括号初始化器，初始化常规变量的形式和类变量的形式更像。int p(80);关于无符号和有符号数据的范围，C++不保证符号整数的上溢和下溢。关于数据格式，如果使用标准输入输出流，以不同格式输出的方法如下。int a(10);// 10进制cout &lt;&lt; dec;cout &lt;&lt; a;// 16进制cout &lt;&lt; hex;cout &lt;&lt; a;//8进制cout &lt;&lt; oct;cout &lt;&lt; a;整形数据格式与类型在整数后加l或L表示是long常量，u或U是unsigned int常量，ul或uL表示unsigned long常量，uLL表示unsigned long long常量。对于不带后缀的十进制数，使用int，long 或者long long类型。对于不带后缀的十六进制，使用int，unsigned int，long，unsigned long，long long，unsigned long long。这是因为十六进制经常用来表示内存地址，而地址是非负的，无符号的。cout对象有成员函数put，用来显示一个字符。C++中字符用单引号，字符串用双引号。关于转义字符，问号是需要转义的（参见三字母词）。C++中表示Unicode编码使用\u或者\U前缀，\uabcd或者\Uabcdef12，这种数据对应11标准中的char16_t和char32_t。char16_t ch1 = u&#39;q&#39;;char32_t ch2 = U&#39;\U0000222B&#39;;还有一种宽字符类型是wchar_t，这是一种拓展集合，使用2个字节。由于cin和cout只适合处理char类型，对于wchar_t类型，使用iostream头文件中的wcin和wcout。wchar_t bob = L&#39;P&#39;;wcout &lt;&lt; bob &lt;&lt; L&quot;tall&quot; &lt;&lt; endl;浮点数格式浮点数的表示格式就两种，第一种是常规方法，第二种是E表示法。浮点类型主要有float，double和long double三种，这是根据有效位数和指数的最小范围来划分的。通常float有32位，double有64位，long double是128位，可以从cfloat或float.h文件中查看范围限制。浮点变量默认是double类型，后缀F表示float类型，L表示long double类型。在C++中，float类型只能表示数据中的前6位有效，double是13位有效。运算符求模运算符满足以下规则(a/b)*b + a%b = a关于类型转换，在使用初始化列表的时候，类型只能向低精度类型转换，否则编译将不能通过。const int code = 66;int x = 66;char c1 = {66};//可以char c2 = {1234};//不可以char c3 = {code};//可以char c4 = {x};//不可以在表达式中，如果不存在浮点数，则所有的变量都会进行整形提升，即转换成int，然后进行计算，最后再转换成对应的原始数据类型。在C++中强制类型转换类似于函数调用。(long)var  //Clong(var)  //C++C++引入了新的类型转换函数，static_cast用于将数值类型转换成另一种数值类型。static_cast&lt;typeName&gt; (value)C++11中引入了新的变量类型，auto，能根据初始化的数据自动判断变量。">
-  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2019-07/CPP_Prime_Plus_Learning1.html">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2019-07/CPP_Prime_Plus_Learning1.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="https://zjgcjy.github.io/posts/2019-07/CPP_Prime_Plus_Learning1.html">
+<link rel="canonical" href="http://localhost:4000/posts/2019-07/CPP_Prime_Plus_Learning1.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "https://zjgcjy.github.io/",
+      "url": "http://localhost:4000/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -263,26 +263,26 @@
     <ul class="author__urls social-icons">
       
         <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
-          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+          <i class="fa fa-map-marker" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
         </li>
       
 
       
         
           
-            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fa fa-link" aria-hidden="true"></i> Website</a></li>
           
         
           
-            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fa fa-envelope-square" aria-hidden="true"></i> Email</a></li>
           
         
           
-            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
           
         
           
-            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
           
         
       
@@ -584,7 +584,7 @@ C++中字符用单引号，字符串用双引号。</p>
   
 
   <p class="page__taxonomy">
-    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <strong><i class="fa fa-tags" aria-hidden="true"></i> Tags: </strong>
     <span itemprop="keywords">
     
       
@@ -598,7 +598,7 @@ C++中字符用单引号，字符串用双引号。</p>
 
 
         
-          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-07-24T19:24:00+08:00">July 24, 2019</time></p>
+          <p class="page__date"><strong><i class="fa fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-07-24T19:24:00+08:00">July 24, 2019</time></p>
         
       </footer>
 
@@ -607,11 +607,11 @@ C++中字符用单引号，字符串用双引号。</p>
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Cpp_prime_plus_learning1%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-07%2FCPP_Prime_Plus_Learning1.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Cpp_prime_plus_learning1%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-07%2FCPP_Prime_Plus_Learning1.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-07%2FCPP_Prime_Plus_Learning1.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-07%2FCPP_Prime_Plus_Learning1.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-07%2FCPP_Prime_Plus_Learning1.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-07%2FCPP_Prime_Plus_Learning1.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -837,16 +837,16 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
       
         
-          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
         
       
         
-          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
         
       
     
 
-    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    <li><a href="/feed.xml"><i class="fa fa-rss-square" aria-hidden="true"></i> Feed</a></li>
   </ul>
 </div>
 
@@ -857,7 +857,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
 
     
   <script src="/assets/js/main.min.js"></script>
-  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+  <script src="https://use.fontawesome.com/1d25d6ba93.js"></script>
 
 
 
@@ -872,7 +872,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "https://zjgcjy.github.io/posts/2019-07/CPP_Prime_Plus_Learning1.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "http://localhost:4000/posts/2019-07/CPP_Prime_Plus_Learning1.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2019-07/CPP_Prime_Plus_Learning1"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

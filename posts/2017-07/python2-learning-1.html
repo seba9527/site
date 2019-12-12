@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Python2 Learning 1">
-<meta property="og:url" content="https://zjgcjy.github.io/posts/2017-07/python2-learning-1.html">
+<meta property="og:url" content="http://localhost:4000/posts/2017-07/python2-learning-1.html">
 
 
   <meta property="og:description" content="  python作为一种胶水语言（脚本语言），其丰富的拓展性和易用性使其在很多方面非常有优势，到现在我还没有正式学过python，以下是学习笔记，留作备用，常回来看看。基础知识python文件一般拓展名位py，如果是GUI程序则可以保存位pyw文件，pyc则是加密过的。使用pip管理pyhton拓展库关于pip的使用与拓展库的安装可以查看一起写的一篇文章，不在赘述。查看版本：import sysprint sys.version   #查看版本print sys.version_info  #同上print sys.winver  #同上内置对象与函数python内置对象，内置函数有很多，如 数字，文件，字符串，集合，列表，字典，元组，布尔、空类型，编程单元类型，其中 列表和字典属于可变序列。 字符串和元组属于不可变序列。试图修改时，将抛出异常。type()函数用来返回变量类型。print type(x) isinstance()用来测试对象是否为指定的类型的实例。print isinstance(‘hello world’,int) id()用来查看变量的内存地址 print id(x)列表用[]，类似于C++里面的数组；元组用()，不可修改x=[1,2,3,]print x   #[1,2,3]print x[0]  #1内存管理python采用的基于值的内存管理方式，多个变量可以对应同一个值，即同一个内存地址，修改变量的值并不是修改变量本身，而是修改变量指针的内存地址的值，当两个变量的值相同时，id()得到的是相同的。变量的命名不能是关键字，可以通过 print keyword.kwlist查看所有关键字。数字python可以表示大数。 0x表示16进制，0o表示8进制，0b表示2进制。可以使用j或者J表示复数。x.real x.imag x.conjugate分别求实部，虚部，共轭复数。常用表达式与函数x/y 除法（python3中是真除法）-x  取反|、^、&amp;、«、»、~ 位运算符bin(x) 把数字转换成二进制chr(x) 把数字转换成ASCII码hex(x) 把数字转换成十六进制int(x) 把数字转换成十进制ord(x) 把字符转成数字str(obj)把对象转换成字符串len(obj)求元素个数dir(x)返回对象的成员列表help(obj)获取帮助信息关于输入输出使用input()接受键盘输入，x=input(‘please input’)，在python2中根据界定符决定变量的类型；在python3中input返回的均是str字符串类型，相当于python2中的raw_input()函数。python2中使用print语句输出，python3中使用print()函数输出。重定向#python2fp=open(r&#39;h:/mytext.txt&#39;,&#39;w&#39;)    #r表示原始字符串，\之后的不进行转义print&gt;&gt;fp,&#39;hello world&#39;fp.close()#python3fp=open(&#39;h://mytext.txt&#39;,&#39;a+&#39;)print(&#39;hello world&#39;,file=fp)fp.close()输出不换行#可以使用续行符\来换行#python2for i in range(10):    print i,#python3for i in range(1,10):    print(i,end=&#39; &#39;)导入模块模块导入有两种方式。import  模块名 [as 别名]使用时需要加上模块名的前缀进行访问。from 模块名 import 对象名 [as 别名]仅导入需要的对象，并且可以起别名，不需要前缀。也可以一次导入模块中所有的对象。from 模块名 import *模板导入的顺序需要遵循一下的规则1.标准模板库2.第三方模板库3.自定义模板库python的__name__属性每个python脚本执行的时候都有一个__name__属性，当其作为文件独立执行的时候__name__等于__main__，但当其作为模块导入其他时__name__被自动设置为模块名。python程序框架生产器用法 python codefreamework.py  newfile.py# -*- coding: cp936 -*-import osimport sysimport datetimehead=&#39;#&#39;+&#39;-&#39;*20+&#39;\n&#39;+\     &#39;#Function description:\n&#39;+\     &#39;#&#39;+&#39;-&#39;*20+&#39;\n&#39;+\     &#39;#Author: Chen JiaYu\n&#39;+\     &#39;#QQ: 1169348492\n&#39;+\     &#39;#Email: zjgcjy@gmail.com\n&#39;+\     &#39;#&#39;+&#39;-&#39;*20+&#39;\n&#39;desFile=sys.argv[1]     #目标文件名字 e.g newfile.pyif os.path.exists(desFile) or not desFile.endswith(&#39;.py&#39;):    print &#39;%s already exist or is not a Python code file.!&#39;%desFile    sys.exit()fp=open(desFile,&#39;w&#39;)today=str(datetime.date.today())fp.write(&#39;#-*-coding:utf-8 -*-\n&#39;)fp.write(&#39;#Filename:&#39;+desFile+&#39;\n&#39;)fp.write(head)fp.write(&#39;#Date:&#39;+today+&#39;\n&#39;)fp.write(&#39;#&#39;+&#39;-&#39;*20+&#39;\n&#39;)fp.close()">
 
 
 
-  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Python2 Learning 1">
   <meta name="twitter:description" content="  python作为一种胶水语言（脚本语言），其丰富的拓展性和易用性使其在很多方面非常有优势，到现在我还没有正式学过python，以下是学习笔记，留作备用，常回来看看。基础知识python文件一般拓展名位py，如果是GUI程序则可以保存位pyw文件，pyc则是加密过的。使用pip管理pyhton拓展库关于pip的使用与拓展库的安装可以查看一起写的一篇文章，不在赘述。查看版本：import sysprint sys.version   #查看版本print sys.version_info  #同上print sys.winver  #同上内置对象与函数python内置对象，内置函数有很多，如 数字，文件，字符串，集合，列表，字典，元组，布尔、空类型，编程单元类型，其中 列表和字典属于可变序列。 字符串和元组属于不可变序列。试图修改时，将抛出异常。type()函数用来返回变量类型。print type(x) isinstance()用来测试对象是否为指定的类型的实例。print isinstance(‘hello world’,int) id()用来查看变量的内存地址 print id(x)列表用[]，类似于C++里面的数组；元组用()，不可修改x=[1,2,3,]print x   #[1,2,3]print x[0]  #1内存管理python采用的基于值的内存管理方式，多个变量可以对应同一个值，即同一个内存地址，修改变量的值并不是修改变量本身，而是修改变量指针的内存地址的值，当两个变量的值相同时，id()得到的是相同的。变量的命名不能是关键字，可以通过 print keyword.kwlist查看所有关键字。数字python可以表示大数。 0x表示16进制，0o表示8进制，0b表示2进制。可以使用j或者J表示复数。x.real x.imag x.conjugate分别求实部，虚部，共轭复数。常用表达式与函数x/y 除法（python3中是真除法）-x  取反|、^、&amp;、«、»、~ 位运算符bin(x) 把数字转换成二进制chr(x) 把数字转换成ASCII码hex(x) 把数字转换成十六进制int(x) 把数字转换成十进制ord(x) 把字符转成数字str(obj)把对象转换成字符串len(obj)求元素个数dir(x)返回对象的成员列表help(obj)获取帮助信息关于输入输出使用input()接受键盘输入，x=input(‘please input’)，在python2中根据界定符决定变量的类型；在python3中input返回的均是str字符串类型，相当于python2中的raw_input()函数。python2中使用print语句输出，python3中使用print()函数输出。重定向#python2fp=open(r&#39;h:/mytext.txt&#39;,&#39;w&#39;)    #r表示原始字符串，\之后的不进行转义print&gt;&gt;fp,&#39;hello world&#39;fp.close()#python3fp=open(&#39;h://mytext.txt&#39;,&#39;a+&#39;)print(&#39;hello world&#39;,file=fp)fp.close()输出不换行#可以使用续行符\来换行#python2for i in range(10):    print i,#python3for i in range(1,10):    print(i,end=&#39; &#39;)导入模块模块导入有两种方式。import  模块名 [as 别名]使用时需要加上模块名的前缀进行访问。from 模块名 import 对象名 [as 别名]仅导入需要的对象，并且可以起别名，不需要前缀。也可以一次导入模块中所有的对象。from 模块名 import *模板导入的顺序需要遵循一下的规则1.标准模板库2.第三方模板库3.自定义模板库python的__name__属性每个python脚本执行的时候都有一个__name__属性，当其作为文件独立执行的时候__name__等于__main__，但当其作为模块导入其他时__name__被自动设置为模块名。python程序框架生产器用法 python codefreamework.py  newfile.py# -*- coding: cp936 -*-import osimport sysimport datetimehead=&#39;#&#39;+&#39;-&#39;*20+&#39;\n&#39;+\     &#39;#Function description:\n&#39;+\     &#39;#&#39;+&#39;-&#39;*20+&#39;\n&#39;+\     &#39;#Author: Chen JiaYu\n&#39;+\     &#39;#QQ: 1169348492\n&#39;+\     &#39;#Email: zjgcjy@gmail.com\n&#39;+\     &#39;#&#39;+&#39;-&#39;*20+&#39;\n&#39;desFile=sys.argv[1]     #目标文件名字 e.g newfile.pyif os.path.exists(desFile) or not desFile.endswith(&#39;.py&#39;):    print &#39;%s already exist or is not a Python code file.!&#39;%desFile    sys.exit()fp=open(desFile,&#39;w&#39;)today=str(datetime.date.today())fp.write(&#39;#-*-coding:utf-8 -*-\n&#39;)fp.write(&#39;#Filename:&#39;+desFile+&#39;\n&#39;)fp.write(head)fp.write(&#39;#Date:&#39;+today+&#39;\n&#39;)fp.write(&#39;#&#39;+&#39;-&#39;*20+&#39;\n&#39;)fp.close()">
-  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2017-07/python2-learning-1.html">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2017-07/python2-learning-1.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="https://zjgcjy.github.io/posts/2017-07/python2-learning-1.html">
+<link rel="canonical" href="http://localhost:4000/posts/2017-07/python2-learning-1.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "https://zjgcjy.github.io/",
+      "url": "http://localhost:4000/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -263,26 +263,26 @@
     <ul class="author__urls social-icons">
       
         <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
-          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+          <i class="fa fa-map-marker" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
         </li>
       
 
       
         
           
-            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fa fa-link" aria-hidden="true"></i> Website</a></li>
           
         
           
-            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fa fa-envelope-square" aria-hidden="true"></i> Email</a></li>
           
         
           
-            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
           
         
           
-            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
           
         
       
@@ -559,7 +559,7 @@ from 模块名 import *
   
 
   <p class="page__taxonomy">
-    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <strong><i class="fa fa-tags" aria-hidden="true"></i> Tags: </strong>
     <span itemprop="keywords">
     
       
@@ -573,7 +573,7 @@ from 模块名 import *
 
 
         
-          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2017-07-14T20:09:00+08:00">July 14, 2017</time></p>
+          <p class="page__date"><strong><i class="fa fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2017-07-14T20:09:00+08:00">July 14, 2017</time></p>
         
       </footer>
 
@@ -582,11 +582,11 @@ from 模块名 import *
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Python2+Learning+1%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-07%2Fpython2-learning-1.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Python2+Learning+1%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-07%2Fpython2-learning-1.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-07%2Fpython2-learning-1.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-07%2Fpython2-learning-1.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-07%2Fpython2-learning-1.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-07%2Fpython2-learning-1.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -811,16 +811,16 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
       
         
-          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
         
       
         
-          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
         
       
     
 
-    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    <li><a href="/feed.xml"><i class="fa fa-rss-square" aria-hidden="true"></i> Feed</a></li>
   </ul>
 </div>
 
@@ -831,7 +831,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
 
     
   <script src="/assets/js/main.min.js"></script>
-  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+  <script src="https://use.fontawesome.com/1d25d6ba93.js"></script>
 
 
 
@@ -846,7 +846,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "https://zjgcjy.github.io/posts/2017-07/python2-learning-1.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "http://localhost:4000/posts/2017-07/python2-learning-1.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2017-07/python2-learning-1"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

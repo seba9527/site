@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Pacman_helper">
-<meta property="og:url" content="https://zjgcjy.github.io/posts/2019-10/Pacman_Helper.html">
+<meta property="og:url" content="http://localhost:4000/posts/2019-10/Pacman_Helper.html">
 
 
   <meta property="og:description" content="  pacman 手册archlinux pacman 命令arch wikipacman -Sy 仅同步源pacman -Syu 同步源，并更新系统pacman -Su –ignore foo 升级时不升级包foopacman -S abc 从本地数据库中得到abc的信息，下载安装abc包pacman -Sy abc 和源同步后安装名为abc的包pacman -Sd abc 忽略依赖性问题，安装包abcpacman -Sf abc 强制安装包abcpacman -Si abc 从数据库中搜索包abc的信息pacman -Ss abc 搜索有关abc信息的包pacman -Sg abc 查询abc这个包组包含的软件包pacman -Sw abc 下载包而不安装它pacman -R abc 删除abc包pacman -Rc abc 删除abc包和依赖abc的包pacman -Rsn abc 删除包所有不需要的依赖包并删除其配置文件pacman -Rscn abc 删除abc包所有不需要的依赖包和依赖abd的包并删除其配置文件pacman -Sc 清理/var/cache/pacman/pkg目录下的旧包pacman -Scc 清除所有下载的包和数据库pacman -Q 列出系统中所有的包pacman -Q package 在本地包数据库搜索(查询)指定软件包pacman -Qi package 在本地包数据库搜索(查询)指定软件包并列出相关信息            pacman -Q      wc -l 统计当前系统中的包数量      pacman -Qdt 找出孤立包pacman -Rns $(pacman -Qtdq) 删除孤立软件包（递归的,小心用)pacman -U abc.pkg.tar.gz 安装下载的abs包，或新编译的本地abc包pacman-optimize &amp;&amp; sync 提高数据库访问速度==== 提高pacman数据访问 ====pacman-optimize &amp;&amp; sync==== 使用wget ====修改/etc/pacman.conf并在其中的[options]XferCommand = /usr/bin/wget -c –passive-ftp -c %u来自：http://www.douban.com/group/topic/17909752/Pacman手册名称pacman – 软件包管理器句法pacman  [选项] [软件包名称]描述pacman是linux系统上的用于记录安装的软件包信息的管理器。它的主要特点有：支持依赖、软件包组、安装卸载关联以及与远程服务器同步信息然后更新系统。pacman的软件包格式是.tar.gz的压缩格式。3.0.0版以来，pacman一直是linkman:libalpm（即”Arch Linux软件包管理“函数库）的前端。这个函数库支持不同写法的前端（例如，它支持图形化前端）。命令-Q，–query 查询查询软件包数据库。运用这条命令你不仅可以查看已安装软件包以及所含文件的信息，还可以查看独立软件包的元信息（meta-information）（包括软件包的依赖，冲突，安装日期，创建日期，大小）。这条命令可已对本机的软件包数据库执行，也可以对独立的.tar.gz包执行。具体参看下面的查询选项。-R, –remove 移除从系统中移除某个软件包。该命令也可以对软件包组执行，执行后，软件包组内所有的软件包都会被移除。属于指定软件包的文件会被删除，而后软件包数据库会执行更新。除非加上–nosave(不保存)选项，移除软件包的配置文件都会以.pacsave的后缀保存。具体参看下面的移除选项。-S, –sync 同步同步软件包。软件包是从frp服务器上直接下载安装的，与之一同安装的还有运行软件所需的所有依赖。例如，pacman -S qt 会下载并安装qt以及qt的所有依赖。如果同一名称的软件包存在与不同的源中，可以指定源：pacman -S testing/qt。同样也可以给定版本要求：pacman -S “bash&gt;=3.2”（引号是必需的，否则设shell会将“&gt;”理解为重定向）。可以指定软件包，也可以指定软件包组。例如，如果gnome是一个已定义的软件包组，那么执行pacman -S gnome就会将gnome组中所有的软件包安装，当然也会安装这些软件包的依赖。pacman也可以处理一些具有相同或相近作用的软件包。例如，执行pacman -S foo，pacman首先会搜索名为foo的软件包。如果没有找到的话，pacman就会搜索一些具有相同或相近作用的软件包。如果找到了具有相同或相近作用的软件包，这些软件包就会被安装。你也可以用pacman -Su来升级本机上所有陈旧的软件包升级是这样进行的：pacman先将本机上的软件包同远程服务器上的软件包进行版本对比。版本对比是按照如下规则进行的：字母顺序：1.0a&lt;1.0alpha&lt;1.0b&lt;1.0beta&lt;1.0p&lt;1.0pre&lt;1.0rc&lt;1.0数字顺序：1&lt;1.0&lt;1.1&lt;1.1.1&lt;1.2&lt;2.0&lt;3.0.0-U, –update升级软件包，或安装软件包。可以给定一个URL网址，也可以给定一个文件路径。升级的过程是一个“移除，然后安装”的过程。想知道pacman如何处理配置文件，请查看处理配置文件-V, –version 版本显示版本，然后退出。-h， –help 帮助显示给定命令的句法。如果没有给定命令，显示的将是全部命令的句法。通用选项–asdeps [as dependency(作为依赖)]模糊安装软件包;换句话说，就是假定该软件包安装的原因是由于依赖。在使用makepkg以及其他从源代码编译的工具时，需要在编译一个软件包之前安装该软件包的依赖，这时候，这个命令选项就十分有用了。–asexplicit精确安装软件;换句话说，就是假定该软件包安装的原因是精确安装。如果想把一个依赖标记成精确安装，使它不会在执行带–recursive（递归）的移除命令时删除，这时候，这个命令选项就十分有用了。-b, –dbpath    指定另外的数据库位置;默认为/var/lib/pacman，路径为绝对路径。-d, –nodeps            略过所有依赖关系检查--f, –force               强制安装，覆盖存在冲突的文件（谨慎使用）;-r， –root     指定其他的根路径;用于向暂时挂载的其他系统根路径安装软件。-v, –verbose          输出路径，例如根路径，配置文件，数据库，缓存的路径等。 –cachedir &lt;dir&gt; 指定其他缓存路径;默认为/var/cache/pacman/pkg，路径为绝对路径。 –config &lt;路径&gt;  指定另外的配置文件 –logfile &lt;路径&gt; 指定另外的日志文件 –noconfirm      不询问确认 –noprogressbar  下载文件时不显示进度条 –noscriptlet    不执行安装脚本集（谨慎使用）;查询选项-c, –changelog      查看某软件包的更新日志-d, –deps           列出所有作为依赖关系安装的软件包-e, –explicit       列出所有单独指定安装的软件包-g, –groups         查看某软件包组所属的所有软件包-i, –info           查看软件包信息（-ii 查看备份文件）-l, –list           列出被查询软件包的内容-m, –foreign        列出没有在同步数据库时找到的已安装软件包-o, –owns      查询哪个软件包拥有  -p, –file    从某个软件包而不是数据库查询-q, –quiet          在查询或搜索时显示较少的信息-s, –search  搜寻符合指定字符串的已安装本地的软件包-t, –unrequired     列出所有不被其他软件包要求的软件包-u, –upgrades       列出所有可升级的软件包-p，–file           在命令行标记软件包为文件，而不是数据库信息条目，在与–info和–list搭配时有用。移除选项-c, –cascade        删除软件包及所有的依赖于此的软件包-k, –dbonly         只删除数据库记录，不删除文件-n, –nosave         同时删除配置文件-s, –recursive      同时删除（不会破坏其他软件包的）依赖关系                   (-ss·也包括单独指定安装的依赖关系)-u, –unneeded       同时删除不需要的（且不会破坏其他软件包的）依赖关系同步选项-c, –clean          从缓存目录中删除旧软件包（-cc 清除所有）-g, –groups         查看某软件包组所属的所有软件包-i, –info           查看软件包信息-l, –list     查看在该软件仓库中的软件包清单-q, –quiet          在查询或搜索时显示较少的信息-p, –print-uris     打印指定软件包及依赖关系中的URI-s, –search  按照指定字符串查询远端软件仓库-u, –sysupgrade     升级所有过期软件包-w, –downloadonly   下载但不安装/升级软件包-y, –refresh        从服务器下载新的软件包数据库  –needed         不重新安装已经为最新的软件包  –ignore &lt;软件包&gt;   升级时忽略某个软件包（可多次使用）  –ignoregroup &lt;软件包组&gt;                     升级时忽略某个软件包组（可多次使用）">
 
 
 
-  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Pacman_helper">
   <meta name="twitter:description" content="  pacman 手册archlinux pacman 命令arch wikipacman -Sy 仅同步源pacman -Syu 同步源，并更新系统pacman -Su –ignore foo 升级时不升级包foopacman -S abc 从本地数据库中得到abc的信息，下载安装abc包pacman -Sy abc 和源同步后安装名为abc的包pacman -Sd abc 忽略依赖性问题，安装包abcpacman -Sf abc 强制安装包abcpacman -Si abc 从数据库中搜索包abc的信息pacman -Ss abc 搜索有关abc信息的包pacman -Sg abc 查询abc这个包组包含的软件包pacman -Sw abc 下载包而不安装它pacman -R abc 删除abc包pacman -Rc abc 删除abc包和依赖abc的包pacman -Rsn abc 删除包所有不需要的依赖包并删除其配置文件pacman -Rscn abc 删除abc包所有不需要的依赖包和依赖abd的包并删除其配置文件pacman -Sc 清理/var/cache/pacman/pkg目录下的旧包pacman -Scc 清除所有下载的包和数据库pacman -Q 列出系统中所有的包pacman -Q package 在本地包数据库搜索(查询)指定软件包pacman -Qi package 在本地包数据库搜索(查询)指定软件包并列出相关信息            pacman -Q      wc -l 统计当前系统中的包数量      pacman -Qdt 找出孤立包pacman -Rns $(pacman -Qtdq) 删除孤立软件包（递归的,小心用)pacman -U abc.pkg.tar.gz 安装下载的abs包，或新编译的本地abc包pacman-optimize &amp;&amp; sync 提高数据库访问速度==== 提高pacman数据访问 ====pacman-optimize &amp;&amp; sync==== 使用wget ====修改/etc/pacman.conf并在其中的[options]XferCommand = /usr/bin/wget -c –passive-ftp -c %u来自：http://www.douban.com/group/topic/17909752/Pacman手册名称pacman – 软件包管理器句法pacman  [选项] [软件包名称]描述pacman是linux系统上的用于记录安装的软件包信息的管理器。它的主要特点有：支持依赖、软件包组、安装卸载关联以及与远程服务器同步信息然后更新系统。pacman的软件包格式是.tar.gz的压缩格式。3.0.0版以来，pacman一直是linkman:libalpm（即”Arch Linux软件包管理“函数库）的前端。这个函数库支持不同写法的前端（例如，它支持图形化前端）。命令-Q，–query 查询查询软件包数据库。运用这条命令你不仅可以查看已安装软件包以及所含文件的信息，还可以查看独立软件包的元信息（meta-information）（包括软件包的依赖，冲突，安装日期，创建日期，大小）。这条命令可已对本机的软件包数据库执行，也可以对独立的.tar.gz包执行。具体参看下面的查询选项。-R, –remove 移除从系统中移除某个软件包。该命令也可以对软件包组执行，执行后，软件包组内所有的软件包都会被移除。属于指定软件包的文件会被删除，而后软件包数据库会执行更新。除非加上–nosave(不保存)选项，移除软件包的配置文件都会以.pacsave的后缀保存。具体参看下面的移除选项。-S, –sync 同步同步软件包。软件包是从frp服务器上直接下载安装的，与之一同安装的还有运行软件所需的所有依赖。例如，pacman -S qt 会下载并安装qt以及qt的所有依赖。如果同一名称的软件包存在与不同的源中，可以指定源：pacman -S testing/qt。同样也可以给定版本要求：pacman -S “bash&gt;=3.2”（引号是必需的，否则设shell会将“&gt;”理解为重定向）。可以指定软件包，也可以指定软件包组。例如，如果gnome是一个已定义的软件包组，那么执行pacman -S gnome就会将gnome组中所有的软件包安装，当然也会安装这些软件包的依赖。pacman也可以处理一些具有相同或相近作用的软件包。例如，执行pacman -S foo，pacman首先会搜索名为foo的软件包。如果没有找到的话，pacman就会搜索一些具有相同或相近作用的软件包。如果找到了具有相同或相近作用的软件包，这些软件包就会被安装。你也可以用pacman -Su来升级本机上所有陈旧的软件包升级是这样进行的：pacman先将本机上的软件包同远程服务器上的软件包进行版本对比。版本对比是按照如下规则进行的：字母顺序：1.0a&lt;1.0alpha&lt;1.0b&lt;1.0beta&lt;1.0p&lt;1.0pre&lt;1.0rc&lt;1.0数字顺序：1&lt;1.0&lt;1.1&lt;1.1.1&lt;1.2&lt;2.0&lt;3.0.0-U, –update升级软件包，或安装软件包。可以给定一个URL网址，也可以给定一个文件路径。升级的过程是一个“移除，然后安装”的过程。想知道pacman如何处理配置文件，请查看处理配置文件-V, –version 版本显示版本，然后退出。-h， –help 帮助显示给定命令的句法。如果没有给定命令，显示的将是全部命令的句法。通用选项–asdeps [as dependency(作为依赖)]模糊安装软件包;换句话说，就是假定该软件包安装的原因是由于依赖。在使用makepkg以及其他从源代码编译的工具时，需要在编译一个软件包之前安装该软件包的依赖，这时候，这个命令选项就十分有用了。–asexplicit精确安装软件;换句话说，就是假定该软件包安装的原因是精确安装。如果想把一个依赖标记成精确安装，使它不会在执行带–recursive（递归）的移除命令时删除，这时候，这个命令选项就十分有用了。-b, –dbpath    指定另外的数据库位置;默认为/var/lib/pacman，路径为绝对路径。-d, –nodeps            略过所有依赖关系检查--f, –force               强制安装，覆盖存在冲突的文件（谨慎使用）;-r， –root     指定其他的根路径;用于向暂时挂载的其他系统根路径安装软件。-v, –verbose          输出路径，例如根路径，配置文件，数据库，缓存的路径等。 –cachedir &lt;dir&gt; 指定其他缓存路径;默认为/var/cache/pacman/pkg，路径为绝对路径。 –config &lt;路径&gt;  指定另外的配置文件 –logfile &lt;路径&gt; 指定另外的日志文件 –noconfirm      不询问确认 –noprogressbar  下载文件时不显示进度条 –noscriptlet    不执行安装脚本集（谨慎使用）;查询选项-c, –changelog      查看某软件包的更新日志-d, –deps           列出所有作为依赖关系安装的软件包-e, –explicit       列出所有单独指定安装的软件包-g, –groups         查看某软件包组所属的所有软件包-i, –info           查看软件包信息（-ii 查看备份文件）-l, –list           列出被查询软件包的内容-m, –foreign        列出没有在同步数据库时找到的已安装软件包-o, –owns      查询哪个软件包拥有  -p, –file    从某个软件包而不是数据库查询-q, –quiet          在查询或搜索时显示较少的信息-s, –search  搜寻符合指定字符串的已安装本地的软件包-t, –unrequired     列出所有不被其他软件包要求的软件包-u, –upgrades       列出所有可升级的软件包-p，–file           在命令行标记软件包为文件，而不是数据库信息条目，在与–info和–list搭配时有用。移除选项-c, –cascade        删除软件包及所有的依赖于此的软件包-k, –dbonly         只删除数据库记录，不删除文件-n, –nosave         同时删除配置文件-s, –recursive      同时删除（不会破坏其他软件包的）依赖关系                   (-ss·也包括单独指定安装的依赖关系)-u, –unneeded       同时删除不需要的（且不会破坏其他软件包的）依赖关系同步选项-c, –clean          从缓存目录中删除旧软件包（-cc 清除所有）-g, –groups         查看某软件包组所属的所有软件包-i, –info           查看软件包信息-l, –list     查看在该软件仓库中的软件包清单-q, –quiet          在查询或搜索时显示较少的信息-p, –print-uris     打印指定软件包及依赖关系中的URI-s, –search  按照指定字符串查询远端软件仓库-u, –sysupgrade     升级所有过期软件包-w, –downloadonly   下载但不安装/升级软件包-y, –refresh        从服务器下载新的软件包数据库  –needed         不重新安装已经为最新的软件包  –ignore &lt;软件包&gt;   升级时忽略某个软件包（可多次使用）  –ignoregroup &lt;软件包组&gt;                     升级时忽略某个软件包组（可多次使用）">
-  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2019-10/Pacman_Helper.html">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2019-10/Pacman_Helper.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="https://zjgcjy.github.io/posts/2019-10/Pacman_Helper.html">
+<link rel="canonical" href="http://localhost:4000/posts/2019-10/Pacman_Helper.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "https://zjgcjy.github.io/",
+      "url": "http://localhost:4000/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -263,26 +263,26 @@
     <ul class="author__urls social-icons">
       
         <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
-          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+          <i class="fa fa-map-marker" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
         </li>
       
 
       
         
           
-            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fa fa-link" aria-hidden="true"></i> Website</a></li>
           
         
           
-            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fa fa-envelope-square" aria-hidden="true"></i> Email</a></li>
           
         
           
-            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
           
         
           
-            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
           
         
       
@@ -644,7 +644,7 @@
   
 
   <p class="page__taxonomy">
-    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <strong><i class="fa fa-tags" aria-hidden="true"></i> Tags: </strong>
     <span itemprop="keywords">
     
       
@@ -658,7 +658,7 @@
 
 
         
-          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-10-29T21:15:00+08:00">October 29, 2019</time></p>
+          <p class="page__date"><strong><i class="fa fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-10-29T21:15:00+08:00">October 29, 2019</time></p>
         
       </footer>
 
@@ -667,11 +667,11 @@
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Pacman_helper%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-10%2FPacman_Helper.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Pacman_helper%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-10%2FPacman_Helper.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-10%2FPacman_Helper.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-10%2FPacman_Helper.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-10%2FPacman_Helper.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-10%2FPacman_Helper.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -895,16 +895,16 @@ warning
     
       
         
-          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
         
       
         
-          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
         
       
     
 
-    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    <li><a href="/feed.xml"><i class="fa fa-rss-square" aria-hidden="true"></i> Feed</a></li>
   </ul>
 </div>
 
@@ -915,7 +915,7 @@ warning
 
     
   <script src="/assets/js/main.min.js"></script>
-  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+  <script src="https://use.fontawesome.com/1d25d6ba93.js"></script>
 
 
 
@@ -930,7 +930,7 @@ warning
     
   <script>
     var disqus_config = function () {
-      this.page.url = "https://zjgcjy.github.io/posts/2019-10/Pacman_Helper.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "http://localhost:4000/posts/2019-10/Pacman_Helper.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2019-10/Pacman_Helper"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

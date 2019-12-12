@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Win32 Coding 2">
-<meta property="og:url" content="https://zjgcjy.github.io/posts/2017-09/Win32-coding-2.html">
+<meta property="og:url" content="http://localhost:4000/posts/2017-09/Win32-coding-2.html">
 
 
   <meta property="og:description" content="  window程序设计2关于unicode编码和宽字节unicode字符变量C中的宽字符基于wchar_t数据型态，它在几个表头文件包括WCHAR.H中都有定义typedef unsigned short wchar_t ;因此，wchar_t数据型态与无符号短整数型态相同，都是16位宽。e.g:wchar_t * p = L”Hello!”wchar_t a[] = L”Hello!”只有带有L，编译器才知道需要将字符串存为每个字符2字节。宽字符处理strlen函数的宽字符版是wcslen（wide-character string length：宽字符串长度），并且在STRING.H（其中也说明了strlen）和WCHAR.H中均有说明。strlen函数说明如下：size_t __cdecl strlen (const char *) ;        而wcslen函数则说明如下：size_t __cdecl wcslen (const wchar_t *) ;  only one source code为了避免建立两份一样的源代码而只为了字符的长度问题，一种方式是通过TCHAR.h头文件，通过unicode来区别是单字节还是多字节。如果定义了名为_UNICODE的标识符，并且程序中包含了TCHAR.H表头文件那么_tcslen就定义为wcslen：#define _tcslen wcslen如果没有定义UNICODE，则_tcslen定义为strlen：#define _tcslen strlenTCHAR.H还用一个新的数据型态TCHAR来解决两种字符数据型态的问题。如果定义了_UNICODE标识符，那么TCHAR就是wchar_t：typedef wchar_t TCHAR否则，TCHAR就是chartypedef char TCHAR现在开始讨论字符串文字中的L问题。如果定义了_UNICODE标识符，那么一个称作__T的宏就定义如下：#define __T(x) L##x这是相当晦涩的语法，但合乎ANSI C标准的前置处理器规范。那一对井字号称为「粘贴符号（token paste）」，它将字母L添加到宏参数上。因此，如果宏参数是”Hello!”，则L##x就是L”Hello!”。如果没有定义_UNICODE标识符，则__T宏只简单地定义如下：#define __T(x) x关于UNICODE和_UNICODE的区别，前者没有下划线，专门用于Windows头文件；后者有一个前缀下划线，专门用于C运行时头文件。换句话说，也就是在ANSI C++语言里面根据_UNICODE（有下划线）定义与否，各宏分别展开为Unicode或ANSI字符，在Windows里面根据UNICODE（无下划线）定义与否，各宏分别展开为Unicode或ANSI字符。windows常见处理方式WINNT.H的前面包含C的表头文件CTYPE.H，这是C的众多表头文件之一，包括wchar_t的定义。WINNT.H定义了新的数据型态，称作CHAR和WCHAR：typedef char CHARtypedef wchar_t WCHAR // wcWINNT.H表头文件进而定义了可用做8位字符串指针的六种数据型态和四个可用做const 8位字符串指针的数据型态。这里精选了表头文件中一些实用的说明数据型态语句：typedef CHAR *PCHAR, *LPCH, *PCH, *NPSTR, *LPSTR, *PSTRtypedef CONST CHAR *LPCCH, *PCCH, *LPCSTR, *PCSTR前缀N和L表示「near」和「long」，指的是16位Windows中两种大小不同的指针。在Win32中near和long指针没有区别。类似地，WINNT.H定义了六种可作为16位字符串指针的数据型态和四种可作为const 16位字符串指针的数据型态：typedef WCHAR *PWCHAR, *LPWCH, *PWCH, *NWPSTR, *LPWSTR, *PWSTR ;typedef CONST WCHAR *LPCWCH, *PCWCH, *LPCWSTR, *PCWSTR ;通过unicode来确定指向是ascii还是unicode：#ifdef  UNICODEtypedef WCHAR TCHAR, * PTCHAR ;typedef LPWSTR LPTCH, PTCH, PTSTR, LPTSTR ;typedef LPCWSTR LPCTSTR ;#elsetypedef char TCHAR, * PTCHAR ;  typedef LPSTR LPTCH, PTCH, PTSTR, LPTSTR ;typedef LPCSTR LPCTSTR ;#endifwindows函数调用关于messageboxMessageBox函数定义如下：int WINAPI MessageBox (HWND, LPCSTR, LPCSTR, UINT) ;注意，函数的第二个、第三个参数是指向常数字符串的指针。USER32.DLL中，没有32位MessageBox函数的进入点。实际上，有两个进入点，一个名为MessageBoxA（ASCII版），另一个名为MessageBoxW（宽字符版）。通常不必关心这个问题，程序中只需使用MessageBox。下面是MessageBoxA和MessageBoxW在WINUSER.H中定义的方法：WINUSERAPI int WINAPI MessageBoxA (HWND hWnd, LPCSTR  lpText, LPCSTR  lpCaption, UINT uType) ;WINUSERAPI int WINAPI MessageBoxW (HWND hWnd, LPCWSTR lpText, LPCWSTR lpCaption, UINT uType) ;注意，MessageBoxW函数的第二个和第三个参数是指向宽字符的指针。常用字符串API如果定义了UNICODE标识符，那么这些函数将接受宽字符串，否则只接受常规字符串。ILength = lstrlen (pString) ;pString = lstrcpy (pString1, pString2) ;pString = lstrcpyn (pString1, pString2, iCount) ;pString = lstrcat (pString1, pString2) ;iComp = lstrcmp (pString1, pString2) ;iComp = lstrcmpi (pString1, pString2) ;关于printfWindows中没有标准输入和标准输出的概念。Windows程序中只能使用fprintf，而不是printf。但是可以使用sprintf及sprintf系列中的其它函数来显示文字。这些函数除了将内容格式化输出到函数第一个参数所提供的字符串缓冲区以外，其功能与printf相同。在Windows中，使用MessageBox显示结果优于puts。可以自定义MessageBoxPrintf函数，调用sprintf来格式化，并通过messagebox输出。">
 
 
 
-  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Win32 Coding 2">
   <meta name="twitter:description" content="  window程序设计2关于unicode编码和宽字节unicode字符变量C中的宽字符基于wchar_t数据型态，它在几个表头文件包括WCHAR.H中都有定义typedef unsigned short wchar_t ;因此，wchar_t数据型态与无符号短整数型态相同，都是16位宽。e.g:wchar_t * p = L”Hello!”wchar_t a[] = L”Hello!”只有带有L，编译器才知道需要将字符串存为每个字符2字节。宽字符处理strlen函数的宽字符版是wcslen（wide-character string length：宽字符串长度），并且在STRING.H（其中也说明了strlen）和WCHAR.H中均有说明。strlen函数说明如下：size_t __cdecl strlen (const char *) ;        而wcslen函数则说明如下：size_t __cdecl wcslen (const wchar_t *) ;  only one source code为了避免建立两份一样的源代码而只为了字符的长度问题，一种方式是通过TCHAR.h头文件，通过unicode来区别是单字节还是多字节。如果定义了名为_UNICODE的标识符，并且程序中包含了TCHAR.H表头文件那么_tcslen就定义为wcslen：#define _tcslen wcslen如果没有定义UNICODE，则_tcslen定义为strlen：#define _tcslen strlenTCHAR.H还用一个新的数据型态TCHAR来解决两种字符数据型态的问题。如果定义了_UNICODE标识符，那么TCHAR就是wchar_t：typedef wchar_t TCHAR否则，TCHAR就是chartypedef char TCHAR现在开始讨论字符串文字中的L问题。如果定义了_UNICODE标识符，那么一个称作__T的宏就定义如下：#define __T(x) L##x这是相当晦涩的语法，但合乎ANSI C标准的前置处理器规范。那一对井字号称为「粘贴符号（token paste）」，它将字母L添加到宏参数上。因此，如果宏参数是”Hello!”，则L##x就是L”Hello!”。如果没有定义_UNICODE标识符，则__T宏只简单地定义如下：#define __T(x) x关于UNICODE和_UNICODE的区别，前者没有下划线，专门用于Windows头文件；后者有一个前缀下划线，专门用于C运行时头文件。换句话说，也就是在ANSI C++语言里面根据_UNICODE（有下划线）定义与否，各宏分别展开为Unicode或ANSI字符，在Windows里面根据UNICODE（无下划线）定义与否，各宏分别展开为Unicode或ANSI字符。windows常见处理方式WINNT.H的前面包含C的表头文件CTYPE.H，这是C的众多表头文件之一，包括wchar_t的定义。WINNT.H定义了新的数据型态，称作CHAR和WCHAR：typedef char CHARtypedef wchar_t WCHAR // wcWINNT.H表头文件进而定义了可用做8位字符串指针的六种数据型态和四个可用做const 8位字符串指针的数据型态。这里精选了表头文件中一些实用的说明数据型态语句：typedef CHAR *PCHAR, *LPCH, *PCH, *NPSTR, *LPSTR, *PSTRtypedef CONST CHAR *LPCCH, *PCCH, *LPCSTR, *PCSTR前缀N和L表示「near」和「long」，指的是16位Windows中两种大小不同的指针。在Win32中near和long指针没有区别。类似地，WINNT.H定义了六种可作为16位字符串指针的数据型态和四种可作为const 16位字符串指针的数据型态：typedef WCHAR *PWCHAR, *LPWCH, *PWCH, *NWPSTR, *LPWSTR, *PWSTR ;typedef CONST WCHAR *LPCWCH, *PCWCH, *LPCWSTR, *PCWSTR ;通过unicode来确定指向是ascii还是unicode：#ifdef  UNICODEtypedef WCHAR TCHAR, * PTCHAR ;typedef LPWSTR LPTCH, PTCH, PTSTR, LPTSTR ;typedef LPCWSTR LPCTSTR ;#elsetypedef char TCHAR, * PTCHAR ;  typedef LPSTR LPTCH, PTCH, PTSTR, LPTSTR ;typedef LPCSTR LPCTSTR ;#endifwindows函数调用关于messageboxMessageBox函数定义如下：int WINAPI MessageBox (HWND, LPCSTR, LPCSTR, UINT) ;注意，函数的第二个、第三个参数是指向常数字符串的指针。USER32.DLL中，没有32位MessageBox函数的进入点。实际上，有两个进入点，一个名为MessageBoxA（ASCII版），另一个名为MessageBoxW（宽字符版）。通常不必关心这个问题，程序中只需使用MessageBox。下面是MessageBoxA和MessageBoxW在WINUSER.H中定义的方法：WINUSERAPI int WINAPI MessageBoxA (HWND hWnd, LPCSTR  lpText, LPCSTR  lpCaption, UINT uType) ;WINUSERAPI int WINAPI MessageBoxW (HWND hWnd, LPCWSTR lpText, LPCWSTR lpCaption, UINT uType) ;注意，MessageBoxW函数的第二个和第三个参数是指向宽字符的指针。常用字符串API如果定义了UNICODE标识符，那么这些函数将接受宽字符串，否则只接受常规字符串。ILength = lstrlen (pString) ;pString = lstrcpy (pString1, pString2) ;pString = lstrcpyn (pString1, pString2, iCount) ;pString = lstrcat (pString1, pString2) ;iComp = lstrcmp (pString1, pString2) ;iComp = lstrcmpi (pString1, pString2) ;关于printfWindows中没有标准输入和标准输出的概念。Windows程序中只能使用fprintf，而不是printf。但是可以使用sprintf及sprintf系列中的其它函数来显示文字。这些函数除了将内容格式化输出到函数第一个参数所提供的字符串缓冲区以外，其功能与printf相同。在Windows中，使用MessageBox显示结果优于puts。可以自定义MessageBoxPrintf函数，调用sprintf来格式化，并通过messagebox输出。">
-  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2017-09/Win32-coding-2.html">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2017-09/Win32-coding-2.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="https://zjgcjy.github.io/posts/2017-09/Win32-coding-2.html">
+<link rel="canonical" href="http://localhost:4000/posts/2017-09/Win32-coding-2.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "https://zjgcjy.github.io/",
+      "url": "http://localhost:4000/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -263,26 +263,26 @@
     <ul class="author__urls social-icons">
       
         <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
-          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+          <i class="fa fa-map-marker" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
         </li>
       
 
       
         
           
-            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fa fa-link" aria-hidden="true"></i> Website</a></li>
           
         
           
-            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fa fa-envelope-square" aria-hidden="true"></i> Email</a></li>
           
         
           
-            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
           
         
           
-            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
           
         
       
@@ -555,7 +555,7 @@ USER32.DLL中，没有32位MessageBox函数的进入点。实际上，有两个�
   
 
   <p class="page__taxonomy">
-    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <strong><i class="fa fa-tags" aria-hidden="true"></i> Tags: </strong>
     <span itemprop="keywords">
     
       
@@ -573,7 +573,7 @@ USER32.DLL中，没有32位MessageBox函数的进入点。实际上，有两个�
 
 
         
-          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2017-09-21T02:22:00+08:00">September 21, 2017</time></p>
+          <p class="page__date"><strong><i class="fa fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2017-09-21T02:22:00+08:00">September 21, 2017</time></p>
         
       </footer>
 
@@ -582,11 +582,11 @@ USER32.DLL中，没有32位MessageBox函数的进入点。实际上，有两个�
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Win32+Coding+2%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-09%2FWin32-coding-2.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Win32+Coding+2%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-09%2FWin32-coding-2.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-09%2FWin32-coding-2.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-09%2FWin32-coding-2.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-09%2FWin32-coding-2.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-09%2FWin32-coding-2.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -812,16 +812,16 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
       
         
-          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
         
       
         
-          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
         
       
     
 
-    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    <li><a href="/feed.xml"><i class="fa fa-rss-square" aria-hidden="true"></i> Feed</a></li>
   </ul>
 </div>
 
@@ -832,7 +832,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
 
     
   <script src="/assets/js/main.min.js"></script>
-  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+  <script src="https://use.fontawesome.com/1d25d6ba93.js"></script>
 
 
 
@@ -847,7 +847,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "https://zjgcjy.github.io/posts/2017-09/Win32-coding-2.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "http://localhost:4000/posts/2017-09/Win32-coding-2.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2017-09/Win32-coding-2"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

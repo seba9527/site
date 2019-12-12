@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Machine_learning 1">
-<meta property="og:url" content="https://zjgcjy.github.io/posts/2018-12/Machine_Learning-1.html">
+<meta property="og:url" content="http://localhost:4000/posts/2018-12/Machine_Learning-1.html">
 
 
   <meta property="og:description" content="开始学习机器学习，记录下第一周的笔记，希望自己能坚持吧。机器学习定义这里给出了2种机器学习的定义：Arthur Samuel described it as: &quot;the field of study that gives computers the ability to learn without being explicitly programmed.&quot; This is an older, informal definition.Tom Mitchell provides a more modern definition: &quot;A computer program is said to learn from experience E with respect to some class of tasks T and performance measure P, if its performance at tasks in T, as measured by P, improves with experience E.&quot;Example: playing checkers.E = the experience of playing many games of checkersT = the task of playing checkers.P = the probability that the program will win the next game.大体上，任何机器学习问题都额能分成2种类型，一种是是监督学习，一种是非监督学习。监督学习在监督学习中，对于数据中的每个数据，都有相应的正确答案（训练集），而监督学习就是基于这些数据进行预测。那么这里介绍了2中监督学习的方法，分别是回归问题和分类问题。回归问题回归问题是对于连续的问题来说的，基于训练集进行预测，训练集都是有正确答案的。分类问题那么分类问题就是对离散的问题来说的，对离散的问题进行预测。这里给2个例子，区分一下。**Example 1:**Given data about the size of houses on the real estate market, try to predict their price. Price as a function of size is a continuous output, so this is a regression problem.We could turn this example into a classification problem by instead making our output about whether the house &quot;sells for more or less than the asking price.&quot; Here we are classifying the houses based on price into two discrete categories.**Example 2**:(a) Regression - Given a picture of a person, we have to predict their age on the basis of the given picture(b) Classification - Given a patient with a tumor, we have to predict whether the tumor is malignant or benign.无监督学习不同于监督学习，无监督学习的样本都是未知的，没有属性或者标签，即没有正确答案的，所有样本都是一样的，无区别的，如图所示。那么无监督学习也分为2种，一种是聚类算法，还有是鸡尾酒宴席问题。聚类算法所谓聚类算法，就是在不知道数据集的分组情况下，对数据集进行分组，比如聚合相同的新闻，聚合相同兴趣的人（物以类聚，人以群分）。鸡尾酒宴席问题（分散算法）同样是对数据集进行分组，或者说是分离，这里只显示了2个输入的情况，如果输入源更多，情况会复杂很多。下面给出这两个问题的描述。**Example:**Clustering: Take a collection of 1,000,000 different genes, and find a way to automatically group these genes into groups that are somehow similar or related by different variables, such as lifespan, location, roles, and so on.Non-clustering: The &quot;Cocktail Party Algorithm&quot;, allows you to find structure in a chaotic environment. (i.e. identifying individual voices and music from a mesh of sounds at a)模型展示监督学习中的模型表示，这里用的是线性回归模型。用x表示输入数据，y表示输出数据，建立模型就是要建立x和y之间的联系，这里用h(x)来表示，因为h(x)的定义是线性的函数，所以称为线性回归模型。我们的目标就是建立有效的函数映射，使得，当X → Y，h(x)能很好的对y的值进行预测。线性回归模型能应用于监督学习的2种类别，即回归和分类，它都非常有效。代价函数先给出代价函数的定义。这里的hx指的是估计函数，也就是最后要拟合的曲线，我们的目标就是要找到最适合的估计函数hx，反应到J中，就是要找到代价函数最小值对应的参数值。也就是通过代价函数来测量估计函数的拟合程度。代价函数在概率论中也称为均方差或者平方差，反应了数据整体的分布情况。可视化代价函数为了将代价函数可视化，这里先选择过原点的估计函数，要注意的是估计函数是关于x的函数，而代价函数是关于参数Θ的函数。那么我们可以固定Θ的值，来画出hx，再根据hx得到估计函数J的图像，如下所示：注意到，我们的目标是获得代价函数的最小值，很容易看到，当估计函数比较简单的时候，当我们选取通过所有样本的函数时，此时代价函数的值最小，为0，说明此时估计函数完美的估计了所有的样本，是最佳的情况。但是上述只是最简单的情况，对于一般的情形来说，难以用二维的图像来说明。这里视频中使用了轮廓图的概念，如下图所示，通过横轴和纵轴的2个参数来整体反应代价函数的变化情况，和地理上的等高线差不多，同一条线上的代价函数值相同。梯度下降算法 (Gradient Descent)梯度下降算法，可以将代价函数J最小化，公式如下。其中的α表示学习速率，即步长，理解为每次走的距离，还要注意的是，这个公式是对Θ0和Θ1同时进行的，也就是二者应该同步，不能先算一方向，然后更新，应该同时进行。此处的偏导数对应该点在x方向和y方向分别对应的梯度，这样是下降最快的方式，用以求解到局部最优解。梯度下降算法还需要注意的一点是，该算法需要指定初始化点，对于距离很近的点来说，也可能得到不同的局部最优解（类似蝴蝶效应）如下图所示。关于参数a，需要指出的有2点。  1.α选取要适当，过小，每次移动的距离会很小，耗时较多。；过大，每次移动的距离会很大，有可能会导致不能收敛到局部最优的情况。  2.当α固定时，改算法能正确找到局部最优解，原因是随着斜率的缩小，在α不变的情况下，每次Θi减少的距离也缩小了，这样能保证收敛到局部最优的情况，当其已经在具备最优的情况下时，斜率为0，将不再变化，即得到结果。应用于线性回归的梯度下降算法(Gradient Descent For Linear Regression)那么这时候，对于线性回归模型，我们有hx和J，对于J，我们可以使用梯度下降算法来计算每一步的最优解，如下图所示。那么对于J的2个参数来说，我们根据梯度下降算法，分别对J中的2个变量求J的偏导数，就能得到每个方向上的梯度下降的最优解，这样得到下面2个方程。这样就能对两个变量进行更新，同时得到的就是局部最优解，同时根据具备最优解是全局最优解这个前提，得到全局最优解。矩阵和向量这里都是现代里面的知识了，我就不多说了，基本都会。Week 1 ends here.">
 
 
 
-  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Machine_learning 1">
   <meta name="twitter:description" content="开始学习机器学习，记录下第一周的笔记，希望自己能坚持吧。机器学习定义这里给出了2种机器学习的定义：Arthur Samuel described it as: &quot;the field of study that gives computers the ability to learn without being explicitly programmed.&quot; This is an older, informal definition.Tom Mitchell provides a more modern definition: &quot;A computer program is said to learn from experience E with respect to some class of tasks T and performance measure P, if its performance at tasks in T, as measured by P, improves with experience E.&quot;Example: playing checkers.E = the experience of playing many games of checkersT = the task of playing checkers.P = the probability that the program will win the next game.大体上，任何机器学习问题都额能分成2种类型，一种是是监督学习，一种是非监督学习。监督学习在监督学习中，对于数据中的每个数据，都有相应的正确答案（训练集），而监督学习就是基于这些数据进行预测。那么这里介绍了2中监督学习的方法，分别是回归问题和分类问题。回归问题回归问题是对于连续的问题来说的，基于训练集进行预测，训练集都是有正确答案的。分类问题那么分类问题就是对离散的问题来说的，对离散的问题进行预测。这里给2个例子，区分一下。**Example 1:**Given data about the size of houses on the real estate market, try to predict their price. Price as a function of size is a continuous output, so this is a regression problem.We could turn this example into a classification problem by instead making our output about whether the house &quot;sells for more or less than the asking price.&quot; Here we are classifying the houses based on price into two discrete categories.**Example 2**:(a) Regression - Given a picture of a person, we have to predict their age on the basis of the given picture(b) Classification - Given a patient with a tumor, we have to predict whether the tumor is malignant or benign.无监督学习不同于监督学习，无监督学习的样本都是未知的，没有属性或者标签，即没有正确答案的，所有样本都是一样的，无区别的，如图所示。那么无监督学习也分为2种，一种是聚类算法，还有是鸡尾酒宴席问题。聚类算法所谓聚类算法，就是在不知道数据集的分组情况下，对数据集进行分组，比如聚合相同的新闻，聚合相同兴趣的人（物以类聚，人以群分）。鸡尾酒宴席问题（分散算法）同样是对数据集进行分组，或者说是分离，这里只显示了2个输入的情况，如果输入源更多，情况会复杂很多。下面给出这两个问题的描述。**Example:**Clustering: Take a collection of 1,000,000 different genes, and find a way to automatically group these genes into groups that are somehow similar or related by different variables, such as lifespan, location, roles, and so on.Non-clustering: The &quot;Cocktail Party Algorithm&quot;, allows you to find structure in a chaotic environment. (i.e. identifying individual voices and music from a mesh of sounds at a)模型展示监督学习中的模型表示，这里用的是线性回归模型。用x表示输入数据，y表示输出数据，建立模型就是要建立x和y之间的联系，这里用h(x)来表示，因为h(x)的定义是线性的函数，所以称为线性回归模型。我们的目标就是建立有效的函数映射，使得，当X → Y，h(x)能很好的对y的值进行预测。线性回归模型能应用于监督学习的2种类别，即回归和分类，它都非常有效。代价函数先给出代价函数的定义。这里的hx指的是估计函数，也就是最后要拟合的曲线，我们的目标就是要找到最适合的估计函数hx，反应到J中，就是要找到代价函数最小值对应的参数值。也就是通过代价函数来测量估计函数的拟合程度。代价函数在概率论中也称为均方差或者平方差，反应了数据整体的分布情况。可视化代价函数为了将代价函数可视化，这里先选择过原点的估计函数，要注意的是估计函数是关于x的函数，而代价函数是关于参数Θ的函数。那么我们可以固定Θ的值，来画出hx，再根据hx得到估计函数J的图像，如下所示：注意到，我们的目标是获得代价函数的最小值，很容易看到，当估计函数比较简单的时候，当我们选取通过所有样本的函数时，此时代价函数的值最小，为0，说明此时估计函数完美的估计了所有的样本，是最佳的情况。但是上述只是最简单的情况，对于一般的情形来说，难以用二维的图像来说明。这里视频中使用了轮廓图的概念，如下图所示，通过横轴和纵轴的2个参数来整体反应代价函数的变化情况，和地理上的等高线差不多，同一条线上的代价函数值相同。梯度下降算法 (Gradient Descent)梯度下降算法，可以将代价函数J最小化，公式如下。其中的α表示学习速率，即步长，理解为每次走的距离，还要注意的是，这个公式是对Θ0和Θ1同时进行的，也就是二者应该同步，不能先算一方向，然后更新，应该同时进行。此处的偏导数对应该点在x方向和y方向分别对应的梯度，这样是下降最快的方式，用以求解到局部最优解。梯度下降算法还需要注意的一点是，该算法需要指定初始化点，对于距离很近的点来说，也可能得到不同的局部最优解（类似蝴蝶效应）如下图所示。关于参数a，需要指出的有2点。  1.α选取要适当，过小，每次移动的距离会很小，耗时较多。；过大，每次移动的距离会很大，有可能会导致不能收敛到局部最优的情况。  2.当α固定时，改算法能正确找到局部最优解，原因是随着斜率的缩小，在α不变的情况下，每次Θi减少的距离也缩小了，这样能保证收敛到局部最优的情况，当其已经在具备最优的情况下时，斜率为0，将不再变化，即得到结果。应用于线性回归的梯度下降算法(Gradient Descent For Linear Regression)那么这时候，对于线性回归模型，我们有hx和J，对于J，我们可以使用梯度下降算法来计算每一步的最优解，如下图所示。那么对于J的2个参数来说，我们根据梯度下降算法，分别对J中的2个变量求J的偏导数，就能得到每个方向上的梯度下降的最优解，这样得到下面2个方程。这样就能对两个变量进行更新，同时得到的就是局部最优解，同时根据具备最优解是全局最优解这个前提，得到全局最优解。矩阵和向量这里都是现代里面的知识了，我就不多说了，基本都会。Week 1 ends here.">
-  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2018-12/Machine_Learning-1.html">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2018-12/Machine_Learning-1.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="https://zjgcjy.github.io/posts/2018-12/Machine_Learning-1.html">
+<link rel="canonical" href="http://localhost:4000/posts/2018-12/Machine_Learning-1.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "https://zjgcjy.github.io/",
+      "url": "http://localhost:4000/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -263,26 +263,26 @@
     <ul class="author__urls social-icons">
       
         <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
-          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+          <i class="fa fa-map-marker" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
         </li>
       
 
       
         
           
-            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fa fa-link" aria-hidden="true"></i> Website</a></li>
           
         
           
-            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fa fa-envelope-square" aria-hidden="true"></i> Email</a></li>
           
         
           
-            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
           
         
           
-            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
           
         
       
@@ -580,7 +580,7 @@ Non-clustering: The "Cocktail Party Algorithm", allows you to find structure in 
   
 
   <p class="page__taxonomy">
-    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <strong><i class="fa fa-tags" aria-hidden="true"></i> Tags: </strong>
     <span itemprop="keywords">
     
       
@@ -594,7 +594,7 @@ Non-clustering: The "Cocktail Party Algorithm", allows you to find structure in 
 
 
         
-          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2018-12-11T20:10:00+08:00">December 11, 2018</time></p>
+          <p class="page__date"><strong><i class="fa fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2018-12-11T20:10:00+08:00">December 11, 2018</time></p>
         
       </footer>
 
@@ -603,11 +603,11 @@ Non-clustering: The "Cocktail Party Algorithm", allows you to find structure in 
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Machine_learning+1%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2018-12%2FMachine_Learning-1.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Machine_learning+1%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-12%2FMachine_Learning-1.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2018-12%2FMachine_Learning-1.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-12%2FMachine_Learning-1.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2018-12%2FMachine_Learning-1.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2018-12%2FMachine_Learning-1.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -833,16 +833,16 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
       
         
-          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
         
       
         
-          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
         
       
     
 
-    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    <li><a href="/feed.xml"><i class="fa fa-rss-square" aria-hidden="true"></i> Feed</a></li>
   </ul>
 </div>
 
@@ -853,7 +853,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
 
     
   <script src="/assets/js/main.min.js"></script>
-  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+  <script src="https://use.fontawesome.com/1d25d6ba93.js"></script>
 
 
 
@@ -868,7 +868,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "https://zjgcjy.github.io/posts/2018-12/Machine_Learning-1.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "http://localhost:4000/posts/2018-12/Machine_Learning-1.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2018-12/Machine_Learning-1"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

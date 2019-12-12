@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Cpp Prime Plus Learning3">
-<meta property="og:url" content="https://zjgcjy.github.io/posts/2019-07/CPP-Prime-Plus-Learning3.html">
+<meta property="og:url" content="http://localhost:4000/posts/2019-07/CPP-Prime-Plus-Learning3.html">
 
 
   <meta property="og:description" content="  C++ Prime Plus 读书笔记3第7章到第8章 主要是函数函数C++规定函数的返回值不能是数组。函数原型不需要提供变量名。如果不指定参数列表，应该使用省略号。如果参数不满足原型要求，会自动进行强制类型转换，如果有函数重载则会有二义性。函数和数组数组传参的基本格式如下。实际上就是指针。函数传递普通的值是变量的拷贝，但是传递数组还是原来那个数组。如果不需要修改数组，可以加上const限定符。且需要指定数组的大小，因为这不是指向整个数组的指针，如果用sizeof查看变量大小，是指针的大小4。int sum_arr(const int arr[], int n);//int *arr的指针也可以使用基于范围来传参。一般就是首地址和首地址加数组长度作为参数传递。int sum_arr(const int *begin, const int *end);{    const int *pt;    for(pt = begin; pt != end; pt++)    {        ...    }}关于指针和const限定符，主要有2种，即常指针和指向常量的指针。在不讨论指针的情况下，可以将const数据或非const数据复制给const指针，不能将const数据赋值给非const指针。所以函数参数尽量是const。const int *p = &amp;x;//指向常量的指针int *const p = &amp;x;//常指针const int* const p = &amp;x;//指向常量的常指针函数和二维数组//二维数组传参方式int sum(int (*arr)[4], int row);int sum(int arr[][4], int row);int total[3][4]注意，二维数组是以行为单位创建数组，每个数组再创建一个一维数组。所以二维数组就是3个指向一维数组整体的指针，这里的n是行数。传参时必须指定列数。注意使用RAII，不要在不同的地方析构对象。函数指针浅谈数组指针、指针数组、函数指针、函数指针数组函数名代表了函数的地址。函数指针的申明方法：直接将对应的函数申明种函数名改成一个指针即可。double pam(int);double (*p)(int);//p = &amp;pam 代表函数地址//*p = pam 代表函数整体吧">
 
 
 
-  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Cpp Prime Plus Learning3">
   <meta name="twitter:description" content="  C++ Prime Plus 读书笔记3第7章到第8章 主要是函数函数C++规定函数的返回值不能是数组。函数原型不需要提供变量名。如果不指定参数列表，应该使用省略号。如果参数不满足原型要求，会自动进行强制类型转换，如果有函数重载则会有二义性。函数和数组数组传参的基本格式如下。实际上就是指针。函数传递普通的值是变量的拷贝，但是传递数组还是原来那个数组。如果不需要修改数组，可以加上const限定符。且需要指定数组的大小，因为这不是指向整个数组的指针，如果用sizeof查看变量大小，是指针的大小4。int sum_arr(const int arr[], int n);//int *arr的指针也可以使用基于范围来传参。一般就是首地址和首地址加数组长度作为参数传递。int sum_arr(const int *begin, const int *end);{    const int *pt;    for(pt = begin; pt != end; pt++)    {        ...    }}关于指针和const限定符，主要有2种，即常指针和指向常量的指针。在不讨论指针的情况下，可以将const数据或非const数据复制给const指针，不能将const数据赋值给非const指针。所以函数参数尽量是const。const int *p = &amp;x;//指向常量的指针int *const p = &amp;x;//常指针const int* const p = &amp;x;//指向常量的常指针函数和二维数组//二维数组传参方式int sum(int (*arr)[4], int row);int sum(int arr[][4], int row);int total[3][4]注意，二维数组是以行为单位创建数组，每个数组再创建一个一维数组。所以二维数组就是3个指向一维数组整体的指针，这里的n是行数。传参时必须指定列数。注意使用RAII，不要在不同的地方析构对象。函数指针浅谈数组指针、指针数组、函数指针、函数指针数组函数名代表了函数的地址。函数指针的申明方法：直接将对应的函数申明种函数名改成一个指针即可。double pam(int);double (*p)(int);//p = &amp;pam 代表函数地址//*p = pam 代表函数整体吧">
-  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2019-07/CPP-Prime-Plus-Learning3.html">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2019-07/CPP-Prime-Plus-Learning3.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="https://zjgcjy.github.io/posts/2019-07/CPP-Prime-Plus-Learning3.html">
+<link rel="canonical" href="http://localhost:4000/posts/2019-07/CPP-Prime-Plus-Learning3.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "https://zjgcjy.github.io/",
+      "url": "http://localhost:4000/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -263,26 +263,26 @@
     <ul class="author__urls social-icons">
       
         <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
-          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+          <i class="fa fa-map-marker" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
         </li>
       
 
       
         
           
-            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fa fa-link" aria-hidden="true"></i> Website</a></li>
           
         
           
-            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fa fa-envelope-square" aria-hidden="true"></i> Email</a></li>
           
         
           
-            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
           
         
           
-            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
           
         
       
@@ -466,7 +466,7 @@
   
 
   <p class="page__taxonomy">
-    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <strong><i class="fa fa-tags" aria-hidden="true"></i> Tags: </strong>
     <span itemprop="keywords">
     
       
@@ -480,7 +480,7 @@
 
 
         
-          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-07-29T19:15:00+08:00">July 29, 2019</time></p>
+          <p class="page__date"><strong><i class="fa fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-07-29T19:15:00+08:00">July 29, 2019</time></p>
         
       </footer>
 
@@ -489,11 +489,11 @@
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Cpp+Prime+Plus+Learning3%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-07%2FCPP-Prime-Plus-Learning3.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Cpp+Prime+Plus+Learning3%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-07%2FCPP-Prime-Plus-Learning3.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-07%2FCPP-Prime-Plus-Learning3.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-07%2FCPP-Prime-Plus-Learning3.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-07%2FCPP-Prime-Plus-Learning3.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-07%2FCPP-Prime-Plus-Learning3.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -719,16 +719,16 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
       
         
-          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
         
       
         
-          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
         
       
     
 
-    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    <li><a href="/feed.xml"><i class="fa fa-rss-square" aria-hidden="true"></i> Feed</a></li>
   </ul>
 </div>
 
@@ -739,7 +739,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
 
     
   <script src="/assets/js/main.min.js"></script>
-  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+  <script src="https://use.fontawesome.com/1d25d6ba93.js"></script>
 
 
 
@@ -754,7 +754,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "https://zjgcjy.github.io/posts/2019-07/CPP-Prime-Plus-Learning3.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "http://localhost:4000/posts/2019-07/CPP-Prime-Plus-Learning3.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2019-07/CPP-Prime-Plus-Learning3"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

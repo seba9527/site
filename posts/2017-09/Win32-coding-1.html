@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Win32 Coding 1">
-<meta property="og:url" content="https://zjgcjy.github.io/posts/2017-09/Win32-coding-1.html">
+<meta property="og:url" content="http://localhost:4000/posts/2017-09/Win32-coding-1.html">
 
 
   <meta property="og:description" content="  window程序设计1关于winmain和MessageBox API。Winmain#include &lt;windows.h&gt;int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,                   PSTR szCmdLine, int iCmdShow){    MessageBox (NULL, TEXT (&quot;Hello, Windows 98!&quot;), TEXT (&quot;HelloMsg&quot;), 0);    return 0 ;}WINDOWS.H是主要的含入文件，它包含了其它Windows表头文件，这些表头文件的某些也包含了其它表头文件。这些表头文件中最重要的和最基本的是：WINDEF.H 基本型态定义。WINNT.H 支持Unicode的型态定义。WINBASE.H Kernel函数。WINUSER.H 使用者接口函数。WINGDI.H 图形设备接口函数。WinMain函数声明为返回一个int值。WINAPI标识符在WINDEF.H定义，语句如下：#define WINAPI \_\_stdcall关于Winmain参数第一个参数被称作「执行实体句柄」。同一应用程序的所有执行实体共享程序和只读的内存，程序通过检查hPrevInstance参数就能够确定自身的其它执行实体是否正在运行。在32位Windows版本中，该概念已被抛弃。第二个参数总是NULL（定义为0）。第三个参数是用于执行程序的命令列。某些Windows应用程序利用它在程序启动时将文件加载内存。第四个参数指出程序最初显示的方式，可以是正常的或者是最大化地充满整个画面，或者是最小化显示在工作列中。MessageBoxMessageBox函数用于显示短信息MessageBox参数第一个参数通常是窗口句柄，我们将在第三章介绍其含义。第二个参数是在消息框主体中显示的字符串。第三个参数是出现在消息框标题列上的字符串。在HELLMSG.C中，这些文字字符串的每一个都被封装在一个TEXT宏中。通常不必将所有字符串都封装在TEXT宏中，但如果想将程序转换为Unicode字符集，这确是一个好主意。MessageBox的第四个参数可以是在WINUSER.H中定义的一组以前缀MB_开始的常数的组合。#define     MB_OK                    0x00000000L#define     MB_OKCANCEL              0x00000001L#define     MB_ABORTRETRYIGNORE      0x00000002L#define     MB_YESNOCANCEL           0x00000003L#define     MB_YESNO                 0x00000004L#define     MB_RETRYCANCEL           0x00000005L在本程序中，MessageBox返回数值1，但更严格地说它返回IDOK，IDOK在WINUSER.H中定义，等于1。根据在消息框中显示的其它按钮，MessageBox函数还可返回IDYES、IDNO、IDCANCEL、IDABORT、 IDRETRY或IDIGNORE。">
 
 
 
-  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Win32 Coding 1">
   <meta name="twitter:description" content="  window程序设计1关于winmain和MessageBox API。Winmain#include &lt;windows.h&gt;int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,                   PSTR szCmdLine, int iCmdShow){    MessageBox (NULL, TEXT (&quot;Hello, Windows 98!&quot;), TEXT (&quot;HelloMsg&quot;), 0);    return 0 ;}WINDOWS.H是主要的含入文件，它包含了其它Windows表头文件，这些表头文件的某些也包含了其它表头文件。这些表头文件中最重要的和最基本的是：WINDEF.H 基本型态定义。WINNT.H 支持Unicode的型态定义。WINBASE.H Kernel函数。WINUSER.H 使用者接口函数。WINGDI.H 图形设备接口函数。WinMain函数声明为返回一个int值。WINAPI标识符在WINDEF.H定义，语句如下：#define WINAPI \_\_stdcall关于Winmain参数第一个参数被称作「执行实体句柄」。同一应用程序的所有执行实体共享程序和只读的内存，程序通过检查hPrevInstance参数就能够确定自身的其它执行实体是否正在运行。在32位Windows版本中，该概念已被抛弃。第二个参数总是NULL（定义为0）。第三个参数是用于执行程序的命令列。某些Windows应用程序利用它在程序启动时将文件加载内存。第四个参数指出程序最初显示的方式，可以是正常的或者是最大化地充满整个画面，或者是最小化显示在工作列中。MessageBoxMessageBox函数用于显示短信息MessageBox参数第一个参数通常是窗口句柄，我们将在第三章介绍其含义。第二个参数是在消息框主体中显示的字符串。第三个参数是出现在消息框标题列上的字符串。在HELLMSG.C中，这些文字字符串的每一个都被封装在一个TEXT宏中。通常不必将所有字符串都封装在TEXT宏中，但如果想将程序转换为Unicode字符集，这确是一个好主意。MessageBox的第四个参数可以是在WINUSER.H中定义的一组以前缀MB_开始的常数的组合。#define     MB_OK                    0x00000000L#define     MB_OKCANCEL              0x00000001L#define     MB_ABORTRETRYIGNORE      0x00000002L#define     MB_YESNOCANCEL           0x00000003L#define     MB_YESNO                 0x00000004L#define     MB_RETRYCANCEL           0x00000005L在本程序中，MessageBox返回数值1，但更严格地说它返回IDOK，IDOK在WINUSER.H中定义，等于1。根据在消息框中显示的其它按钮，MessageBox函数还可返回IDYES、IDNO、IDCANCEL、IDABORT、 IDRETRY或IDIGNORE。">
-  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2017-09/Win32-coding-1.html">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2017-09/Win32-coding-1.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="https://zjgcjy.github.io/posts/2017-09/Win32-coding-1.html">
+<link rel="canonical" href="http://localhost:4000/posts/2017-09/Win32-coding-1.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "https://zjgcjy.github.io/",
+      "url": "http://localhost:4000/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -263,26 +263,26 @@
     <ul class="author__urls social-icons">
       
         <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
-          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+          <i class="fa fa-map-marker" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
         </li>
       
 
       
         
           
-            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fa fa-link" aria-hidden="true"></i> Website</a></li>
           
         
           
-            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fa fa-envelope-square" aria-hidden="true"></i> Email</a></li>
           
         
           
-            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
           
         
           
-            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
           
         
       
@@ -467,7 +467,7 @@ MessageBox的第四个参数可以是在WINUSER.H中定义的一组以前缀MB_�
   
 
   <p class="page__taxonomy">
-    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <strong><i class="fa fa-tags" aria-hidden="true"></i> Tags: </strong>
     <span itemprop="keywords">
     
       
@@ -485,7 +485,7 @@ MessageBox的第四个参数可以是在WINUSER.H中定义的一组以前缀MB_�
 
 
         
-          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2017-09-19T02:11:00+08:00">September 19, 2017</time></p>
+          <p class="page__date"><strong><i class="fa fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2017-09-19T02:11:00+08:00">September 19, 2017</time></p>
         
       </footer>
 
@@ -494,11 +494,11 @@ MessageBox的第四个参数可以是在WINUSER.H中定义的一组以前缀MB_�
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Win32+Coding+1%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-09%2FWin32-coding-1.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Win32+Coding+1%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-09%2FWin32-coding-1.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-09%2FWin32-coding-1.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-09%2FWin32-coding-1.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-09%2FWin32-coding-1.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-09%2FWin32-coding-1.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -724,16 +724,16 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
       
         
-          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
         
       
         
-          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
         
       
     
 
-    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    <li><a href="/feed.xml"><i class="fa fa-rss-square" aria-hidden="true"></i> Feed</a></li>
   </ul>
 </div>
 
@@ -744,7 +744,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
 
     
   <script src="/assets/js/main.min.js"></script>
-  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+  <script src="https://use.fontawesome.com/1d25d6ba93.js"></script>
 
 
 
@@ -759,7 +759,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "https://zjgcjy.github.io/posts/2017-09/Win32-coding-1.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "http://localhost:4000/posts/2017-09/Win32-coding-1.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2017-09/Win32-coding-1"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE

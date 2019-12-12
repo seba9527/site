@@ -20,26 +20,26 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
 <meta property="og:title" content="Win32 Coding 4">
-<meta property="og:url" content="https://zjgcjy.github.io/posts/2017-09/Win32-coding-4.html">
+<meta property="og:url" content="http://localhost:4000/posts/2017-09/Win32-coding-4.html">
 
 
   <meta property="og:description" content="  window程序设计4文本输出WM_PAINT消息大多数windows程序会在WinMain初始化进入消息循环之前调用UpdateWindow函数，windows利用这个机会传递最初的WM_PAINT消息。  移动窗口  调整大小  滚动客户区  调用API显示发送WM_PAINT消息有效与无效矩形窗口过程并不是更新整个客户区，通常只需要更新其中一部分，最常见的是更新一个矩形区域。需要被重新绘制的区域被称为无效区域，客户区有无效区域导致windows在消息队列中放置一条WM_PAINT消息。windows内部为每个窗口保存了一个绘制消息结构，保存着可以覆盖该区域的最小矩形，称之为无效矩形。若有多个无效矩形，窗口过程在处理WM_PAINT消息之前，windows会更新矩形大小，不会在消息队列中放置多条WM_PAINT消息。窗口过程可以调用InvalidateRect函数来强制使矩形失效，调用BeginPaint使整个客户区有效。关于GUI绘制窗口的客户区需要调用windows的图形接口函数，比如DrawText，最常用的是TextOut。TextOut (hdc, x, y, psText, iLength)TextOut向客户区输出一个字符串，psText是指向字符串的指针，iLength是长度，x和y是坐标，hdc是设备环境句柄。关于设备环境句柄HDC首先句柄是一个32DWORD的值，windows使用句柄来确定一个对象，设备环境句柄和特定的设备相关联。设备环境的某些值决定了GUI函数工作的具体细节，包括文本颜色，字体，大小。程序在绘制前必须获取设备环境句柄，当完成绘制之后，必须释放设备环境句柄。释放之后，句柄不再有效也不能再被使用。获取设备环境句柄_方式一在对WM_PAINT消息处理时候，BeginPaint函数对指定的窗口句柄擦去无效区域，填充ps各个字段的值，同时返回一个hdc，此后，程序可以通过引用这个hdc来对设备环境句柄进行操作。调用EndPaint来释放设备环境句柄。常用框架：case WM_PAINT:    hdc = BeginPaint (hwnd, &amp;ps) ;    使用GDI函数    EndPaint (hwnd, &amp;ps) ;return 0 ;绘制信息结构PAINTSTRUCTtypedef struct tagPAINTSTRUCT    {    HDC         hdc ;        BOOL        fErase ;        RECT        rcPaint ;        BOOL        fRestore ;        BOOL        fIncUpdate ;        BYTE        rgbReserved[32] ;    } PAINTSTRUCT ;程序只使用前三个字段，其它字段由Windows内部使用。hdc是设备环境句柄。在大多数情况下， fErase被标志为FALSE(0)，这意味着Windows已经擦除了无效矩形的背景。InvalidateRect (hwnd, NULL, TRUE) ;在调用BeginPaint之前调用该函数可以在该更新矩形之外绘制。这个调用使整个客户区无效化，调用BeginPaint擦除原有背景。如果设置为FALSE，则BeginPaint不会擦除背景，原来背景被保留。通常做法：简单的重绘整个客户区，重绘一部分并不实际。获取设备环境句柄_方式二在对WM_PAINT消息进行处理时绘制客户区是很有用的，但是在处理其他消息时候，也需要设备环境句柄，可以调用GetDC函数。hdc = GetDC (hwnd) ;使用GUI函数ReleaseDC (hwnd, hdc) ;注意该函数返回的设备环境句柄中的剪裁矩形是整个客户区，GetDC不会使无效矩形有效化，如果需要将客户区有效化，使用ValidateRect (hwnd, NULL)，通常这两个函数用户处理键盘鼠标消息，而不必为了生成WM_PAINT消息刻意使客户区一部分无效化。类似的GetDC函数GetWindowDC函数，返回整个窗口的设备环境句柄（包括任务栏等），可以处理WM_NCPAINT消息。讨论TextOut函数TextOut (hdc, x, y, psText, iLength)第一个是设备环境句柄，设备环境决定了输出文字的样式。设备环境句柄同时定义了一个裁剪区域，GetDC返回的是整个客户区，从BeginPaint返回到就是无效区域。TextOut只会在裁剪区域中输出。系统字体windows默认的字体是系统字体，或称为SYSTEM_FONT,系统字体是点阵字体，由像素点构成。为了输出多行文本，需要知道文本中字符的大小，由字符的高度可以决定下一行文字的位置，可以通过GetSystemMetrics函数来获取用户的界面尺寸。同样可以通过GetTextMertics获取程序的字体大小，windows把字符尺寸的各种值复制到类型为TEXTMETRIC的结构中，typedef struct tagTEXTMETRIC{    LONG tmHeight ;    LONG tmAscent ;    LONG tmDescent ;    LONG tmInternalLeading ;    LONG tmExternalLeading ;    LONG tmAveCharWidth ;    LONG tmMaxCharWidth ;    其他结构字段}TEXTMETRIC, * PTEXTMETRIC ;要使用GetTextMetrics 函数前，定义TEXTMETRIC tm ;在需要确定文本的大小前，需要首先获取设备环境句柄，然后调用GetTextMetrics：hdc = GetDC (hwnd) ;GetTextMetrics (hdc, &amp;tm) ;ReleaseDC (hwnd, hdc) ;之后就可以确定字体的大小。详细的这部分我不记了，比较繁琐。如果专门改变字体可以看这部分。文本格式化">
 
 
 
-  <meta property="og:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+  <meta property="og:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
 
 
 
   <meta name="twitter:site" content="@zjgcjy">
   <meta name="twitter:title" content="Win32 Coding 4">
   <meta name="twitter:description" content="  window程序设计4文本输出WM_PAINT消息大多数windows程序会在WinMain初始化进入消息循环之前调用UpdateWindow函数，windows利用这个机会传递最初的WM_PAINT消息。  移动窗口  调整大小  滚动客户区  调用API显示发送WM_PAINT消息有效与无效矩形窗口过程并不是更新整个客户区，通常只需要更新其中一部分，最常见的是更新一个矩形区域。需要被重新绘制的区域被称为无效区域，客户区有无效区域导致windows在消息队列中放置一条WM_PAINT消息。windows内部为每个窗口保存了一个绘制消息结构，保存着可以覆盖该区域的最小矩形，称之为无效矩形。若有多个无效矩形，窗口过程在处理WM_PAINT消息之前，windows会更新矩形大小，不会在消息队列中放置多条WM_PAINT消息。窗口过程可以调用InvalidateRect函数来强制使矩形失效，调用BeginPaint使整个客户区有效。关于GUI绘制窗口的客户区需要调用windows的图形接口函数，比如DrawText，最常用的是TextOut。TextOut (hdc, x, y, psText, iLength)TextOut向客户区输出一个字符串，psText是指向字符串的指针，iLength是长度，x和y是坐标，hdc是设备环境句柄。关于设备环境句柄HDC首先句柄是一个32DWORD的值，windows使用句柄来确定一个对象，设备环境句柄和特定的设备相关联。设备环境的某些值决定了GUI函数工作的具体细节，包括文本颜色，字体，大小。程序在绘制前必须获取设备环境句柄，当完成绘制之后，必须释放设备环境句柄。释放之后，句柄不再有效也不能再被使用。获取设备环境句柄_方式一在对WM_PAINT消息处理时候，BeginPaint函数对指定的窗口句柄擦去无效区域，填充ps各个字段的值，同时返回一个hdc，此后，程序可以通过引用这个hdc来对设备环境句柄进行操作。调用EndPaint来释放设备环境句柄。常用框架：case WM_PAINT:    hdc = BeginPaint (hwnd, &amp;ps) ;    使用GDI函数    EndPaint (hwnd, &amp;ps) ;return 0 ;绘制信息结构PAINTSTRUCTtypedef struct tagPAINTSTRUCT    {    HDC         hdc ;        BOOL        fErase ;        RECT        rcPaint ;        BOOL        fRestore ;        BOOL        fIncUpdate ;        BYTE        rgbReserved[32] ;    } PAINTSTRUCT ;程序只使用前三个字段，其它字段由Windows内部使用。hdc是设备环境句柄。在大多数情况下， fErase被标志为FALSE(0)，这意味着Windows已经擦除了无效矩形的背景。InvalidateRect (hwnd, NULL, TRUE) ;在调用BeginPaint之前调用该函数可以在该更新矩形之外绘制。这个调用使整个客户区无效化，调用BeginPaint擦除原有背景。如果设置为FALSE，则BeginPaint不会擦除背景，原来背景被保留。通常做法：简单的重绘整个客户区，重绘一部分并不实际。获取设备环境句柄_方式二在对WM_PAINT消息进行处理时绘制客户区是很有用的，但是在处理其他消息时候，也需要设备环境句柄，可以调用GetDC函数。hdc = GetDC (hwnd) ;使用GUI函数ReleaseDC (hwnd, hdc) ;注意该函数返回的设备环境句柄中的剪裁矩形是整个客户区，GetDC不会使无效矩形有效化，如果需要将客户区有效化，使用ValidateRect (hwnd, NULL)，通常这两个函数用户处理键盘鼠标消息，而不必为了生成WM_PAINT消息刻意使客户区一部分无效化。类似的GetDC函数GetWindowDC函数，返回整个窗口的设备环境句柄（包括任务栏等），可以处理WM_NCPAINT消息。讨论TextOut函数TextOut (hdc, x, y, psText, iLength)第一个是设备环境句柄，设备环境决定了输出文字的样式。设备环境句柄同时定义了一个裁剪区域，GetDC返回的是整个客户区，从BeginPaint返回到就是无效区域。TextOut只会在裁剪区域中输出。系统字体windows默认的字体是系统字体，或称为SYSTEM_FONT,系统字体是点阵字体，由像素点构成。为了输出多行文本，需要知道文本中字符的大小，由字符的高度可以决定下一行文字的位置，可以通过GetSystemMetrics函数来获取用户的界面尺寸。同样可以通过GetTextMertics获取程序的字体大小，windows把字符尺寸的各种值复制到类型为TEXTMETRIC的结构中，typedef struct tagTEXTMETRIC{    LONG tmHeight ;    LONG tmAscent ;    LONG tmDescent ;    LONG tmInternalLeading ;    LONG tmExternalLeading ;    LONG tmAveCharWidth ;    LONG tmMaxCharWidth ;    其他结构字段}TEXTMETRIC, * PTEXTMETRIC ;要使用GetTextMetrics 函数前，定义TEXTMETRIC tm ;在需要确定文本的大小前，需要首先获取设备环境句柄，然后调用GetTextMetrics：hdc = GetDC (hwnd) ;GetTextMetrics (hdc, &amp;tm) ;ReleaseDC (hwnd, hdc) ;之后就可以确定字体的大小。详细的这部分我不记了，比较繁琐。如果专门改变字体可以看这部分。文本格式化">
-  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2017-09/Win32-coding-4.html">
+  <meta name="twitter:url" content="http://localhost:4000/posts/2017-09/Win32-coding-4.html">
 
   
     <meta name="twitter:card" content="summary">
     
-      <meta name="twitter:image" content="https://zjgcjy.github.io/assets/images/bio-photo.jpg">
+      <meta name="twitter:image" content="http://localhost:4000/assets/images/bio-photo.jpg">
     
   
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="https://zjgcjy.github.io/posts/2017-09/Win32-coding-4.html">
+<link rel="canonical" href="http://localhost:4000/posts/2017-09/Win32-coding-4.html">
 
 
 
@@ -69,7 +69,7 @@
     
       "@type": "Person",
       "name": "Blogger",
-      "url": "https://zjgcjy.github.io/",
+      "url": "http://localhost:4000/",
       "sameAs": ["https://twitter.com/","https://github.com/"]
     
   }
@@ -193,7 +193,7 @@
     
       
         <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-          <a href="https://zjgcjy.github.io/" itemprop="item"><span itemprop="name">Home</span></a>
+          <a href="http://localhost:4000/" itemprop="item"><span itemprop="name">Home</span></a>
           <meta itemprop="position" content="1" />
         </li>
         <span class="sep">/</span>
@@ -263,26 +263,26 @@
     <ul class="author__urls social-icons">
       
         <li itemprop="homeLocation" itemscope itemtype="https://schema.org/Place">
-          <i class="fas fa-fw fa-map-marker-alt" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
+          <i class="fa fa-map-marker" aria-hidden="true"></i> <span itemprop="name">BeiJing China</span>
         </li>
       
 
       
         
           
-            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-link" aria-hidden="true"></i> Website</a></li>
+            <li><a href="https://zjgcjy.github.io" rel="nofollow noopener noreferrer"><i class="fa fa-link" aria-hidden="true"></i> Website</a></li>
           
         
           
-            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fas fa-fw fa-envelope-square" aria-hidden="true"></i> Email</a></li>
+            <li><a href="mailto:zjgcjy@gmail.com" rel="nofollow noopener noreferrer"><i class="fa fa-envelope-square" aria-hidden="true"></i> Email</a></li>
           
         
           
-            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+            <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
           
         
           
-            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+            <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
           
         
       
@@ -535,7 +535,7 @@ return 0 ;
   
 
   <p class="page__taxonomy">
-    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <strong><i class="fa fa-tags" aria-hidden="true"></i> Tags: </strong>
     <span itemprop="keywords">
     
       
@@ -553,7 +553,7 @@ return 0 ;
 
 
         
-          <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2017-09-29T00:08:00+08:00">September 29, 2017</time></p>
+          <p class="page__date"><strong><i class="fa fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2017-09-29T00:08:00+08:00">September 29, 2017</time></p>
         
       </footer>
 
@@ -562,11 +562,11 @@ return 0 ;
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Win32+Coding+4%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-09%2FWin32-coding-4.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Win32+Coding+4%20http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-09%2FWin32-coding-4.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-09%2FWin32-coding-4.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-09%2FWin32-coding-4.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2017-09%2FWin32-coding-4.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=http%3A%2F%2Flocalhost%3A4000%2Fposts%2F2017-09%2FWin32-coding-4.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
@@ -792,16 +792,16 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
       
         
-          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-github" aria-hidden="true"></i> GitHub</a></li>
+          <li><a href="https://github.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-github-square" aria-hidden="true"></i> GitHub</a></li>
         
       
         
-          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fab fa-fw fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          <li><a href="https://twitter.com/zjgcjy" rel="nofollow noopener noreferrer"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
         
       
     
 
-    <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    <li><a href="/feed.xml"><i class="fa fa-rss-square" aria-hidden="true"></i> Feed</a></li>
   </ul>
 </div>
 
@@ -812,7 +812,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
 
     
   <script src="/assets/js/main.min.js"></script>
-  <script src="https://kit.fontawesome.com/4eee35f757.js"></script>
+  <script src="https://use.fontawesome.com/1d25d6ba93.js"></script>
 
 
 
@@ -827,7 +827,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
   <script>
     var disqus_config = function () {
-      this.page.url = "https://zjgcjy.github.io/posts/2017-09/Win32-coding-4.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.url = "http://localhost:4000/posts/2017-09/Win32-coding-4.html";  // Replace PAGE_URL with your page's canonical URL variable
       this.page.identifier = "/posts/2017-09/Win32-coding-4"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     (function() { // DON'T EDIT BELOW THIS LINE
