@@ -440,11 +440,11 @@ pip <span class="nb">install </span>capstone
 <p>因为无法和vmware一样设置共享文件夹，所以要和host进行交互的话，我们需要将网络配置进行修改，使用桥接模式来访问外网。
 根据网上资料，很多都是linux下的网络配置，在windows下，我使用tap虚拟网卡来进行配置，下载的方式是通过安装openvpn自带的tap驱动（注意：只需要安装tap虚拟网卡驱动就行了，不需要安装该软件）。安装完成后，我们打开网络适配器页面，可以看到多了一个虚拟网卡。</p>
 
-<p><img src="images/Snipaste_2018-04-15_11-43-36.png" alt="tap网卡" /></p>
+<p><img src="/img/2018-04/Snipaste_2018-04-15_11-43-36.png" alt="tap网卡" /></p>
 
 <p>这里我已经将tap网卡的名称改为my-tap了，这是方便之后的使用。这时候tap网卡是默认关闭的，进入tap网卡的属性页面，然后将高级选项栏中<code class="highlighter-rouge">Media Status</code>的值改为<code class="highlighter-rouge">Always Connection</code>总是连接，这样tap网卡就是默认启动了，但是是没有网络的，因为只是个虚拟的网卡。因为之后要对虚拟机分配ip，此时tap网卡ip是动态分配的，这会导致一些问题，所以改成静态的就行了，网关不用配。</p>
 
-<p><img src="images/Snipaste_2018-04-15_11-52-37.png" alt="tap网卡ip设置" /></p>
+<p><img src="/img/2018-04/Snipaste_2018-04-15_11-52-37.png" alt="tap网卡ip设置" /></p>
 
 <p>这时候就行了，我们可以启动虚拟机。</p>
 
@@ -463,12 +463,12 @@ ifconfig eth0 192.168.5.2
 route add default gw 192.168.5.1 eth0
 </code></pre></div></div>
 
-<p><img src="images/Snipaste_2018-04-15_12-09-37.png" alt="虚拟机ip设置" /></p>
+<p><img src="/img/2018-04/Snipaste_2018-04-15_12-09-37.png" alt="虚拟机ip设置" /></p>
 
 <p>这时候，host是可以ping通tap网卡ip和虚拟机ip的，虚拟机可以ping通tap网卡ip，但是ping不通host的ip。此时应该相当于vmware的host only模式，host-only中的主机ip是在适配器里面设置的，而不是连接网络被分配的真实ip地址，如果用虚拟机ping真实ip地址，就相当于ping外网，是ping不通。也就是说在虚拟机来看，tap网卡ip就是host的ip地址，既然可以连接的话，我们就可以用ssh、scp远程来连接到该虚拟机进行文件传送的。
 当然这里还有点问题，虚拟机的网络老是会自己掉，即ip又没了。。。这里我搞了很长的时间，一开始以为是防火墙的问题，但是我关了防火墙还是不行，就不知道是为什么了。惊了。</p>
 
-<p><img src="images/Snipaste_2018-04-15_12-37-46.png" alt="ssh、scp连接传文件" /></p>
+<p><img src="/img/2018-04/Snipaste_2018-04-15_12-37-46.png" alt="ssh、scp连接传文件" /></p>
 
 <p>这样基本的网络功能就实现了，但是如上文所说，不能访问外网。。。一些常用的都能用，但是如果要下载软件什么的就很就烦了。所以最后实现host-only模式下虚拟机访问外网。
 参考网上的资料，首先我选择的是将tap和已经网卡桥接，通过设置网桥的方式来访问外网，这种方式是可以成功的，但是也遇到很多问题，有可能是防火墙，也有可能是其他问题，总之试了很多次只成功了一次，而且主机的网络会很不稳定，这里不推荐这种方式。
@@ -476,11 +476,11 @@ route add default gw 192.168.5.1 eth0
 若还是不行，就不要改tap网卡的ip了，直接用<code class="highlighter-rouge">192.168.137.1</code>，这时候根据DHCP自动分配ip，这样就终于能上网了。还要注意防火墙的动态，说不定就给拦下来了，用traceroute跟踪下看看。泪崩。。。
 最后网络好了之后，用ssh上去看下网络配置吧。</p>
 
-<p><img src="images/Snipaste_2018-04-15_13-57-48.png" alt="最终ip情况" /></p>
+<p><img src="/img/2018-04/Snipaste_2018-04-15_13-57-48.png" alt="最终ip情况" /></p>
 
-<p><img src="images/Snipaste_2018-04-15_13-59-28.png" alt="网关和网络情况" /></p>
+<p><img src="/img/2018-04/Snipaste_2018-04-15_13-59-28.png" alt="网关和网络情况" /></p>
 
-<p><img src="images/Snipaste_2018-04-15_14-07-27.png" alt="dns解析情况" /></p>
+<p><img src="/img/2018-04/Snipaste_2018-04-15_14-07-27.png" alt="dns解析情况" /></p>
 
 <p>花了一天搭环境，终于给弄好了，好不容易啊，心好累。其实我想上网是有原因的，主要还是为了装gcc和gdb，最后apt-get装完之后，发现gdb调不了mipsel的程序。那我要你有何用。。。卒。</p>
 

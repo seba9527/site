@@ -431,15 +431,15 @@ P = the probability that the program will win the next game.
 
 <p>回归问题是对于连续的问题来说的，基于训练集进行预测，训练集都是有正确答案的。</p>
 
-<p><img src="images/Snipaste_2018-12-11_21-08-58.png" alt="回归问题" /></p>
+<p><img src="/img/2018-12/Snipaste_2018-12-11_21-08-58.png" alt="回归问题" /></p>
 
 <h2 id="分类问题">分类问题</h2>
 
 <p>那么分类问题就是对离散的问题来说的，对离散的问题进行预测。</p>
 
-<p><img src="images/Snipaste_2018-12-11_21-13-14.png" alt="分类问题1" /></p>
+<p><img src="/img/2018-12/Snipaste_2018-12-11_21-13-14.png" alt="分类问题1" /></p>
 
-<p><img src="images/Snipaste_2018-12-11_21-15-39.png" alt="分类问题2" /></p>
+<p><img src="/img/2018-12/Snipaste_2018-12-11_21-15-39.png" alt="分类问题2" /></p>
 
 <p>这里给2个例子，区分一下。</p>
 
@@ -460,21 +460,21 @@ We could turn this example into a classification problem by instead making our o
 
 <p>不同于监督学习，无监督学习的样本都是未知的，没有属性或者标签，即没有正确答案的，所有样本都是一样的，无区别的，如图所示。那么无监督学习也分为2种，一种是聚类算法，还有是鸡尾酒宴席问题。</p>
 
-<p><img src="images/Snipaste_2018-12-11_21-22-52.png" alt="监督学习" /></p>
+<p><img src="/img/2018-12/Snipaste_2018-12-11_21-22-52.png" alt="监督学习" /></p>
 
-<p><img src="images/Snipaste_2018-12-11_21-25-32.png" alt="无监督学习" /></p>
+<p><img src="/img/2018-12/Snipaste_2018-12-11_21-25-32.png" alt="无监督学习" /></p>
 
 <h2 id="聚类算法">聚类算法</h2>
 
 <p>所谓聚类算法，就是在不知道数据集的分组情况下，对数据集进行分组，比如聚合相同的新闻，聚合相同兴趣的人（物以类聚，人以群分）。</p>
 
-<p><img src="images/Snipaste_2018-12-11_21-31-15.png" alt="聚类算法" /></p>
+<p><img src="/img/2018-12/Snipaste_2018-12-11_21-31-15.png" alt="聚类算法" /></p>
 
 <h2 id="鸡尾酒宴席问题分散算法">鸡尾酒宴席问题（分散算法）</h2>
 
 <p>同样是对数据集进行分组，或者说是分离，这里只显示了2个输入的情况，如果输入源更多，情况会复杂很多。</p>
 
-<p><img src="images/Snipaste_2018-12-11_21-44-53.png" alt="鸡尾酒宴席问题" /></p>
+<p><img src="/img/2018-12/Snipaste_2018-12-11_21-44-53.png" alt="鸡尾酒宴席问题" /></p>
 
 <p>下面给出这两个问题的描述。</p>
 
@@ -490,7 +490,7 @@ Non-clustering: The "Cocktail Party Algorithm", allows you to find structure in 
 <p>监督学习中的模型表示，这里用的是线性回归模型。用x表示输入数据，y表示输出数据，建立模型就是要建立x和y之间的联系，这里用h(x)来表示，因为h(x)的定义是线性的函数，所以称为线性回归模型。
 我们的目标就是建立有效的函数映射，使得，当X → Y，h(x)能很好的对y的值进行预测。</p>
 
-<p><img src="images/Snipaste_2018-12-12_13-08-33.png" alt="线性回归模型" /></p>
+<p><img src="/img/2018-12/Snipaste_2018-12-12_13-08-33.png" alt="线性回归模型" /></p>
 
 <p>线性回归模型能应用于监督学习的2种类别，即回归和分类，它都非常有效。</p>
 
@@ -502,25 +502,25 @@ Non-clustering: The "Cocktail Party Algorithm", allows you to find structure in 
 
 <p>这里的hx指的是估计函数，也就是最后要拟合的曲线，我们的目标就是要找到最适合的估计函数hx，反应到J中，就是要找到代价函数最小值对应的参数值。也就是通过代价函数来测量估计函数的拟合程度。</p>
 
-<p><img src="images/Snipaste_2018-12-12_13-51-55.png" alt="估计函数和代价函数" /></p>
+<p><img src="/img/2018-12/Snipaste_2018-12-12_13-51-55.png" alt="估计函数和代价函数" /></p>
 
 <p>代价函数在概率论中也称为均方差或者平方差，反应了数据整体的分布情况。</p>
 
-<p><img src="images/Snipaste_2018-12-12_13-29-12.png" alt="代价函数定义" /></p>
+<p><img src="/img/2018-12/Snipaste_2018-12-12_13-29-12.png" alt="代价函数定义" /></p>
 
 <h1 id="可视化代价函数">可视化代价函数</h1>
 
 <p>为了将代价函数可视化，这里先选择过原点的估计函数，要注意的是估计函数是关于x的函数，而代价函数是关于参数Θ的函数。那么我们可以固定Θ的值，来画出hx，再根据hx得到估计函数J的图像，如下所示：</p>
 
-<p><img src="images/Snipaste_2018-12-12_13-41-18.png" alt="代价函数" /></p>
+<p><img src="/img/2018-12/Snipaste_2018-12-12_13-41-18.png" alt="代价函数" /></p>
 
 <p>注意到，我们的目标是获得代价函数的最小值，很容易看到，当估计函数比较简单的时候，当我们选取通过所有样本的函数时，此时代价函数的值最小，为0，说明此时估计函数完美的估计了所有的样本，是最佳的情况。</p>
 
 <p>但是上述只是最简单的情况，对于一般的情形来说，难以用二维的图像来说明。这里视频中使用了轮廓图的概念，如下图所示，通过横轴和纵轴的2个参数来整体反应代价函数的变化情况，和地理上的等高线差不多，同一条线上的代价函数值相同。</p>
 
-<p><img src="images/4.png" alt="二维代价函数" /></p>
+<p><img src="/img/2018-12/4.png" alt="二维代价函数" /></p>
 
-<p><img src="images/5.png" alt="二维代价函数" /></p>
+<p><img src="/img/2018-12/5.png" alt="二维代价函数" /></p>
 
 <h1 id="梯度下降算法-gradient-descent">梯度下降算法 (Gradient Descent)</h1>
 
@@ -528,11 +528,11 @@ Non-clustering: The "Cocktail Party Algorithm", allows you to find structure in 
 
 <script type="math/tex; mode=display">\theta_j := \theta_j - \alpha \frac{\partial}{\partial \theta_j} J(\theta_0, \theta_1)</script>
 
-<p><img src="images/Snipaste_2018-12-12_15-24-50.png" alt="梯度下降算法" /></p>
+<p><img src="/img/2018-12/Snipaste_2018-12-12_15-24-50.png" alt="梯度下降算法" /></p>
 
 <p>梯度下降算法还需要注意的一点是，该算法需要指定初始化点，对于距离很近的点来说，也可能得到不同的局部最优解（类似蝴蝶效应）如下图所示。</p>
 
-<p><img src="images/6.png" alt="梯度下降算法" /></p>
+<p><img src="/img/2018-12/6.png" alt="梯度下降算法" /></p>
 
 <p>关于参数a，需要指出的有2点。</p>
 
@@ -540,23 +540,23 @@ Non-clustering: The "Cocktail Party Algorithm", allows you to find structure in 
   <li>1.α选取要适当，过小，每次移动的距离会很小，耗时较多。；过大，每次移动的距离会很大，有可能会导致不能收敛到局部最优的情况。</li>
 </ul>
 
-<p><img src="images/Snipaste_2018-12-12_15-47-01.png" alt="梯度下降算法" /></p>
+<p><img src="/img/2018-12/Snipaste_2018-12-12_15-47-01.png" alt="梯度下降算法" /></p>
 
 <ul>
   <li>2.当α固定时，改算法能正确找到局部最优解，原因是随着斜率的缩小，在α不变的情况下，每次Θi减少的距离也缩小了，这样能保证收敛到局部最优的情况，当其已经在具备最优的情况下时，斜率为0，将不再变化，即得到结果。</li>
 </ul>
 
-<p><img src="images/Snipaste_2018-12-12_15-50-37.png" alt="梯度下降算法" /></p>
+<p><img src="/img/2018-12/Snipaste_2018-12-12_15-50-37.png" alt="梯度下降算法" /></p>
 
 <h1 id="应用于线性回归的梯度下降算法gradient-descent-for-linear-regression">应用于线性回归的梯度下降算法(Gradient Descent For Linear Regression)</h1>
 
 <p>那么这时候，对于线性回归模型，我们有hx和J，对于J，我们可以使用梯度下降算法来计算每一步的最优解，如下图所示。</p>
 
-<p><img src="images/Snipaste_2018-12-12_19-31-33.png" alt="线性回归和梯度下降" /></p>
+<p><img src="/img/2018-12/Snipaste_2018-12-12_19-31-33.png" alt="线性回归和梯度下降" /></p>
 
 <p>那么对于J的2个参数来说，我们根据梯度下降算法，分别对J中的2个变量求J的偏导数，就能得到每个方向上的梯度下降的最优解，这样得到下面2个方程。</p>
 
-<p><img src="images/Snipaste_2018-12-12_16-14-58.png" alt="梯度下降" /></p>
+<p><img src="/img/2018-12/Snipaste_2018-12-12_16-14-58.png" alt="梯度下降" /></p>
 
 <p>这样就能对两个变量进行更新，同时得到的就是局部最优解，同时根据具备最优解是全局最优解这个前提，得到全局最优解。</p>
 

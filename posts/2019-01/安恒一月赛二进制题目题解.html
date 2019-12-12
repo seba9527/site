@@ -408,12 +408,12 @@
 
 <p>这题给了2个文件，一个<code class="highlighter-rouge">exe</code>和一个<code class="highlighter-rouge">pyc</code>，结合图标和题目意思，我好像明白了什么，估计是<code class="highlighter-rouge">python</code>的逆向题。</p>
 
-<p><img src="images/Snipaste_2019-01-26_16-20-44.png" alt="Snipaste_2019-01-26_16-20-44" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-26_16-20-44.png" alt="Snipaste_2019-01-26_16-20-44" /></p>
 
 <p>以前也做过这种类型的题，但是很久没做，有点生疏了，主要是要知道这个程序是<code class="highlighter-rouge">python</code>写的，并且用打包器制作成可执行文件的。直接上网搜索<code class="highlighter-rouge">python</code>打包器就能找到这个工具的名字叫做<code class="highlighter-rouge">PyInstaller</code>，根据<a href="https://www.cnblogs.com/pcat/p/8990482.html">Pcat的博客描述</a>，我们可以使用<code class="highlighter-rouge">PyInstaller Extractor</code>来提取可执行文件的资源内容。这个脚本网上也很容易能下载。
 需要注意的是，当我们开始提取文件的时候，需要和编写的<code class="highlighter-rouge">python</code>的程序版本一致，由于我本机只有<code class="highlighter-rouge">python2</code>的环境，提取资源的时候，就会发生错误，如下图所示。</p>
 
-<p><img src="images/Snipaste_2019-01-26_16-25-41.png" alt="Snipaste_2019-01-26_16-25-41" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-26_16-25-41.png" alt="Snipaste_2019-01-26_16-25-41" /></p>
 
 <p>由于<code class="highlighter-rouge">PyInstaller Extractor</code>兼容<code class="highlighter-rouge">python2</code>和<code class="highlighter-rouge">3</code>，在<code class="highlighter-rouge">python3</code>环境下即可提取资源进行逆向分析。这样我们就能提取到一堆文件了，如下表所示。</p>
 
@@ -542,7 +542,7 @@ AnhengRe.py
 
 <p>逆向第二题，本来看题目我以为是驱动题，但实际不是。主函数逻辑如下：</p>
 
-<p><img src="images/Snipaste_2019-01-26_16-51-26.png" alt="Snipaste_2019-01-26_16-51-26" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-26_16-51-26.png" alt="Snipaste_2019-01-26_16-51-26" /></p>
 
 <p>首先对输入长度进行检测，很容易判断是40，然后进行了一段<code class="highlighter-rouge">smc</code>，即<code class="highlighter-rouge">self-modify-code</code>，自修改代码，也是比较常见的样式，即常量异或。这段<code class="highlighter-rouge">smc</code>用于解密一段函数，这个函数在最后的比较中是有用到的。接下来将输入前5字节和<code class="highlighter-rouge">flag{</code>对比，没什么好说的，最后进入<code class="highlighter-rouge">sub4010b0</code>这个函数中。其中主函数中的<code class="highlighter-rouge">smc</code>解密脚本如下（<code class="highlighter-rouge">idapython</code>）：</p>
 
@@ -574,7 +574,7 @@ AnhengRe.py
 
 <p>然后进入第三个<code class="highlighter-rouge">check</code>逻辑中，如下图所示：</p>
 
-<p><img src="images/Snipaste_2019-01-26_16-58-28.png" alt="Snipaste_2019-01-26_16-58-28" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-26_16-58-28.png" alt="Snipaste_2019-01-26_16-58-28" /></p>
 
 <p>熟悉<code class="highlighter-rouge">base64</code>编码的同学一般能一眼看出来这段算法，就是一个正常的<code class="highlighter-rouge">base64</code>编码，编码表没任何变化，要想快速识别<code class="highlighter-rouge">base64</code>算法需要对该算法比较熟悉。首先是<code class="highlighter-rouge">3×8=4×6</code>，即3个8bit的字符转换成4个6bit的字符，然后查表，每一组分成4份，每一份分别是每一组的高6bit，次高6bit，次底6bit和最低的6bit。还不熟悉的同学可以自己编程，再逆向分析其实现。所以这段算法对应的解密脚本如下：</p>
 
@@ -583,7 +583,7 @@ AnhengRe.py
 
 <p>然后进入最后一个<code class="highlighter-rouge">check</code>逻辑中，如下图所示。</p>
 
-<p><img src="images/Snipaste_2019-01-26_17-05-21.png" alt="Snipaste_2019-01-26_17-05-21" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-26_17-05-21.png" alt="Snipaste_2019-01-26_17-05-21" /></p>
 
 <p>首先定义了一段奇怪的字符串，然后载入输入的后半段，然后进入一个<code class="highlighter-rouge">switch</code>语句中，循环检测，最后判断是否是#，且循环中每一步的下标对应的字符只能是空格，否则就失败。所以这就是一个迷宫算法了，迷宫的入口点是在字符串偏移<code class="highlighter-rouge">8</code>的位置上，也就是<code class="highlighter-rouge">g</code>所处的位置，然后<code class="highlighter-rouge">2aqw</code>分别代表<code class="highlighter-rouge">上下左右</code>进行移动。</p>
 
@@ -603,7 +603,7 @@ AnhengRe.py
 
 <p>pwn第一个题主要堆上的问题，首先主函数有4个功能，分别是<code class="highlighter-rouge">create</code>、<code class="highlighter-rouge">edit</code>、<code class="highlighter-rouge">delete</code>和<code class="highlighter-rouge">exit</code>，如下图所示，常见的清单型pwn题。</p>
 
-<p><img src="images/Snipaste_2019-01-26_17-20-01.png" alt="Snipaste_2019-01-26_17-20-01" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-26_17-20-01.png" alt="Snipaste_2019-01-26_17-20-01" /></p>
 
 <p>关键的漏洞主要是由于在edit过程中，没有对分配的块大小进行检测，如果重新设置的大小比原来的大，会导致堆溢出的情况发生。由于程序中开启了所有的保护，比较常见的方式是通过<code class="highlighter-rouge">hook</code>来进行漏洞利用，那么我们首先要泄露出<code class="highlighter-rouge">libc</code>的基地址。</p>
 
@@ -616,7 +616,7 @@ PIE:      PIE enabled
 
 <p>那么在这个程序中我们的确是能泄露出<code class="highlighter-rouge">libc</code>的基地址的，如下图所示。</p>
 
-<p><img src="images/Snipaste_2019-01-26_17-27-39.png" alt="Snipaste_2019-01-26_17-27-39" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-26_17-27-39.png" alt="Snipaste_2019-01-26_17-27-39" /></p>
 
 <p>由于<code class="highlighter-rouge">write</code>函数设置了固定长度的输入，而堆块上也会存在<code class="highlighter-rouge">libc</code>的地址，通过泄露该地址，我们就能拿到<code class="highlighter-rouge">libc</code>的地址，绕过保护，代码如下：</p>
 
@@ -631,7 +631,7 @@ PIE:      PIE enabled
 
 <p>这个题的漏洞主要是栈缓冲区溢出，如下图所示，读取字节过长导致栈溢出，所以能够劫持控制流。</p>
 
-<p><img src="images/Snipaste_2019-01-26_17-11-17.png" alt="Snipaste_2019-01-26_17-11-17" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-26_17-11-17.png" alt="Snipaste_2019-01-26_17-11-17" /></p>
 
 <p>那么这个题方法有很多，由于没有<code class="highlighter-rouge">canary</code>检测，无论是<code class="highlighter-rouge">stack pivot</code>来进行栈迁移执行<code class="highlighter-rouge">shellcode</code>还是传统的<code class="highlighter-rouge">ret2libc</code>都行，需要注意的是这里程序中有个随机值异或的过程，最简单的方式就是控制<code class="highlighter-rouge">strlen</code>的返回值来防止后续字节被修改。
 我自己还是通过<code class="highlighter-rouge">ret2libc</code>来实现的，通过<code class="highlighter-rouge">puts</code>函数来打印出<code class="highlighter-rouge">got</code>表项的地址，然后计算出偏移量，返回到主函数再进行一次栈溢出，返回到<code class="highlighter-rouge">system</code>或<code class="highlighter-rouge">execve</code>即可<code class="highlighter-rouge">getshell</code>。</p>

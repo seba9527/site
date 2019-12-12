@@ -418,11 +418,11 @@
 
 <p>首先用<code class="highlighter-rouge">file</code>命令查看下文件特性。</p>
 
-<p><img src="images/Snipaste_2019-01-21_17-23-18.png" alt="Snipaste_2019-01-21_17-23-18" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-21_17-23-18.png" alt="Snipaste_2019-01-21_17-23-18" /></p>
 
 <p>很庆幸，是带符号的动态编译的文件。于是暴力就完事了，直接用ida打开，如下图所示。</p>
 
-<p><img src="images/Snipaste_2019-01-21_17-26-14.png" alt="Snipaste_2019-01-21_17-26-14" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-21_17-26-14.png" alt="Snipaste_2019-01-21_17-26-14" /></p>
 
 <p>这里和一般的C逆向不一样的是，rust运行时环境的初始化过程。由于自己不熟悉rust语言的特性，按照惯性思维，认为start最后返回之前的函数一般为主函数，而开头的函数一般为运行时初始化函数，导致一开始函数分析错误，这也同样导致了ida的反编译F5功能失败。</p>
 
@@ -452,11 +452,11 @@
 
 <p>运行结果就是输出<code class="highlighter-rouge">hello world</code>，但我们关心的是输出文件，为此，我使用ida载入文件并分析。可以看到，和题目类似的格式。</p>
 
-<p><img src="images/Snipaste_2019-01-21_17-36-04.png" alt="Snipaste_2019-01-21_17-36-04" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-21_17-36-04.png" alt="Snipaste_2019-01-21_17-36-04" /></p>
 
 <p>为了定位主函数的位置，我直接使用搜索字符串的方法，查找交叉引用。如下图所示。</p>
 
-<p><img src="images/Snipaste_2019-01-21_17-37-51.png" alt="Snipaste_2019-01-21_17-37-51" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-21_17-37-51.png" alt="Snipaste_2019-01-21_17-37-51" /></p>
 
 <p>然后我们可以进一步查找该处的交叉引用，就能定位到主函数的位置。</p>
 
@@ -483,27 +483,27 @@ call   _ZN3std2rt10lang_start17hd1a40614a9e43128E
 
 <p>解决了这个问题，我们就能找到主函数了，下面我们就跟进<code class="highlighter-rouge">beginer_reverse::main::h80fa15281f646bc1()</code>这个函数（其实从名字也能看出来，上文基本解释了原因）函数首先载入了一大段密文，很容易猜测这个是密文了，或者通过交叉引用也能看出来，然后从命令行读取输入。</p>
 
-<p><img src="images/Snipaste_2019-01-21_19-01-15.png" alt="Snipaste_2019-01-21_19-01-15" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-21_19-01-15.png" alt="Snipaste_2019-01-21_19-01-15" /></p>
 
 <p>然后会进行很多检测，首先检测长度，再检测输入的最后一位是否正常。</p>
 
-<p><img src="images/Snipaste_2019-01-21_19-03-39.png" alt="Snipaste_2019-01-21_19-03-39" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-21_19-03-39.png" alt="Snipaste_2019-01-21_19-03-39" /></p>
 
 <p>之后会遍历每一个输入，然后进行检测，判断范围等等操作，然后再将每个值拷贝到栈中缓存。由于rust十分注重安全性检测，所以这里的工作有点复杂，自己是用动态调试配合硬件断点的方式直接跳过这段检查了。</p>
 
-<p><img src="images/Snipaste_2019-01-21_19-10-11.png" alt="Snipaste_2019-01-21_19-10-11" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-21_19-10-11.png" alt="Snipaste_2019-01-21_19-10-11" /></p>
 
 <p>比如我输入aptx4869就会变成这样，如下图所示。</p>
 
-<p><img src="images/Snipaste_2019-01-21_19-11-59.png" alt="Snipaste_2019-01-21_19-11-59" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-21_19-11-59.png" alt="Snipaste_2019-01-21_19-11-59" /></p>
 
 <p>在下一次断点断下的时候，我们就会看到常见的循环+相等判断，估计就是解密所在的位置了。找到伪代码对应的位置，如下图所示：</p>
 
-<p><img src="images/Snipaste_2019-01-21_19-14-23.png" alt="Snipaste_2019-01-21_19-14-23" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-21_19-14-23.png" alt="Snipaste_2019-01-21_19-14-23" /></p>
 
 <p>对比看汇编，此时的明文和密文分别由r14和r15寄存器的首地址所指向，我们直接查看即可。</p>
 
-<p><img src="images/Snipaste_2019-01-21_19-16-48.png" alt="Snipaste_2019-01-21_19-16-48" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-21_19-16-48.png" alt="Snipaste_2019-01-21_19-16-48" /></p>
 
 <p>这和我们最开始看到的数据是相匹配的，不同的是，在程序载入后，修改了最后的2个数据，所以我们直接dump下这段密文，然后根据上面所示的判断方法来计算，就能得到flag了。</p>
 
@@ -531,7 +531,7 @@ call   _ZN3std2rt10lang_start17hd1a40614a9e43128E
 <p>第二题难度比较大，如题所述，整个题目中充斥了很多的垃圾指令，导致程序流程异常复杂，对分析产生了很多困扰。
 首先进入主函数，很明显，如果输入参数不是3个，就会调用一个函数，估计是退出，我将其命名为exit，然后对第二个参数进行判断，不满足条件又会调用exit，再对第三个参数进行判断，不满足也会调用exit。最后如果情况都满足，则在最后调用一个函数来判断，同时将2个参数传入进去，这是很明显最后的check函数，也称为主逻辑。</p>
 
-<p><img src="images/Snipaste_2019-01-21_19-43-20.png" alt="Snipaste_2019-01-21_19-43-20" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-21_19-43-20.png" alt="Snipaste_2019-01-21_19-43-20" /></p>
 
 <p>尝试运行程序，发现运行时间非常长，平均要好几秒才运行完毕，而且根据情况的不同会打印出不同的提示字符串。比如，如果我就输入一个参数会打印出<code class="highlighter-rouge">Usage: ./chall user pass</code>等等，这些情况包括：</p>
 
@@ -548,11 +548,11 @@ Usage: ./chall user pass
 
 <p>下面跟进exit这个函数，发现其只做了一件事，即将一些常量作为参数来调用另一个函数，我将其命名为calcMsg。</p>
 
-<p><img src="images/Snipaste_2019-01-21_19-55-41.png" alt="Snipaste_2019-01-21_19-55-41" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-21_19-55-41.png" alt="Snipaste_2019-01-21_19-55-41" /></p>
 
 <p>对这些字符串并不能得到很多有用的信息，于是继续跟进calcMsg这个函数，我将其中的垃圾指令擦除后，可以看的更清晰些，如下图所示。</p>
 
-<p><img src="images/Snipaste_2019-01-21_19-57-55.png" alt="Snipaste_2019-01-21_19-57-55" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-21_19-57-55.png" alt="Snipaste_2019-01-21_19-57-55" /></p>
 
 <p>其中能看到md5的字样，估计是调用了md5函数进行hash计算，而其中的sub296b伪代码如下：</p>
 <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">_BYTE</span> <span class="o">*</span><span class="kr">__fastcall</span> <span class="nf">sub_296B</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">a1</span><span class="p">,</span> <span class="n">__int64</span> <span class="n">a2</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">a3</span><span class="p">,</span> <span class="n">__int64</span> <span class="n">a4</span><span class="p">)</span>
@@ -628,7 +628,7 @@ Usage: ./chall user pass
 
 <p>运行结果如下图所示。</p>
 
-<p><img src="images/Snipaste_2019-01-21_20-16-37.png" alt="Snipaste_2019-01-21_20-16-37" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-21_20-16-37.png" alt="Snipaste_2019-01-21_20-16-37" /></p>
 
 <p>注意整个解密过程是不包括偏移量是2的那个字符串的，因为他是真正的flag加密的字符串，可以用交叉引用来证明，同时该字符串是使用aes进行加密，和这里无关。</p>
 
@@ -637,23 +637,23 @@ Usage: ./chall user pass
 <p>在完成字符串解密后，我们只能通过字符串引用的位置大致推测每一段check的作用是什么，比如第一个check就是判断输入参数是不是3个，第二个check判断输入长度是否满足大于15并且小于等于63。在满足这个条件的情况下，程序会输出<code class="highlighter-rouge">Computing stuff...</code>然后进入真正的check逻辑，下面开始分析。
 如下图所示，首先滤去垃圾指令，在函数开头计算2个参数的长度，因为上文的检测，所以肯定满足小于等于63的条件，然后进入change1这个函数进行变换。</p>
 
-<p><img src="images/Snipaste_2019-01-21_20-24-03.png" alt="Snipaste_2019-01-21_20-24-03" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-21_20-24-03.png" alt="Snipaste_2019-01-21_20-24-03" /></p>
 
 <p>change1这个函数中又调用了另一个函数，如下图所示：</p>
 
-<p><img src="images/Snipaste_2019-01-21_20-26-04.png" alt="Snipaste_2019-01-21_20-26-04" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-21_20-26-04.png" alt="Snipaste_2019-01-21_20-26-04" /></p>
 
 <p>很明显这是用来进行素数判断的，将从零到某个数字范围内的所有素数都求出来，然后返回到这个集合。然后在change1中，求出字符串长度和64之间的差值，然后进行循环，将素数集合作为index，求出字符串对应index下的值，添加到字符串末尾，然后结束。</p>
 
-<p><img src="images/Snipaste_2019-01-21_20-27-57.png" alt="Snipaste_2019-01-21_20-27-57" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-21_20-27-57.png" alt="Snipaste_2019-01-21_20-27-57" /></p>
 
 <p>然后取出字符串中2个特定位置上的值，对其进行操作，这里由于参数1是指定的，所以我们可以进行部分化简，我的注释也标在图上了。</p>
 
-<p><img src="images/Snipaste_2019-01-21_20-30-33.png" alt="Snipaste_2019-01-21_20-30-33" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-21_20-30-33.png" alt="Snipaste_2019-01-21_20-30-33" /></p>
 
 <p>要注意的是，这里还定义了一个655大小的数组，也是变相进行混淆，然后程序还定义了一张表，从A到S，是为了映射用的，如下图所示，之后进行了一段很难理解的计算。</p>
 
-<p><img src="images/Snipaste_2019-01-21_20-33-52.png" alt="Snipaste_2019-01-21_20-33-52" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-21_20-33-52.png" alt="Snipaste_2019-01-21_20-33-52" /></p>
 
 <p>这段计算代码如下所示，如果真的是这样看的话，自己很难理解其中的意思，其真正的作用是计算十进制数的位数，之前在29c3 ctf中也有类似的<a href="https://baghaliteam.wordpress.com/2012/12/30/29c3ctf-bin300-maya/">题目解析</a>。</p>
 
@@ -686,7 +686,7 @@ Usage: ./chall user pass
 
 <p>最后一步操作就是转成十六进制，然后取其5-8位，进行md5的计算，如果和给定的常量相同就算成功？</p>
 
-<p><img src="images/Snipaste_2019-01-21_20-34-48.png" alt="Snipaste_2019-01-21_20-34-48" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-21_20-34-48.png" alt="Snipaste_2019-01-21_20-34-48" /></p>
 
 <h2 id="求解过程">求解过程</h2>
 
@@ -733,7 +733,7 @@ Usage: ./chall user pass
 
 <p>最后得到正确的输入是2aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaC，输入就能解密得到flag。</p>
 
-<p><img src="images/Snipaste_2019-01-21_21-12-40.png" alt="Snipaste_2019-01-21_21-12-40" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-21_21-12-40.png" alt="Snipaste_2019-01-21_21-12-40" /></p>
 
 <h2 id="总结-1">总结</h2>
 

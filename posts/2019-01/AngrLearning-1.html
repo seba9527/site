@@ -409,13 +409,13 @@
 
 <p>学习一些基本的顶层接口，对angr的概念和对象有个整体的把握。使用angr的第一步总是创建一个angr工程去加载一个文件。
 工程是你控制angr的基础，有了它，你就能进行分析和模拟刚刚加载的文件。几乎在angr中碰到的所有单个对象在某种形式上都取决于工程的存在。
-<img src="images/Snipaste_2019-01-19_11-21-43.png" alt="angr-Project" /></p>
+<img src="/img/2019-01/Snipaste_2019-01-19_11-21-43.png" alt="angr-Project" /></p>
 
 <h2 id="基础特性">基础特性</h2>
 
 <p>通过Project对象，我们可以获取程序的基础特性，包括CPU架构、文件名、入口点、大小端序、字长等等的信息。</p>
 
-<p><img src="images/Snipaste_2019-01-19_11-37-52.png" alt="Project特性" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-19_11-37-52.png" alt="Project特性" /></p>
 
 <p>可以看到，Project的特性有很多，其中比较常用的是：arch、analyses、loader、entry、factory、filename、hook等。其中arch是<code class="highlighter-rouge">archinfo.Arch</code>的对象，显示了文件的架构，是<code class="highlighter-rouge">AMD64</code>。<code class="highlighter-rouge">proj.arch.memory_endness</code>则显示了（LE），即小段序。<code class="highlighter-rouge">arch.bits</code>代表的是机器的字长位数，即64位物理机。<code class="highlighter-rouge">arch.bytes</code>代表了系统的数据长度单位是8byte。<code class="highlighter-rouge">entry</code>是执行文件的入口点，<code class="highlighter-rouge">filename</code>是文件名。</p>
 
@@ -424,7 +424,7 @@
 <p>从二进制文件中得到运行时的虚拟地址空间是非常复杂的。angr通过CLE模块来加载不同架构的程序，从而分析，其结果可以通过Project的<code class="highlighter-rouge">.loader</code>特性中获得。
 我们可以通过它来观察共享库的加载情况和对加载地址空间进行基本的数据查询。</p>
 
-<p><img src="images/Snipaste_2019-01-19_11-51-57.png" alt="Loader1" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-19_11-51-57.png" alt="Loader1" /></p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">In</span> <span class="p">[</span><span class="mi">21</span><span class="p">]:</span> <span class="n">proj</span><span class="o">.</span><span class="n">loader</span>
 <span class="n">Out</span><span class="p">[</span><span class="mi">21</span><span class="p">]:</span> <span class="o">&lt;</span><span class="n">Loaded</span> <span class="n">su_pwn100</span><span class="p">,</span> <span class="n">maps</span> <span class="p">[</span><span class="mh">0x8048000</span><span class="p">:</span><span class="mh">0xd008000</span><span class="p">]</span><span class="o">&gt;</span>
@@ -436,9 +436,9 @@
 <span class="n">Out</span><span class="p">[</span><span class="mi">24</span><span class="p">]:</span> <span class="mh">0xd008000</span>
 </code></pre></div></div>
 
-<p><img src="images/Snipaste_2019-01-19_13-03-44.png" alt="Loader2" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-19_13-03-44.png" alt="Loader2" /></p>
 
-<p><img src="images/Snipaste_2019-01-19_13-11-28.png" alt="Loader3" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-19_13-11-28.png" alt="Loader3" /></p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 查看主对象的plt表
 </span><span class="n">In</span> <span class="p">[</span><span class="mi">26</span><span class="p">]:</span> <span class="n">proj</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">main_object</span><span class="o">.</span><span class="n">plt</span>
@@ -471,7 +471,7 @@
 
 <p>首先，我们有<code class="highlighter-rouge">project.factory.block()</code>，可以用来解析给定地址的基本代码块。这是一个重要的事实angr分析代码是以块为单位的，你会获得一个块对象，可以给你提供许多有趣的信息。</p>
 
-<p><img src="images/Snipaste_2019-01-19_13-26-01.png" alt="factory1" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-19_13-26-01.png" alt="factory1" /></p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 查看块的指令数量大小
 </span><span class="n">In</span> <span class="p">[</span><span class="mi">61</span><span class="p">]:</span> <span class="n">block</span><span class="o">.</span><span class="n">instructions</span>
@@ -491,7 +491,7 @@
 
 <p>这是关于angr的另一个基本概念，<code class="highlighter-rouge">Project</code>对象仅仅代表了程序的初始化镜像。当使用angr进行执行操作时，你操作的都是一种特殊的对象即代表了一个模拟的程序状态，叫做<code class="highlighter-rouge">SimState</code>。</p>
 
-<p><img src="images/Snipaste_2019-01-19_13-56-06.png" alt="state1" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-19_13-56-06.png" alt="state1" /></p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">In</span> <span class="p">[</span><span class="mi">71</span><span class="p">]:</span> <span class="n">state</span> <span class="o">=</span> <span class="n">proj</span><span class="o">.</span><span class="n">factory</span><span class="o">.</span><span class="n">entry_state</span><span class="p">()</span>
 <span class="c1"># 获取程序入口点的状态
@@ -528,7 +528,7 @@
 
 <p>也可以将值存储到寄存器和内存中，或者直接使用python的int，它会被转换成适当大小的位向量。</p>
 
-<p><img src="images/Snipaste_2019-01-19_14-36-35.png" alt="BitVectors1" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-19_14-36-35.png" alt="BitVectors1" /></p>
 
 <p>关于<code class="highlighter-rouge">mem</code>是令人困惑的，具体怎样使用：</p>
 
@@ -552,7 +552,7 @@
 让我们展示如何在向前走了几步之后，如何访问我们之前标记过的一个状态。
 首先，我们创建模拟管理器，构造器的参数可以是一个或多个的状态。</p>
 
-<p><img src="images/Snipaste_2019-01-19_16-01-45.png" alt="Simulation" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-19_16-01-45.png" alt="Simulation" /></p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">In</span> <span class="p">[</span><span class="mi">5</span><span class="p">]:</span> <span class="n">state</span> <span class="o">=</span> <span class="n">proj</span><span class="o">.</span><span class="n">factory</span><span class="o">.</span><span class="n">entry_state</span><span class="p">()</span>
 <span class="n">Out</span><span class="p">[</span><span class="mi">6</span><span class="p">]:</span> <span class="o">&lt;</span><span class="n">SimState</span> <span class="o">@</span> <span class="mh">0x8048560</span><span class="o">&gt;</span>
@@ -570,7 +570,7 @@
 <span class="n">Out</span><span class="p">[</span><span class="mi">18</span><span class="p">]:</span> <span class="o">&lt;</span><span class="n">SimulationManager</span> <span class="k">with</span> <span class="mi">1</span> <span class="n">active</span><span class="o">&gt;</span>
 </code></pre></div></div>
 
-<p><img src="images/Snipaste_2019-01-19_17-17-47.png" alt="Simgr1" /></p>
+<p><img src="/img/2019-01/Snipaste_2019-01-19_17-17-47.png" alt="Simgr1" /></p>
 
 <p>我们刚刚对一个基本块进行了符号执行操作。我们可以查看激活的stash（activate stash），注意到它已经被修改了，但是他的原始状态并没有被修改。你可以安全的使用一个单独的状态作为基础态，然后进行多轮复杂的符号执行等操作。</p>
 

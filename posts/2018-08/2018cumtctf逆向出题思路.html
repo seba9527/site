@@ -452,7 +452,7 @@
 
 <p>(若有童鞋不懂稍微讲一下：将输入字符串和flag进行比较，正确就Congratulations)</p>
 
-<p><img src="images/Snipaste_2018-01-14_22-48-08.png" alt="re1" /></p>
+<p><img src="/img/2018-08/Snipaste_2018-01-14_22-48-08.png" alt="re1" /></p>
 
 <pre><code class="language-flag">cumtctf{We1cOme_t0_cUmtCtf_IeVe1_0ne_SO_eaSy!}
 </code></pre>
@@ -476,11 +476,11 @@
 
 <p>回到题目中来，我们直接使用IDA分析程序，自动分析完成后，因为大部分同学不懂汇编，这里我就直接F5看伪C代码了。</p>
 
-<p><img src="images/Snipaste_2018-01-15_10-14-02.png" alt="re2" /></p>
+<p><img src="/img/2018-08/Snipaste_2018-01-15_10-14-02.png" alt="re2" /></p>
 
 <p>上图所示的是输入部分，可以看到对输入字符串的每一个值循环和i进行异或操作，将结果保存在<code class="highlighter-rouge">cinXor</code>中。下面将判断输入的字符串是否正确。</p>
 
-<p><img src="images/Snipaste_2018-01-15_10-21-33.png" alt="re2" /></p>
+<p><img src="/img/2018-08/Snipaste_2018-01-15_10-21-33.png" alt="re2" /></p>
 
 <p>上图所示的就是比较的部分，实际上这段代码是<code class="highlighter-rouge">memcmp</code>函数的具体实现。先取出两个数组的首地址，逐个比较，变量每次加四代表比较的大小是一次32位，也就是4字节。最后才进入<code class="highlighter-rouge">if</code>判断条件，比较最后2个，所以很明显，比较长度是4的倍数余2。</p>
 
@@ -488,7 +488,7 @@
 
 <p>为了获取需要对比的字符串，我们查看该flag变量。如下图所示。</p>
 
-<p><img src="images/Snipaste_2018-01-15_10-30-50.png" alt="re2" /></p>
+<p><img src="/img/2018-08/Snipaste_2018-01-15_10-30-50.png" alt="re2" /></p>
 
 <p>现在我们需要做的就是将该数组的每个值，和i异或就行了。用python写脚本求解。</p>
 
@@ -521,11 +521,11 @@
 <p>这题才算是一个逆向的题目，不过也很简单，平时比赛的话最高50分。
 使用IDA分析好了。</p>
 
-<p><img src="images/Snipaste_2018-01-15_10-52-53.png" alt="re3" /></p>
+<p><img src="/img/2018-08/Snipaste_2018-01-15_10-52-53.png" alt="re3" /></p>
 
 <p>就主函数中对输入进行了操作，通过上图我们可以看到，当输入字符串长度是36时，将每四个作为一组。高位的作为高位，低位的作为低位。意思就是说，将4个8bit的char变量转成1个32bit的int变量，其中高地址存放高字节，而且左移8位不会影响其低字节，最后和<code class="highlighter-rouge">0x12341234</code>异或，再和flag进行比较。然后我们来查看一下flag变量。</p>
 
-<p><img src="images/Snipaste_2018-01-15_11-02-52.png" alt="re3" /></p>
+<p><img src="/img/2018-08/Snipaste_2018-01-15_11-02-52.png" alt="re3" /></p>
 
 <h2 id="解法-2">解法</h2>
 
@@ -567,7 +567,7 @@
 
 <p>调试的方式我就不说了，这里我将一下第二种方式。题目我是用了一张图片，检测鼠标的点击事件，当点击三次后。进行判断，点击的位置和规定的位置是否相同，这里的3个位置是我随机选的，所以用户点击一次就成功的可能性是个极小概率事件，更别说3次了。当判断不同时，直接弹框失败，否则进入MIX类中的Crypt方法进行解密。下面我们来看一下这个MIX类。</p>
 
-<p><img src="images/Snipaste_2018-01-15_11-28-17.png" alt="re4" /></p>
+<p><img src="/img/2018-08/Snipaste_2018-01-15_11-28-17.png" alt="re4" /></p>
 
 <p>可以看到，该类中定义了一个计算MD5的方法，和一个解密的方法，当然还有一共byte转string的方法，这里没有列出来。其实这个MD5方法根本没有用到，就是混淆视听用的，而下面的<code class="highlighter-rouge">System.Security.Cryptography.RijndaelManaged</code>类就是Rijndael密码算法，也就是AES。下面直接写脚本解AES就行了。</p>
 
@@ -602,11 +602,11 @@
 
 <p>C语言写的控制台程序，直接用IDA吧，打开后主函数流程如下。</p>
 
-<p><img src="images/Snipaste_2018-01-15_12-35-13.png" alt="re5" /></p>
+<p><img src="/img/2018-08/Snipaste_2018-01-15_12-35-13.png" alt="re5" /></p>
 
 <p>先输入字符串，没什么好说的，但是看下面。很明显，这里用了<code class="highlighter-rouge">rand</code>函数，同时加入了时间作为种子，产生4个伪随机数作为密钥<code class="highlighter-rouge">key</code>。</p>
 
-<p><img src="images/Snipaste_2018-01-15_12-35-38.png" alt="re5" /></p>
+<p><img src="/img/2018-08/Snipaste_2018-01-15_12-35-38.png" alt="re5" /></p>
 
 <p>再来看接下来的步骤，用随机的key当作密钥流和数组进行异或，最后和<code class="highlighter-rouge">flag</code>进行比较，若相等则Congratulations。
 所以我们要做的就是爆破一个4字节的key，然后和原始数组进行亦或，最后得到一个有意义的字符串。脚本如下。</p>
@@ -663,13 +663,13 @@
 
 <p>现在我们打开IDA，追踪到该关键函数。IDA自动生成的<code class="highlighter-rouge">sub_402510</code>函数则是<code class="highlighter-rouge">确定</code>按钮点击的消息处理，但是一开始<code class="highlighter-rouge">确定</code>按钮是点击不了的，原因是长度不满足条件，具体的条件则在<code class="highlighter-rouge">sub_4024C0</code>中，如下图所示。</p>
 
-<p><img src="images/Snipaste_2018-01-15_16-07-52.png" alt="re6" /></p>
+<p><img src="/img/2018-08/Snipaste_2018-01-15_16-07-52.png" alt="re6" /></p>
 
 <p>也就是说，当输入字符串长度是30的时候，<code class="highlighter-rouge">确定</code>按钮将被激活，即flag长度是30。</p>
 
 <p>所以现在我们再来看<code class="highlighter-rouge">sub_402510</code>函数的流程。如下图所示。</p>
 
-<p><img src="images/Snipaste_2018-01-15_16-13-20.png" alt="re6" /></p>
+<p><img src="/img/2018-08/Snipaste_2018-01-15_16-13-20.png" alt="re6" /></p>
 
 <p>可以看到，点击<code class="highlighter-rouge">确定</code>后，首先进行反调试，若程序正在被调试，则直接退出。</p>
 
@@ -680,20 +680,20 @@ cmp     eax, 70h
 
 <p>关于该反调试的原理，很简单。相当于是自己实现简单的反调试检测，和微软的API接口<code class="highlighter-rouge">IsDebuggerPresent()</code>有点不同的是：<code class="highlighter-rouge">IsDebuggerPresent()</code>是通过访问程序PEB的<code class="highlighter-rouge">BeingDebugged</code>标志检测反调试。而该段汇编是通过检测<code class="highlighter-rouge">NTGlobalFlag</code>，是PEB结构偏移量0x68处的一个未公开位置，该位置决定了程序在调试和正常情况下不同的创建内存堆的方式。如果是0x70，则程序正在被调试。要跳过的方式很简单，直接nop判断方法或者改跳转(汇编模式下操作)。当然这个题我不是考大家这个的。我们直接进入<code class="highlighter-rouge">Check</code>函数好了。</p>
 
-<p><img src="images/Snipaste_2018-01-15_16-37-39.png" alt="re6" /></p>
+<p><img src="/img/2018-08/Snipaste_2018-01-15_16-37-39.png" alt="re6" /></p>
 
 <p>有点基础的同学进入这个函数就能发现下面会有一个rc4的加密。而密钥流由<code class="highlighter-rouge">National_Basketball_Association</code>来生成。这里我就不多说了，上面的截图是rc4的KSA函数，先将密钥流初始化，再进行混乱。</p>
 
-<p><img src="images/Snipaste_2018-01-15_16-42-45.png" alt="re6" /></p>
+<p><img src="/img/2018-08/Snipaste_2018-01-15_16-42-45.png" alt="re6" /></p>
 
 <p>接下来就是rc4的第二部分，伪随机生成密钥流并和字符串进行异或，得到密文。如上图所示。之后的代码就是比较了，这里不多说了。
 由于rc4加密和解密是同一个函数，解密时，我们只需要将密文通过同一个key即可恢复得到明文了。下面是程序中的常量字符串，可能有童鞋没找到，我这里列出来了。</p>
 
-<p><img src="images/Snipaste_2018-01-15_13-38-49.png" alt="re6" /></p>
+<p><img src="/img/2018-08/Snipaste_2018-01-15_13-38-49.png" alt="re6" /></p>
 
 <p>这里我直接引用Orzk队的脚本了，也可以自己写，不是很难。</p>
 
-<p><img src="images/Snipaste_2018-01-15_16-59-20.png" alt="re6" /></p>
+<p><img src="/img/2018-08/Snipaste_2018-01-15_16-59-20.png" alt="re6" /></p>
 
 <p>最后得到flag如下。</p>
 
@@ -710,27 +710,27 @@ cmp     eax, 70h
 
 <p>最后一题是一个Windows下的GUI程序，程序本身很简单，就是弹出一个对话框，根据输入计算flag。主要还是找到Check函数，但是这个程序本身很小，你也可以一个一个找，很快也能找到-_-。关于Win32程序是如何加载的，推荐大家看windows系列的书籍，里面会详细讲。我简单说明一下。首先看一下程序中所有的字符串常量，相关的函数也可以在这里查找交叉引用。</p>
 
-<p><img src="images/Snipaste_2018-01-15_17-54-06.png" alt="re7" /></p>
+<p><img src="/img/2018-08/Snipaste_2018-01-15_17-54-06.png" alt="re7" /></p>
 
 <p>其次我们从主函数开始分析。</p>
 
-<p><img src="images/Snipaste_2018-01-15_17-03-13.png" alt="re7" /></p>
+<p><img src="/img/2018-08/Snipaste_2018-01-15_17-03-13.png" alt="re7" /></p>
 
 <p>要注意，GUI程序是从WinMain开始的，首先是定义注册窗口类并调用<code class="highlighter-rouge">RegisterClassW()</code>，其次就可以依据该窗口类来创建窗口，调用<code class="highlighter-rouge">CreateWindowExW()</code>，之后开始进入整个消息循环中，进行消息的分发与更新。而整个框架中最重要的是注册窗口类的回调函数，也就是窗口过程。他是<code class="highlighter-rouge">tagWNDCLASSW</code>结构体中的<code class="highlighter-rouge">lpfnWndProc</code>，函数类型为<code class="highlighter-rouge">WNDPROC </code>。</p>
 
-<p><img src="images/Snipaste_2018-01-15_17-56-06.png" alt="re7" /></p>
+<p><img src="/img/2018-08/Snipaste_2018-01-15_17-56-06.png" alt="re7" /></p>
 
 <p>窗口过程的参数与分别是窗口句柄，消息标识符，2个DWORD的消息参数。在这个程序中，窗口过程首先接受<code class="highlighter-rouge">WM_CREATE</code>消息，进行窗口控件的创建，即上图中的<code class="highlighter-rouge">case 1</code>的情况，创建了一个文本框和一个确定按钮。对于确定按钮，定义了HMENU参数是250。控件ID和HMENU是共用的，当作为子窗口时，往往不需要菜单，该值用来区分控件。而对于接受到的按钮子窗口的<code class="highlighter-rouge">WM_COMMAND</code>消息，<code class="highlighter-rouge">wParam</code>参数的低位是子窗口ID，高位是消息，lParam参数是接收消息的子窗口的句柄。</p>
 
-<p><img src="images/Snipaste_2018-01-15_17-58-26.png" alt="re7" /></p>
+<p><img src="/img/2018-08/Snipaste_2018-01-15_17-58-26.png" alt="re7" /></p>
 
 <p>一句话，也就是说在点击按钮后，产生<code class="highlighter-rouge">wParam</code>消息的低位是250，直接进入<code class="highlighter-rouge">sub_401350()</code>函数中进行判断。下面我们来看一下这个函数。</p>
 
-<p><img src="images/Snipaste_2018-01-15_18-22-26.png" alt="re7" /></p>
+<p><img src="/img/2018-08/Snipaste_2018-01-15_18-22-26.png" alt="re7" /></p>
 
 <p>可以看到，直接调用<code class="highlighter-rouge">GetWindowTextA()</code>API来判断输入长度，当输入长度不是41的时候，直接通过<code class="highlighter-rouge">SendMessageW()</code>向窗口过程发送消息，且<code class="highlighter-rouge">wParam</code>参数是1111，我们回到窗口过程可以看到，此时会直接调用<code class="highlighter-rouge">MessageBoxW(hWnd, L"flag错误", L"FAIL", 0x40u)</code>即弹框，flag错误。所以我们可以确定flag长度就是41。接下来进入核心的Check函数验证算法。</p>
 
-<p><img src="images/Snipaste_2018-01-15_18-30-49.png" alt="re7" /></p>
+<p><img src="/img/2018-08/Snipaste_2018-01-15_18-30-49.png" alt="re7" /></p>
 
 <p>看着很简单，其实不然。其中的<code class="highlighter-rouge">loc_401050</code>是一大段汇编，由于IDA反汇编插件出错，是需要看汇编的。</p>
 
@@ -743,11 +743,11 @@ cmp     eax, 70h
 
 <p>知道了这些后，直接nop部分指令就行了。出错的位置是<code class="highlighter-rouge">.text:00401050</code>和<code class="highlighter-rouge">.text:004010B6</code>，之后需要手动建立函数。最后函数流程如下图所示。发现就是不停的取第二个参数的2个值，然后相加放在第一个参数列表中。</p>
 
-<p><img src="images/Snipaste_2018-01-15_18-53-20.png" alt="re7" /></p>
+<p><img src="/img/2018-08/Snipaste_2018-01-15_18-53-20.png" alt="re7" /></p>
 
 <p>下面我们重新回到Check函数，重新反编译，如下图所示。</p>
 
-<p><img src="images/Snipaste_2018-01-15_18-54-24.png" alt="re7" /></p>
+<p><img src="/img/2018-08/Snipaste_2018-01-15_18-54-24.png" alt="re7" /></p>
 
 <p>第一步，进入第一个函数<code class="highlighter-rouge">sub_401000</code>分析。这里我就不贴图了，这个函数没有什么实质的作用，就是把原来的字符串进行打乱，类似于第二个密钥是0的仿射密码，左右两端同时进行。<strong>cinShuttle[(i * 33) % 41] = cin[(i * 23) % 41]</strong>
 打乱后进入第二个函数，而第二个函数就是不停的相加，就结束了。最后是用<code class="highlighter-rouge">strcmp</code>和flag进行对比。</p>

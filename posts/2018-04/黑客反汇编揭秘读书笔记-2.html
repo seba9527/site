@@ -496,11 +496,11 @@ Z类：不接触宿主文件但是以间接方式将X码插入到文件地址空
 
 <h3 id="第一部分">第一部分</h3>
 
-<p><img src="images/Snipaste_2018-03-28_11-10-58.png" alt="start" /></p>
+<p><img src="/img/2018-04/Snipaste_2018-03-28_11-10-58.png" alt="start" /></p>
 
 <p>一进来就是start函数，entry point 从FOA0x08开始，然后接连两个跳转。</p>
 
-<p><img src="images/Snipaste_2018-03-28_11-45-11.png" alt="start" /></p>
+<p><img src="/img/2018-04/Snipaste_2018-03-28_11-45-11.png" alt="start" /></p>
 
 <p>这里先复习下指令</p>
 
@@ -530,11 +530,11 @@ stosd指令取的是双字节，即 mov [edi] eax edi=edi+4
 <p>然后unpack(0x0020004B, 0x3F5479F1, 0x2A5)就能恢复一部分数据，就是start后面的一部分。注意的是，<code class="highlighter-rouge">sub_2002F0</code>前3个字节也被patch过了，所以解密后回去再看这个函数头部就会有问题，这里没什么用。直接返回到start了。
 回到start后，由于之前的加密数据的原因，ida这里现实start已经结束了，其实并没有，这里我修改start函数，结束改为0x002000E0处，可以看到start接下来的部分。</p>
 
-<p><img src="images/Snipaste_2018-03-28_12-15-43.png" alt="start 解密后" /></p>
+<p><img src="/img/2018-04/Snipaste_2018-03-28_12-15-43.png" alt="start 解密后" /></p>
 
 <p>可以看到，在encode1解密后，立即设置ebx寄存器是0xf4»2，取<code class="highlighter-rouge">unk_20019E</code>地址，调用<code class="highlighter-rouge">sub_2002BC</code>函数，很明显，该函数和上面一样，同样是在解密。调用上面那个函数进行解密。unpack(0x0020019e, 0x0BEEFC0DA, 0xf4)，解密完成后，发现就是对明文字符串进行解密。</p>
 
-<p><img src="images/Snipaste_2018-03-28_12-25-55.png" alt="第二次解密" /></p>
+<p><img src="/img/2018-04/Snipaste_2018-03-28_12-25-55.png" alt="第二次解密" /></p>
 
 <h3 id="第二部分">第二部分</h3>
 
@@ -550,13 +550,13 @@ retn
 <p>很明显就是该函数就是write函数，打印出第二次解密的一堆字符串。然后继续start函数，接下来就是一个ptrace反调试。可以用cat /usr/include/asm/unistd_32.h |grep ptrace来查看ptrace的系统调用号，在32位中就是26。这里ptrace中的ptrace_request值在ebx寄存器中，为61。接下来判断返回值是不是0，是0则继续，调用失败则打印失败。当成功时，跳转到<code class="highlighter-rouge">loc_20009C</code>这里。
 这里首先压栈，其次调用read函数，这部分和write差不多，syscall是3，fd=1。要注意的是，读取的字符长度只有4，因为ecx指向的就是只有4byte的缓冲区。然后调用check函数，判断返回的ebx和输入是否相等，不相等则失败。相等则弹栈，再比较ebx，ebx为0则成功。</p>
 
-<p><img src="images/Snipaste_2018-03-28_12-49-59.png" alt="关键代码" /></p>
+<p><img src="/img/2018-04/Snipaste_2018-03-28_12-49-59.png" alt="关键代码" /></p>
 
 <h3 id="第三部分">第三部分</h3>
 
 <p>最后来看一下关键的check函数。可以看到对start开始逐双字进行加法，然后对结果进行亦或，最后返回。需要注意的是，在CRC校验的过程中，输入的字节地址在CRC校验的范围内。即<code class="highlighter-rouge">result = ((CRC + key) ^ 0x5508046b)</code> ，又和输入的值进行亦或，然后为0则正确。</p>
 
-<p><img src="images/Snipaste_2018-03-28_13-08-03.png" alt="CRC函数" /></p>
+<p><img src="/img/2018-04/Snipaste_2018-03-28_13-08-03.png" alt="CRC函数" /></p>
 
 <p>这里贴上CRC校验的idc脚本。</p>
 
