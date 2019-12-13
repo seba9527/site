@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="https://zjgcjy.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://zjgcjy.github.io/" rel="alternate" type="text/html" /><updated>2019-12-13T17:08:01+08:00</updated><id>https://zjgcjy.github.io/feed.xml</id><title type="html">My way, though far away</title><subtitle>A flexible Blog of zjgcjy</subtitle><author><name>zjgcjy</name></author><entry><title type="html">Dirary_november</title><link href="https://zjgcjy.github.io/Dirary_November/" rel="alternate" type="text/html" title="Dirary_november" /><published>2019-11-01T21:15:00+08:00</published><updated>2019-11-01T21:15:00+08:00</updated><id>https://zjgcjy.github.io/Dirary_November</id><content type="html" xml:base="https://zjgcjy.github.io/Dirary_November/">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="https://zjgcjy.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://zjgcjy.github.io/" rel="alternate" type="text/html" /><updated>2019-12-13T20:39:21+08:00</updated><id>https://zjgcjy.github.io/feed.xml</id><title type="html">My way, though far away</title><subtitle>A flexible Blog of zjgcjy</subtitle><author><name>zjgcjy</name></author><entry><title type="html">Dirary_november</title><link href="https://zjgcjy.github.io/Dirary_November/" rel="alternate" type="text/html" title="Dirary_november" /><published>2019-11-01T21:15:00+08:00</published><updated>2019-11-01T21:15:00+08:00</updated><id>https://zjgcjy.github.io/Dirary_November</id><content type="html" xml:base="https://zjgcjy.github.io/Dirary_November/">&lt;blockquote&gt;
   &lt;p&gt;每日所作所得&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -274,7 +274,46 @@ vs2010&lt;/p&gt;
 
 &lt;h1 id=&quot;10月2日&quot;&gt;10月2日&lt;/h1&gt;
 
-&lt;p&gt;上了第一天的课，主要是os，一脸蒙蔽。&lt;/p&gt;</content><author><name>zjgcjy</name></author><category term="日记" /><summary type="html">每日所作所得 10月1日 周日，上课前最后一天，算是给自己放了最后一天假期 10月2日 上了第一天的课，主要是os，一脸蒙蔽。</summary></entry><entry><title type="html">Anti Antivirus Technology Offensive And Defensive Notes 1</title><link href="https://zjgcjy.github.io/posts/2019-08/Anti-AntiVirus-Technology-Offensive-and-Defensive-Notes-1.html" rel="alternate" type="text/html" title="Anti Antivirus Technology Offensive And Defensive Notes 1" /><published>2019-08-08T16:14:00+08:00</published><updated>2019-08-08T16:14:00+08:00</updated><id>https://zjgcjy.github.io/posts/2019-08/Anti-AntiVirus-Technology-Offensive-and-Defensive-Notes-1</id><content type="html" xml:base="https://zjgcjy.github.io/posts/2019-08/Anti-AntiVirus-Technology-Offensive-and-Defensive-Notes-1.html">&lt;blockquote&gt;
+&lt;p&gt;上了第一天的课，主要是os，一脸蒙蔽。&lt;/p&gt;</content><author><name>zjgcjy</name></author><category term="日记" /><summary type="html">每日所作所得 10月1日 周日，上课前最后一天，算是给自己放了最后一天假期 10月2日 上了第一天的课，主要是os，一脸蒙蔽。</summary></entry><entry><title type="html">Diary Notes</title><link href="https://zjgcjy.github.io/posts/2019-10/diary-notes.html" rel="alternate" type="text/html" title="Diary Notes" /><published>2019-10-02T21:15:00+08:00</published><updated>2019-10-02T21:15:00+08:00</updated><id>https://zjgcjy.github.io/posts/2019-10/diary-notes</id><content type="html" xml:base="https://zjgcjy.github.io/posts/2019-10/diary-notes.html">&lt;blockquote&gt;
+  &lt;p&gt;最近很浮躁，日记好久没写了，书也没看，论文也没看，运动也是断断续续。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h1 id=&quot;12月5日&quot;&gt;12月5日&lt;/h1&gt;
+
+&lt;p&gt;打算重新开blog，找了很久，从stackedit到blogger，从hexo到wordpress再到jekyll。因为图片的缘故，还在vps上搭了rclone来同步onedrive当图床用，后来又用git repo来当图床（结果发现URL被墙了）。烦。&lt;/p&gt;
+
+&lt;h1 id=&quot;12月10日&quot;&gt;12月10日&lt;/h1&gt;
+
+&lt;p&gt;重开blog，公开所有posts，采用Jekyll格式。&lt;/p&gt;
+
+&lt;p&gt;三个repo，其中markdown原文未公开。&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;blog source&lt;/li&gt;
+  &lt;li&gt;blog site&lt;/li&gt;
+  &lt;li&gt;posts (private)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;12月11日&quot;&gt;12月11日&lt;/h1&gt;
+
+&lt;p&gt;review Jekyll source，fork了一份开始改，基本没啥问题了，由于之前没用过jekyll，有点不熟悉。&lt;/p&gt;
+
+&lt;h1 id=&quot;12月12日&quot;&gt;12月12日&lt;/h1&gt;
+
+&lt;p&gt;花了一天的时间改code。基本是confige的部分，还有我以前的posts的格式不满足Jekyll的识别要求，以及image的相对链接地址。
+基本都改完了，除了comments部分，disqus由于被墙了，需要梯子，但是还有一个问题是comments的布局错乱，不清楚原因。晚上的时候去源repo提了issue。&lt;/p&gt;
+
+&lt;h1 id=&quot;12月13日&quot;&gt;12月13日&lt;/h1&gt;
+
+&lt;p&gt;USTC的大佬回了issue，最后检查是发布的时候命令用错了&lt;a href=&quot;https://github.com/mmistakes/minimal-mistakes/issues/2343&quot;&gt;issue link&lt;/a&gt;，我使用的是&lt;code class=&quot;highlighter-rouge&quot;&gt;jekyll build JEKYLL_ENV=production&lt;/code&gt;貌似这样后面的环境变量没起作用，但是我测试应该是一部分起作用了，一脸懵逼。真正发布的命令是&lt;code class=&quot;highlighter-rouge&quot;&gt;JEKYLL_ENV=production bundle exec jekyll build&lt;/code&gt;。&lt;/p&gt;
+
+&lt;p&gt;晚上的时候还修改了toc，可以stricky，最后修改了columns的width，这样posts的内容可以占到80%左右。&lt;/p&gt;
+
+&lt;p&gt;todo list on site:&lt;/p&gt;
+&lt;ul class=&quot;task-list&quot;&gt;
+  &lt;li class=&quot;task-list-item&quot;&gt;&lt;input type=&quot;checkbox&quot; class=&quot;task-list-item-checkbox&quot; disabled=&quot;disabled&quot; /&gt;import visit speed &amp;amp; add cdn 目前速度有点慢，一是disqus被墙，二是font awesome被墙。&lt;/li&gt;
+  &lt;li class=&quot;task-list-item&quot;&gt;&lt;input type=&quot;checkbox&quot; class=&quot;task-list-item-checkbox&quot; disabled=&quot;disabled&quot; /&gt;add github action 整合3个repo，采用CD &amp;amp; CL，自动发布&lt;/li&gt;
+  &lt;li class=&quot;task-list-item&quot;&gt;&lt;input type=&quot;checkbox&quot; class=&quot;task-list-item-checkbox&quot; disabled=&quot;disabled&quot; /&gt;merge image to posts 整合所有image到posts repo，而不是blog source repo，或者用一个单独的repo&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>zjgcjy</name></author><category term="日记" /><summary type="html">最近很浮躁，日记好久没写了，书也没看，论文也没看，运动也是断断续续。 12月5日 打算重新开blog，找了很久，从stackedit到blogger，从hexo到wordpress再到jekyll。因为图片的缘故，还在vps上搭了rclone来同步onedrive当图床用，后来又用git repo来当图床（结果发现URL被墙了）。烦。 12月10日 重开blog，公开所有posts，采用Jekyll格式。 三个repo，其中markdown原文未公开。 blog source blog site posts (private) 12月11日 review Jekyll source，fork了一份开始改，基本没啥问题了，由于之前没用过jekyll，有点不熟悉。 12月12日 花了一天的时间改code。基本是confige的部分，还有我以前的posts的格式不满足Jekyll的识别要求，以及image的相对链接地址。 基本都改完了，除了comments部分，disqus由于被墙了，需要梯子，但是还有一个问题是comments的布局错乱，不清楚原因。晚上的时候去源repo提了issue。 12月13日 USTC的大佬回了issue，最后检查是发布的时候命令用错了issue link，我使用的是jekyll build JEKYLL_ENV=production貌似这样后面的环境变量没起作用，但是我测试应该是一部分起作用了，一脸懵逼。真正发布的命令是JEKYLL_ENV=production bundle exec jekyll build。 晚上的时候还修改了toc，可以stricky，最后修改了columns的width，这样posts的内容可以占到80%左右。 todo list on site: import visit speed &amp;amp; add cdn 目前速度有点慢，一是disqus被墙，二是font awesome被墙。 add github action 整合3个repo，采用CD &amp;amp; CL，自动发布 merge image to posts 整合所有image到posts repo，而不是blog source repo，或者用一个单独的repo</summary></entry><entry><title type="html">Anti Antivirus Technology Offensive And Defensive Notes 1</title><link href="https://zjgcjy.github.io/posts/2019-08/Anti-AntiVirus-Technology-Offensive-and-Defensive-Notes-1.html" rel="alternate" type="text/html" title="Anti Antivirus Technology Offensive And Defensive Notes 1" /><published>2019-08-08T16:14:00+08:00</published><updated>2019-08-08T16:14:00+08:00</updated><id>https://zjgcjy.github.io/posts/2019-08/Anti-AntiVirus-Technology-Offensive-and-Defensive-Notes-1</id><content type="html" xml:base="https://zjgcjy.github.io/posts/2019-08/Anti-AntiVirus-Technology-Offensive-and-Defensive-Notes-1.html">&lt;blockquote&gt;
   &lt;p&gt;黑客免杀攻防读书笔记&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -1157,179 +1196,4 @@ C++保留了and、or和not关键字。&lt;/p&gt;
 &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;混合输入的时候，&lt;code class=&quot;highlighter-rouge&quot;&gt;cin.getline(array, len)&lt;/code&gt;读字符串，&lt;code class=&quot;highlighter-rouge&quot;&gt;cin&amp;gt;&amp;gt;x&lt;/code&gt;读数字，然后&lt;code class=&quot;highlighter-rouge&quot;&gt;cin.get()&lt;/code&gt;读换行符。&lt;/p&gt;</content><author><name>zjgcjy</name></author><category term="C++" /><summary type="html">C++ Prime Plus 读书笔记2 第4章到第6章 包括复杂数据格式，循环以及条件结构 数组 sizeof返回的是对象的大小。使用sizeof(array)/sizeof(int)可以求数组大小。可以使用初始化列表对变量进行初始化，不设置的元素默认值是0。 当然STL提供的vectror和C++11提供的Array更好用。 字符串 字符串主要通过字符数组或者string类进行存储。字符数组以空字符结尾，所以长度比设置的长度小1。 直接使用双引号对字符数组进行初始化的字符串称为字符串常量。需要注意的是：字符串这个整体表示的是字符串的所在地址 char a = 's'; //字符 char a[] = &quot;s&quot;; //字符串 字符串输入的问题 用到了cin对象的2个方法，getline和get。都是读取一行，但是getline会丢弃换行符，get将保留换行符。getline的方法是cin.getline(array, len)，而get因为保留换行符，所以第二次输入会有换行符，这里需要处理。通常的方法是cin.get(array, len).get()因为get返回的还是一个cin对象。getline也是一样，可以通过连续调用来接受2个数组cin.getline(array1, len1).getline(array2, len2)。 用get对程序的输入更方便处理，而getline则使用更简单。关于读取空行的读取过多的数据，getline和get的情况不太同。 空行：getline读取换行符给目标数组。 空行：get读取设置失效位，后续读取将关闭，需要通过cin.clear()开启 过长：getline保留输入序列，设置失效位，关闭输入 过长：get也保留输入序列，下一次继续读取。 string类 使用初始化列表进行初始化。string p{&quot;fsdfsd&quot;} 对于string类来说，如果需要读取一行，使用istream的类方法，即getline(cin, str) //各种变量初始化方法 char p[]{&quot;sdfsdfsdf&quot;}; string aa{&quot;dfsdf&quot;}; wchar_t a[]{L&quot;aerwere&quot;}; char16_t b[]{u&quot;basdfsd&quot;}; char32_t c[]{U&quot;cwgwe&quot;}; 关于原始字符串，这种字符串中不考虑转义字符的问题。用R前缀和小括号来表示，如果需要表示括号，可以自定义标识符，R可以和u、L等一起使用。 // 使用*+*记号来标记 char dfsfdd[]{R&quot;*+*(&quot;(Who wouldn't?)&quot;)*+*&quot;}; cout&amp;lt;&amp;lt;R&quot;*+*(&quot;(Who wouldn't?)&quot;, she whispered.\n)*+*&quot;&amp;lt;&amp;lt;endl; 结构体 struct helloworld { char name[10]; int index; double grade; }aaa, *pp; //直接申明变量 helloworld x{&quot;dfdsfd&quot;,6,9.9}; //申明变量 struct //匿名结构体 { char name[20]; int index; }*ppp; 结构体允许直接进行成员赋值，应该是设置了对应的复制构造函数。 关于结构体数组的初始化方法如下: struct mystruct { char name[10]; int index; double grade; }guests[2]{ {&quot;chen&quot;, 1, 95.5}, {&quot;dong&quot;, 2, 2.6}, }; 结构体中的位字段这个结构说明的比较少，C++允许指定占用特有位数的结构成员，字段的类型为整形或枚举，然后是冒号，后面是数字指定了占用的位数。可以使用没有名称的字段来提供占位符。每个成员被称为位字段。 struct { unsigned int SN : 4; unsigned int : 4; //占位符 bool good1 : 1; bool good2 : 1; }tr{14,true,false}; 共用体 共用体的长度是最大成员的长度。 通常设置匿名共用体，结合结构体来表示一些特殊数据。 struct widget { char baudrate[10]; int type; union { // 匿名共用体，可以通过test.id_num直接访问对应的变量 long id_num; char id[20]; }; } test; 枚举 枚举的关键词是enum，这能创建符号常量。 枚举值能参与算术运算，但所有的值会进行整形提升，转换成int值，且不能给enum赋值，但可以通过强制类型转换进行赋值。 enum //匿名枚举变量 { red = 1, orange = 5, green = 8, blue = 200, indigo = 200, puple = 201, black = 300 }test; //可以不指定变量，即只创建符号常量，相当于const 通过强制类型转换，可以将任意值赋值给枚举变量，但是是有范围的，枚举的取值范围取决于已经初始化的值的范围，最大值是大于当前最大值的最小的2的次方减1。最小值如果初始化的值都非负，则是0，否则是小于当前最小值的最小的2的次方加1。 指针 int* p = (int*)0x12345678;//强制指向特定地址 数组名等价于数组的首地址。指针可以加减，但是数组名不行。 关于数组的地址，表述如下数组名表示的是一个元素占内存的地址，数组取地址表示的是整个数组占内存块的大小。所以p是一个整形的指针，而&amp;amp;p是这样这个指针，即指向一个包含n个元素的int数组。 int p[] = {1, 2, 3, 4, 5, 6}; cout &amp;lt;&amp;lt; p &amp;lt;&amp;lt; endl;//和&amp;amp;p[0]等价，表示第一个元素的地址 cout &amp;lt;&amp;lt; &amp;amp;p &amp;lt;&amp;lt; endl;//整个数组的地址 cout &amp;lt;&amp;lt; p + 1 &amp;lt;&amp;lt; endl;//下一个元素 cout &amp;lt;&amp;lt; &amp;amp;p + 1 &amp;lt;&amp;lt; endl;//数组结束地址 int(*pp)[6] = &amp;amp;p;//创建一个指向6个int元素的指针 cout &amp;lt;&amp;lt; pp &amp;lt;&amp;lt; endl;//整个数组大小，和&amp;amp;p等价 cout &amp;lt;&amp;lt; *pp &amp;lt;&amp;lt; endl;//整个数组中第一个元素的地址。和p以及&amp;amp;p[0]等价 cout &amp;lt;&amp;lt; **pp &amp;lt;&amp;lt; endl;//第一个元素 cout &amp;lt;&amp;lt; (*pp) + 1 &amp;lt;&amp;lt; endl;//第二个元素的地址，和&amp;amp;p[1]等价 cout &amp;lt;&amp;lt; *((*pp) + 1) &amp;lt;&amp;lt; endl;//第二个元素的值 上面这几行反汇编的结果如下所示。伪代码很奇怪。 直接上汇编代码。 直接看汇编的话就会发现，前面2个是一样的。即pp和&amp;amp;pp，在实现是一样的。第三个多了一行mov指令，mov eax, [rax]所以是第一个元素。第四个多了一行add rax, 4，所以是取第二个元素的地址。第五个则是多了上面两行，所以是第二个元素。 类型组合 主要是指针数组比较难理解。指针数组是数组，每一个成员都是指针，可以创建一个二级指针指向该数组可以采用auto类型自动判断类型。 // 结构体数组 helloworld p1[]{s1, s2, s3}; // 结构体数组访问方式 p1[0].year; (*(p1 + 1)).year; // 指针数组，指向结构体的指针 helloworld *p2[]{&amp;amp;s1, &amp;amp;s2, &amp;amp;s3}; //指针数组访问方式 p2[0]-&amp;gt;year; (*(p2 + 1))-&amp;gt;year; (**(p2 + 1)).year; //二级指针，指向指针数组 auto p3{p2}; //二级指针访问方式 (*p3 + 1)-&amp;gt;year;//*p3表示第一个元素，同时也是指针，先解引用，得到的是&amp;amp;s1，但是+1得到的不一定是下一个元素地址，可能不连续 (*(*p3 + 1)).year; (*(p3 + 1))-&amp;gt;year;//p3表示&amp;amp;p2的地址，先+1得到的是下一个元素的地址，然后解引用得到结构体地址，是正确的访问思路 (*(*(p3 + 1))).year; //*(*p4)[3]类型指针，指向整个指针数组 auto p4{&amp;amp;p2}; cout &amp;lt;&amp;lt; p4 &amp;lt;&amp;lt; endl;//和&amp;amp;p2等价，整个指针数组的地址，是一个整体 cout &amp;lt;&amp;lt; *p4 + 1 &amp;lt;&amp;lt; endl;//先解引用，和p2以及&amp;amp;p2[0]等价，数组首地址，+1得到第二个元素地址 cout &amp;lt;&amp;lt; *(*p4 + 1) &amp;lt;&amp;lt; endl;//再一次解引用，得到第二个元素的值，就是&amp;amp;s2的值cout &amp;lt;&amp;lt; (*(*p4 + 1))-&amp;gt;year &amp;lt;&amp;lt; endl;//访问结构体的值 正确的二级指针访问的汇编代码如下所示： mov rax, [rbp+p1] add rax, 8 mov rax, [rax] mov eax, [rax+8] 数组模板 主要是vector和array两个模板类，都定义在std命名空间中，使用需要包含相应头文件。vector存储在heap，大小可变。array存储在stack，大小不可变。array对象可以直接进行对象赋值。使用at方法可以检查index是否越界。 vector&amp;lt;int&amp;gt; vt{5, 4, 3, 2, 1}; //vector&amp;lt;int&amp;gt; vt(5); array&amp;lt;int, 5&amp;gt; ai{1, 2, 3, 4, 5}; for循环结构 for循环的组成部分。 设置初始值。 执行测试条件，判断循环是否继续。 执行循环操作。 更新值。 声明语句表达式，关于这个概念，是指在for循环的初始化部分可以是表达式语句，也可以是声明。 前缀和后缀 前缀表达式的效率比后缀表达式的效率高因为前缀函数直接运算后返回结果。而后缀首先复制一个副本，然后计算表达式，最后返回副本。 如果递增运算符和指针结合，需要考虑到运算符的优先级和结合顺序。前缀运算符和解引用优先级相同，从右向左结合；后缀运算符优先级更高，从左向右结合。 关于逗号表达式：逗号表达式首先计算第一个表达式，然后计算第二个表达式。整个逗号表达式的值是最后部分的值。 cata = 17, 140;//等价于(cata = 17) , 140; cata值为17 cata = (17, 140);//括号优先级最高，cata值为140 关于延时循环，使用clock函数，直接贴代码。 //#include &amp;lt;bits/stdc++.h&amp;gt; #include &amp;lt;iostream&amp;gt; #include &amp;lt;vector&amp;gt; #include &amp;lt;array&amp;gt; #include &amp;lt;string&amp;gt; #include &amp;lt;cstring&amp;gt; #include &amp;lt;ctime&amp;gt; using namespace std; int main() { float secs{5.0}; clock_t delay = secs * CLOCKS_PER_SEC;// 将延时秒数乘以宏，得到以系统时间为单位的时间 cout &amp;lt;&amp;lt; &quot;starting!&quot; &amp;lt;&amp;lt; endl; clock_t start = clock();//返回的是系统时间 while (clock() - start &amp;lt; delay);//死循环延时 cout &amp;lt;&amp;lt; &quot;done&quot; &amp;lt;&amp;lt; endl; return 0; } 别名 C++使用两种方式定义别名。分别是预处理器和typedef关键字。尽量用typedef，预处理器错误太多了。 #define BYTE1 char typedef char byte1, *charptr; C++11循环 for (auto i : {4.99, 10.99, 6.87, 7.99, 8.49})//或者用引用类型，可以修改变量的值 cout &amp;lt;&amp;lt; i &amp;lt;&amp;lt; endl; 循环和文本输入 文件尾条件，称为EOF，操作系统都支持重定向，允许用文件替换键盘输入。比如get.exe &amp;lt; test.txt可以将文件输入至该程序中。小于号是重定向运算符。cin对象在检测到EOF之后，设置eofbit和failbit为true。可以通过对应的成员函数cin.eof()和cin.fail()查看。所以在循环输入的时候，可以通过这个方法检测输入是否完成，这是常规的做法。 char ch; cin.get(ch); while(cin.fail() == false)// 常见的做法 { cin.get(ch); } while(cin.get(ch)) // 更有效的做法 { } 第二种如代码所示，istream类提供了一个istream对象转换成bool类型的函数，即cin可以作为while的测试条件，这比检测fail更有效，因为能检测磁盘故障等问题。鉴于get方法返回的还是cin对象，所以可以直接精简成上面的测试条件。 cin.get()和cout.put()，以及getchar()和putchar()类似。在iostream中，EOF被定义为-1。可以使用cin.get()和cout.put()代替上面的函数，然后用EOF代替cin.fail()。注意cin.get()返回的是int类型的值，不是char。后面输出的时候也要强制转换。 // 普通版本，g++编译其实没问题 int ch; ch = cin.get(); while(ch != EOF) { cout.put(ch); ch = cin.get(); } // 更好的版本 int ch; while ((ch = cin.get()) != EOF) { cout.put(char(ch)); } 主要是因为两套不一样的函数，分别是cin.get(ch)和cin.get()。cin.get(ch)返回的是istream对象，即cin，可以连续读取。而cin.get()返回的是int类型的值。 嵌套循环和二维数组 int maxtmps[2][3]{ {96, 13, 58}, {23, 684, 83} }; 初始化方式如上所示。 分支语句 取反运算符的优先级高于所有关系运算符和算术运算符。 逻辑与运算符优先级高于逻辑或运算符。 C++保留了and、or和not关键字。 cctype 引入头文件cctype。 其中_ISbit宏如下。 # define _ISbit(bit) ((bit) &amp;lt; 8 ? ((1 &amp;lt;&amp;lt; (bit)) &amp;lt;&amp;lt; 8) : ((1 &amp;lt;&amp;lt; (bit)) &amp;gt;&amp;gt; 8)) 读取数字 如果没有正确读取到数字，变量的值将不变，输入将保留在输入流中，cin将设置错误标记，同时返回false。后续需要使用clear()方法重置错误标记。常见的做法是while(cin&amp;gt;&amp;gt;x)通过cin对象判断输入是否成功，失败则退出，否则继续。如果失败还需要继续读取，则需要重置，设置cin.clear()来接受新的输入，然后删除错误的输入序列，再进行新的输入。 int x; while (!(cin &amp;gt;&amp;gt; x))//判断读取是否成功 { cin.clear();//重置输入 while (cin.get() != '\n')//删除输入序列 { continue; } cout &amp;lt;&amp;lt; &quot;please input&quot; &amp;lt;&amp;lt; endl; } 文件输入输出 这里讨论的主要是文本文件的输出。需要引入头文件fstream和ofstream类的对象，通过open和close方法进行文件输出。最后使用«输出到文件中。输入也是相同的方法，定义ifstream的对象，然后调用方法进行输入。通过good方法，能检测所有的问题，包括磁盘错误，文件受损，读取EOF，类型不匹配等等。 #include &amp;lt;fstream&amp;gt; //输出 ofstream fout; fout.open(&quot;out.txt&quot;); fout &amp;lt;&amp;lt; endl; fout.close(); //输入 char cintext[50]; ifstream fin; fin.open(&quot;in.txt&quot;); if (!fin.is_open())//判断是否打开成功 { exit(EXIT_FAILURE); } fin &amp;gt;&amp;gt; cintext; fin.getline(cintext, 50); fin.close(); //最好的输入检测方式 while(fin &amp;gt;&amp;gt; value)//自动调用good方法判断是否成功 { ... } 混合输入的时候，cin.getline(array, len)读字符串，cin&amp;gt;&amp;gt;x读数字，然后cin.get()读换行符。</summary></entry><entry><title type="html">Cpp_prime_plus_learning1</title><link href="https://zjgcjy.github.io/posts/2019-07/CPP_Prime_Plus_Learning1.html" rel="alternate" type="text/html" title="Cpp_prime_plus_learning1" /><published>2019-07-24T19:24:00+08:00</published><updated>2019-07-24T19:24:00+08:00</updated><id>https://zjgcjy.github.io/posts/2019-07/CPP_Prime_Plus_Learning1</id><content type="html" xml:base="https://zjgcjy.github.io/posts/2019-07/CPP_Prime_Plus_Learning1.html">&lt;blockquote&gt;
-  &lt;p&gt;C++ Prime Plus 读书笔记1
-第1章到第3章 包括一些预备知识和基本数据类型和代码格式&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;hr /&gt;
-
-&lt;h1 id=&quot;c简介&quot;&gt;C++简介&lt;/h1&gt;
-
-&lt;p&gt;C++继承了C语言的优点，同时新添加了内容，包括面向对象编程（OOP）和泛型编程。&lt;/p&gt;
-
-&lt;p&gt;关于C语言的编程原理，有这么几点。最开始是过程性语言，强调数据和算法，但是这种方式阅读起来很困难，修改也很复杂。所以逐渐发展成为结构化编程的方法，将分支限制为小组行为中的结构。另一个原则是自顶向下的原则，将大任务分解成小任务，然后各个击破。总体来看，结构化编程反应了过程性编程的思想，即通过执行的操作来构思一个程序。&lt;/p&gt;
-
-&lt;p&gt;在OOP提出来后，这种思维强调的是数据，试图让语言来满足问题的要求，是设计与问题的本质相关的数据格式。然后设计出相应的类来表示这些数据格式，同时设置相应的方法，对数据进行操作，从低级数据操作高级数据，是一种自下向上的编程方法。OOP还有助于复用代码和信息隐藏，多态和继承能派生出新类和新的方法。&lt;/p&gt;
-
-&lt;p&gt;泛型编程是C++支持的另一种编程模式，它强调的是独立于数据格式的任务，即模板类。&lt;/p&gt;
-
-&lt;h1 id=&quot;创建c文件&quot;&gt;创建C++文件&lt;/h1&gt;
-
-&lt;p&gt;如何让C++文件运行起来主要分三步，第一步是编写源代码，第二步是编译源代码，生成的代码是目标代码，也就是机器语言。但是这个时候文件还不能运行，还要进行链接，链接的过程就是将程序运行需要的库函数和标准启动函数组合起来，形成可执行代码。&lt;/p&gt;
-
-&lt;p&gt;为了支持某些新特性，有些编译器，比如g++编译源代码的命令：&lt;/p&gt;
-
-&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;g&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;use_auto&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cpp&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;常见的C++文件拓展名如下表所示。&lt;/p&gt;
-
-&lt;table&gt;
-  &lt;thead&gt;
-    &lt;tr&gt;
-      &lt;th style=&quot;text-align: left&quot;&gt;C++实现&lt;/th&gt;
-      &lt;th style=&quot;text-align: left&quot;&gt;拓展名&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;UNIX&lt;/td&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;C cc cxx  c&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;GNU  C++&lt;/td&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;C cc cxx cpp c++&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;Visual C++&lt;/td&gt;
-      &lt;td style=&quot;text-align: left&quot;&gt;cpp cxx cc&lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
-
-&lt;p&gt;第一章的内容其实没什么重要的东西，了解一下就行了。下面是第二章的内容。&lt;/p&gt;
-
-&lt;h1 id=&quot;c语句&quot;&gt;C++语句&lt;/h1&gt;
-
-&lt;p&gt;C++支持命名空间的用法，这种技术旨在编写大型程序时能将多个同名函数进行区分，有助于组织结构。&lt;/p&gt;
-
-&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;namespace&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;err&quot;&gt;如果只需要使用其中几个对象，可以直接这样写，上面的写法有点偷懒了。&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;using&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;endl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;err&quot;&gt;也可以直接不使用命名空间。&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;endl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;关于换行符，endl和转义字符不一样的一点在于，endl会确保程序继续运行前刷新输出缓冲区，而转义字符‘\n’则不一定，有时候不会输出，需要设置输出缓冲区的刷新模式。&lt;/p&gt;
-
-&lt;p&gt;C++中的类指定了对象执行的所有操作。对特定对象执行这些操作，需要给对象发送消息，一般分为两种方法，第一种是使用类的方法，第二种是使用运算符重载。&lt;/p&gt;
-
-&lt;h1 id=&quot;函数&quot;&gt;函数&lt;/h1&gt;
-
-&lt;p&gt;在使用库函数的时候，如果找不到对应的函数，需要手动设置，如下所示。&lt;/p&gt;
-
-&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;UNIX&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;CC&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sqrt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;C&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;lm&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;Linux&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;g&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sqrt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;C&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;lm&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;h1 id=&quot;数据&quot;&gt;数据&lt;/h1&gt;
-
-&lt;p&gt;使用sizeof运算符可以求类型或者变量的长度。&lt;/p&gt;
-
-&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;//可以查看变量的范围&lt;/span&gt;
-&lt;span class=&quot;cp&quot;&gt;#include&amp;lt;climits&amp;gt;
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;C++特有的初始化语法，通过新添加的大括号初始化器，初始化常规变量的形式和类变量的形式更像。&lt;/p&gt;
-
-&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;80&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;关于无符号和有符号数据的范围，C++不保证符号整数的上溢和下溢。&lt;/p&gt;
-
-&lt;p&gt;关于数据格式，如果使用标准输入输出流，以不同格式输出的方法如下。&lt;/p&gt;
-
-&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;c1&quot;&gt;// 10进制&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;cout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dec&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;cout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;c1&quot;&gt;// 16进制&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;cout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;hex&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;cout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;c1&quot;&gt;//8进制&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;cout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;oct&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;cout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;h1 id=&quot;整形数据格式与类型&quot;&gt;整形数据格式与类型&lt;/h1&gt;
-
-&lt;p&gt;在整数后加l或L表示是long常量，u或U是unsigned int常量，ul或uL表示unsigned long常量，uLL表示unsigned long long常量。&lt;/p&gt;
-
-&lt;p&gt;对于不带后缀的十进制数，使用int，long 或者long long类型。
-对于不带后缀的十六进制，使用int，unsigned int，long，unsigned long，long long，unsigned long long。
-这是因为十六进制经常用来表示内存地址，而地址是非负的，无符号的。&lt;/p&gt;
-
-&lt;p&gt;cout对象有成员函数put，用来显示一个字符。
-C++中字符用单引号，字符串用双引号。&lt;/p&gt;
-
-&lt;p&gt;关于转义字符，问号是需要转义的（参见三字母词）。&lt;/p&gt;
-
-&lt;p&gt;C++中表示Unicode编码使用\u或者\U前缀，\uabcd或者\Uabcdef12，这种数据对应11标准中的&lt;code class=&quot;highlighter-rouge&quot;&gt;char16_t&lt;/code&gt;和&lt;code class=&quot;highlighter-rouge&quot;&gt;char32_t&lt;/code&gt;。&lt;/p&gt;
-
-&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kt&quot;&gt;char16_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ch1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;sc&quot;&gt;u'q'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;kt&quot;&gt;char32_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ch2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;U&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;'\&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;U0000222B&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;还有一种宽字符类型是wchar_t，这是一种拓展集合，使用2个字节。
-由于cin和cout只适合处理char类型，对于wchar_t类型，使用iostream头文件中的wcin和wcout。&lt;/p&gt;
-
-&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kt&quot;&gt;wchar_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bob&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;sc&quot;&gt;L'P'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;wcout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bob&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;L&quot;tall&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;endl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;h1 id=&quot;浮点数格式&quot;&gt;浮点数格式&lt;/h1&gt;
-
-&lt;p&gt;浮点数的表示格式就两种，第一种是常规方法，第二种是E表示法。浮点类型主要有float，double和long double三种，这是根据有效位数和指数的最小范围来划分的。通常float有32位，double有64位，long double是128位，可以从cfloat或float.h文件中查看范围限制。&lt;/p&gt;
-
-&lt;p&gt;浮点变量默认是double类型，后缀F表示float类型，L表示long double类型。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;在C++中，float类型只能表示数据中的前6位有效，double是13位有效。&lt;/strong&gt;&lt;/p&gt;
-
-&lt;h1 id=&quot;运算符&quot;&gt;运算符&lt;/h1&gt;
-
-&lt;p&gt;求模运算符满足以下规则&lt;/p&gt;
-
-&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;b&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;%&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;b&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;关于类型转换，在使用初始化列表的时候，类型只能向低精度类型转换，否则编译将不能通过。&lt;/p&gt;
-
-&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;code&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;66&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;66&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;kt&quot;&gt;char&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;c1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;66&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;//可以&lt;/span&gt;
-&lt;span class=&quot;kt&quot;&gt;char&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;c2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1234&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;//不可以&lt;/span&gt;
-&lt;span class=&quot;kt&quot;&gt;char&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;c3&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;code&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;//可以&lt;/span&gt;
-&lt;span class=&quot;kt&quot;&gt;char&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;c4&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;//不可以&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;在表达式中，如果不存在浮点数，则所有的变量都会进行整形提升，即转换成int，然后进行计算，最后再转换成对应的原始数据类型。&lt;/p&gt;
-
-&lt;p&gt;在C++中强制类型转换类似于函数调用。&lt;/p&gt;
-
-&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;long&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;var&lt;/span&gt;  &lt;span class=&quot;c1&quot;&gt;//C&lt;/span&gt;
-&lt;span class=&quot;kt&quot;&gt;long&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;var&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;  &lt;span class=&quot;c1&quot;&gt;//C++&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;C++引入了新的类型转换函数，&lt;code class=&quot;highlighter-rouge&quot;&gt;static_cast&lt;/code&gt;用于将数值类型转换成另一种数值类型。&lt;/p&gt;
-
-&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;static_cast&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;typeName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
-
-&lt;p&gt;C++11中引入了新的变量类型，auto，能根据初始化的数据自动判断变量。&lt;/p&gt;</content><author><name>zjgcjy</name></author><category term="C++" /><summary type="html">C++ Prime Plus 读书笔记1 第1章到第3章 包括一些预备知识和基本数据类型和代码格式 C++简介 C++继承了C语言的优点，同时新添加了内容，包括面向对象编程（OOP）和泛型编程。 关于C语言的编程原理，有这么几点。最开始是过程性语言，强调数据和算法，但是这种方式阅读起来很困难，修改也很复杂。所以逐渐发展成为结构化编程的方法，将分支限制为小组行为中的结构。另一个原则是自顶向下的原则，将大任务分解成小任务，然后各个击破。总体来看，结构化编程反应了过程性编程的思想，即通过执行的操作来构思一个程序。 在OOP提出来后，这种思维强调的是数据，试图让语言来满足问题的要求，是设计与问题的本质相关的数据格式。然后设计出相应的类来表示这些数据格式，同时设置相应的方法，对数据进行操作，从低级数据操作高级数据，是一种自下向上的编程方法。OOP还有助于复用代码和信息隐藏，多态和继承能派生出新类和新的方法。 泛型编程是C++支持的另一种编程模式，它强调的是独立于数据格式的任务，即模板类。 创建C++文件 如何让C++文件运行起来主要分三步，第一步是编写源代码，第二步是编译源代码，生成的代码是目标代码，也就是机器语言。但是这个时候文件还不能运行，还要进行链接，链接的过程就是将程序运行需要的库函数和标准启动函数组合起来，形成可执行代码。 为了支持某些新特性，有些编译器，比如g++编译源代码的命令： g++ -std=c++0x use_auto.cpp 常见的C++文件拓展名如下表所示。 C++实现 拓展名 UNIX C cc cxx c GNU C++ C cc cxx cpp c++ Visual C++ cpp cxx cc 第一章的内容其实没什么重要的东西，了解一下就行了。下面是第二章的内容。 C++语句 C++支持命名空间的用法，这种技术旨在编写大型程序时能将多个同名函数进行区分，有助于组织结构。 using namespace std; 如果只需要使用其中几个对象，可以直接这样写，上面的写法有点偷懒了。 using std::cout; using std::cin; using std::endl; 也可以直接不使用命名空间。 std::cout; std::cin; std::endl; 关于换行符，endl和转义字符不一样的一点在于，endl会确保程序继续运行前刷新输出缓冲区，而转义字符‘\n’则不一定，有时候不会输出，需要设置输出缓冲区的刷新模式。 C++中的类指定了对象执行的所有操作。对特定对象执行这些操作，需要给对象发送消息，一般分为两种方法，第一种是使用类的方法，第二种是使用运算符重载。 函数 在使用库函数的时候，如果找不到对应的函数，需要手动设置，如下所示。 UNIX CC sqrt.C -lm Linux g++ sqrt.C -lm 数据 使用sizeof运算符可以求类型或者变量的长度。 //可以查看变量的范围 #include&amp;lt;climits&amp;gt; C++特有的初始化语法，通过新添加的大括号初始化器，初始化常规变量的形式和类变量的形式更像。 int p(80); 关于无符号和有符号数据的范围，C++不保证符号整数的上溢和下溢。 关于数据格式，如果使用标准输入输出流，以不同格式输出的方法如下。 int a(10); // 10进制 cout &amp;lt;&amp;lt; dec; cout &amp;lt;&amp;lt; a; // 16进制 cout &amp;lt;&amp;lt; hex; cout &amp;lt;&amp;lt; a; //8进制 cout &amp;lt;&amp;lt; oct; cout &amp;lt;&amp;lt; a; 整形数据格式与类型 在整数后加l或L表示是long常量，u或U是unsigned int常量，ul或uL表示unsigned long常量，uLL表示unsigned long long常量。 对于不带后缀的十进制数，使用int，long 或者long long类型。 对于不带后缀的十六进制，使用int，unsigned int，long，unsigned long，long long，unsigned long long。 这是因为十六进制经常用来表示内存地址，而地址是非负的，无符号的。 cout对象有成员函数put，用来显示一个字符。 C++中字符用单引号，字符串用双引号。 关于转义字符，问号是需要转义的（参见三字母词）。 C++中表示Unicode编码使用\u或者\U前缀，\uabcd或者\Uabcdef12，这种数据对应11标准中的char16_t和char32_t。 char16_t ch1 = u'q'; char32_t ch2 = U'\U0000222B'; 还有一种宽字符类型是wchar_t，这是一种拓展集合，使用2个字节。 由于cin和cout只适合处理char类型，对于wchar_t类型，使用iostream头文件中的wcin和wcout。 wchar_t bob = L'P'; wcout &amp;lt;&amp;lt; bob &amp;lt;&amp;lt; L&quot;tall&quot; &amp;lt;&amp;lt; endl; 浮点数格式 浮点数的表示格式就两种，第一种是常规方法，第二种是E表示法。浮点类型主要有float，double和long double三种，这是根据有效位数和指数的最小范围来划分的。通常float有32位，double有64位，long double是128位，可以从cfloat或float.h文件中查看范围限制。 浮点变量默认是double类型，后缀F表示float类型，L表示long double类型。 在C++中，float类型只能表示数据中的前6位有效，double是13位有效。 运算符 求模运算符满足以下规则 (a/b)*b + a%b = a 关于类型转换，在使用初始化列表的时候，类型只能向低精度类型转换，否则编译将不能通过。 const int code = 66; int x = 66; char c1 = {66};//可以 char c2 = {1234};//不可以 char c3 = {code};//可以 char c4 = {x};//不可以 在表达式中，如果不存在浮点数，则所有的变量都会进行整形提升，即转换成int，然后进行计算，最后再转换成对应的原始数据类型。 在C++中强制类型转换类似于函数调用。 (long)var //C long(var) //C++ C++引入了新的类型转换函数，static_cast用于将数值类型转换成另一种数值类型。 static_cast&amp;lt;typeName&amp;gt; (value) C++11中引入了新的变量类型，auto，能根据初始化的数据自动判断变量。</summary></entry></feed>
+&lt;p&gt;混合输入的时候，&lt;code class=&quot;highlighter-rouge&quot;&gt;cin.getline(array, len)&lt;/code&gt;读字符串，&lt;code class=&quot;highlighter-rouge&quot;&gt;cin&amp;gt;&amp;gt;x&lt;/code&gt;读数字，然后&lt;code class=&quot;highlighter-rouge&quot;&gt;cin.get()&lt;/code&gt;读换行符。&lt;/p&gt;</content><author><name>zjgcjy</name></author><category term="C++" /><summary type="html">C++ Prime Plus 读书笔记2 第4章到第6章 包括复杂数据格式，循环以及条件结构 数组 sizeof返回的是对象的大小。使用sizeof(array)/sizeof(int)可以求数组大小。可以使用初始化列表对变量进行初始化，不设置的元素默认值是0。 当然STL提供的vectror和C++11提供的Array更好用。 字符串 字符串主要通过字符数组或者string类进行存储。字符数组以空字符结尾，所以长度比设置的长度小1。 直接使用双引号对字符数组进行初始化的字符串称为字符串常量。需要注意的是：字符串这个整体表示的是字符串的所在地址 char a = 's'; //字符 char a[] = &quot;s&quot;; //字符串 字符串输入的问题 用到了cin对象的2个方法，getline和get。都是读取一行，但是getline会丢弃换行符，get将保留换行符。getline的方法是cin.getline(array, len)，而get因为保留换行符，所以第二次输入会有换行符，这里需要处理。通常的方法是cin.get(array, len).get()因为get返回的还是一个cin对象。getline也是一样，可以通过连续调用来接受2个数组cin.getline(array1, len1).getline(array2, len2)。 用get对程序的输入更方便处理，而getline则使用更简单。关于读取空行的读取过多的数据，getline和get的情况不太同。 空行：getline读取换行符给目标数组。 空行：get读取设置失效位，后续读取将关闭，需要通过cin.clear()开启 过长：getline保留输入序列，设置失效位，关闭输入 过长：get也保留输入序列，下一次继续读取。 string类 使用初始化列表进行初始化。string p{&quot;fsdfsd&quot;} 对于string类来说，如果需要读取一行，使用istream的类方法，即getline(cin, str) //各种变量初始化方法 char p[]{&quot;sdfsdfsdf&quot;}; string aa{&quot;dfsdf&quot;}; wchar_t a[]{L&quot;aerwere&quot;}; char16_t b[]{u&quot;basdfsd&quot;}; char32_t c[]{U&quot;cwgwe&quot;}; 关于原始字符串，这种字符串中不考虑转义字符的问题。用R前缀和小括号来表示，如果需要表示括号，可以自定义标识符，R可以和u、L等一起使用。 // 使用*+*记号来标记 char dfsfdd[]{R&quot;*+*(&quot;(Who wouldn't?)&quot;)*+*&quot;}; cout&amp;lt;&amp;lt;R&quot;*+*(&quot;(Who wouldn't?)&quot;, she whispered.\n)*+*&quot;&amp;lt;&amp;lt;endl; 结构体 struct helloworld { char name[10]; int index; double grade; }aaa, *pp; //直接申明变量 helloworld x{&quot;dfdsfd&quot;,6,9.9}; //申明变量 struct //匿名结构体 { char name[20]; int index; }*ppp; 结构体允许直接进行成员赋值，应该是设置了对应的复制构造函数。 关于结构体数组的初始化方法如下: struct mystruct { char name[10]; int index; double grade; }guests[2]{ {&quot;chen&quot;, 1, 95.5}, {&quot;dong&quot;, 2, 2.6}, }; 结构体中的位字段这个结构说明的比较少，C++允许指定占用特有位数的结构成员，字段的类型为整形或枚举，然后是冒号，后面是数字指定了占用的位数。可以使用没有名称的字段来提供占位符。每个成员被称为位字段。 struct { unsigned int SN : 4; unsigned int : 4; //占位符 bool good1 : 1; bool good2 : 1; }tr{14,true,false}; 共用体 共用体的长度是最大成员的长度。 通常设置匿名共用体，结合结构体来表示一些特殊数据。 struct widget { char baudrate[10]; int type; union { // 匿名共用体，可以通过test.id_num直接访问对应的变量 long id_num; char id[20]; }; } test; 枚举 枚举的关键词是enum，这能创建符号常量。 枚举值能参与算术运算，但所有的值会进行整形提升，转换成int值，且不能给enum赋值，但可以通过强制类型转换进行赋值。 enum //匿名枚举变量 { red = 1, orange = 5, green = 8, blue = 200, indigo = 200, puple = 201, black = 300 }test; //可以不指定变量，即只创建符号常量，相当于const 通过强制类型转换，可以将任意值赋值给枚举变量，但是是有范围的，枚举的取值范围取决于已经初始化的值的范围，最大值是大于当前最大值的最小的2的次方减1。最小值如果初始化的值都非负，则是0，否则是小于当前最小值的最小的2的次方加1。 指针 int* p = (int*)0x12345678;//强制指向特定地址 数组名等价于数组的首地址。指针可以加减，但是数组名不行。 关于数组的地址，表述如下数组名表示的是一个元素占内存的地址，数组取地址表示的是整个数组占内存块的大小。所以p是一个整形的指针，而&amp;amp;p是这样这个指针，即指向一个包含n个元素的int数组。 int p[] = {1, 2, 3, 4, 5, 6}; cout &amp;lt;&amp;lt; p &amp;lt;&amp;lt; endl;//和&amp;amp;p[0]等价，表示第一个元素的地址 cout &amp;lt;&amp;lt; &amp;amp;p &amp;lt;&amp;lt; endl;//整个数组的地址 cout &amp;lt;&amp;lt; p + 1 &amp;lt;&amp;lt; endl;//下一个元素 cout &amp;lt;&amp;lt; &amp;amp;p + 1 &amp;lt;&amp;lt; endl;//数组结束地址 int(*pp)[6] = &amp;amp;p;//创建一个指向6个int元素的指针 cout &amp;lt;&amp;lt; pp &amp;lt;&amp;lt; endl;//整个数组大小，和&amp;amp;p等价 cout &amp;lt;&amp;lt; *pp &amp;lt;&amp;lt; endl;//整个数组中第一个元素的地址。和p以及&amp;amp;p[0]等价 cout &amp;lt;&amp;lt; **pp &amp;lt;&amp;lt; endl;//第一个元素 cout &amp;lt;&amp;lt; (*pp) + 1 &amp;lt;&amp;lt; endl;//第二个元素的地址，和&amp;amp;p[1]等价 cout &amp;lt;&amp;lt; *((*pp) + 1) &amp;lt;&amp;lt; endl;//第二个元素的值 上面这几行反汇编的结果如下所示。伪代码很奇怪。 直接上汇编代码。 直接看汇编的话就会发现，前面2个是一样的。即pp和&amp;amp;pp，在实现是一样的。第三个多了一行mov指令，mov eax, [rax]所以是第一个元素。第四个多了一行add rax, 4，所以是取第二个元素的地址。第五个则是多了上面两行，所以是第二个元素。 类型组合 主要是指针数组比较难理解。指针数组是数组，每一个成员都是指针，可以创建一个二级指针指向该数组可以采用auto类型自动判断类型。 // 结构体数组 helloworld p1[]{s1, s2, s3}; // 结构体数组访问方式 p1[0].year; (*(p1 + 1)).year; // 指针数组，指向结构体的指针 helloworld *p2[]{&amp;amp;s1, &amp;amp;s2, &amp;amp;s3}; //指针数组访问方式 p2[0]-&amp;gt;year; (*(p2 + 1))-&amp;gt;year; (**(p2 + 1)).year; //二级指针，指向指针数组 auto p3{p2}; //二级指针访问方式 (*p3 + 1)-&amp;gt;year;//*p3表示第一个元素，同时也是指针，先解引用，得到的是&amp;amp;s1，但是+1得到的不一定是下一个元素地址，可能不连续 (*(*p3 + 1)).year; (*(p3 + 1))-&amp;gt;year;//p3表示&amp;amp;p2的地址，先+1得到的是下一个元素的地址，然后解引用得到结构体地址，是正确的访问思路 (*(*(p3 + 1))).year; //*(*p4)[3]类型指针，指向整个指针数组 auto p4{&amp;amp;p2}; cout &amp;lt;&amp;lt; p4 &amp;lt;&amp;lt; endl;//和&amp;amp;p2等价，整个指针数组的地址，是一个整体 cout &amp;lt;&amp;lt; *p4 + 1 &amp;lt;&amp;lt; endl;//先解引用，和p2以及&amp;amp;p2[0]等价，数组首地址，+1得到第二个元素地址 cout &amp;lt;&amp;lt; *(*p4 + 1) &amp;lt;&amp;lt; endl;//再一次解引用，得到第二个元素的值，就是&amp;amp;s2的值cout &amp;lt;&amp;lt; (*(*p4 + 1))-&amp;gt;year &amp;lt;&amp;lt; endl;//访问结构体的值 正确的二级指针访问的汇编代码如下所示： mov rax, [rbp+p1] add rax, 8 mov rax, [rax] mov eax, [rax+8] 数组模板 主要是vector和array两个模板类，都定义在std命名空间中，使用需要包含相应头文件。vector存储在heap，大小可变。array存储在stack，大小不可变。array对象可以直接进行对象赋值。使用at方法可以检查index是否越界。 vector&amp;lt;int&amp;gt; vt{5, 4, 3, 2, 1}; //vector&amp;lt;int&amp;gt; vt(5); array&amp;lt;int, 5&amp;gt; ai{1, 2, 3, 4, 5}; for循环结构 for循环的组成部分。 设置初始值。 执行测试条件，判断循环是否继续。 执行循环操作。 更新值。 声明语句表达式，关于这个概念，是指在for循环的初始化部分可以是表达式语句，也可以是声明。 前缀和后缀 前缀表达式的效率比后缀表达式的效率高因为前缀函数直接运算后返回结果。而后缀首先复制一个副本，然后计算表达式，最后返回副本。 如果递增运算符和指针结合，需要考虑到运算符的优先级和结合顺序。前缀运算符和解引用优先级相同，从右向左结合；后缀运算符优先级更高，从左向右结合。 关于逗号表达式：逗号表达式首先计算第一个表达式，然后计算第二个表达式。整个逗号表达式的值是最后部分的值。 cata = 17, 140;//等价于(cata = 17) , 140; cata值为17 cata = (17, 140);//括号优先级最高，cata值为140 关于延时循环，使用clock函数，直接贴代码。 //#include &amp;lt;bits/stdc++.h&amp;gt; #include &amp;lt;iostream&amp;gt; #include &amp;lt;vector&amp;gt; #include &amp;lt;array&amp;gt; #include &amp;lt;string&amp;gt; #include &amp;lt;cstring&amp;gt; #include &amp;lt;ctime&amp;gt; using namespace std; int main() { float secs{5.0}; clock_t delay = secs * CLOCKS_PER_SEC;// 将延时秒数乘以宏，得到以系统时间为单位的时间 cout &amp;lt;&amp;lt; &quot;starting!&quot; &amp;lt;&amp;lt; endl; clock_t start = clock();//返回的是系统时间 while (clock() - start &amp;lt; delay);//死循环延时 cout &amp;lt;&amp;lt; &quot;done&quot; &amp;lt;&amp;lt; endl; return 0; } 别名 C++使用两种方式定义别名。分别是预处理器和typedef关键字。尽量用typedef，预处理器错误太多了。 #define BYTE1 char typedef char byte1, *charptr; C++11循环 for (auto i : {4.99, 10.99, 6.87, 7.99, 8.49})//或者用引用类型，可以修改变量的值 cout &amp;lt;&amp;lt; i &amp;lt;&amp;lt; endl; 循环和文本输入 文件尾条件，称为EOF，操作系统都支持重定向，允许用文件替换键盘输入。比如get.exe &amp;lt; test.txt可以将文件输入至该程序中。小于号是重定向运算符。cin对象在检测到EOF之后，设置eofbit和failbit为true。可以通过对应的成员函数cin.eof()和cin.fail()查看。所以在循环输入的时候，可以通过这个方法检测输入是否完成，这是常规的做法。 char ch; cin.get(ch); while(cin.fail() == false)// 常见的做法 { cin.get(ch); } while(cin.get(ch)) // 更有效的做法 { } 第二种如代码所示，istream类提供了一个istream对象转换成bool类型的函数，即cin可以作为while的测试条件，这比检测fail更有效，因为能检测磁盘故障等问题。鉴于get方法返回的还是cin对象，所以可以直接精简成上面的测试条件。 cin.get()和cout.put()，以及getchar()和putchar()类似。在iostream中，EOF被定义为-1。可以使用cin.get()和cout.put()代替上面的函数，然后用EOF代替cin.fail()。注意cin.get()返回的是int类型的值，不是char。后面输出的时候也要强制转换。 // 普通版本，g++编译其实没问题 int ch; ch = cin.get(); while(ch != EOF) { cout.put(ch); ch = cin.get(); } // 更好的版本 int ch; while ((ch = cin.get()) != EOF) { cout.put(char(ch)); } 主要是因为两套不一样的函数，分别是cin.get(ch)和cin.get()。cin.get(ch)返回的是istream对象，即cin，可以连续读取。而cin.get()返回的是int类型的值。 嵌套循环和二维数组 int maxtmps[2][3]{ {96, 13, 58}, {23, 684, 83} }; 初始化方式如上所示。 分支语句 取反运算符的优先级高于所有关系运算符和算术运算符。 逻辑与运算符优先级高于逻辑或运算符。 C++保留了and、or和not关键字。 cctype 引入头文件cctype。 其中_ISbit宏如下。 # define _ISbit(bit) ((bit) &amp;lt; 8 ? ((1 &amp;lt;&amp;lt; (bit)) &amp;lt;&amp;lt; 8) : ((1 &amp;lt;&amp;lt; (bit)) &amp;gt;&amp;gt; 8)) 读取数字 如果没有正确读取到数字，变量的值将不变，输入将保留在输入流中，cin将设置错误标记，同时返回false。后续需要使用clear()方法重置错误标记。常见的做法是while(cin&amp;gt;&amp;gt;x)通过cin对象判断输入是否成功，失败则退出，否则继续。如果失败还需要继续读取，则需要重置，设置cin.clear()来接受新的输入，然后删除错误的输入序列，再进行新的输入。 int x; while (!(cin &amp;gt;&amp;gt; x))//判断读取是否成功 { cin.clear();//重置输入 while (cin.get() != '\n')//删除输入序列 { continue; } cout &amp;lt;&amp;lt; &quot;please input&quot; &amp;lt;&amp;lt; endl; } 文件输入输出 这里讨论的主要是文本文件的输出。需要引入头文件fstream和ofstream类的对象，通过open和close方法进行文件输出。最后使用«输出到文件中。输入也是相同的方法，定义ifstream的对象，然后调用方法进行输入。通过good方法，能检测所有的问题，包括磁盘错误，文件受损，读取EOF，类型不匹配等等。 #include &amp;lt;fstream&amp;gt; //输出 ofstream fout; fout.open(&quot;out.txt&quot;); fout &amp;lt;&amp;lt; endl; fout.close(); //输入 char cintext[50]; ifstream fin; fin.open(&quot;in.txt&quot;); if (!fin.is_open())//判断是否打开成功 { exit(EXIT_FAILURE); } fin &amp;gt;&amp;gt; cintext; fin.getline(cintext, 50); fin.close(); //最好的输入检测方式 while(fin &amp;gt;&amp;gt; value)//自动调用good方法判断是否成功 { ... } 混合输入的时候，cin.getline(array, len)读字符串，cin&amp;gt;&amp;gt;x读数字，然后cin.get()读换行符。</summary></entry></feed>

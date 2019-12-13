@@ -9,8 +9,8 @@
   <head>
     <meta charset="utf-8">
 
-<!-- begin _includes/seo.html --><title>三月日记  -  My way, though far away</title>
-<meta name="description" content="  每日所作所得3月28日上午翻译论文，毕设进展缓慢。继续搭建XEN调试环境，网络调试不可行，只能1394端口、串口和USB，笔记本没有1394，USB好像也不行，只能串口？一脸懵逼。下午继续学习ptmalloc下的malloc管理方式。还在折腾XEN环境，USB3肯定不行了，USB2需要的电缆很贵，看看有没有其他办法。无意间看到google的summer of code，想参加，了解之后，怕是在做梦。晚上复习了malloc的所有chunk分配bins和维护链表。3月29日上午看了heap的exploitation。继续折腾环境，看了学姐说的2个方法，貌似都不行，后来又试了一下windbg的local mode，成功起来，但没卵用，大部分命令都不支持，要你何用。下午继续看malloc的系统实现，brk和mmap，然后和学姐商量暂时放弃调试。参加了讨论班，学姐讲的是机器学习检测同驻虚拟机里的监视进程，听不太懂。晚上看glibc中的malloc实现，对多线程共享arena有了一定了解，没看其他的东西。3月30日摸鱼的一天3月31日上午摸鱼下午打篮球，跑步晚上休闲娱乐，帮钱思秋看了一个shellcode的问题。">
+<!-- begin _includes/seo.html --><title>Diary Notes  -  My way, though far away</title>
+<meta name="description" content="  最近很浮躁，日记好久没写了，书也没看，论文也没看，运动也是断断续续。12月5日打算重新开blog，找了很久，从stackedit到blogger，从hexo到wordpress再到jekyll。因为图片的缘故，还在vps上搭了rclone来同步onedrive当图床用，后来又用git repo来当图床（结果发现URL被墙了）。烦。12月10日重开blog，公开所有posts，采用Jekyll格式。三个repo，其中markdown原文未公开。  blog source  blog site  posts (private)12月11日review Jekyll source，fork了一份开始改，基本没啥问题了，由于之前没用过jekyll，有点不熟悉。12月12日花了一天的时间改code。基本是confige的部分，还有我以前的posts的格式不满足Jekyll的识别要求，以及image的相对链接地址。基本都改完了，除了comments部分，disqus由于被墙了，需要梯子，但是还有一个问题是comments的布局错乱，不清楚原因。晚上的时候去源repo提了issue。12月13日USTC的大佬回了issue，最后检查是发布的时候命令用错了issue link，我使用的是jekyll build JEKYLL_ENV=production貌似这样后面的环境变量没起作用，但是我测试应该是一部分起作用了，一脸懵逼。真正发布的命令是JEKYLL_ENV=production bundle exec jekyll build。晚上的时候还修改了toc，可以stricky，最后修改了columns的width，这样posts的内容可以占到80%左右。todo list on site:  import visit speed &amp; add cdn 目前速度有点慢，一是disqus被墙，二是font awesome被墙。  add github action 整合3个repo，采用CD &amp; CL，自动发布  merge image to posts 整合所有image到posts repo，而不是blog source repo，或者用一个单独的repo">
 
 
   <meta name="author" content="zjgcjy">
@@ -19,11 +19,11 @@
 <meta property="og:type" content="article">
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
-<meta property="og:title" content="三月日记">
-<meta property="og:url" content="https://zjgcjy.github.io/posts/2019-03/%E4%B8%89%E6%9C%88%E6%97%A5%E8%AE%B0.html">
+<meta property="og:title" content="Diary Notes">
+<meta property="og:url" content="https://zjgcjy.github.io/posts/2019-10/diary-notes.html">
 
 
-  <meta property="og:description" content="  每日所作所得3月28日上午翻译论文，毕设进展缓慢。继续搭建XEN调试环境，网络调试不可行，只能1394端口、串口和USB，笔记本没有1394，USB好像也不行，只能串口？一脸懵逼。下午继续学习ptmalloc下的malloc管理方式。还在折腾XEN环境，USB3肯定不行了，USB2需要的电缆很贵，看看有没有其他办法。无意间看到google的summer of code，想参加，了解之后，怕是在做梦。晚上复习了malloc的所有chunk分配bins和维护链表。3月29日上午看了heap的exploitation。继续折腾环境，看了学姐说的2个方法，貌似都不行，后来又试了一下windbg的local mode，成功起来，但没卵用，大部分命令都不支持，要你何用。下午继续看malloc的系统实现，brk和mmap，然后和学姐商量暂时放弃调试。参加了讨论班，学姐讲的是机器学习检测同驻虚拟机里的监视进程，听不太懂。晚上看glibc中的malloc实现，对多线程共享arena有了一定了解，没看其他的东西。3月30日摸鱼的一天3月31日上午摸鱼下午打篮球，跑步晚上休闲娱乐，帮钱思秋看了一个shellcode的问题。">
+  <meta property="og:description" content="  最近很浮躁，日记好久没写了，书也没看，论文也没看，运动也是断断续续。12月5日打算重新开blog，找了很久，从stackedit到blogger，从hexo到wordpress再到jekyll。因为图片的缘故，还在vps上搭了rclone来同步onedrive当图床用，后来又用git repo来当图床（结果发现URL被墙了）。烦。12月10日重开blog，公开所有posts，采用Jekyll格式。三个repo，其中markdown原文未公开。  blog source  blog site  posts (private)12月11日review Jekyll source，fork了一份开始改，基本没啥问题了，由于之前没用过jekyll，有点不熟悉。12月12日花了一天的时间改code。基本是confige的部分，还有我以前的posts的格式不满足Jekyll的识别要求，以及image的相对链接地址。基本都改完了，除了comments部分，disqus由于被墙了，需要梯子，但是还有一个问题是comments的布局错乱，不清楚原因。晚上的时候去源repo提了issue。12月13日USTC的大佬回了issue，最后检查是发布的时候命令用错了issue link，我使用的是jekyll build JEKYLL_ENV=production貌似这样后面的环境变量没起作用，但是我测试应该是一部分起作用了，一脸懵逼。真正发布的命令是JEKYLL_ENV=production bundle exec jekyll build。晚上的时候还修改了toc，可以stricky，最后修改了columns的width，这样posts的内容可以占到80%左右。todo list on site:  import visit speed &amp; add cdn 目前速度有点慢，一是disqus被墙，二是font awesome被墙。  add github action 整合3个repo，采用CD &amp; CL，自动发布  merge image to posts 整合所有image到posts repo，而不是blog source repo，或者用一个单独的repo">
 
 
 
@@ -32,9 +32,9 @@
 
 
   <meta name="twitter:site" content="@zjgcjy">
-  <meta name="twitter:title" content="三月日记">
-  <meta name="twitter:description" content="  每日所作所得3月28日上午翻译论文，毕设进展缓慢。继续搭建XEN调试环境，网络调试不可行，只能1394端口、串口和USB，笔记本没有1394，USB好像也不行，只能串口？一脸懵逼。下午继续学习ptmalloc下的malloc管理方式。还在折腾XEN环境，USB3肯定不行了，USB2需要的电缆很贵，看看有没有其他办法。无意间看到google的summer of code，想参加，了解之后，怕是在做梦。晚上复习了malloc的所有chunk分配bins和维护链表。3月29日上午看了heap的exploitation。继续折腾环境，看了学姐说的2个方法，貌似都不行，后来又试了一下windbg的local mode，成功起来，但没卵用，大部分命令都不支持，要你何用。下午继续看malloc的系统实现，brk和mmap，然后和学姐商量暂时放弃调试。参加了讨论班，学姐讲的是机器学习检测同驻虚拟机里的监视进程，听不太懂。晚上看glibc中的malloc实现，对多线程共享arena有了一定了解，没看其他的东西。3月30日摸鱼的一天3月31日上午摸鱼下午打篮球，跑步晚上休闲娱乐，帮钱思秋看了一个shellcode的问题。">
-  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2019-03/%E4%B8%89%E6%9C%88%E6%97%A5%E8%AE%B0.html">
+  <meta name="twitter:title" content="Diary Notes">
+  <meta name="twitter:description" content="  最近很浮躁，日记好久没写了，书也没看，论文也没看，运动也是断断续续。12月5日打算重新开blog，找了很久，从stackedit到blogger，从hexo到wordpress再到jekyll。因为图片的缘故，还在vps上搭了rclone来同步onedrive当图床用，后来又用git repo来当图床（结果发现URL被墙了）。烦。12月10日重开blog，公开所有posts，采用Jekyll格式。三个repo，其中markdown原文未公开。  blog source  blog site  posts (private)12月11日review Jekyll source，fork了一份开始改，基本没啥问题了，由于之前没用过jekyll，有点不熟悉。12月12日花了一天的时间改code。基本是confige的部分，还有我以前的posts的格式不满足Jekyll的识别要求，以及image的相对链接地址。基本都改完了，除了comments部分，disqus由于被墙了，需要梯子，但是还有一个问题是comments的布局错乱，不清楚原因。晚上的时候去源repo提了issue。12月13日USTC的大佬回了issue，最后检查是发布的时候命令用错了issue link，我使用的是jekyll build JEKYLL_ENV=production貌似这样后面的环境变量没起作用，但是我测试应该是一部分起作用了，一脸懵逼。真正发布的命令是JEKYLL_ENV=production bundle exec jekyll build。晚上的时候还修改了toc，可以stricky，最后修改了columns的width，这样posts的内容可以占到80%左右。todo list on site:  import visit speed &amp; add cdn 目前速度有点慢，一是disqus被墙，二是font awesome被墙。  add github action 整合3个repo，采用CD &amp; CL，自动发布  merge image to posts 整合所有image到posts repo，而不是blog source repo，或者用一个单独的repo">
+  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2019-10/diary-notes.html">
 
   
     <meta name="twitter:card" content="summary">
@@ -47,7 +47,7 @@
 
 
 
-  <meta property="article:published_time" content="2019-03-28T13:34:00+08:00">
+  <meta property="article:published_time" content="2019-10-02T21:15:00+08:00">
 
 
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="https://zjgcjy.github.io/posts/2019-03/%E4%B8%89%E6%9C%88%E6%97%A5%E8%AE%B0.html">
+<link rel="canonical" href="https://zjgcjy.github.io/posts/2019-10/diary-notes.html">
 
 
 
@@ -305,15 +305,15 @@
 
 
   <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
-    <meta itemprop="headline" content="三月日记">
-    <meta itemprop="description" content="  每日所作所得3月28日上午翻译论文，毕设进展缓慢。继续搭建XEN调试环境，网络调试不可行，只能1394端口、串口和USB，笔记本没有1394，USB好像也不行，只能串口？一脸懵逼。下午继续学习ptmalloc下的malloc管理方式。还在折腾XEN环境，USB3肯定不行了，USB2需要的电缆很贵，看看有没有其他办法。无意间看到google的summer of code，想参加，了解之后，怕是在做梦。晚上复习了malloc的所有chunk分配bins和维护链表。3月29日上午看了heap的exploitation。继续折腾环境，看了学姐说的2个方法，貌似都不行，后来又试了一下windbg的local mode，成功起来，但没卵用，大部分命令都不支持，要你何用。下午继续看malloc的系统实现，brk和mmap，然后和学姐商量暂时放弃调试。参加了讨论班，学姐讲的是机器学习检测同驻虚拟机里的监视进程，听不太懂。晚上看glibc中的malloc实现，对多线程共享arena有了一定了解，没看其他的东西。3月30日摸鱼的一天3月31日上午摸鱼下午打篮球，跑步晚上休闲娱乐，帮钱思秋看了一个shellcode的问题。">
-    <meta itemprop="datePublished" content="March 28, 2019">
+    <meta itemprop="headline" content="Diary Notes">
+    <meta itemprop="description" content="  最近很浮躁，日记好久没写了，书也没看，论文也没看，运动也是断断续续。12月5日打算重新开blog，找了很久，从stackedit到blogger，从hexo到wordpress再到jekyll。因为图片的缘故，还在vps上搭了rclone来同步onedrive当图床用，后来又用git repo来当图床（结果发现URL被墙了）。烦。12月10日重开blog，公开所有posts，采用Jekyll格式。三个repo，其中markdown原文未公开。  blog source  blog site  posts (private)12月11日review Jekyll source，fork了一份开始改，基本没啥问题了，由于之前没用过jekyll，有点不熟悉。12月12日花了一天的时间改code。基本是confige的部分，还有我以前的posts的格式不满足Jekyll的识别要求，以及image的相对链接地址。基本都改完了，除了comments部分，disqus由于被墙了，需要梯子，但是还有一个问题是comments的布局错乱，不清楚原因。晚上的时候去源repo提了issue。12月13日USTC的大佬回了issue，最后检查是发布的时候命令用错了issue link，我使用的是jekyll build JEKYLL_ENV=production貌似这样后面的环境变量没起作用，但是我测试应该是一部分起作用了，一脸懵逼。真正发布的命令是JEKYLL_ENV=production bundle exec jekyll build。晚上的时候还修改了toc，可以stricky，最后修改了columns的width，这样posts的内容可以占到80%左右。todo list on site:  import visit speed &amp; add cdn 目前速度有点慢，一是disqus被墙，二是font awesome被墙。  add github action 整合3个repo，采用CD &amp; CL，自动发布  merge image to posts 整合所有image到posts repo，而不是blog source repo，或者用一个单独的repo">
+    <meta itemprop="datePublished" content="October 02, 2019">
     
 
     <div class="page__inner-wrap">
       
         <header>
-          <h1 id="page-title" class="page__title" itemprop="headline">三月日记
+          <h1 id="page-title" class="page__title" itemprop="headline">Diary Notes
 </h1>
           
             <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
@@ -334,83 +334,56 @@
             <nav class="toc">
               <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
               <ul class="toc__menu">
-  <li><a href="#3月28日">3月28日</a>
-    <ul>
-      <li><a href="#上午">上午</a></li>
-      <li><a href="#下午">下午</a></li>
-      <li><a href="#晚上">晚上</a></li>
-    </ul>
-  </li>
-  <li><a href="#3月29日">3月29日</a>
-    <ul>
-      <li><a href="#上午-1">上午</a></li>
-      <li><a href="#下午-1">下午</a></li>
-      <li><a href="#晚上-1">晚上</a></li>
-    </ul>
-  </li>
-  <li><a href="#3月30日">3月30日</a></li>
-  <li><a href="#3月31日">3月31日</a>
-    <ul>
-      <li><a href="#上午-2">上午</a></li>
-      <li><a href="#下午-2">下午</a></li>
-      <li><a href="#晚上-2">晚上</a></li>
-    </ul>
-  </li>
+  <li><a href="#12月5日">12月5日</a></li>
+  <li><a href="#12月10日">12月10日</a></li>
+  <li><a href="#12月11日">12月11日</a></li>
+  <li><a href="#12月12日">12月12日</a></li>
+  <li><a href="#12月13日">12月13日</a></li>
 </ul>
             </nav>
           </aside>
         
         <blockquote>
-  <p>每日所作所得</p>
+  <p>最近很浮躁，日记好久没写了，书也没看，论文也没看，运动也是断断续续。</p>
 </blockquote>
 
-<hr />
+<h1 id="12月5日">12月5日</h1>
 
-<h1 id="3月28日">3月28日</h1>
+<p>打算重新开blog，找了很久，从stackedit到blogger，从hexo到wordpress再到jekyll。因为图片的缘故，还在vps上搭了rclone来同步onedrive当图床用，后来又用git repo来当图床（结果发现URL被墙了）。烦。</p>
 
-<h2 id="上午">上午</h2>
+<h1 id="12月10日">12月10日</h1>
 
-<p>翻译论文，毕设进展缓慢。继续搭建XEN调试环境，网络调试不可行，只能1394端口、串口和USB，笔记本没有1394，USB好像也不行，只能串口？一脸懵逼。</p>
+<p>重开blog，公开所有posts，采用Jekyll格式。</p>
 
-<h2 id="下午">下午</h2>
+<p>三个repo，其中markdown原文未公开。</p>
+<ul>
+  <li>blog source</li>
+  <li>blog site</li>
+  <li>posts (private)</li>
+</ul>
 
-<p>继续学习ptmalloc下的malloc管理方式。还在折腾XEN环境，USB3肯定不行了，USB2需要的电缆很贵，看看有没有其他办法。无意间看到google的summer of code，想参加，了解之后，怕是在做梦。</p>
+<h1 id="12月11日">12月11日</h1>
 
-<h2 id="晚上">晚上</h2>
+<p>review Jekyll source，fork了一份开始改，基本没啥问题了，由于之前没用过jekyll，有点不熟悉。</p>
 
-<p>复习了malloc的所有chunk分配bins和维护链表。</p>
+<h1 id="12月12日">12月12日</h1>
 
-<h1 id="3月29日">3月29日</h1>
+<p>花了一天的时间改code。基本是confige的部分，还有我以前的posts的格式不满足Jekyll的识别要求，以及image的相对链接地址。
+基本都改完了，除了comments部分，disqus由于被墙了，需要梯子，但是还有一个问题是comments的布局错乱，不清楚原因。晚上的时候去源repo提了issue。</p>
 
-<h2 id="上午-1">上午</h2>
+<h1 id="12月13日">12月13日</h1>
 
-<p>看了heap的exploitation。继续折腾环境，看了学姐说的2个方法，貌似都不行，后来又试了一下windbg的local mode，成功起来，但没卵用，大部分命令都不支持，要你何用。</p>
+<p>USTC的大佬回了issue，最后检查是发布的时候命令用错了<a href="https://github.com/mmistakes/minimal-mistakes/issues/2343">issue link</a>，我使用的是<code class="highlighter-rouge">jekyll build JEKYLL_ENV=production</code>貌似这样后面的环境变量没起作用，但是我测试应该是一部分起作用了，一脸懵逼。真正发布的命令是<code class="highlighter-rouge">JEKYLL_ENV=production bundle exec jekyll build</code>。</p>
 
-<h2 id="下午-1">下午</h2>
+<p>晚上的时候还修改了toc，可以stricky，最后修改了columns的width，这样posts的内容可以占到80%左右。</p>
 
-<p>继续看malloc的系统实现，brk和mmap，然后和学姐商量暂时放弃调试。参加了讨论班，学姐讲的是机器学习检测同驻虚拟机里的监视进程，听不太懂。</p>
+<p>todo list on site:</p>
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />import visit speed &amp; add cdn 目前速度有点慢，一是disqus被墙，二是font awesome被墙。</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />add github action 整合3个repo，采用CD &amp; CL，自动发布</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />merge image to posts 整合所有image到posts repo，而不是blog source repo，或者用一个单独的repo</li>
+</ul>
 
-<h2 id="晚上-1">晚上</h2>
-
-<p>看glibc中的malloc实现，对多线程共享arena有了一定了解，没看其他的东西。</p>
-
-<h1 id="3月30日">3月30日</h1>
-
-<p>摸鱼的一天</p>
-
-<h1 id="3月31日">3月31日</h1>
-
-<h2 id="上午-2">上午</h2>
-
-<p>摸鱼</p>
-
-<h2 id="下午-2">下午</h2>
-
-<p>打篮球，跑步</p>
-
-<h2 id="晚上-2">晚上</h2>
-
-<p>休闲娱乐，帮钱思秋看了一个shellcode的问题。</p>
 
         
       </section>
@@ -440,7 +413,7 @@
 
 
         
-          <p class="page__date"><strong><i class="fa fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-03-28T13:34:00+08:00">March 28, 2019</time></p>
+          <p class="page__date"><strong><i class="fa fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-10-02T21:15:00+08:00">October 02, 2019</time></p>
         
       </footer>
 
@@ -449,22 +422,22 @@
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=%E4%B8%89%E6%9C%88%E6%97%A5%E8%AE%B0%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-03%2F%25E4%25B8%2589%25E6%259C%2588%25E6%2597%25A5%25E8%25AE%25B0.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Diary+Notes%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-10%2Fdiary-notes.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-03%2F%25E4%25B8%2589%25E6%259C%2588%25E6%2597%25A5%25E8%25AE%25B0.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-10%2Fdiary-notes.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-03%2F%25E4%25B8%2589%25E6%259C%2588%25E6%2597%25A5%25E8%25AE%25B0.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-10%2Fdiary-notes.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
       
   <nav class="pagination">
     
-      <a href="/posts/2019-03/Xen%E6%89%8B%E5%86%8C.html" class="pagination--pager" title="Xen手册
+      <a href="/posts/2019-10/%E5%8D%81%E6%9C%88%E6%97%A5%E8%AE%B0.html" class="pagination--pager" title="十月日记
 ">Previous</a>
     
     
-      <a href="/posts/2019-03/Heap-1.html" class="pagination--pager" title="Heap 1
+      <a href="/posts/2019-10/Pacman_Helper.html" class="pagination--pager" title="Pacman_helper
 ">Next</a>
     
   </nav>
@@ -621,7 +594,7 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     
     <h2 class="archive__item-title" itemprop="headline">
       
-        <a href="/posts/2019-10/diary-notes.html" rel="permalink">Diary Notes
+        <a href="/posts/2019-10/%E5%8D%81%E6%9C%88%E6%97%A5%E8%AE%B0.html" rel="permalink">十月日记
 </a>
       
     </h2>
@@ -636,12 +609,19 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
 </p>
     
     <p class="archive__item-excerpt" itemprop="description">
-  最近很浮躁，日记好久没写了，书也没看，论文也没看，运动也是断断续续。
+  每日所作所得
 
 
-12月5日
 
-打算重新开blog，找了很久，从stackedit到blogger，从hexo到wordpress再到jekyll。因为图片的缘故，还在vps上搭了rclone来同步onedrive当图床用，后来又用git repo来当...</p>
+
+10月1日
+
+周日，上课前最后一天，算是给自己放了最后一天假期
+
+10月2日
+
+上了第一天的课，主要是os，一脸蒙蔽。
+</p>
   </article>
 </div>
 
@@ -722,8 +702,8 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     */
     /*
     var disqus_config = function () {
-      this.page.url = "https://zjgcjy.github.io/posts/2019-03/%E4%B8%89%E6%9C%88%E6%97%A5%E8%AE%B0.html";  // Replace PAGE_URL with your page's canonical URL variable
-      this.page.identifier = "/posts/2019-03/三月日记"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+      this.page.url = "https://zjgcjy.github.io/posts/2019-10/diary-notes.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.identifier = "/posts/2019-10/diary-notes"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     */
     (function() { // DON'T EDIT BELOW THIS LINE
