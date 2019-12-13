@@ -2198,21 +2198,9 @@
       
     
       
-        <li>
-          <a href="#windbg">
-            <strong>windbg</strong> <span class="taxonomy__count">2</span>
-          </a>
-        </li>
-      
     
       
     
-      
-        <li>
-          <a href="#xen">
-            <strong>xen</strong> <span class="taxonomy__count">2</span>
-          </a>
-        </li>
       
     
       
@@ -2412,6 +2400,12 @@
       
     
       
+        <li>
+          <a href="#windbg">
+            <strong>windbg</strong> <span class="taxonomy__count">1</span>
+          </a>
+        </li>
+      
     
       
         <li>
@@ -2421,6 +2415,12 @@
         </li>
       
     
+      
+        <li>
+          <a href="#xen">
+            <strong>xen</strong> <span class="taxonomy__count">1</span>
+          </a>
+        </li>
       
     
       
@@ -8622,194 +8622,9 @@ beginner_reverse
     
   
     
-      <section id="windbg" class="taxonomy__section">
-        <h2 class="archive__subtitle">windbg</h2>
-        <div class="entries-list">
-          
-            
-
-
-
-<div class="list__item">
-  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
-    
-    <h2 class="archive__item-title" itemprop="headline">
-      
-        <a href="/posts/2019-07/%E5%9F%BA%E4%BA%8EXen%E7%9A%84Windows%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95%E9%85%8D%E7%BD%AE.html" rel="permalink">xen
-</a>
-      
-    </h2>
-    
-      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
-
-
-
-
-  less than 1 minute read
-
-</p>
-    
-    <p class="archive__item-excerpt" itemprop="description">
-  详细记录对基于Xen虚拟化的Windows系统双机内核调试的配置步骤
-
-
-
-
-基本原理
-
-大致的流程是：虚拟串口——TCP——虚拟串口
-
-使用windbg的串口调试功能。由于调试主机没有串口，采用创建虚拟串口的方式，使用sockpipe工具，创建管道，如此windbg能顺利接上这个管道，并将管道映射到本机的...</p>
-  </article>
-</div>
-
-          
-            
-
-
-
-<div class="list__item">
-  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
-    
-    <h2 class="archive__item-title" itemprop="headline">
-      
-        <a href="/posts/2019-03/windbg.html" rel="permalink">Windbg
-</a>
-      
-    </h2>
-    
-      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
-
-
-
-
-  2 minute read
-
-</p>
-    
-    <p class="archive__item-excerpt" itemprop="description">
-  windbg手册
-
-
-
-
-查看变量
-
-dv Display Variable的缩写, 查看局部变量.
-dv /i 查看局部变量, 并显示符号的类型和参数类型.
-dv /V 查看局部变量, 并显示变量的存储位置.
-dv /V VariableName 指定需要查看的变量的名字
-dv 02sample!gGlo...</p>
-  </article>
-</div>
-
-          
-        </div>
-        <a href="#page-title" class="back-to-top">Back to top &uarr;</a>
-      </section>
-    
   
     
   
-    
-      <section id="xen" class="taxonomy__section">
-        <h2 class="archive__subtitle">xen</h2>
-        <div class="entries-list">
-          
-            
-
-
-
-<div class="list__item">
-  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
-    
-    <h2 class="archive__item-title" itemprop="headline">
-      
-        <a href="/posts/2019-07/%E5%9F%BA%E4%BA%8EXen%E7%9A%84Windows%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95%E9%85%8D%E7%BD%AE.html" rel="permalink">xen
-</a>
-      
-    </h2>
-    
-      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
-
-
-
-
-  less than 1 minute read
-
-</p>
-    
-    <p class="archive__item-excerpt" itemprop="description">
-  详细记录对基于Xen虚拟化的Windows系统双机内核调试的配置步骤
-
-
-
-
-基本原理
-
-大致的流程是：虚拟串口——TCP——虚拟串口
-
-使用windbg的串口调试功能。由于调试主机没有串口，采用创建虚拟串口的方式，使用sockpipe工具，创建管道，如此windbg能顺利接上这个管道，并将管道映射到本机的...</p>
-  </article>
-</div>
-
-          
-            
-
-
-
-<div class="list__item">
-  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
-    
-    <h2 class="archive__item-title" itemprop="headline">
-      
-        <a href="/posts/2019-03/Xen%E6%89%8B%E5%86%8C.html" rel="permalink">Xen手册
-</a>
-      
-    </h2>
-    
-      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
-
-
-
-
-  less than 1 minute read
-
-</p>
-    
-    <p class="archive__item-excerpt" itemprop="description">
-  Xen配置手册
-
-
-
-
-Xen启动手册
-
-启动虚拟机
-xl create win721.cfg
-
-
-打开图形界面
-gvncviewer 127.0.0.1
-
-
-列出所有虚拟化环境？
-xl li
-
-
-设置白名单
-./send_white_list
-
-
-打开打印通道 id号 1
-./openprintk 1 1...</p>
-  </article>
-</div>
-
-          
-        </div>
-        <a href="#page-title" class="back-to-top">Back to top &uarr;</a>
-      </section>
     
   
     
@@ -9785,6 +9600,54 @@ ELF （Executable and Linkable Format）文件，也就是在 Linux 中的目标
     
   
     
+      <section id="windbg" class="taxonomy__section">
+        <h2 class="archive__subtitle">windbg</h2>
+        <div class="entries-list">
+          
+            
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-03/windbg.html" rel="permalink">Windbg
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  2 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  windbg手册
+
+
+
+
+查看变量
+
+dv Display Variable的缩写, 查看局部变量.
+dv /i 查看局部变量, 并显示符号的类型和参数类型.
+dv /V 查看局部变量, 并显示变量的存储位置.
+dv /V VariableName 指定需要查看的变量的名字
+dv 02sample!gGlo...</p>
+  </article>
+</div>
+
+          
+        </div>
+        <a href="#page-title" class="back-to-top">Back to top &uarr;</a>
+      </section>
+    
   
     
       <section id="cve" class="taxonomy__section">
@@ -9833,6 +9696,67 @@ Windows把虚拟地址分为用户地址空间和系统地址空间，用户地�
       </section>
     
   
+    
+      <section id="xen" class="taxonomy__section">
+        <h2 class="archive__subtitle">xen</h2>
+        <div class="entries-list">
+          
+            
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="/posts/2019-03/Xen%E6%89%8B%E5%86%8C.html" rel="permalink">Xen手册
+</a>
+      
+    </h2>
+    
+      <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
+
+
+
+
+  less than 1 minute read
+
+</p>
+    
+    <p class="archive__item-excerpt" itemprop="description">
+  Xen配置手册
+
+
+
+
+Xen启动手册
+
+启动虚拟机
+xl create win721.cfg
+
+
+打开图形界面
+gvncviewer 127.0.0.1
+
+
+列出所有虚拟化环境？
+xl li
+
+
+设置白名单
+./send_white_list
+
+
+打开打印通道 id号 1
+./openprintk 1 1...</p>
+  </article>
+</div>
+
+          
+        </div>
+        <a href="#page-title" class="back-to-top">Back to top &uarr;</a>
+      </section>
     
   
     
