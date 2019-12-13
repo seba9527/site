@@ -414,7 +414,7 @@ C++继承了C语言的优点，同时新添加了内容，包括面向对象编�
     
     <h2 class="archive__item-title" itemprop="headline">
       
-        <a href="/%E5%9F%BA%E4%BA%8EXen%E7%9A%84Windows%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95%E9%85%8D%E7%BD%AE/" rel="permalink">基于xen的windows双机调试配置
+        <a href="/posts/2019-07/%E5%9F%BA%E4%BA%8EXen%E7%9A%84Windows%E5%8F%8C%E6%9C%BA%E8%B0%83%E8%AF%95%E9%85%8D%E7%BD%AE.html" rel="permalink">xen
 </a>
       
     </h2>
@@ -428,18 +428,7 @@ C++继承了C语言的优点，同时新添加了内容，包括面向对象编�
 
 </p>
     
-    <p class="archive__item-excerpt" itemprop="description">enter code here—
-tags:
-
-  xen
-  windbg
-title: xen
-permalink: /posts/:year-:month/:title.html
-toc: true
-—
-
-
-
+    <p class="archive__item-excerpt" itemprop="description">
   详细记录对基于Xen虚拟化的Windows系统双机内核调试的配置步骤
 
 
@@ -447,7 +436,9 @@ toc: true
 
 基本原理
 
-大致...</p>
+大致的流程是：虚拟串口——TCP——虚拟串口
+
+使用windbg的串口调试功能。由于调试主机没有串口，采用创建虚拟串口的方式，使用sockpipe工具，创建管道，如此windbg能顺利接上这个管道，并将管道映射到本机的...</p>
   </article>
 </div>
 

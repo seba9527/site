@@ -9,7 +9,7 @@
   <head>
     <meta charset="utf-8">
 
-<!-- begin _includes/seo.html --><title>Diary Notes  -  My way, though far away</title>
+<!-- begin _includes/seo.html --><title>Diary_notes  -  My way, though far away</title>
 <meta name="description" content="  最近很浮躁，日记好久没写了，书也没看，论文也没看，运动也是断断续续。12月5日打算重新开blog，找了很久，从stackedit到blogger，从hexo到wordpress再到jekyll。因为图片的缘故，还在vps上搭了rclone来同步onedrive当图床用，后来又用git repo来当图床（结果发现URL被墙了）。烦。12月10日重开blog，公开所有posts，采用Jekyll格式。三个repo，其中markdown原文未公开。  blog source  blog site  posts (private)12月11日review Jekyll source，fork了一份开始改，基本没啥问题了，由于之前没用过jekyll，有点不熟悉。12月12日花了一天的时间改code。基本是confige的部分，还有我以前的posts的格式不满足Jekyll的识别要求，以及image的相对链接地址。基本都改完了，除了comments部分，disqus由于被墙了，需要梯子，但是还有一个问题是comments的布局错乱，不清楚原因。晚上的时候去源repo提了issue。12月13日USTC的大佬回了issue，最后检查是发布的时候命令用错了issue link，我使用的是jekyll build JEKYLL_ENV=production貌似这样后面的环境变量没起作用，但是我测试应该是一部分起作用了，一脸懵逼。真正发布的命令是JEKYLL_ENV=production bundle exec jekyll build。晚上的时候还修改了toc，可以stricky，最后修改了columns的width，这样posts的内容可以占到80%左右。todo list on site:  import visit speed &amp; add cdn 目前速度有点慢，一是disqus被墙，二是font awesome被墙。  add github action 整合3个repo，采用CD &amp; CL，自动发布  merge image to posts 整合所有image到posts repo，而不是blog source repo，或者用一个单独的repo">
 
 
@@ -19,8 +19,8 @@
 <meta property="og:type" content="article">
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="My way, though far away">
-<meta property="og:title" content="Diary Notes">
-<meta property="og:url" content="https://zjgcjy.github.io/posts/2019-10/diary-notes.html">
+<meta property="og:title" content="Diary_notes">
+<meta property="og:url" content="https://zjgcjy.github.io/posts/2019-12/diary_notes.html">
 
 
   <meta property="og:description" content="  最近很浮躁，日记好久没写了，书也没看，论文也没看，运动也是断断续续。12月5日打算重新开blog，找了很久，从stackedit到blogger，从hexo到wordpress再到jekyll。因为图片的缘故，还在vps上搭了rclone来同步onedrive当图床用，后来又用git repo来当图床（结果发现URL被墙了）。烦。12月10日重开blog，公开所有posts，采用Jekyll格式。三个repo，其中markdown原文未公开。  blog source  blog site  posts (private)12月11日review Jekyll source，fork了一份开始改，基本没啥问题了，由于之前没用过jekyll，有点不熟悉。12月12日花了一天的时间改code。基本是confige的部分，还有我以前的posts的格式不满足Jekyll的识别要求，以及image的相对链接地址。基本都改完了，除了comments部分，disqus由于被墙了，需要梯子，但是还有一个问题是comments的布局错乱，不清楚原因。晚上的时候去源repo提了issue。12月13日USTC的大佬回了issue，最后检查是发布的时候命令用错了issue link，我使用的是jekyll build JEKYLL_ENV=production貌似这样后面的环境变量没起作用，但是我测试应该是一部分起作用了，一脸懵逼。真正发布的命令是JEKYLL_ENV=production bundle exec jekyll build。晚上的时候还修改了toc，可以stricky，最后修改了columns的width，这样posts的内容可以占到80%左右。todo list on site:  import visit speed &amp; add cdn 目前速度有点慢，一是disqus被墙，二是font awesome被墙。  add github action 整合3个repo，采用CD &amp; CL，自动发布  merge image to posts 整合所有image到posts repo，而不是blog source repo，或者用一个单独的repo">
@@ -32,9 +32,9 @@
 
 
   <meta name="twitter:site" content="@zjgcjy">
-  <meta name="twitter:title" content="Diary Notes">
+  <meta name="twitter:title" content="Diary_notes">
   <meta name="twitter:description" content="  最近很浮躁，日记好久没写了，书也没看，论文也没看，运动也是断断续续。12月5日打算重新开blog，找了很久，从stackedit到blogger，从hexo到wordpress再到jekyll。因为图片的缘故，还在vps上搭了rclone来同步onedrive当图床用，后来又用git repo来当图床（结果发现URL被墙了）。烦。12月10日重开blog，公开所有posts，采用Jekyll格式。三个repo，其中markdown原文未公开。  blog source  blog site  posts (private)12月11日review Jekyll source，fork了一份开始改，基本没啥问题了，由于之前没用过jekyll，有点不熟悉。12月12日花了一天的时间改code。基本是confige的部分，还有我以前的posts的格式不满足Jekyll的识别要求，以及image的相对链接地址。基本都改完了，除了comments部分，disqus由于被墙了，需要梯子，但是还有一个问题是comments的布局错乱，不清楚原因。晚上的时候去源repo提了issue。12月13日USTC的大佬回了issue，最后检查是发布的时候命令用错了issue link，我使用的是jekyll build JEKYLL_ENV=production貌似这样后面的环境变量没起作用，但是我测试应该是一部分起作用了，一脸懵逼。真正发布的命令是JEKYLL_ENV=production bundle exec jekyll build。晚上的时候还修改了toc，可以stricky，最后修改了columns的width，这样posts的内容可以占到80%左右。todo list on site:  import visit speed &amp; add cdn 目前速度有点慢，一是disqus被墙，二是font awesome被墙。  add github action 整合3个repo，采用CD &amp; CL，自动发布  merge image to posts 整合所有image到posts repo，而不是blog source repo，或者用一个单独的repo">
-  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2019-10/diary-notes.html">
+  <meta name="twitter:url" content="https://zjgcjy.github.io/posts/2019-12/diary_notes.html">
 
   
     <meta name="twitter:card" content="summary">
@@ -47,7 +47,7 @@
 
 
 
-  <meta property="article:published_time" content="2019-10-02T21:15:00+08:00">
+  <meta property="article:published_time" content="2019-12-02T21:15:00+08:00">
 
 
 
@@ -58,7 +58,7 @@
   
 
 
-<link rel="canonical" href="https://zjgcjy.github.io/posts/2019-10/diary-notes.html">
+<link rel="canonical" href="https://zjgcjy.github.io/posts/2019-12/diary_notes.html">
 
 
 
@@ -305,15 +305,15 @@
 
 
   <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
-    <meta itemprop="headline" content="Diary Notes">
+    <meta itemprop="headline" content="Diary_notes">
     <meta itemprop="description" content="  最近很浮躁，日记好久没写了，书也没看，论文也没看，运动也是断断续续。12月5日打算重新开blog，找了很久，从stackedit到blogger，从hexo到wordpress再到jekyll。因为图片的缘故，还在vps上搭了rclone来同步onedrive当图床用，后来又用git repo来当图床（结果发现URL被墙了）。烦。12月10日重开blog，公开所有posts，采用Jekyll格式。三个repo，其中markdown原文未公开。  blog source  blog site  posts (private)12月11日review Jekyll source，fork了一份开始改，基本没啥问题了，由于之前没用过jekyll，有点不熟悉。12月12日花了一天的时间改code。基本是confige的部分，还有我以前的posts的格式不满足Jekyll的识别要求，以及image的相对链接地址。基本都改完了，除了comments部分，disqus由于被墙了，需要梯子，但是还有一个问题是comments的布局错乱，不清楚原因。晚上的时候去源repo提了issue。12月13日USTC的大佬回了issue，最后检查是发布的时候命令用错了issue link，我使用的是jekyll build JEKYLL_ENV=production貌似这样后面的环境变量没起作用，但是我测试应该是一部分起作用了，一脸懵逼。真正发布的命令是JEKYLL_ENV=production bundle exec jekyll build。晚上的时候还修改了toc，可以stricky，最后修改了columns的width，这样posts的内容可以占到80%左右。todo list on site:  import visit speed &amp; add cdn 目前速度有点慢，一是disqus被墙，二是font awesome被墙。  add github action 整合3个repo，采用CD &amp; CL，自动发布  merge image to posts 整合所有image到posts repo，而不是blog source repo，或者用一个单独的repo">
-    <meta itemprop="datePublished" content="October 02, 2019">
+    <meta itemprop="datePublished" content="December 02, 2019">
     
 
     <div class="page__inner-wrap">
       
         <header>
-          <h1 id="page-title" class="page__title" itemprop="headline">Diary Notes
+          <h1 id="page-title" class="page__title" itemprop="headline">Diary_notes
 </h1>
           
             <p class="page__meta"><i class="far fa-clock" aria-hidden="true"></i> 
@@ -413,7 +413,7 @@
 
 
         
-          <p class="page__date"><strong><i class="fa fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-10-02T21:15:00+08:00">October 02, 2019</time></p>
+          <p class="page__date"><strong><i class="fa fa-calendar" aria-hidden="true"></i> Updated:</strong> <time datetime="2019-12-02T21:15:00+08:00">December 02, 2019</time></p>
         
       </footer>
 
@@ -422,23 +422,22 @@
     <h4 class="page__share-title">Share on</h4>
   
 
-  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Diary+Notes%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-10%2Fdiary-notes.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+  <a href="https://twitter.com/intent/tweet?via=zjgcjy&text=Diary_notes%20https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-12%2Fdiary_notes.html" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fa fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
 
-  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-10%2Fdiary-notes.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-12%2Fdiary_notes.html" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fa fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
 
-  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-10%2Fdiary-notes.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fzjgcjy.github.io%2Fposts%2F2019-12%2Fdiary_notes.html" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
 </section>
 
 
       
   <nav class="pagination">
     
-      <a href="/posts/2019-10/%E5%8D%81%E6%9C%88%E6%97%A5%E8%AE%B0.html" class="pagination--pager" title="十月日记
+      <a href="/posts/2019-11/Dirary_November.html" class="pagination--pager" title="Dirary_november
 ">Previous</a>
     
     
-      <a href="/posts/2019-10/Pacman_Helper.html" class="pagination--pager" title="Pacman_helper
-">Next</a>
+      <a href="#" class="pagination--pager disabled">Next</a>
     
   </nav>
 
@@ -471,7 +470,7 @@
     
     <h2 class="archive__item-title" itemprop="headline">
       
-        <a href="/Dirary_November/" rel="permalink">Dirary_november
+        <a href="/posts/2019-11/Dirary_November.html" rel="permalink">Dirary_november
 </a>
       
     </h2>
@@ -561,7 +560,7 @@ warning
 
 
 
-  2 minute read
+  3 minute read
 
 </p>
     
@@ -702,8 +701,8 @@ pacman -S abc 从本地数据库中得到abc的信息，下载安装...</p>
     */
     /*
     var disqus_config = function () {
-      this.page.url = "https://zjgcjy.github.io/posts/2019-10/diary-notes.html";  // Replace PAGE_URL with your page's canonical URL variable
-      this.page.identifier = "/posts/2019-10/diary-notes"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+      this.page.url = "https://zjgcjy.github.io/posts/2019-12/diary_notes.html";  // Replace PAGE_URL with your page's canonical URL variable
+      this.page.identifier = "/posts/2019-12/diary_notes"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     */
     (function() { // DON'T EDIT BELOW THIS LINE

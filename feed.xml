@@ -1,4 +1,43 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="https://zjgcjy.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://zjgcjy.github.io/" rel="alternate" type="text/html" /><updated>2019-12-13T20:39:21+08:00</updated><id>https://zjgcjy.github.io/feed.xml</id><title type="html">My way, though far away</title><subtitle>A flexible Blog of zjgcjy</subtitle><author><name>zjgcjy</name></author><entry><title type="html">Dirary_november</title><link href="https://zjgcjy.github.io/Dirary_November/" rel="alternate" type="text/html" title="Dirary_november" /><published>2019-11-01T21:15:00+08:00</published><updated>2019-11-01T21:15:00+08:00</updated><id>https://zjgcjy.github.io/Dirary_November</id><content type="html" xml:base="https://zjgcjy.github.io/Dirary_November/">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="https://zjgcjy.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://zjgcjy.github.io/" rel="alternate" type="text/html" /><updated>2019-12-13T20:46:49+08:00</updated><id>https://zjgcjy.github.io/feed.xml</id><title type="html">My way, though far away</title><subtitle>A flexible Blog of zjgcjy</subtitle><author><name>zjgcjy</name></author><entry><title type="html">Diary_notes</title><link href="https://zjgcjy.github.io/posts/2019-12/diary_notes.html" rel="alternate" type="text/html" title="Diary_notes" /><published>2019-12-02T21:15:00+08:00</published><updated>2019-12-02T21:15:00+08:00</updated><id>https://zjgcjy.github.io/posts/2019-12/diary_notes</id><content type="html" xml:base="https://zjgcjy.github.io/posts/2019-12/diary_notes.html">&lt;blockquote&gt;
+  &lt;p&gt;最近很浮躁，日记好久没写了，书也没看，论文也没看，运动也是断断续续。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h1 id=&quot;12月5日&quot;&gt;12月5日&lt;/h1&gt;
+
+&lt;p&gt;打算重新开blog，找了很久，从stackedit到blogger，从hexo到wordpress再到jekyll。因为图片的缘故，还在vps上搭了rclone来同步onedrive当图床用，后来又用git repo来当图床（结果发现URL被墙了）。烦。&lt;/p&gt;
+
+&lt;h1 id=&quot;12月10日&quot;&gt;12月10日&lt;/h1&gt;
+
+&lt;p&gt;重开blog，公开所有posts，采用Jekyll格式。&lt;/p&gt;
+
+&lt;p&gt;三个repo，其中markdown原文未公开。&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;blog source&lt;/li&gt;
+  &lt;li&gt;blog site&lt;/li&gt;
+  &lt;li&gt;posts (private)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;12月11日&quot;&gt;12月11日&lt;/h1&gt;
+
+&lt;p&gt;review Jekyll source，fork了一份开始改，基本没啥问题了，由于之前没用过jekyll，有点不熟悉。&lt;/p&gt;
+
+&lt;h1 id=&quot;12月12日&quot;&gt;12月12日&lt;/h1&gt;
+
+&lt;p&gt;花了一天的时间改code。基本是confige的部分，还有我以前的posts的格式不满足Jekyll的识别要求，以及image的相对链接地址。
+基本都改完了，除了comments部分，disqus由于被墙了，需要梯子，但是还有一个问题是comments的布局错乱，不清楚原因。晚上的时候去源repo提了issue。&lt;/p&gt;
+
+&lt;h1 id=&quot;12月13日&quot;&gt;12月13日&lt;/h1&gt;
+
+&lt;p&gt;USTC的大佬回了issue，最后检查是发布的时候命令用错了&lt;a href=&quot;https://github.com/mmistakes/minimal-mistakes/issues/2343&quot;&gt;issue link&lt;/a&gt;，我使用的是&lt;code class=&quot;highlighter-rouge&quot;&gt;jekyll build JEKYLL_ENV=production&lt;/code&gt;貌似这样后面的环境变量没起作用，但是我测试应该是一部分起作用了，一脸懵逼。真正发布的命令是&lt;code class=&quot;highlighter-rouge&quot;&gt;JEKYLL_ENV=production bundle exec jekyll build&lt;/code&gt;。&lt;/p&gt;
+
+&lt;p&gt;晚上的时候还修改了toc，可以stricky，最后修改了columns的width，这样posts的内容可以占到80%左右。&lt;/p&gt;
+
+&lt;p&gt;todo list on site:&lt;/p&gt;
+&lt;ul class=&quot;task-list&quot;&gt;
+  &lt;li class=&quot;task-list-item&quot;&gt;&lt;input type=&quot;checkbox&quot; class=&quot;task-list-item-checkbox&quot; disabled=&quot;disabled&quot; /&gt;import visit speed &amp;amp; add cdn 目前速度有点慢，一是disqus被墙，二是font awesome被墙。&lt;/li&gt;
+  &lt;li class=&quot;task-list-item&quot;&gt;&lt;input type=&quot;checkbox&quot; class=&quot;task-list-item-checkbox&quot; disabled=&quot;disabled&quot; /&gt;add github action 整合3个repo，采用CD &amp;amp; CL，自动发布&lt;/li&gt;
+  &lt;li class=&quot;task-list-item&quot;&gt;&lt;input type=&quot;checkbox&quot; class=&quot;task-list-item-checkbox&quot; disabled=&quot;disabled&quot; /&gt;merge image to posts 整合所有image到posts repo，而不是blog source repo，或者用一个单独的repo&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>zjgcjy</name></author><category term="日记" /><summary type="html">最近很浮躁，日记好久没写了，书也没看，论文也没看，运动也是断断续续。 12月5日 打算重新开blog，找了很久，从stackedit到blogger，从hexo到wordpress再到jekyll。因为图片的缘故，还在vps上搭了rclone来同步onedrive当图床用，后来又用git repo来当图床（结果发现URL被墙了）。烦。 12月10日 重开blog，公开所有posts，采用Jekyll格式。 三个repo，其中markdown原文未公开。 blog source blog site posts (private) 12月11日 review Jekyll source，fork了一份开始改，基本没啥问题了，由于之前没用过jekyll，有点不熟悉。 12月12日 花了一天的时间改code。基本是confige的部分，还有我以前的posts的格式不满足Jekyll的识别要求，以及image的相对链接地址。 基本都改完了，除了comments部分，disqus由于被墙了，需要梯子，但是还有一个问题是comments的布局错乱，不清楚原因。晚上的时候去源repo提了issue。 12月13日 USTC的大佬回了issue，最后检查是发布的时候命令用错了issue link，我使用的是jekyll build JEKYLL_ENV=production貌似这样后面的环境变量没起作用，但是我测试应该是一部分起作用了，一脸懵逼。真正发布的命令是JEKYLL_ENV=production bundle exec jekyll build。 晚上的时候还修改了toc，可以stricky，最后修改了columns的width，这样posts的内容可以占到80%左右。 todo list on site: import visit speed &amp;amp; add cdn 目前速度有点慢，一是disqus被墙，二是font awesome被墙。 add github action 整合3个repo，采用CD &amp;amp; CL，自动发布 merge image to posts 整合所有image到posts repo，而不是blog source repo，或者用一个单独的repo</summary></entry><entry><title type="html">Dirary_november</title><link href="https://zjgcjy.github.io/posts/2019-11/Dirary_November.html" rel="alternate" type="text/html" title="Dirary_november" /><published>2019-11-01T21:15:00+08:00</published><updated>2019-11-01T21:15:00+08:00</updated><id>https://zjgcjy.github.io/posts/2019-11/Dirary_November</id><content type="html" xml:base="https://zjgcjy.github.io/posts/2019-11/Dirary_November.html">&lt;blockquote&gt;
   &lt;p&gt;每日所作所得&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -274,46 +313,7 @@ vs2010&lt;/p&gt;
 
 &lt;h1 id=&quot;10月2日&quot;&gt;10月2日&lt;/h1&gt;
 
-&lt;p&gt;上了第一天的课，主要是os，一脸蒙蔽。&lt;/p&gt;</content><author><name>zjgcjy</name></author><category term="日记" /><summary type="html">每日所作所得 10月1日 周日，上课前最后一天，算是给自己放了最后一天假期 10月2日 上了第一天的课，主要是os，一脸蒙蔽。</summary></entry><entry><title type="html">Diary Notes</title><link href="https://zjgcjy.github.io/posts/2019-10/diary-notes.html" rel="alternate" type="text/html" title="Diary Notes" /><published>2019-10-02T21:15:00+08:00</published><updated>2019-10-02T21:15:00+08:00</updated><id>https://zjgcjy.github.io/posts/2019-10/diary-notes</id><content type="html" xml:base="https://zjgcjy.github.io/posts/2019-10/diary-notes.html">&lt;blockquote&gt;
-  &lt;p&gt;最近很浮躁，日记好久没写了，书也没看，论文也没看，运动也是断断续续。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h1 id=&quot;12月5日&quot;&gt;12月5日&lt;/h1&gt;
-
-&lt;p&gt;打算重新开blog，找了很久，从stackedit到blogger，从hexo到wordpress再到jekyll。因为图片的缘故，还在vps上搭了rclone来同步onedrive当图床用，后来又用git repo来当图床（结果发现URL被墙了）。烦。&lt;/p&gt;
-
-&lt;h1 id=&quot;12月10日&quot;&gt;12月10日&lt;/h1&gt;
-
-&lt;p&gt;重开blog，公开所有posts，采用Jekyll格式。&lt;/p&gt;
-
-&lt;p&gt;三个repo，其中markdown原文未公开。&lt;/p&gt;
-&lt;ul&gt;
-  &lt;li&gt;blog source&lt;/li&gt;
-  &lt;li&gt;blog site&lt;/li&gt;
-  &lt;li&gt;posts (private)&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h1 id=&quot;12月11日&quot;&gt;12月11日&lt;/h1&gt;
-
-&lt;p&gt;review Jekyll source，fork了一份开始改，基本没啥问题了，由于之前没用过jekyll，有点不熟悉。&lt;/p&gt;
-
-&lt;h1 id=&quot;12月12日&quot;&gt;12月12日&lt;/h1&gt;
-
-&lt;p&gt;花了一天的时间改code。基本是confige的部分，还有我以前的posts的格式不满足Jekyll的识别要求，以及image的相对链接地址。
-基本都改完了，除了comments部分，disqus由于被墙了，需要梯子，但是还有一个问题是comments的布局错乱，不清楚原因。晚上的时候去源repo提了issue。&lt;/p&gt;
-
-&lt;h1 id=&quot;12月13日&quot;&gt;12月13日&lt;/h1&gt;
-
-&lt;p&gt;USTC的大佬回了issue，最后检查是发布的时候命令用错了&lt;a href=&quot;https://github.com/mmistakes/minimal-mistakes/issues/2343&quot;&gt;issue link&lt;/a&gt;，我使用的是&lt;code class=&quot;highlighter-rouge&quot;&gt;jekyll build JEKYLL_ENV=production&lt;/code&gt;貌似这样后面的环境变量没起作用，但是我测试应该是一部分起作用了，一脸懵逼。真正发布的命令是&lt;code class=&quot;highlighter-rouge&quot;&gt;JEKYLL_ENV=production bundle exec jekyll build&lt;/code&gt;。&lt;/p&gt;
-
-&lt;p&gt;晚上的时候还修改了toc，可以stricky，最后修改了columns的width，这样posts的内容可以占到80%左右。&lt;/p&gt;
-
-&lt;p&gt;todo list on site:&lt;/p&gt;
-&lt;ul class=&quot;task-list&quot;&gt;
-  &lt;li class=&quot;task-list-item&quot;&gt;&lt;input type=&quot;checkbox&quot; class=&quot;task-list-item-checkbox&quot; disabled=&quot;disabled&quot; /&gt;import visit speed &amp;amp; add cdn 目前速度有点慢，一是disqus被墙，二是font awesome被墙。&lt;/li&gt;
-  &lt;li class=&quot;task-list-item&quot;&gt;&lt;input type=&quot;checkbox&quot; class=&quot;task-list-item-checkbox&quot; disabled=&quot;disabled&quot; /&gt;add github action 整合3个repo，采用CD &amp;amp; CL，自动发布&lt;/li&gt;
-  &lt;li class=&quot;task-list-item&quot;&gt;&lt;input type=&quot;checkbox&quot; class=&quot;task-list-item-checkbox&quot; disabled=&quot;disabled&quot; /&gt;merge image to posts 整合所有image到posts repo，而不是blog source repo，或者用一个单独的repo&lt;/li&gt;
-&lt;/ul&gt;</content><author><name>zjgcjy</name></author><category term="日记" /><summary type="html">最近很浮躁，日记好久没写了，书也没看，论文也没看，运动也是断断续续。 12月5日 打算重新开blog，找了很久，从stackedit到blogger，从hexo到wordpress再到jekyll。因为图片的缘故，还在vps上搭了rclone来同步onedrive当图床用，后来又用git repo来当图床（结果发现URL被墙了）。烦。 12月10日 重开blog，公开所有posts，采用Jekyll格式。 三个repo，其中markdown原文未公开。 blog source blog site posts (private) 12月11日 review Jekyll source，fork了一份开始改，基本没啥问题了，由于之前没用过jekyll，有点不熟悉。 12月12日 花了一天的时间改code。基本是confige的部分，还有我以前的posts的格式不满足Jekyll的识别要求，以及image的相对链接地址。 基本都改完了，除了comments部分，disqus由于被墙了，需要梯子，但是还有一个问题是comments的布局错乱，不清楚原因。晚上的时候去源repo提了issue。 12月13日 USTC的大佬回了issue，最后检查是发布的时候命令用错了issue link，我使用的是jekyll build JEKYLL_ENV=production貌似这样后面的环境变量没起作用，但是我测试应该是一部分起作用了，一脸懵逼。真正发布的命令是JEKYLL_ENV=production bundle exec jekyll build。 晚上的时候还修改了toc，可以stricky，最后修改了columns的width，这样posts的内容可以占到80%左右。 todo list on site: import visit speed &amp;amp; add cdn 目前速度有点慢，一是disqus被墙，二是font awesome被墙。 add github action 整合3个repo，采用CD &amp;amp; CL，自动发布 merge image to posts 整合所有image到posts repo，而不是blog source repo，或者用一个单独的repo</summary></entry><entry><title type="html">Anti Antivirus Technology Offensive And Defensive Notes 1</title><link href="https://zjgcjy.github.io/posts/2019-08/Anti-AntiVirus-Technology-Offensive-and-Defensive-Notes-1.html" rel="alternate" type="text/html" title="Anti Antivirus Technology Offensive And Defensive Notes 1" /><published>2019-08-08T16:14:00+08:00</published><updated>2019-08-08T16:14:00+08:00</updated><id>https://zjgcjy.github.io/posts/2019-08/Anti-AntiVirus-Technology-Offensive-and-Defensive-Notes-1</id><content type="html" xml:base="https://zjgcjy.github.io/posts/2019-08/Anti-AntiVirus-Technology-Offensive-and-Defensive-Notes-1.html">&lt;blockquote&gt;
+&lt;p&gt;上了第一天的课，主要是os，一脸蒙蔽。&lt;/p&gt;</content><author><name>zjgcjy</name></author><category term="日记" /><summary type="html">每日所作所得 10月1日 周日，上课前最后一天，算是给自己放了最后一天假期 10月2日 上了第一天的课，主要是os，一脸蒙蔽。</summary></entry><entry><title type="html">Anti Antivirus Technology Offensive And Defensive Notes 1</title><link href="https://zjgcjy.github.io/posts/2019-08/Anti-AntiVirus-Technology-Offensive-and-Defensive-Notes-1.html" rel="alternate" type="text/html" title="Anti Antivirus Technology Offensive And Defensive Notes 1" /><published>2019-08-08T16:14:00+08:00</published><updated>2019-08-08T16:14:00+08:00</updated><id>https://zjgcjy.github.io/posts/2019-08/Anti-AntiVirus-Technology-Offensive-and-Defensive-Notes-1</id><content type="html" xml:base="https://zjgcjy.github.io/posts/2019-08/Anti-AntiVirus-Technology-Offensive-and-Defensive-Notes-1.html">&lt;blockquote&gt;
   &lt;p&gt;黑客免杀攻防读书笔记&lt;/p&gt;
 &lt;/blockquote&gt;
 
