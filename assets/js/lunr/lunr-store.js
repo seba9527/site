@@ -858,4 +858,14 @@ var store = [{
         "excerpt":"   最近很浮躁，日记好久没写了，书也没看，论文也没看，运动也是断断续续。    12月5日   打算重新开blog，找了很久，从stackedit到blogger，从hexo到wordpress再到jekyll。因为图片的缘故，还在vps上搭了rclone来同步onedrive当图床用，后来又用git repo来当图床（结果发现URL被墙了）。烦。   12月10日   重开blog，公开所有posts，采用Jekyll格式。   三个repo，其中markdown原文未公开。     blog source   blog site   posts (private)   12月11日   review Jekyll source，fork了一份开始改，基本没啥问题了，由于之前没用过jekyll，有点不熟悉。   12月12日   花了一天的时间改code。基本是confige的部分，还有我以前的posts的格式不满足Jekyll的识别要求，以及image的相对链接地址。 基本都改完了，除了comments部分，disqus由于被墙了，需要梯子，但是还有一个问题是comments的布局错乱，不清楚原因。晚上的时候去源repo提了issue。   12月13日   USTC的大佬回了issue，最后检查是发布的时候命令用错了issue link，我使用的是jekyll build JEKYLL_ENV=production貌似这样后面的环境变量没起作用，但是我测试应该是一部分起作用了，一脸懵逼。真正发布的命令是JEKYLL_ENV=production bundle exec jekyll build。   晚上的时候还修改了toc，可以stricky，最后修改了columns的width，这样posts的内容可以占到80%左右。   todo list on site:     import visit speed &amp; add cdn 目前速度有点慢，一是disqus被墙，二是font awesome被墙。   add github action 整合3个repo，采用CD &amp; CL，自动发布   merge image to posts 整合所有image到posts repo，而不是blog source repo，或者用一个单独的repo   12月14日   成功上船byr，bbs里面提到一个ipv6访问uwp的方法，link，其中使用到了CheckNetIsolation.exe这个程序，我没详细看，但是之后会试一下，毕竟所里网太垃圾了。下面是powershell脚本。   FOR /F \"tokens=11 delims=\\\" %p IN ('REG QUERY \"HKCU\\Software\\Classes\\Local Settings\\Software\\Microsoft\\Windows\\CurrentVersion\\AppContainer\\Mappings\"') DO CheckNetIsolation.exe LoopbackExempt -a -p=%p   12月15日   写云计算安全论文。   搞完。   太烦了，每次写东西都要update 3个repo，醉了，准备用github action自动发布好了。（还是先弄编译原理吧，逃）   今天surface还出了问题，电池充到81%充不进去了。。。醉了，明天放完电再试试。   12月16日   下大雪，烦，不能跑步也打不了球。   继续看书。   12月19日   看到了scoop，作为win下的包管理器，很舒服，简单配置了一下，除了速度慢，因为要翻墙，其他没得说。还有powershell是真滴牛逼。   12月22日   英语课太烦了，ppt和instruction写的快吐了。   12月23日   搞完英语了，明天有恶意代码，不想看了，估计很简单。      编译原理ing   12月24日   平安夜考试，不过已经习惯了。哈哈。考完恶意代码，没啥难度，手写的很累。   12月25日   新购的内存条到了，给老爷机续上了，闲鱼真香，准备之后再加一块2T的机械硬盘。   圣诞节，真无聊，雪还没化，不能跑步也打不了球。   12月26日   复习编译原理   12月27日   复习编译原理   bull shit，升级到7.4后才看见ida的通知：IDA: Lumina certificate expiration on October 10, 2019 我太难了，10月那个时候搞了好久，我还以为是啥情况。终于可以用lumina了，逆向是不可能逆向的。   lumina真香！   12月30日   考完编译原理了，我炸了。   我是真的菜。   下面准备补题吧，还有欠缺的东西，继续闭关。   12月31日   19年最后一天，好烦，好忙，软件安全也上完了。   今天又打了球，跨年晚会没啥意思，还是听歌舒服。   明年加油。  ","categories": [],
         "tags": ["日记"],
         "url": "https://zjgcjy.github.io/posts/2019-12/diary_notes.html",
+        "teaser":null},{
+        "title": "daily notes of 2020-01",
+        "excerpt":"1月1日   重装了系统，使用scoop重新管理软件。   ","categories": [],
+        "tags": ["日记"],
+        "url": "https://zjgcjy.github.io/posts/2020-01/daily_notes.html",
+        "teaser":null},{
+        "title": "usage of scoop",
+        "excerpt":"   重装系统，开始使用scoop    scoop基本情况   ","categories": [],
+        "tags": ["日记"],
+        "url": "https://zjgcjy.github.io/posts/2020-01/scoop_usage.html",
         "teaser":null}]

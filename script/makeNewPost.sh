@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euo pipefail
+set -o pipefail
 
 if [[ $# -eq 0 ]]; then
   TITLE="-h"
