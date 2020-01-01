@@ -335,6 +335,10 @@
               <header><h4 class="nav__title"><i class="fas fa-file-alt"></i> On this page</h4></header>
               <ul class="toc__menu">
   <li><a href="#scoop基本情况">scoop基本情况</a></li>
+  <li><a href="#安装步骤">安装步骤</a></li>
+  <li><a href="#查找软件">查找软件</a></li>
+  <li><a href="#卸载">卸载</a></li>
+  <li><a href="#list">list</a></li>
 </ul>
             </nav>
           </aside>
@@ -345,6 +349,64 @@
 
 <h1 id="scoop基本情况">scoop基本情况</h1>
 
+<h1 id="安装步骤">安装步骤</h1>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 获取当前权限，需要修改</span><span class="w">
+</span><span class="c"># 有Unrestricted、RemoteSigned、AllSigned、Restricted、PROCESS、CURRENTUSER、Bypass、Undefined、LOCALMACHINE等情况</span><span class="w">
+</span><span class="nf">Get-ExecutionPolicy</span><span class="w">
+
+</span><span class="c"># 设置ps权限，我这里设置是RemoteSigned，远程执行脚本需要数字签名。</span><span class="w">
+</span><span class="nf">Set-ExecutionPolicy</span><span class="w"> </span><span class="nx">RemoteSigned</span><span class="w">
+
+</span><span class="c"># 安装scoop</span><span class="w">
+</span><span class="nf">Invoke-Expression</span><span class="w"> </span><span class="p">(</span><span class="nf">New-Object</span><span class="w"> </span><span class="nx">System.Net.WebClient</span><span class="p">)</span><span class="o">.</span><span class="nf">DownloadString</span><span class="p">(</span><span class="s1">'https://get.scoop.sh'</span><span class="p">)</span><span class="w">
+
+</span><span class="c"># 简写</span><span class="w">
+</span><span class="nf">iwr</span><span class="w"> </span><span class="nt">-useb</span><span class="w"> </span><span class="nx">get.scoop.sh</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nf">iex</span><span class="w">
+
+</span><span class="c"># 安装完成后需要修改环境变量和安装路径，同时复制刚刚安装到C盘中的scoop全部内容。</span><span class="w">
+</span><span class="c"># 当前用户</span><span class="w">
+</span><span class="nv">$</span><span class="nn">env</span><span class="p">:</span><span class="nv">SCOOP</span><span class="o">=</span><span class="s1">'D:\Applications\Scoop'</span><span class="w">
+</span><span class="p">[</span><span class="kt">Environment</span><span class="p">]::</span><span class="nf">SetEnvironmentVariable</span><span class="p">(</span><span class="s1">'SCOOP'</span><span class="p">,</span><span class="w"> </span><span class="nv">$</span><span class="nn">env</span><span class="p">:</span><span class="nv">SCOOP</span><span class="p">,</span><span class="w"> </span><span class="s1">'User'</span><span class="p">)</span><span class="w">
+
+</span><span class="c"># 管理员</span><span class="w">
+</span><span class="nv">$</span><span class="nn">env</span><span class="p">:</span><span class="nv">SCOOP_GLOBAL</span><span class="o">=</span><span class="s1">'D:\Applications\Scoop\GlobalScoopApps'</span><span class="w">
+</span><span class="p">[</span><span class="kt">Environment</span><span class="p">]::</span><span class="nf">SetEnvironmentVariable</span><span class="p">(</span><span class="s1">'SCOOP_GLOBAL'</span><span class="p">,</span><span class="w"> </span><span class="nv">$</span><span class="nn">env</span><span class="p">:</span><span class="nv">SCOOP_GLOBAL</span><span class="p">,</span><span class="w"> </span><span class="s1">'Machine'</span><span class="p">)</span><span class="w">
+
+</span><span class="c"># 安装aria2</span><span class="w">
+</span><span class="nf">scoop</span><span class="w"> </span><span class="nx">install</span><span class="w"> </span><span class="nx">aria2</span><span class="w">
+
+</span><span class="c"># 安装git</span><span class="w">
+</span><span class="nf">scoop</span><span class="w"> </span><span class="nx">install</span><span class="w"> </span><span class="nx">git</span><span class="w">
+
+</span><span class="c"># 添加新的拓展仓库</span><span class="w">
+</span><span class="nf">scoop</span><span class="w"> </span><span class="nx">bucket</span><span class="w"> </span><span class="nx">add</span><span class="w"> </span><span class="nx">extras</span><span class="w">
+</span></code></pre></div></div>
+
+<p>这样基本的软件就可以了。</p>
+
+<h1 id="查找软件">查找软件</h1>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 查找git</span><span class="w">
+</span><span class="nf">scoop</span><span class="w"> </span><span class="nx">search</span><span class="w"> </span><span class="nx">git</span><span class="w">
+</span></code></pre></div></div>
+
+<h1 id="卸载">卸载</h1>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 卸载git</span><span class="w">
+</span><span class="nf">scoop</span><span class="w"> </span><span class="nx">uninstall</span><span class="w"> </span><span class="nx">git</span><span class="w">
+</span></code></pre></div></div>
+
+<p>反正命令很简单了。而且高度隔离，源文件都是官网的，默认main仓库里都是非GUI程序。</p>
+
+<h1 id="list">list</h1>
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">aria2</span><span class="w">
+</span><span class="mi">7</span><span class="nf">zip</span><span class="w">
+</span><span class="nf">git</span><span class="w">
+</span><span class="nf">shadowsocks</span><span class="w">
+</span><span class="nf">everything</span><span class="w">
+</span><span class="nf">sudo</span><span class="w">
+</span></code></pre></div></div>
 
         
       </section>
