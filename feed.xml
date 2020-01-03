@@ -1,10 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="https://zjgcjy.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://zjgcjy.github.io/" rel="alternate" type="text/html" /><updated>2020-01-02T00:27:17+08:00</updated><id>https://zjgcjy.github.io/feed.xml</id><title type="html">My way, though far away</title><subtitle>A flexible Blog of zjgcjy</subtitle><author><name>zjgcjy</name></author><entry><title type="html">usage of scoop</title><link href="https://zjgcjy.github.io/posts/2020-01/scoop_usage.html" rel="alternate" type="text/html" title="usage of scoop" /><published>2020-01-02T00:01:29+08:00</published><updated>2020-01-02T00:01:29+08:00</updated><id>https://zjgcjy.github.io/posts/2020-01/scoop_usage</id><content type="html" xml:base="https://zjgcjy.github.io/posts/2020-01/scoop_usage.html">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="https://zjgcjy.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://zjgcjy.github.io/" rel="alternate" type="text/html" /><updated>2020-01-03T22:26:44+08:00</updated><id>https://zjgcjy.github.io/feed.xml</id><title type="html">My way, though far away</title><subtitle>A flexible Blog of zjgcjy</subtitle><author><name>zjgcjy</name></author><entry><title type="html">usage of scoop</title><link href="https://zjgcjy.github.io/posts/2020-01/scoop_usage.html" rel="alternate" type="text/html" title="usage of scoop" /><published>2020-01-02T00:01:29+08:00</published><updated>2020-01-02T00:01:29+08:00</updated><id>https://zjgcjy.github.io/posts/2020-01/scoop_usage</id><content type="html" xml:base="https://zjgcjy.github.io/posts/2020-01/scoop_usage.html">&lt;blockquote&gt;
   &lt;p&gt;重装系统，开始使用scoop&lt;/p&gt;
 &lt;/blockquote&gt;
 
 &lt;h1 id=&quot;scoop基本情况&quot;&gt;scoop基本情况&lt;/h1&gt;
 
+&lt;p&gt;略过&lt;/p&gt;
+
 &lt;h1 id=&quot;安装步骤&quot;&gt;安装步骤&lt;/h1&gt;
+
+&lt;p&gt;脚本如下&lt;/p&gt;
 
 &lt;div class=&quot;language-powershell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 获取当前权限，需要修改&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
 &lt;/span&gt;&lt;span class=&quot;c&quot;&gt;# 有Unrestricted、RemoteSigned、AllSigned、Restricted、PROCESS、CURRENTUSER、Bypass、Undefined、LOCALMACHINE等情况&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
@@ -42,11 +46,15 @@
 
 &lt;h1 id=&quot;查找软件&quot;&gt;查找软件&lt;/h1&gt;
 
+&lt;p&gt;查找特定软件&lt;/p&gt;
+
 &lt;div class=&quot;language-powershell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 查找git&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
 &lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;scoop&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;git&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;h1 id=&quot;卸载&quot;&gt;卸载&lt;/h1&gt;
+
+&lt;p&gt;卸载特定软件&lt;/p&gt;
 
 &lt;div class=&quot;language-powershell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;# 卸载git&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
 &lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;scoop&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;uninstall&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;git&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
@@ -61,9 +69,25 @@
 &lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;shadowsocks&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
 &lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;everything&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
 &lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;sudo&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name>zjgcjy</name></author><category term="日记" /><summary type="html">重装系统，开始使用scoop</summary></entry><entry><title type="html">daily notes of 2020-01</title><link href="https://zjgcjy.github.io/posts/2020-01/daily_notes.html" rel="alternate" type="text/html" title="daily notes of 2020-01" /><published>2020-01-01T09:28:07+08:00</published><updated>2020-01-01T09:28:07+08:00</updated><id>https://zjgcjy.github.io/posts/2020-01/daily_notes</id><content type="html" xml:base="https://zjgcjy.github.io/posts/2020-01/daily_notes.html">&lt;h1 id=&quot;1月1日&quot;&gt;1月1日&lt;/h1&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;重装了系统，使用scoop重新管理软件。&lt;/p&gt;</content><author><name>zjgcjy</name></author><category term="日记" /><summary type="html">1月1日</summary></entry><entry><title type="html">Diary_notes</title><link href="https://zjgcjy.github.io/posts/2019-12/diary_notes.html" rel="alternate" type="text/html" title="Diary_notes" /><published>2019-12-02T21:15:00+08:00</published><updated>2019-12-02T21:15:00+08:00</updated><id>https://zjgcjy.github.io/posts/2019-12/diary_notes</id><content type="html" xml:base="https://zjgcjy.github.io/posts/2019-12/diary_notes.html">&lt;blockquote&gt;
+&lt;h1 id=&quot;设置代理&quot;&gt;设置代理&lt;/h1&gt;
+
+&lt;p&gt;修改代理&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;scoop config set proxy 127.0.0.1:1111&lt;/code&gt;&lt;/p&gt;</content><author><name>zjgcjy</name></author><category term="日记" /><summary type="html">重装系统，开始使用scoop</summary></entry><entry><title type="html">daily notes of 2020-01</title><link href="https://zjgcjy.github.io/posts/2020-01/daily_notes.html" rel="alternate" type="text/html" title="daily notes of 2020-01" /><published>2020-01-01T09:28:07+08:00</published><updated>2020-01-01T09:28:07+08:00</updated><id>https://zjgcjy.github.io/posts/2020-01/daily_notes</id><content type="html" xml:base="https://zjgcjy.github.io/posts/2020-01/daily_notes.html">&lt;h1 id=&quot;1月1日&quot;&gt;1月1日&lt;/h1&gt;
+
+&lt;p&gt;重装了系统，使用scoop重新管理软件。&lt;/p&gt;
+
+&lt;h1 id=&quot;1月2日&quot;&gt;1月2日&lt;/h1&gt;
+
+&lt;p&gt;重装系统，复习软件安全原理。&lt;/p&gt;
+
+&lt;h1 id=&quot;1月3日&quot;&gt;1月3日&lt;/h1&gt;
+
+&lt;p&gt;复习软件安全原理。&lt;/p&gt;
+
+&lt;h1 id=&quot;1月4日&quot;&gt;1月4日&lt;/h1&gt;</content><author><name>zjgcjy</name></author><category term="日记" /><summary type="html">1月1日</summary></entry><entry><title type="html">Diary_notes</title><link href="https://zjgcjy.github.io/posts/2019-12/diary_notes.html" rel="alternate" type="text/html" title="Diary_notes" /><published>2019-12-02T21:15:00+08:00</published><updated>2019-12-02T21:15:00+08:00</updated><id>https://zjgcjy.github.io/posts/2019-12/diary_notes</id><content type="html" xml:base="https://zjgcjy.github.io/posts/2019-12/diary_notes.html">&lt;blockquote&gt;
   &lt;p&gt;最近很浮躁，日记好久没写了，书也没看，论文也没看，运动也是断断续续。&lt;/p&gt;
 &lt;/blockquote&gt;
 

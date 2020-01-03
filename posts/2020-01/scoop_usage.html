@@ -339,6 +339,7 @@
   <li><a href="#查找软件">查找软件</a></li>
   <li><a href="#卸载">卸载</a></li>
   <li><a href="#list">list</a></li>
+  <li><a href="#设置代理">设置代理</a></li>
 </ul>
             </nav>
           </aside>
@@ -349,7 +350,11 @@
 
 <h1 id="scoop基本情况">scoop基本情况</h1>
 
+<p>略过</p>
+
 <h1 id="安装步骤">安装步骤</h1>
+
+<p>脚本如下</p>
 
 <div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 获取当前权限，需要修改</span><span class="w">
 </span><span class="c"># 有Unrestricted、RemoteSigned、AllSigned、Restricted、PROCESS、CURRENTUSER、Bypass、Undefined、LOCALMACHINE等情况</span><span class="w">
@@ -387,11 +392,15 @@
 
 <h1 id="查找软件">查找软件</h1>
 
+<p>查找特定软件</p>
+
 <div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 查找git</span><span class="w">
 </span><span class="nf">scoop</span><span class="w"> </span><span class="nx">search</span><span class="w"> </span><span class="nx">git</span><span class="w">
 </span></code></pre></div></div>
 
 <h1 id="卸载">卸载</h1>
+
+<p>卸载特定软件</p>
 
 <div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 卸载git</span><span class="w">
 </span><span class="nf">scoop</span><span class="w"> </span><span class="nx">uninstall</span><span class="w"> </span><span class="nx">git</span><span class="w">
@@ -407,6 +416,12 @@
 </span><span class="nf">everything</span><span class="w">
 </span><span class="nf">sudo</span><span class="w">
 </span></code></pre></div></div>
+
+<h1 id="设置代理">设置代理</h1>
+
+<p>修改代理</p>
+
+<p><code class="highlighter-rouge">scoop config set proxy 127.0.0.1:1111</code></p>
 
         
       </section>

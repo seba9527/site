@@ -860,12 +860,12 @@ var store = [{
         "url": "https://zjgcjy.github.io/posts/2019-12/diary_notes.html",
         "teaser":null},{
         "title": "daily notes of 2020-01",
-        "excerpt":"1月1日   重装了系统，使用scoop重新管理软件。   ","categories": [],
+        "excerpt":"1月1日   重装了系统，使用scoop重新管理软件。   1月2日   重装系统，复习软件安全原理。   1月3日   复习软件安全原理。   1月4日   ","categories": [],
         "tags": ["日记"],
         "url": "https://zjgcjy.github.io/posts/2020-01/daily_notes.html",
         "teaser":null},{
         "title": "usage of scoop",
-        "excerpt":"   重装系统，开始使用scoop    scoop基本情况   安装步骤   # 获取当前权限，需要修改 # 有Unrestricted、RemoteSigned、AllSigned、Restricted、PROCESS、CURRENTUSER、Bypass、Undefined、LOCALMACHINE等情况 Get-ExecutionPolicy  # 设置ps权限，我这里设置是RemoteSigned，远程执行脚本需要数字签名。 Set-ExecutionPolicy RemoteSigned  # 安装scoop Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')  # 简写 iwr -useb get.scoop.sh | iex  # 安装完成后需要修改环境变量和安装路径，同时复制刚刚安装到C盘中的scoop全部内容。 # 当前用户 $env:SCOOP='D:\\Applications\\Scoop' [Environment]::SetEnvironmentVariable('SCOOP', $env:SCOOP, 'User')  # 管理员 $env:SCOOP_GLOBAL='D:\\Applications\\Scoop\\GlobalScoopApps' [Environment]::SetEnvironmentVariable('SCOOP_GLOBAL', $env:SCOOP_GLOBAL, 'Machine')  # 安装aria2 scoop install aria2  # 安装git scoop install git  # 添加新的拓展仓库 scoop bucket add extras   这样基本的软件就可以了。   查找软件   # 查找git scoop search git   卸载   # 卸载git scoop uninstall git   反正命令很简单了。而且高度隔离，源文件都是官网的，默认main仓库里都是非GUI程序。   list  aria2 7zip git shadowsocks everything sudo  ","categories": [],
+        "excerpt":"   重装系统，开始使用scoop    scoop基本情况   略过   安装步骤   脚本如下   # 获取当前权限，需要修改 # 有Unrestricted、RemoteSigned、AllSigned、Restricted、PROCESS、CURRENTUSER、Bypass、Undefined、LOCALMACHINE等情况 Get-ExecutionPolicy  # 设置ps权限，我这里设置是RemoteSigned，远程执行脚本需要数字签名。 Set-ExecutionPolicy RemoteSigned  # 安装scoop Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')  # 简写 iwr -useb get.scoop.sh | iex  # 安装完成后需要修改环境变量和安装路径，同时复制刚刚安装到C盘中的scoop全部内容。 # 当前用户 $env:SCOOP='D:\\Applications\\Scoop' [Environment]::SetEnvironmentVariable('SCOOP', $env:SCOOP, 'User')  # 管理员 $env:SCOOP_GLOBAL='D:\\Applications\\Scoop\\GlobalScoopApps' [Environment]::SetEnvironmentVariable('SCOOP_GLOBAL', $env:SCOOP_GLOBAL, 'Machine')  # 安装aria2 scoop install aria2  # 安装git scoop install git  # 添加新的拓展仓库 scoop bucket add extras   这样基本的软件就可以了。   查找软件   查找特定软件   # 查找git scoop search git   卸载   卸载特定软件   # 卸载git scoop uninstall git   反正命令很简单了。而且高度隔离，源文件都是官网的，默认main仓库里都是非GUI程序。   list  aria2 7zip git shadowsocks everything sudo   设置代理   修改代理   scoop config set proxy 127.0.0.1:1111  ","categories": [],
         "tags": ["日记"],
         "url": "https://zjgcjy.github.io/posts/2020-01/scoop_usage.html",
         "teaser":null}]
