@@ -860,7 +860,7 @@ var store = [{
         "url": "https://zjgcjy.github.io/posts/2019-12/diary_notes.html",
         "teaser":null},{
         "title": "daily notes of 2020-01",
-        "excerpt":"1月1日   重装了系统，使用scoop重新管理软件。   1月2日   重装系统，复习软件安全原理。   1月3日   复习软件安全原理。   1月4日   ","categories": [],
+        "excerpt":"1月1日   重装了系统，使用scoop重新管理软件。   1月2日   重装系统，复习软件安全原理。   1月3日   复习软件安全原理。   1月5日   复习软件安全原理。   1月6日   继续复习，太多了。   ","categories": [],
         "tags": ["日记"],
         "url": "https://zjgcjy.github.io/posts/2020-01/daily_notes.html",
         "teaser":null},{
