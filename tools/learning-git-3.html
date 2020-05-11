@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>git学习笔记-3 | 吾行吾道，虽远必至</title>
+    <meta name="generator" content="VuePress 1.4.1">
+    <link rel="icon" href="/icons/favicon.ico">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <meta name="description" content="分享zjgcjy的个人笔记、读书论文、学习知识">
+    <meta name="author" content="zjgcjy">
+    <meta name="keywords" content="blog, document, zjgcjy">
+    <meta name="theme-color" content="#3eaf7c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="msapplication-TileImage" content="/icons/android-chrome-192x192.png">
+    <meta name="msapplication-TileColor" content="#000000">
+    <link rel="preload" href="/assets/css/0.styles.bcf90c39.css" as="style"><link rel="preload" href="/assets/js/app.259e8595.js" as="script"><link rel="preload" href="/assets/js/8.8187fa34.js" as="script"><link rel="preload" href="/assets/js/3.710d55e8.js" as="script"><link rel="preload" href="/assets/js/129.a67d02c6.js" as="script"><link rel="preload" href="/assets/js/4.78d0c8ca.js" as="script"><link rel="prefetch" href="/assets/js/10.b9f84329.js"><link rel="prefetch" href="/assets/js/100.64f9c727.js"><link rel="prefetch" href="/assets/js/101.b9c92fcc.js"><link rel="prefetch" href="/assets/js/102.53497450.js"><link rel="prefetch" href="/assets/js/103.f84fceba.js"><link rel="prefetch" href="/assets/js/104.2cec01a9.js"><link rel="prefetch" href="/assets/js/105.4c8d386a.js"><link rel="prefetch" href="/assets/js/106.fb5a01a3.js"><link rel="prefetch" href="/assets/js/107.e42f93be.js"><link rel="prefetch" href="/assets/js/108.4be0e7fb.js"><link rel="prefetch" href="/assets/js/109.ab946f69.js"><link rel="prefetch" href="/assets/js/11.13ac4804.js"><link rel="prefetch" href="/assets/js/110.9124a265.js"><link rel="prefetch" href="/assets/js/111.0fd02e00.js"><link rel="prefetch" href="/assets/js/112.8156a621.js"><link rel="prefetch" href="/assets/js/113.02d06572.js"><link rel="prefetch" href="/assets/js/114.16572105.js"><link rel="prefetch" href="/assets/js/115.5bb4870d.js"><link rel="prefetch" href="/assets/js/116.1512299d.js"><link rel="prefetch" href="/assets/js/117.3f6be560.js"><link rel="prefetch" href="/assets/js/118.a2f94b95.js"><link rel="prefetch" href="/assets/js/119.cbd23cf1.js"><link rel="prefetch" href="/assets/js/12.96c1e9c7.js"><link rel="prefetch" href="/assets/js/120.35ac8354.js"><link rel="prefetch" href="/assets/js/121.8cafd6ac.js"><link rel="prefetch" href="/assets/js/122.8bd8b3ec.js"><link rel="prefetch" href="/assets/js/123.66bc6567.js"><link rel="prefetch" href="/assets/js/124.86114880.js"><link rel="prefetch" href="/assets/js/125.98a360c3.js"><link rel="prefetch" href="/assets/js/126.7e69512e.js"><link rel="prefetch" href="/assets/js/127.3b557f03.js"><link rel="prefetch" href="/assets/js/128.aa91743f.js"><link rel="prefetch" href="/assets/js/13.8a70de11.js"><link rel="prefetch" href="/assets/js/130.de463ad4.js"><link rel="prefetch" href="/assets/js/131.37e37be4.js"><link rel="prefetch" href="/assets/js/132.9c61740e.js"><link rel="prefetch" href="/assets/js/133.79e86f8a.js"><link rel="prefetch" href="/assets/js/134.d7ca3cf7.js"><link rel="prefetch" href="/assets/js/135.f9795f18.js"><link rel="prefetch" href="/assets/js/136.73448c17.js"><link rel="prefetch" href="/assets/js/137.6b28eb92.js"><link rel="prefetch" href="/assets/js/138.bfbe9c7b.js"><link rel="prefetch" href="/assets/js/139.31ce849a.js"><link rel="prefetch" href="/assets/js/14.4b876aad.js"><link rel="prefetch" href="/assets/js/140.c60678e4.js"><link rel="prefetch" href="/assets/js/141.ecfd3ed5.js"><link rel="prefetch" href="/assets/js/142.56834ba7.js"><link rel="prefetch" href="/assets/js/143.a4660836.js"><link rel="prefetch" href="/assets/js/144.bdbc7757.js"><link rel="prefetch" href="/assets/js/145.8439c8fc.js"><link rel="prefetch" href="/assets/js/146.79b35e1c.js"><link rel="prefetch" href="/assets/js/147.aa7ba0f4.js"><link rel="prefetch" href="/assets/js/148.8127900a.js"><link rel="prefetch" href="/assets/js/149.d4519e8a.js"><link rel="prefetch" href="/assets/js/15.9488169d.js"><link rel="prefetch" href="/assets/js/150.b496705c.js"><link rel="prefetch" href="/assets/js/151.2a1e45a3.js"><link rel="prefetch" href="/assets/js/152.104f6774.js"><link rel="prefetch" href="/assets/js/153.831af0da.js"><link rel="prefetch" href="/assets/js/154.eb585a5e.js"><link rel="prefetch" href="/assets/js/155.e2bd2c2f.js"><link rel="prefetch" href="/assets/js/156.5d9a6efa.js"><link rel="prefetch" href="/assets/js/157.9fd63fdc.js"><link rel="prefetch" href="/assets/js/158.96accaa5.js"><link rel="prefetch" href="/assets/js/159.a627876b.js"><link rel="prefetch" href="/assets/js/16.635ee0b3.js"><link rel="prefetch" href="/assets/js/160.0be28786.js"><link rel="prefetch" href="/assets/js/161.5c35aea8.js"><link rel="prefetch" href="/assets/js/162.c6689e15.js"><link rel="prefetch" href="/assets/js/163.0ac0f691.js"><link rel="prefetch" href="/assets/js/164.cf67f085.js"><link rel="prefetch" href="/assets/js/165.727ab9e1.js"><link rel="prefetch" href="/assets/js/166.7b2a32ad.js"><link rel="prefetch" href="/assets/js/167.e631a4bd.js"><link rel="prefetch" href="/assets/js/168.852110df.js"><link rel="prefetch" href="/assets/js/169.0e50a31a.js"><link rel="prefetch" href="/assets/js/17.e02cf70c.js"><link rel="prefetch" href="/assets/js/170.b7df585f.js"><link rel="prefetch" href="/assets/js/171.d729713a.js"><link rel="prefetch" href="/assets/js/172.f8e1231b.js"><link rel="prefetch" href="/assets/js/173.93726b73.js"><link rel="prefetch" href="/assets/js/174.7f64a44c.js"><link rel="prefetch" href="/assets/js/175.df1a7840.js"><link rel="prefetch" href="/assets/js/176.34947925.js"><link rel="prefetch" href="/assets/js/177.5777aabf.js"><link rel="prefetch" href="/assets/js/178.85274698.js"><link rel="prefetch" href="/assets/js/179.25e2561a.js"><link rel="prefetch" href="/assets/js/18.25b4b4be.js"><link rel="prefetch" href="/assets/js/180.af244bf8.js"><link rel="prefetch" href="/assets/js/181.9b77dac3.js"><link rel="prefetch" href="/assets/js/182.4ee1b5b2.js"><link rel="prefetch" href="/assets/js/183.edabcec4.js"><link rel="prefetch" href="/assets/js/184.6d944f02.js"><link rel="prefetch" href="/assets/js/185.b3a859cd.js"><link rel="prefetch" href="/assets/js/186.57894fb7.js"><link rel="prefetch" href="/assets/js/187.6b0ffa48.js"><link rel="prefetch" href="/assets/js/19.51d4d990.js"><link rel="prefetch" href="/assets/js/20.29ef26a5.js"><link rel="prefetch" href="/assets/js/21.09bb2bcf.js"><link rel="prefetch" href="/assets/js/22.bc8025cb.js"><link rel="prefetch" href="/assets/js/23.dcf28c26.js"><link rel="prefetch" href="/assets/js/24.bbfa0b36.js"><link rel="prefetch" href="/assets/js/25.21199312.js"><link rel="prefetch" href="/assets/js/26.fa793d19.js"><link rel="prefetch" href="/assets/js/27.d1610968.js"><link rel="prefetch" href="/assets/js/28.0913c2ee.js"><link rel="prefetch" href="/assets/js/29.bc1b8ed5.js"><link rel="prefetch" href="/assets/js/30.13a6243f.js"><link rel="prefetch" href="/assets/js/31.5c8a479a.js"><link rel="prefetch" href="/assets/js/32.d2b94351.js"><link rel="prefetch" href="/assets/js/33.95b216c6.js"><link rel="prefetch" href="/assets/js/34.b13f6ca4.js"><link rel="prefetch" href="/assets/js/35.49e99b49.js"><link rel="prefetch" href="/assets/js/36.cacd0f93.js"><link rel="prefetch" href="/assets/js/37.998e3158.js"><link rel="prefetch" href="/assets/js/38.a7c9b535.js"><link rel="prefetch" href="/assets/js/39.cb7ef034.js"><link rel="prefetch" href="/assets/js/40.68d601e0.js"><link rel="prefetch" href="/assets/js/41.e0b76436.js"><link rel="prefetch" href="/assets/js/42.1dc7274e.js"><link rel="prefetch" href="/assets/js/43.8d207009.js"><link rel="prefetch" href="/assets/js/44.0c69f669.js"><link rel="prefetch" href="/assets/js/45.e9fd9dc6.js"><link rel="prefetch" href="/assets/js/46.3c39fd61.js"><link rel="prefetch" href="/assets/js/47.222d759f.js"><link rel="prefetch" href="/assets/js/48.756f06f5.js"><link rel="prefetch" href="/assets/js/49.57e24765.js"><link rel="prefetch" href="/assets/js/5.72084520.js"><link rel="prefetch" href="/assets/js/50.95e92047.js"><link rel="prefetch" href="/assets/js/51.c490b8b2.js"><link rel="prefetch" href="/assets/js/52.a75f3fc3.js"><link rel="prefetch" href="/assets/js/53.00784b72.js"><link rel="prefetch" href="/assets/js/54.e98d1719.js"><link rel="prefetch" href="/assets/js/55.613741c0.js"><link rel="prefetch" href="/assets/js/56.2506d341.js"><link rel="prefetch" href="/assets/js/57.5033d83f.js"><link rel="prefetch" href="/assets/js/58.6013459e.js"><link rel="prefetch" href="/assets/js/59.94a9b04c.js"><link rel="prefetch" href="/assets/js/6.12d3214a.js"><link rel="prefetch" href="/assets/js/60.d300a245.js"><link rel="prefetch" href="/assets/js/61.829c172e.js"><link rel="prefetch" href="/assets/js/62.fa083a8e.js"><link rel="prefetch" href="/assets/js/63.91ee3c39.js"><link rel="prefetch" href="/assets/js/64.e05f4361.js"><link rel="prefetch" href="/assets/js/65.75fcb117.js"><link rel="prefetch" href="/assets/js/66.a5cc4c63.js"><link rel="prefetch" href="/assets/js/67.7e8f08a7.js"><link rel="prefetch" href="/assets/js/68.f12d7bd2.js"><link rel="prefetch" href="/assets/js/69.75760814.js"><link rel="prefetch" href="/assets/js/7.993c72a8.js"><link rel="prefetch" href="/assets/js/70.68a6dcd0.js"><link rel="prefetch" href="/assets/js/71.c97c16fc.js"><link rel="prefetch" href="/assets/js/72.ef67d2b5.js"><link rel="prefetch" href="/assets/js/73.fa1673c6.js"><link rel="prefetch" href="/assets/js/74.aabe1c6e.js"><link rel="prefetch" href="/assets/js/75.b05bcde8.js"><link rel="prefetch" href="/assets/js/76.fbcfb7b6.js"><link rel="prefetch" href="/assets/js/77.b67226d1.js"><link rel="prefetch" href="/assets/js/78.482aa7d1.js"><link rel="prefetch" href="/assets/js/79.41814991.js"><link rel="prefetch" href="/assets/js/80.2aba736a.js"><link rel="prefetch" href="/assets/js/81.44271e02.js"><link rel="prefetch" href="/assets/js/82.a07a5796.js"><link rel="prefetch" href="/assets/js/83.25454035.js"><link rel="prefetch" href="/assets/js/84.1a1aeff7.js"><link rel="prefetch" href="/assets/js/85.c61c13a1.js"><link rel="prefetch" href="/assets/js/86.01b10c45.js"><link rel="prefetch" href="/assets/js/87.0f6c2dee.js"><link rel="prefetch" href="/assets/js/88.159f4733.js"><link rel="prefetch" href="/assets/js/89.18492fc9.js"><link rel="prefetch" href="/assets/js/9.1bf75535.js"><link rel="prefetch" href="/assets/js/90.8a82ad8f.js"><link rel="prefetch" href="/assets/js/91.e644ff2a.js"><link rel="prefetch" href="/assets/js/92.30d4d969.js"><link rel="prefetch" href="/assets/js/93.89e6806d.js"><link rel="prefetch" href="/assets/js/94.d3d581d1.js"><link rel="prefetch" href="/assets/js/95.5d2c129c.js"><link rel="prefetch" href="/assets/js/96.04e465fc.js"><link rel="prefetch" href="/assets/js/97.0a724d72.js"><link rel="prefetch" href="/assets/js/98.18d489d2.js"><link rel="prefetch" href="/assets/js/99.67f7b9bd.js"><link rel="prefetch" href="/assets/js/vendors~docsearch.806d23b2.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.bcf90c39.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/" class="home-link router-link-active"><img src="/assets/nav-logo.png" alt="吾行吾道，虽远必至" class="logo"> <span class="site-name can-hide">吾行吾道，虽远必至</span></a> <div class="links"><form id="search-form" role="search" class="algolia-search-wrapper search-box"><input id="algolia-search-input" class="search-query"></form> <nav class="nav-links can-hide"><div class="nav-item"><a href="/" class="nav-link">
+  主页
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="文档" class="dropdown-title"><span class="title">文档</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          论文
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/papers/academic_papers/" class="nav-link">
+  学术论文
+</a></li></ul></li><li class="dropdown-item"><h4>
+          其他
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/papers/other_papers/" class="nav-link">
+  其他文章
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="CTF" class="dropdown-title"><span class="title">CTF</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          CTF笔记
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/ctf/reverse/" class="nav-link">
+  Reverse
+</a></li><li class="dropdown-subitem"><a href="/ctf/pwn/" class="nav-link">
+  Pwn
+</a></li></ul></li><li class="dropdown-item"><!----> <a href="/ctf/writeup/" class="nav-link">
+  writeup
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="语言" class="dropdown-title"><span class="title">语言</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/languages/cplusplus/" class="nav-link">
+  C++
+</a></li><li class="dropdown-item"><!----> <a href="/languages/python/" class="nav-link">
+  Python
+</a></li><li class="dropdown-item"><!----> <a href="/languages/android/" class="nav-link">
+  Android
+</a></li><li class="dropdown-item"><!----> <a href="/languages/golang/" class="nav-link">
+  Golang
+</a></li><li class="dropdown-item"><!----> <a href="/languages/rust/" class="nav-link">
+  Rust
+</a></li><li class="dropdown-item"><!----> <a href="/languages/vc/" class="nav-link">
+  VC
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="工具与项目" class="dropdown-title"><span class="title">工具与项目</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/tools/" class="nav-link router-link-active">
+  工具
+</a></li><li class="dropdown-item"><!----> <a href="/projects/" class="nav-link">
+  项目
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="杂谈" class="dropdown-title"><span class="title">杂谈</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/diary/" class="nav-link">
+  日记
+</a></li><li class="dropdown-item"><!----> <a href="/others/" class="nav-link">
+  其他
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="更多vuepress" class="dropdown-title"><span class="title">vuepress</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          指南
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/guide/" class="nav-link">
+  指南
+</a></li><li class="dropdown-subitem"><a href="/vue/config/" class="nav-link">
+  配置
+</a></li></ul></li><li class="dropdown-item"><h4>
+          主题与插件
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/plugin/" class="nav-link">
+  插件
+</a></li><li class="dropdown-subitem"><a href="/vue/theme/" class="nav-link">
+  主题
+</a></li></ul></li><li class="dropdown-item"><h4>
+          API
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/api/cli.html" class="nav-link">
+  CLI
+</a></li><li class="dropdown-subitem"><a href="/vue/api/node.html" class="nav-link">
+  Node
+</a></li></ul></li><li class="dropdown-item"><h4>
+          开发指南
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/miscellaneous/local-development.html" class="nav-link">
+  本地开发
+</a></li><li class="dropdown-subitem"><a href="/vue/miscellaneous/design-concepts.html" class="nav-link">
+  设计理念
+</a></li><li class="dropdown-subitem"><a href="/vue/faq/" class="nav-link">
+  FAQ
+</a></li><li class="dropdown-subitem"><a href="/vue/miscellaneous/glossary.html" class="nav-link">
+  术语
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="关于" class="dropdown-title"><span class="title">关于</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/about.html" class="nav-link">
+  关于我
+</a></li><li class="dropdown-item"><!----> <a href="https://github.com/zjgcjy" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Github
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></li></ul></div></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/" class="nav-link">
+  主页
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="文档" class="dropdown-title"><span class="title">文档</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          论文
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/papers/academic_papers/" class="nav-link">
+  学术论文
+</a></li></ul></li><li class="dropdown-item"><h4>
+          其他
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/papers/other_papers/" class="nav-link">
+  其他文章
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="CTF" class="dropdown-title"><span class="title">CTF</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          CTF笔记
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/ctf/reverse/" class="nav-link">
+  Reverse
+</a></li><li class="dropdown-subitem"><a href="/ctf/pwn/" class="nav-link">
+  Pwn
+</a></li></ul></li><li class="dropdown-item"><!----> <a href="/ctf/writeup/" class="nav-link">
+  writeup
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="语言" class="dropdown-title"><span class="title">语言</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/languages/cplusplus/" class="nav-link">
+  C++
+</a></li><li class="dropdown-item"><!----> <a href="/languages/python/" class="nav-link">
+  Python
+</a></li><li class="dropdown-item"><!----> <a href="/languages/android/" class="nav-link">
+  Android
+</a></li><li class="dropdown-item"><!----> <a href="/languages/golang/" class="nav-link">
+  Golang
+</a></li><li class="dropdown-item"><!----> <a href="/languages/rust/" class="nav-link">
+  Rust
+</a></li><li class="dropdown-item"><!----> <a href="/languages/vc/" class="nav-link">
+  VC
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="工具与项目" class="dropdown-title"><span class="title">工具与项目</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/tools/" class="nav-link router-link-active">
+  工具
+</a></li><li class="dropdown-item"><!----> <a href="/projects/" class="nav-link">
+  项目
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="杂谈" class="dropdown-title"><span class="title">杂谈</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/diary/" class="nav-link">
+  日记
+</a></li><li class="dropdown-item"><!----> <a href="/others/" class="nav-link">
+  其他
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="更多vuepress" class="dropdown-title"><span class="title">vuepress</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          指南
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/guide/" class="nav-link">
+  指南
+</a></li><li class="dropdown-subitem"><a href="/vue/config/" class="nav-link">
+  配置
+</a></li></ul></li><li class="dropdown-item"><h4>
+          主题与插件
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/plugin/" class="nav-link">
+  插件
+</a></li><li class="dropdown-subitem"><a href="/vue/theme/" class="nav-link">
+  主题
+</a></li></ul></li><li class="dropdown-item"><h4>
+          API
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/api/cli.html" class="nav-link">
+  CLI
+</a></li><li class="dropdown-subitem"><a href="/vue/api/node.html" class="nav-link">
+  Node
+</a></li></ul></li><li class="dropdown-item"><h4>
+          开发指南
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/miscellaneous/local-development.html" class="nav-link">
+  本地开发
+</a></li><li class="dropdown-subitem"><a href="/vue/miscellaneous/design-concepts.html" class="nav-link">
+  设计理念
+</a></li><li class="dropdown-subitem"><a href="/vue/faq/" class="nav-link">
+  FAQ
+</a></li><li class="dropdown-subitem"><a href="/vue/miscellaneous/glossary.html" class="nav-link">
+  术语
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="关于" class="dropdown-title"><span class="title">关于</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/about.html" class="nav-link">
+  关于我
+</a></li><li class="dropdown-item"><!----> <a href="https://github.com/zjgcjy" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Github
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></li></ul></div></div> <!----></nav>  <ul class="sidebar-links"><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading open"><span>工具配置</span> <span class="arrow down"></span></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/tools/" class="sidebar-link">工具配置</a></li><li><a href="/tools/learning-github-actions.html" class="sidebar-link">CL/CD之GitHub actions</a></li><li><a href="/tools/learning-cl-cd-and-webhooks.html" class="sidebar-link">CL/CD与WebHooks</a></li><li><a href="/tools/learning-qemu.html" class="sidebar-link">Windows下qemu的配置</a></li><li><a href="/tools/learning-pintools.html" class="sidebar-link">pintools的环境搭建和使用方法</a></li><li><a href="/tools/learning-windbg.html" class="sidebar-link">windbg部分手册</a></li><li><a href="/tools/learning-nginx.html" class="sidebar-link">nginx相关配置</a></li><li><a href="/tools/learning-beancount.html" class="sidebar-link">beancount使用手册</a></li><li><a href="/tools/learning-raspberry-pi.html" class="sidebar-link">树莓派4的安装与配置-1</a></li><li><a href="/tools/learning-raspberry-pi-2.html" class="sidebar-link">树莓派4的安装与配置-2</a></li><li><a href="/tools/learning-docker-1.html" class="sidebar-link">docker基本用法学习-1</a></li><li><a href="/tools/learning-docker-2.html" class="sidebar-link">docker基本用法学习-2</a></li><li><a href="/tools/learning-rancher.html" class="sidebar-link">rancher的配置</a></li><li><a href="/tools/learning-git-1.html" class="sidebar-link">git学习笔记-1</a></li><li><a href="/tools/learning-git-2.html" class="sidebar-link">git学习笔记-2</a></li><li><a href="/tools/learning-git-3.html" class="active sidebar-link">git学习笔记-3</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/tools/learning-git-3.html#分支管理" class="sidebar-link">分支管理</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/tools/learning-git-3.html#创建分支" class="sidebar-link">创建分支</a></li><li class="sidebar-sub-header"><a href="/tools/learning-git-3.html#合并分支" class="sidebar-link">合并分支</a></li><li class="sidebar-sub-header"><a href="/tools/learning-git-3.html#删除分支" class="sidebar-link">删除分支</a></li><li class="sidebar-sub-header"><a href="/tools/learning-git-3.html#总结" class="sidebar-link">总结</a></li></ul></li><li class="sidebar-sub-header"><a href="/tools/learning-git-3.html#分支冲突" class="sidebar-link">分支冲突</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/tools/learning-git-3.html#分支管理策略" class="sidebar-link">分支管理策略</a></li><li class="sidebar-sub-header"><a href="/tools/learning-git-3.html#git-stash-命令" class="sidebar-link">git stash 命令</a></li><li class="sidebar-sub-header"><a href="/tools/learning-git-3.html#git-rebase" class="sidebar-link">git rebase</a></li></ul></li></ul></li><li><a href="/tools/learning-git-4.html" class="sidebar-link">git学习笔记-4</a></li><li><a href="/tools/learning-vuepress.html" class="sidebar-link">vuepress的安装与配置</a></li><li><a href="/tools/learning-scoop.html" class="sidebar-link">scoop的安装与配置</a></li><li><a href="/tools/learning-pacman.html" class="sidebar-link">pacman手册</a></li><li><a href="/tools/learning-vscode.html" class="sidebar-link">vscode的配置</a></li><li><a href="/tools/learning-vim.html" class="sidebar-link">chrome插件vimium用法</a></li><li><a href="/tools/learning-hexo.html" class="sidebar-link">hexo结合GitHub搭建blog</a></li></ul></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><blockquote><p>Git版本控制高级用法，包括分支管理等</p></blockquote> <hr> <h2 id="分支管理"><a href="#分支管理" class="header-anchor">#</a> 分支管理</h2> <p>在git中，默认时间线是主分支，即<code>master</code>分支。<code>HEAD</code>严格来说不是指向提交，而是指向<code>master</code>，<code>master</code>才是指向提交的，所以，<code>HEAD</code>指向的就是当前分支。
+一开始的时候，<code>master</code>分支是一条线，Git用<code>master</code>指向最新的提交，再用<code>HEAD</code>指向<code>master</code>，就能确定当前分支，以及当前分支的提交点：</p> <p><img src="/img/2018-12/0.png" alt="git-br-initial"></p> <p>当创建新的分支时，如<code>dev</code>，先将<code>dev</code>指向<code>master</code>，再将<code>HEAD</code>指向<code>dev</code>，所以一般对<code>dev</code>分支进行管理，然后再将<code>master</code>分支合并到dev分支，完成相应的功能。</p> <h3 id="创建分支"><a href="#创建分支" class="header-anchor">#</a> 创建分支</h3> <p>命令如下：</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>$ <span class="token function">git</span> checkout -b dev
+Switched to a new branch <span class="token string">'dev'</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br></div></div><p><code>git checkout</code>命令加上<code>-b</code>参数表示创建分支并切换，相当于以下两条命令：</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>$ <span class="token function">git</span> branch dev
+$ <span class="token function">git</span> checkout dev
+Switched to branch <span class="token string">'dev'</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br></div></div><p>可以用<code>git branch</code>命令查看当前分支：</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>$ <span class="token function">git</span> branch
+* dev
+  master
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br></div></div><h3 id="合并分支"><a href="#合并分支" class="header-anchor">#</a> 合并分支</h3> <p>使用<code>git merge</code>命令来合并分支</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>$ <span class="token function">git</span> merge dev
+Updating d46f35e<span class="token punctuation">..</span>b17d20e
+Fast-forward
+ readme.txt <span class="token operator">|</span> <span class="token number">1</span> +
+ <span class="token number">1</span> <span class="token function">file</span> changed, <span class="token number">1</span> insertion<span class="token punctuation">(</span>+<span class="token punctuation">)</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br></div></div><p>注意到上面的<code>Fast-forward</code>信息，这次合并是“快进模式”，也就是直接把<code>master</code>指向<code>dev</code>的当前提交，所以合并速度非常快。</p> <h3 id="删除分支"><a href="#删除分支" class="header-anchor">#</a> 删除分支</h3> <p>合并完成后，就可以删除<code>dev</code>分支了：</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>$ <span class="token function">git</span> branch -d dev
+Deleted branch dev <span class="token punctuation">(</span>was b17d20e<span class="token punctuation">)</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br></div></div><p>删除后，查看<code>branch</code>，就只剩<code>master</code>分支了：</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>$ <span class="token function">git</span> branch
+* master
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br></div></div><h3 id="总结"><a href="#总结" class="header-anchor">#</a> <strong>总结</strong></h3> <ul><li>查看分支：<code>git branch</code></li> <li>创建分支：<code>git branch &lt;name&gt;</code></li> <li>切换分支：<code>git checkout &lt;name&gt;</code></li> <li>创建+切换分支：<code>git checkout -b &lt;name&gt;</code></li> <li>合并某分支到当前分支：<code>git merge &lt;name&gt;</code></li> <li>删除分支：<code>git branch -d &lt;name&gt;</code></li></ul> <h2 id="分支冲突"><a href="#分支冲突" class="header-anchor">#</a> 分支冲突</h2> <p>如果在<code>dev</code>分支上进行了修改，同时我们也在<code>master</code>上进行了修改，那么现在的时间线就会变成这样子：</p> <p><img src="/img/2018-12/1.png" alt="git-br-feature1"></p> <p>对于这种情况，git无法进行快速合并，因为产生了冲突（某个文件）</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>$ <span class="token function">git</span> merge feature1
+Auto-merging readme.txt
+CONFLICT <span class="token punctuation">(</span>content<span class="token punctuation">)</span>: Merge conflict <span class="token keyword">in</span> readme.txt
+Automatic merge failed<span class="token punctuation">;</span> fix conflicts and <span class="token keyword">then</span> commit the result.
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br></div></div><p><code>git status</code>也可以告诉我们冲突的文件，也可以直接查看readme.txt的内容：</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>Git is a distributed version control system.
+Git is <span class="token function">free</span> software distributed under the GPL.
+Git has a mutable index called stage.
+Git tracks changes of files.
+<span class="token operator">&lt;&lt;&lt;</span><span class="token operator">&lt;&lt;&lt;</span><span class="token operator">&lt;</span> HEAD
+Creating a new branch is quick <span class="token operator">&amp;</span> simple.
+<span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">=</span>
+Creating a new branch is quick AND simple.
+<span class="token operator">&gt;&gt;</span><span class="token operator">&gt;&gt;</span><span class="token operator">&gt;&gt;</span><span class="token operator">&gt;</span> feature1
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br></div></div><p>其中，git用<code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>，<code>=======</code>，<code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code>标记出不同分支的内容，我们修改如下后保存：</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>$ <span class="token function">git</span> <span class="token function">add</span> readme.txt
+$ <span class="token function">git</span> commit -m <span class="token string">&quot;conflict fixed&quot;</span>
+<span class="token punctuation">[</span>master cf810e4<span class="token punctuation">]</span> conflict fixed
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br></div></div><p>现在，<code>master</code>分支和<code>feature1</code>分支变成了下图所示：</p> <p><img src="/img/2018-12/2.png" alt="git-br-conflict-merged"></p> <p>用带参数的<code>git log</code>也能看到分支合并情况：</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>$ <span class="token function">git</span> log --graph --pretty<span class="token operator">=</span>oneline --abbrev-commit
+*   cf810e4 <span class="token punctuation">(</span>HEAD -<span class="token operator">&gt;</span> master<span class="token punctuation">)</span> conflict fixed
+<span class="token operator">|</span><span class="token punctuation">\</span>  
+<span class="token operator">|</span> * 14096d0 <span class="token punctuation">(</span>feature1<span class="token punctuation">)</span> AND simple
+* <span class="token operator">|</span> 5dc6824 <span class="token operator">&amp;</span> simple
+<span class="token operator">|</span>/  
+* b17d20e branch <span class="token builtin class-name">test</span>
+* d46f35e <span class="token punctuation">(</span>origin/master<span class="token punctuation">)</span> remove test.txt
+* b84166e <span class="token function">add</span> test.txt
+* 519219b <span class="token function">git</span> tracks changes
+* e43a48b understand how stage works
+* 1094adb append GPL
+* e475afc <span class="token function">add</span> distributed
+* eaadf4e wrote a readme <span class="token function">file</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br></div></div><p>分支合并后，可以使用<code>git branch -d &lt;name&gt;</code>来删除分支。
+<em><strong>解决冲突就是手动编辑Git合并失败的文件，再提交。用<code>git log --graph</code>命令可以看到分支合并图。</strong></em></p> <h3 id="分支管理策略"><a href="#分支管理策略" class="header-anchor">#</a> 分支管理策略</h3> <p>这里要说明几点问题，首先，git默认会使用<code>fast forward</code>模式，但这种模式下，合并分支会丢失信息，如果不使用这个模式，将在合并的时候重新建立一个<code>commit</code>，这样能看到分支的信息。
+关闭<code>fast forward</code>模式，进行合并，使用<code>--no-ff</code>参数来<code>git merge</code>，这里准备合并<code>dev</code>分支，请注意<code>--no-ff</code>参数，表示禁用<code>Fast forward</code>：</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>$ <span class="token function">git</span> merge --no-ff -m <span class="token string">&quot;merge with no-ff&quot;</span> dev
+Merge made by the <span class="token string">'recursive'</span> strategy.
+ readme.txt <span class="token operator">|</span> <span class="token number">1</span> +
+ <span class="token number">1</span> <span class="token function">file</span> changed, <span class="token number">1</span> insertion<span class="token punctuation">(</span>+<span class="token punctuation">)</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br></div></div><p>因为本次合并要创建一个新的commit，所以加上<code>-m</code>参数，把commit描述写进去。合并后，用<code>git log</code>看看分支历史：</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>$ <span class="token function">git</span> log --graph --pretty<span class="token operator">=</span>oneline --abbrev-commit
+*   e1e9c68 <span class="token punctuation">(</span>HEAD -<span class="token operator">&gt;</span> master<span class="token punctuation">)</span> merge with no-ff
+<span class="token operator">|</span><span class="token punctuation">\</span>  
+<span class="token operator">|</span> * f52c633 <span class="token punctuation">(</span>dev<span class="token punctuation">)</span> <span class="token function">add</span> merge
+<span class="token operator">|</span>/  
+*   cf810e4 conflict fixed
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br></div></div><p>可以看到，不使用<code>Fast forward</code>模式，merge后就像这样：</p> <p><img src="/img/2018-12/3.png" alt="git-no-ff-mode"></p> <h3 id="git-stash-命令"><a href="#git-stash-命令" class="header-anchor">#</a> git stash 命令</h3> <p>这个命令保存工作区，等以后恢复现场后继续工作：</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>$ <span class="token function">git</span> stash
+Saved working directory and index state WIP on dev: f52c633 <span class="token function">add</span> merge
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br></div></div><p>恢复的时候，先用<code>git stash list</code>命令查看状态：</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>$ <span class="token function">git</span> stash list
+stash@<span class="token punctuation">{</span><span class="token number">0</span><span class="token punctuation">}</span>: WIP on dev: f52c633 <span class="token function">add</span> merge
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br></div></div><p>工作现场还在，Git把stash内容存在某个地方了，但是需要恢复一下。一是用<code>git stash apply stash@{id}</code>恢复，但是恢复后，stash内容并不删除，你需要用<code>git stash drop</code>来删除。另一种方式是用<code>git stash pop</code>，恢复的同时把stash内容也删了：</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>$ <span class="token function">git</span> stash pop
+On branch dev
+Changes to be committed:
+  <span class="token punctuation">(</span>use <span class="token string">&quot;git reset HEAD &lt;file&gt;...&quot;</span> to unstage<span class="token punctuation">)</span>
+
+    new file:   hello.py
+
+Changes not staged <span class="token keyword">for</span> commit:
+  <span class="token punctuation">(</span>use <span class="token string">&quot;git add &lt;file&gt;...&quot;</span> to update what will be committed<span class="token punctuation">)</span>
+  <span class="token punctuation">(</span>use <span class="token string">&quot;git checkout -- &lt;file&gt;...&quot;</span> to discard changes <span class="token keyword">in</span> working directory<span class="token punctuation">)</span>
+
+    modified:   readme.txt
+
+Dropped refs/stash@<span class="token punctuation">{</span><span class="token number">0</span><span class="token punctuation">}</span> <span class="token punctuation">(</span>5d677e2ee266f39ea296182fb2354265b91b3b2a<span class="token punctuation">)</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br></div></div><h3 id="git-rebase"><a href="#git-rebase" class="header-anchor">#</a> git rebase</h3> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>$ <span class="token function">git</span> rebase
+First, rewinding <span class="token function">head</span> to replay your work on <span class="token function">top</span> of it<span class="token punctuation">..</span>.
+Applying: <span class="token function">add</span> comment
+Using index info to reconstruct a base tree<span class="token punctuation">..</span>.
+M    hello.py
+Falling back to patching base and <span class="token number">3</span>-way merge<span class="token punctuation">..</span>.
+Auto-merging hello.py
+Applying: <span class="token function">add</span> author
+Using index info to reconstruct a base tree<span class="token punctuation">..</span>.
+M    hello.py
+Falling back to patching base and <span class="token number">3</span>-way merge<span class="token punctuation">..</span>.
+Auto-merging hello.py
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br></div></div><ul><li>rebase操作可以把本地未push的分叉提交历史整理成直线；</li> <li>rebase的目的是使得我们在查看历史提交的变化时更容易，因为分叉的提交需要三方对比。</li></ul></div> <footer class="page-edit"><!----> <div class="last-updated"><span class="prefix">最后更新时间:</span> <span class="time">2020年5月11日 09:15</span></div></footer> <div class="page-nav"><p class="inner"><span class="prev">
+      ←
+      <a href="/tools/learning-git-2.html" class="prev">
+        git学习笔记-2
+      </a></span> <span class="next"><a href="/tools/learning-git-4.html">
+        git学习笔记-4
+      </a>
+      →
+    </span></p></div>  <!----></main></div><div class="global-ui"><!----><!----></div></div>
+    <script src="/assets/js/app.259e8595.js" defer></script><script src="/assets/js/8.8187fa34.js" defer></script><script src="/assets/js/3.710d55e8.js" defer></script><script src="/assets/js/129.a67d02c6.js" defer></script><script src="/assets/js/4.78d0c8ca.js" defer></script>
+  </body>
+</html>

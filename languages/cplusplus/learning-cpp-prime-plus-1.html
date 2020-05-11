@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>C++ Prime Plus 笔记-1 | 吾行吾道，虽远必至</title>
+    <meta name="generator" content="VuePress 1.4.1">
+    <link rel="icon" href="/icons/favicon.ico">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <meta name="description" content="分享zjgcjy的个人笔记、读书论文、学习知识">
+    <meta name="author" content="zjgcjy">
+    <meta name="keywords" content="blog, document, zjgcjy">
+    <meta name="theme-color" content="#3eaf7c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="msapplication-TileImage" content="/icons/android-chrome-192x192.png">
+    <meta name="msapplication-TileColor" content="#000000">
+    <link rel="preload" href="/assets/css/0.styles.bcf90c39.css" as="style"><link rel="preload" href="/assets/js/app.259e8595.js" as="script"><link rel="preload" href="/assets/js/8.8187fa34.js" as="script"><link rel="preload" href="/assets/js/3.710d55e8.js" as="script"><link rel="preload" href="/assets/js/67.7e8f08a7.js" as="script"><link rel="preload" href="/assets/js/4.78d0c8ca.js" as="script"><link rel="prefetch" href="/assets/js/10.b9f84329.js"><link rel="prefetch" href="/assets/js/100.64f9c727.js"><link rel="prefetch" href="/assets/js/101.b9c92fcc.js"><link rel="prefetch" href="/assets/js/102.53497450.js"><link rel="prefetch" href="/assets/js/103.f84fceba.js"><link rel="prefetch" href="/assets/js/104.2cec01a9.js"><link rel="prefetch" href="/assets/js/105.4c8d386a.js"><link rel="prefetch" href="/assets/js/106.fb5a01a3.js"><link rel="prefetch" href="/assets/js/107.e42f93be.js"><link rel="prefetch" href="/assets/js/108.4be0e7fb.js"><link rel="prefetch" href="/assets/js/109.ab946f69.js"><link rel="prefetch" href="/assets/js/11.13ac4804.js"><link rel="prefetch" href="/assets/js/110.9124a265.js"><link rel="prefetch" href="/assets/js/111.0fd02e00.js"><link rel="prefetch" href="/assets/js/112.8156a621.js"><link rel="prefetch" href="/assets/js/113.02d06572.js"><link rel="prefetch" href="/assets/js/114.16572105.js"><link rel="prefetch" href="/assets/js/115.5bb4870d.js"><link rel="prefetch" href="/assets/js/116.1512299d.js"><link rel="prefetch" href="/assets/js/117.3f6be560.js"><link rel="prefetch" href="/assets/js/118.a2f94b95.js"><link rel="prefetch" href="/assets/js/119.cbd23cf1.js"><link rel="prefetch" href="/assets/js/12.96c1e9c7.js"><link rel="prefetch" href="/assets/js/120.35ac8354.js"><link rel="prefetch" href="/assets/js/121.8cafd6ac.js"><link rel="prefetch" href="/assets/js/122.8bd8b3ec.js"><link rel="prefetch" href="/assets/js/123.66bc6567.js"><link rel="prefetch" href="/assets/js/124.86114880.js"><link rel="prefetch" href="/assets/js/125.98a360c3.js"><link rel="prefetch" href="/assets/js/126.7e69512e.js"><link rel="prefetch" href="/assets/js/127.3b557f03.js"><link rel="prefetch" href="/assets/js/128.aa91743f.js"><link rel="prefetch" href="/assets/js/129.a67d02c6.js"><link rel="prefetch" href="/assets/js/13.8a70de11.js"><link rel="prefetch" href="/assets/js/130.de463ad4.js"><link rel="prefetch" href="/assets/js/131.37e37be4.js"><link rel="prefetch" href="/assets/js/132.9c61740e.js"><link rel="prefetch" href="/assets/js/133.79e86f8a.js"><link rel="prefetch" href="/assets/js/134.d7ca3cf7.js"><link rel="prefetch" href="/assets/js/135.f9795f18.js"><link rel="prefetch" href="/assets/js/136.73448c17.js"><link rel="prefetch" href="/assets/js/137.6b28eb92.js"><link rel="prefetch" href="/assets/js/138.bfbe9c7b.js"><link rel="prefetch" href="/assets/js/139.31ce849a.js"><link rel="prefetch" href="/assets/js/14.4b876aad.js"><link rel="prefetch" href="/assets/js/140.c60678e4.js"><link rel="prefetch" href="/assets/js/141.ecfd3ed5.js"><link rel="prefetch" href="/assets/js/142.56834ba7.js"><link rel="prefetch" href="/assets/js/143.a4660836.js"><link rel="prefetch" href="/assets/js/144.bdbc7757.js"><link rel="prefetch" href="/assets/js/145.8439c8fc.js"><link rel="prefetch" href="/assets/js/146.79b35e1c.js"><link rel="prefetch" href="/assets/js/147.aa7ba0f4.js"><link rel="prefetch" href="/assets/js/148.8127900a.js"><link rel="prefetch" href="/assets/js/149.d4519e8a.js"><link rel="prefetch" href="/assets/js/15.9488169d.js"><link rel="prefetch" href="/assets/js/150.b496705c.js"><link rel="prefetch" href="/assets/js/151.2a1e45a3.js"><link rel="prefetch" href="/assets/js/152.104f6774.js"><link rel="prefetch" href="/assets/js/153.831af0da.js"><link rel="prefetch" href="/assets/js/154.eb585a5e.js"><link rel="prefetch" href="/assets/js/155.e2bd2c2f.js"><link rel="prefetch" href="/assets/js/156.5d9a6efa.js"><link rel="prefetch" href="/assets/js/157.9fd63fdc.js"><link rel="prefetch" href="/assets/js/158.96accaa5.js"><link rel="prefetch" href="/assets/js/159.a627876b.js"><link rel="prefetch" href="/assets/js/16.635ee0b3.js"><link rel="prefetch" href="/assets/js/160.0be28786.js"><link rel="prefetch" href="/assets/js/161.5c35aea8.js"><link rel="prefetch" href="/assets/js/162.c6689e15.js"><link rel="prefetch" href="/assets/js/163.0ac0f691.js"><link rel="prefetch" href="/assets/js/164.cf67f085.js"><link rel="prefetch" href="/assets/js/165.727ab9e1.js"><link rel="prefetch" href="/assets/js/166.7b2a32ad.js"><link rel="prefetch" href="/assets/js/167.e631a4bd.js"><link rel="prefetch" href="/assets/js/168.852110df.js"><link rel="prefetch" href="/assets/js/169.0e50a31a.js"><link rel="prefetch" href="/assets/js/17.e02cf70c.js"><link rel="prefetch" href="/assets/js/170.b7df585f.js"><link rel="prefetch" href="/assets/js/171.d729713a.js"><link rel="prefetch" href="/assets/js/172.f8e1231b.js"><link rel="prefetch" href="/assets/js/173.93726b73.js"><link rel="prefetch" href="/assets/js/174.7f64a44c.js"><link rel="prefetch" href="/assets/js/175.df1a7840.js"><link rel="prefetch" href="/assets/js/176.34947925.js"><link rel="prefetch" href="/assets/js/177.5777aabf.js"><link rel="prefetch" href="/assets/js/178.85274698.js"><link rel="prefetch" href="/assets/js/179.25e2561a.js"><link rel="prefetch" href="/assets/js/18.25b4b4be.js"><link rel="prefetch" href="/assets/js/180.af244bf8.js"><link rel="prefetch" href="/assets/js/181.9b77dac3.js"><link rel="prefetch" href="/assets/js/182.4ee1b5b2.js"><link rel="prefetch" href="/assets/js/183.edabcec4.js"><link rel="prefetch" href="/assets/js/184.6d944f02.js"><link rel="prefetch" href="/assets/js/185.b3a859cd.js"><link rel="prefetch" href="/assets/js/186.57894fb7.js"><link rel="prefetch" href="/assets/js/187.6b0ffa48.js"><link rel="prefetch" href="/assets/js/19.51d4d990.js"><link rel="prefetch" href="/assets/js/20.29ef26a5.js"><link rel="prefetch" href="/assets/js/21.09bb2bcf.js"><link rel="prefetch" href="/assets/js/22.bc8025cb.js"><link rel="prefetch" href="/assets/js/23.dcf28c26.js"><link rel="prefetch" href="/assets/js/24.bbfa0b36.js"><link rel="prefetch" href="/assets/js/25.21199312.js"><link rel="prefetch" href="/assets/js/26.fa793d19.js"><link rel="prefetch" href="/assets/js/27.d1610968.js"><link rel="prefetch" href="/assets/js/28.0913c2ee.js"><link rel="prefetch" href="/assets/js/29.bc1b8ed5.js"><link rel="prefetch" href="/assets/js/30.13a6243f.js"><link rel="prefetch" href="/assets/js/31.5c8a479a.js"><link rel="prefetch" href="/assets/js/32.d2b94351.js"><link rel="prefetch" href="/assets/js/33.95b216c6.js"><link rel="prefetch" href="/assets/js/34.b13f6ca4.js"><link rel="prefetch" href="/assets/js/35.49e99b49.js"><link rel="prefetch" href="/assets/js/36.cacd0f93.js"><link rel="prefetch" href="/assets/js/37.998e3158.js"><link rel="prefetch" href="/assets/js/38.a7c9b535.js"><link rel="prefetch" href="/assets/js/39.cb7ef034.js"><link rel="prefetch" href="/assets/js/40.68d601e0.js"><link rel="prefetch" href="/assets/js/41.e0b76436.js"><link rel="prefetch" href="/assets/js/42.1dc7274e.js"><link rel="prefetch" href="/assets/js/43.8d207009.js"><link rel="prefetch" href="/assets/js/44.0c69f669.js"><link rel="prefetch" href="/assets/js/45.e9fd9dc6.js"><link rel="prefetch" href="/assets/js/46.3c39fd61.js"><link rel="prefetch" href="/assets/js/47.222d759f.js"><link rel="prefetch" href="/assets/js/48.756f06f5.js"><link rel="prefetch" href="/assets/js/49.57e24765.js"><link rel="prefetch" href="/assets/js/5.72084520.js"><link rel="prefetch" href="/assets/js/50.95e92047.js"><link rel="prefetch" href="/assets/js/51.c490b8b2.js"><link rel="prefetch" href="/assets/js/52.a75f3fc3.js"><link rel="prefetch" href="/assets/js/53.00784b72.js"><link rel="prefetch" href="/assets/js/54.e98d1719.js"><link rel="prefetch" href="/assets/js/55.613741c0.js"><link rel="prefetch" href="/assets/js/56.2506d341.js"><link rel="prefetch" href="/assets/js/57.5033d83f.js"><link rel="prefetch" href="/assets/js/58.6013459e.js"><link rel="prefetch" href="/assets/js/59.94a9b04c.js"><link rel="prefetch" href="/assets/js/6.12d3214a.js"><link rel="prefetch" href="/assets/js/60.d300a245.js"><link rel="prefetch" href="/assets/js/61.829c172e.js"><link rel="prefetch" href="/assets/js/62.fa083a8e.js"><link rel="prefetch" href="/assets/js/63.91ee3c39.js"><link rel="prefetch" href="/assets/js/64.e05f4361.js"><link rel="prefetch" href="/assets/js/65.75fcb117.js"><link rel="prefetch" href="/assets/js/66.a5cc4c63.js"><link rel="prefetch" href="/assets/js/68.f12d7bd2.js"><link rel="prefetch" href="/assets/js/69.75760814.js"><link rel="prefetch" href="/assets/js/7.993c72a8.js"><link rel="prefetch" href="/assets/js/70.68a6dcd0.js"><link rel="prefetch" href="/assets/js/71.c97c16fc.js"><link rel="prefetch" href="/assets/js/72.ef67d2b5.js"><link rel="prefetch" href="/assets/js/73.fa1673c6.js"><link rel="prefetch" href="/assets/js/74.aabe1c6e.js"><link rel="prefetch" href="/assets/js/75.b05bcde8.js"><link rel="prefetch" href="/assets/js/76.fbcfb7b6.js"><link rel="prefetch" href="/assets/js/77.b67226d1.js"><link rel="prefetch" href="/assets/js/78.482aa7d1.js"><link rel="prefetch" href="/assets/js/79.41814991.js"><link rel="prefetch" href="/assets/js/80.2aba736a.js"><link rel="prefetch" href="/assets/js/81.44271e02.js"><link rel="prefetch" href="/assets/js/82.a07a5796.js"><link rel="prefetch" href="/assets/js/83.25454035.js"><link rel="prefetch" href="/assets/js/84.1a1aeff7.js"><link rel="prefetch" href="/assets/js/85.c61c13a1.js"><link rel="prefetch" href="/assets/js/86.01b10c45.js"><link rel="prefetch" href="/assets/js/87.0f6c2dee.js"><link rel="prefetch" href="/assets/js/88.159f4733.js"><link rel="prefetch" href="/assets/js/89.18492fc9.js"><link rel="prefetch" href="/assets/js/9.1bf75535.js"><link rel="prefetch" href="/assets/js/90.8a82ad8f.js"><link rel="prefetch" href="/assets/js/91.e644ff2a.js"><link rel="prefetch" href="/assets/js/92.30d4d969.js"><link rel="prefetch" href="/assets/js/93.89e6806d.js"><link rel="prefetch" href="/assets/js/94.d3d581d1.js"><link rel="prefetch" href="/assets/js/95.5d2c129c.js"><link rel="prefetch" href="/assets/js/96.04e465fc.js"><link rel="prefetch" href="/assets/js/97.0a724d72.js"><link rel="prefetch" href="/assets/js/98.18d489d2.js"><link rel="prefetch" href="/assets/js/99.67f7b9bd.js"><link rel="prefetch" href="/assets/js/vendors~docsearch.806d23b2.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.bcf90c39.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/" class="home-link router-link-active"><img src="/assets/nav-logo.png" alt="吾行吾道，虽远必至" class="logo"> <span class="site-name can-hide">吾行吾道，虽远必至</span></a> <div class="links"><form id="search-form" role="search" class="algolia-search-wrapper search-box"><input id="algolia-search-input" class="search-query"></form> <nav class="nav-links can-hide"><div class="nav-item"><a href="/" class="nav-link">
+  主页
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="文档" class="dropdown-title"><span class="title">文档</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          论文
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/papers/academic_papers/" class="nav-link">
+  学术论文
+</a></li></ul></li><li class="dropdown-item"><h4>
+          其他
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/papers/other_papers/" class="nav-link">
+  其他文章
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="CTF" class="dropdown-title"><span class="title">CTF</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          CTF笔记
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/ctf/reverse/" class="nav-link">
+  Reverse
+</a></li><li class="dropdown-subitem"><a href="/ctf/pwn/" class="nav-link">
+  Pwn
+</a></li></ul></li><li class="dropdown-item"><!----> <a href="/ctf/writeup/" class="nav-link">
+  writeup
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="语言" class="dropdown-title"><span class="title">语言</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/languages/cplusplus/" class="nav-link router-link-active">
+  C++
+</a></li><li class="dropdown-item"><!----> <a href="/languages/python/" class="nav-link">
+  Python
+</a></li><li class="dropdown-item"><!----> <a href="/languages/android/" class="nav-link">
+  Android
+</a></li><li class="dropdown-item"><!----> <a href="/languages/golang/" class="nav-link">
+  Golang
+</a></li><li class="dropdown-item"><!----> <a href="/languages/rust/" class="nav-link">
+  Rust
+</a></li><li class="dropdown-item"><!----> <a href="/languages/vc/" class="nav-link">
+  VC
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="工具与项目" class="dropdown-title"><span class="title">工具与项目</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/tools/" class="nav-link">
+  工具
+</a></li><li class="dropdown-item"><!----> <a href="/projects/" class="nav-link">
+  项目
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="杂谈" class="dropdown-title"><span class="title">杂谈</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/diary/" class="nav-link">
+  日记
+</a></li><li class="dropdown-item"><!----> <a href="/others/" class="nav-link">
+  其他
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="更多vuepress" class="dropdown-title"><span class="title">vuepress</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          指南
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/guide/" class="nav-link">
+  指南
+</a></li><li class="dropdown-subitem"><a href="/vue/config/" class="nav-link">
+  配置
+</a></li></ul></li><li class="dropdown-item"><h4>
+          主题与插件
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/plugin/" class="nav-link">
+  插件
+</a></li><li class="dropdown-subitem"><a href="/vue/theme/" class="nav-link">
+  主题
+</a></li></ul></li><li class="dropdown-item"><h4>
+          API
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/api/cli.html" class="nav-link">
+  CLI
+</a></li><li class="dropdown-subitem"><a href="/vue/api/node.html" class="nav-link">
+  Node
+</a></li></ul></li><li class="dropdown-item"><h4>
+          开发指南
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/miscellaneous/local-development.html" class="nav-link">
+  本地开发
+</a></li><li class="dropdown-subitem"><a href="/vue/miscellaneous/design-concepts.html" class="nav-link">
+  设计理念
+</a></li><li class="dropdown-subitem"><a href="/vue/faq/" class="nav-link">
+  FAQ
+</a></li><li class="dropdown-subitem"><a href="/vue/miscellaneous/glossary.html" class="nav-link">
+  术语
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="关于" class="dropdown-title"><span class="title">关于</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/about.html" class="nav-link">
+  关于我
+</a></li><li class="dropdown-item"><!----> <a href="https://github.com/zjgcjy" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Github
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></li></ul></div></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/" class="nav-link">
+  主页
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="文档" class="dropdown-title"><span class="title">文档</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          论文
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/papers/academic_papers/" class="nav-link">
+  学术论文
+</a></li></ul></li><li class="dropdown-item"><h4>
+          其他
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/papers/other_papers/" class="nav-link">
+  其他文章
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="CTF" class="dropdown-title"><span class="title">CTF</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          CTF笔记
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/ctf/reverse/" class="nav-link">
+  Reverse
+</a></li><li class="dropdown-subitem"><a href="/ctf/pwn/" class="nav-link">
+  Pwn
+</a></li></ul></li><li class="dropdown-item"><!----> <a href="/ctf/writeup/" class="nav-link">
+  writeup
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="语言" class="dropdown-title"><span class="title">语言</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/languages/cplusplus/" class="nav-link router-link-active">
+  C++
+</a></li><li class="dropdown-item"><!----> <a href="/languages/python/" class="nav-link">
+  Python
+</a></li><li class="dropdown-item"><!----> <a href="/languages/android/" class="nav-link">
+  Android
+</a></li><li class="dropdown-item"><!----> <a href="/languages/golang/" class="nav-link">
+  Golang
+</a></li><li class="dropdown-item"><!----> <a href="/languages/rust/" class="nav-link">
+  Rust
+</a></li><li class="dropdown-item"><!----> <a href="/languages/vc/" class="nav-link">
+  VC
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="工具与项目" class="dropdown-title"><span class="title">工具与项目</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/tools/" class="nav-link">
+  工具
+</a></li><li class="dropdown-item"><!----> <a href="/projects/" class="nav-link">
+  项目
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="杂谈" class="dropdown-title"><span class="title">杂谈</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/diary/" class="nav-link">
+  日记
+</a></li><li class="dropdown-item"><!----> <a href="/others/" class="nav-link">
+  其他
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="更多vuepress" class="dropdown-title"><span class="title">vuepress</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          指南
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/guide/" class="nav-link">
+  指南
+</a></li><li class="dropdown-subitem"><a href="/vue/config/" class="nav-link">
+  配置
+</a></li></ul></li><li class="dropdown-item"><h4>
+          主题与插件
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/plugin/" class="nav-link">
+  插件
+</a></li><li class="dropdown-subitem"><a href="/vue/theme/" class="nav-link">
+  主题
+</a></li></ul></li><li class="dropdown-item"><h4>
+          API
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/api/cli.html" class="nav-link">
+  CLI
+</a></li><li class="dropdown-subitem"><a href="/vue/api/node.html" class="nav-link">
+  Node
+</a></li></ul></li><li class="dropdown-item"><h4>
+          开发指南
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/miscellaneous/local-development.html" class="nav-link">
+  本地开发
+</a></li><li class="dropdown-subitem"><a href="/vue/miscellaneous/design-concepts.html" class="nav-link">
+  设计理念
+</a></li><li class="dropdown-subitem"><a href="/vue/faq/" class="nav-link">
+  FAQ
+</a></li><li class="dropdown-subitem"><a href="/vue/miscellaneous/glossary.html" class="nav-link">
+  术语
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="关于" class="dropdown-title"><span class="title">关于</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/about.html" class="nav-link">
+  关于我
+</a></li><li class="dropdown-item"><!----> <a href="https://github.com/zjgcjy" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Github
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></li></ul></div></div> <!----></nav>  <ul class="sidebar-links"><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading open"><span>C++</span> <span class="arrow down"></span></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/languages/cplusplus/" class="sidebar-link">C++笔记</a></li><li><a href="/languages/cplusplus/learning-cpp-prime-plus-1.html" class="active sidebar-link">C++ Prime Plus 笔记-1</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/languages/cplusplus/learning-cpp-prime-plus-1.html#c-简介" class="sidebar-link">C++简介</a></li><li class="sidebar-sub-header"><a href="/languages/cplusplus/learning-cpp-prime-plus-1.html#创建c-文件" class="sidebar-link">创建C++文件</a></li><li class="sidebar-sub-header"><a href="/languages/cplusplus/learning-cpp-prime-plus-1.html#c-语句" class="sidebar-link">C++语句</a></li><li class="sidebar-sub-header"><a href="/languages/cplusplus/learning-cpp-prime-plus-1.html#函数" class="sidebar-link">函数</a></li><li class="sidebar-sub-header"><a href="/languages/cplusplus/learning-cpp-prime-plus-1.html#数据" class="sidebar-link">数据</a></li><li class="sidebar-sub-header"><a href="/languages/cplusplus/learning-cpp-prime-plus-1.html#整形数据格式与类型" class="sidebar-link">整形数据格式与类型</a></li><li class="sidebar-sub-header"><a href="/languages/cplusplus/learning-cpp-prime-plus-1.html#浮点数格式" class="sidebar-link">浮点数格式</a></li><li class="sidebar-sub-header"><a href="/languages/cplusplus/learning-cpp-prime-plus-1.html#运算符" class="sidebar-link">运算符</a></li></ul></li><li><a href="/languages/cplusplus/learning-cpp-prime-plus-2.html" class="sidebar-link">C++ Prime Plus 笔记-2</a></li><li><a href="/languages/cplusplus/learning-cpp-prime-plus-3.html" class="sidebar-link">C++ Prime Plus 笔记-3</a></li></ul></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>Python</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>Android</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>Golang</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>Rust</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>Windows VC</span> <span class="arrow right"></span></p> <!----></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><blockquote><p>C++ Prime Plus 读书笔记1
+第1章到第3章 包括一些预备知识和基本数据类型和代码格式</p></blockquote> <hr> <h2 id="c-简介"><a href="#c-简介" class="header-anchor">#</a> C++简介</h2> <p>C++继承了C语言的优点，同时新添加了内容，包括面向对象编程（OOP）和泛型编程。</p> <p>关于C语言的编程原理，有这么几点。最开始是过程性语言，强调数据和算法，但是这种方式阅读起来很困难，修改也很复杂。所以逐渐发展成为结构化编程的方法，将分支限制为小组行为中的结构。另一个原则是自顶向下的原则，将大任务分解成小任务，然后各个击破。总体来看，结构化编程反应了过程性编程的思想，即通过执行的操作来构思一个程序。</p> <p>在OOP提出来后，这种思维强调的是数据，试图让语言来满足问题的要求，是设计与问题的本质相关的数据格式。然后设计出相应的类来表示这些数据格式，同时设置相应的方法，对数据进行操作，从低级数据操作高级数据，是一种自下向上的编程方法。OOP还有助于复用代码和信息隐藏，多态和继承能派生出新类和新的方法。</p> <p>泛型编程是C++支持的另一种编程模式，它强调的是独立于数据格式的任务，即模板类。</p> <h2 id="创建c-文件"><a href="#创建c-文件" class="header-anchor">#</a> 创建C++文件</h2> <p>如何让C++文件运行起来主要分三步，第一步是编写源代码，第二步是编译源代码，生成的代码是目标代码，也就是机器语言。但是这个时候文件还不能运行，还要进行链接，链接的过程就是将程序运行需要的库函数和标准启动函数组合起来，形成可执行代码。</p> <p>为了支持某些新特性，有些编译器，比如g++编译源代码的命令：</p> <div class="language-cpp line-numbers-mode"><pre class="language-cpp"><code>g<span class="token operator">++</span> <span class="token operator">-</span>std<span class="token operator">=</span>c<span class="token operator">++</span><span class="token number">0</span>x use_auto<span class="token punctuation">.</span>cpp
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br></div></div><p>常见的C++文件拓展名如下表所示。</p> <table><thead><tr><th style="text-align:left;">C++实现</th> <th style="text-align:left;">拓展名</th></tr></thead> <tbody><tr><td style="text-align:left;">UNIX</td> <td style="text-align:left;">C cc cxx  c</td></tr> <tr><td style="text-align:left;">GNU  C++</td> <td style="text-align:left;">C cc cxx cpp c++</td></tr> <tr><td style="text-align:left;">Visual C++</td> <td style="text-align:left;">cpp cxx cc</td></tr></tbody></table> <p>第一章的内容其实没什么重要的东西，了解一下就行了。下面是第二章的内容。</p> <h2 id="c-语句"><a href="#c-语句" class="header-anchor">#</a> C++语句</h2> <p>C++支持命名空间的用法，这种技术旨在编写大型程序时能将多个同名函数进行区分，有助于组织结构。</p> <div class="language-cpp line-numbers-mode"><pre class="language-cpp"><code><span class="token keyword">using</span> <span class="token keyword">namespace</span> std<span class="token punctuation">;</span>
+如果只需要使用其中几个对象，可以直接这样写，上面的写法有点偷懒了。
+<span class="token keyword">using</span> std<span class="token operator">::</span>cout<span class="token punctuation">;</span>
+<span class="token keyword">using</span> std<span class="token operator">::</span>cin<span class="token punctuation">;</span>
+<span class="token keyword">using</span> std<span class="token operator">::</span>endl<span class="token punctuation">;</span>
+也可以直接不使用命名空间。
+std<span class="token operator">::</span>cout<span class="token punctuation">;</span>
+std<span class="token operator">::</span>cin<span class="token punctuation">;</span>
+std<span class="token operator">::</span>endl<span class="token punctuation">;</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br></div></div><p>关于换行符，endl和转义字符不一样的一点在于，endl会确保程序继续运行前刷新输出缓冲区，而转义字符‘\n’则不一定，有时候不会输出，需要设置输出缓冲区的刷新模式。</p> <p>C++中的类指定了对象执行的所有操作。对特定对象执行这些操作，需要给对象发送消息，一般分为两种方法，第一种是使用类的方法，第二种是使用运算符重载。</p> <h2 id="函数"><a href="#函数" class="header-anchor">#</a> 函数</h2> <p>在使用库函数的时候，如果找不到对应的函数，需要手动设置，如下所示。</p> <div class="language-cpp line-numbers-mode"><pre class="language-cpp"><code>UNIX
+CC sqrt<span class="token punctuation">.</span>C <span class="token operator">-</span>lm
+Linux
+g<span class="token operator">++</span> sqrt<span class="token punctuation">.</span>C <span class="token operator">-</span>lm
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br></div></div><h2 id="数据"><a href="#数据" class="header-anchor">#</a> 数据</h2> <p>使用sizeof运算符可以求类型或者变量的长度。</p> <div class="language-cpp line-numbers-mode"><pre class="language-cpp"><code><span class="token comment">//可以查看变量的范围</span>
+<span class="token macro property">#<span class="token directive keyword">include</span><span class="token string">&lt;climits&gt;</span></span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br></div></div><p>C++特有的初始化语法，通过新添加的大括号初始化器，初始化常规变量的形式和类变量的形式更像。</p> <div class="language-cpp line-numbers-mode"><pre class="language-cpp"><code><span class="token keyword">int</span> <span class="token function">p</span><span class="token punctuation">(</span><span class="token number">80</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br></div></div><p>关于无符号和有符号数据的范围，C++不保证符号整数的上溢和下溢。</p> <p>关于数据格式，如果使用标准输入输出流，以不同格式输出的方法如下。</p> <div class="language-cpp line-numbers-mode"><pre class="language-cpp"><code><span class="token keyword">int</span> <span class="token function">a</span><span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// 10进制</span>
+cout <span class="token operator">&lt;&lt;</span> dec<span class="token punctuation">;</span>
+cout <span class="token operator">&lt;&lt;</span> a<span class="token punctuation">;</span>
+<span class="token comment">// 16进制</span>
+cout <span class="token operator">&lt;&lt;</span> hex<span class="token punctuation">;</span>
+cout <span class="token operator">&lt;&lt;</span> a<span class="token punctuation">;</span>
+<span class="token comment">//8进制</span>
+cout <span class="token operator">&lt;&lt;</span> oct<span class="token punctuation">;</span>
+cout <span class="token operator">&lt;&lt;</span> a<span class="token punctuation">;</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br></div></div><h2 id="整形数据格式与类型"><a href="#整形数据格式与类型" class="header-anchor">#</a> 整形数据格式与类型</h2> <p>在整数后加l或L表示是long常量，u或U是unsigned int常量，ul或uL表示unsigned long常量，uLL表示unsigned long long常量。</p> <p>对于不带后缀的十进制数，使用int，long 或者long long类型。
+对于不带后缀的十六进制，使用int，unsigned int，long，unsigned long，long long，unsigned long long。
+这是因为十六进制经常用来表示内存地址，而地址是非负的，无符号的。</p> <p>cout对象有成员函数put，用来显示一个字符。
+C++中字符用单引号，字符串用双引号。</p> <p>关于转义字符，问号是需要转义的（参见三字母词）。</p> <p>C++中表示Unicode编码使用\u或者\U前缀，\uabcd或者\Uabcdef12，这种数据对应11标准中的<code>char16_t</code>和<code>char32_t</code>。</p> <div class="language-cpp line-numbers-mode"><pre class="language-cpp"><code><span class="token keyword">char16_t</span> ch1 <span class="token operator">=</span> u<span class="token string">'q'</span><span class="token punctuation">;</span>
+<span class="token keyword">char32_t</span> ch2 <span class="token operator">=</span> U<span class="token string">'\U0000222B'</span><span class="token punctuation">;</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br></div></div><p>还有一种宽字符类型是wchar_t，这是一种拓展集合，使用2个字节。
+由于cin和cout只适合处理char类型，对于wchar_t类型，使用iostream头文件中的wcin和wcout。</p> <div class="language-cpp line-numbers-mode"><pre class="language-cpp"><code><span class="token keyword">wchar_t</span> bob <span class="token operator">=</span> L<span class="token string">'P'</span><span class="token punctuation">;</span>
+wcout <span class="token operator">&lt;&lt;</span> bob <span class="token operator">&lt;&lt;</span> L<span class="token string">&quot;tall&quot;</span> <span class="token operator">&lt;&lt;</span> endl<span class="token punctuation">;</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br></div></div><h2 id="浮点数格式"><a href="#浮点数格式" class="header-anchor">#</a> 浮点数格式</h2> <p>浮点数的表示格式就两种，第一种是常规方法，第二种是E表示法。浮点类型主要有float，double和long double三种，这是根据有效位数和指数的最小范围来划分的。通常float有32位，double有64位，long double是128位，可以从cfloat或float.h文件中查看范围限制。</p> <p>浮点变量默认是double类型，后缀F表示float类型，L表示long double类型。</p> <p><strong>在C++中，float类型只能表示数据中的前6位有效，double是13位有效。</strong></p> <h2 id="运算符"><a href="#运算符" class="header-anchor">#</a> 运算符</h2> <p>求模运算符满足以下规则</p> <div class="language-cpp line-numbers-mode"><pre class="language-cpp"><code><span class="token punctuation">(</span>a<span class="token operator">/</span>b<span class="token punctuation">)</span><span class="token operator">*</span>b <span class="token operator">+</span> a<span class="token operator">%</span>b <span class="token operator">=</span> a
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br></div></div><p>关于类型转换，在使用初始化列表的时候，类型只能向低精度类型转换，否则编译将不能通过。</p> <div class="language-cpp line-numbers-mode"><pre class="language-cpp"><code><span class="token keyword">const</span> <span class="token keyword">int</span> code <span class="token operator">=</span> <span class="token number">66</span><span class="token punctuation">;</span>
+<span class="token keyword">int</span> x <span class="token operator">=</span> <span class="token number">66</span><span class="token punctuation">;</span>
+<span class="token keyword">char</span> c1 <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token number">66</span><span class="token punctuation">}</span><span class="token punctuation">;</span><span class="token comment">//可以</span>
+<span class="token keyword">char</span> c2 <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token number">1234</span><span class="token punctuation">}</span><span class="token punctuation">;</span><span class="token comment">//不可以</span>
+<span class="token keyword">char</span> c3 <span class="token operator">=</span> <span class="token punctuation">{</span>code<span class="token punctuation">}</span><span class="token punctuation">;</span><span class="token comment">//可以</span>
+<span class="token keyword">char</span> c4 <span class="token operator">=</span> <span class="token punctuation">{</span>x<span class="token punctuation">}</span><span class="token punctuation">;</span><span class="token comment">//不可以</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br></div></div><p>在表达式中，如果不存在浮点数，则所有的变量都会进行整形提升，即转换成int，然后进行计算，最后再转换成对应的原始数据类型。</p> <p>在C++中强制类型转换类似于函数调用。</p> <div class="language-cpp line-numbers-mode"><pre class="language-cpp"><code><span class="token punctuation">(</span><span class="token keyword">long</span><span class="token punctuation">)</span>var  <span class="token comment">//C</span>
+<span class="token keyword">long</span><span class="token punctuation">(</span>var<span class="token punctuation">)</span>  <span class="token comment">//C++</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br></div></div><p>C++引入了新的类型转换函数，<code>static_cast</code>用于将数值类型转换成另一种数值类型。</p> <div class="language-cpp line-numbers-mode"><pre class="language-cpp"><code><span class="token keyword">static_cast</span><span class="token operator">&lt;</span>typeName<span class="token operator">&gt;</span> <span class="token punctuation">(</span>value<span class="token punctuation">)</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br></div></div><p>C++11中引入了新的变量类型，auto，能根据初始化的数据自动判断变量。</p></div> <footer class="page-edit"><!----> <div class="last-updated"><span class="prefix">最后更新时间:</span> <span class="time">2020年5月11日 09:15</span></div></footer> <div class="page-nav"><p class="inner"><span class="prev">
+      ←
+      <a href="/languages/cplusplus/" class="prev router-link-active">
+        C++笔记
+      </a></span> <span class="next"><a href="/languages/cplusplus/learning-cpp-prime-plus-2.html">
+        C++ Prime Plus 笔记-2
+      </a>
+      →
+    </span></p></div>  <!----></main></div><div class="global-ui"><!----><!----></div></div>
+    <script src="/assets/js/app.259e8595.js" defer></script><script src="/assets/js/8.8187fa34.js" defer></script><script src="/assets/js/3.710d55e8.js" defer></script><script src="/assets/js/67.7e8f08a7.js" defer></script><script src="/assets/js/4.78d0c8ca.js" defer></script>
+  </body>
+</html>

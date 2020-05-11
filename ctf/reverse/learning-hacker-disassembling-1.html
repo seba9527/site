@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>黑客反汇编揭秘笔记-1 | 吾行吾道，虽远必至</title>
+    <meta name="generator" content="VuePress 1.4.1">
+    <link rel="icon" href="/icons/favicon.ico">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <meta name="description" content="分享zjgcjy的个人笔记、读书论文、学习知识">
+    <meta name="author" content="zjgcjy">
+    <meta name="keywords" content="blog, document, zjgcjy">
+    <meta name="theme-color" content="#3eaf7c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="msapplication-TileImage" content="/icons/android-chrome-192x192.png">
+    <meta name="msapplication-TileColor" content="#000000">
+    <link rel="preload" href="/assets/css/0.styles.bcf90c39.css" as="style"><link rel="preload" href="/assets/js/app.259e8595.js" as="script"><link rel="preload" href="/assets/js/8.8187fa34.js" as="script"><link rel="preload" href="/assets/js/3.710d55e8.js" as="script"><link rel="preload" href="/assets/js/36.cacd0f93.js" as="script"><link rel="preload" href="/assets/js/4.78d0c8ca.js" as="script"><link rel="prefetch" href="/assets/js/10.b9f84329.js"><link rel="prefetch" href="/assets/js/100.64f9c727.js"><link rel="prefetch" href="/assets/js/101.b9c92fcc.js"><link rel="prefetch" href="/assets/js/102.53497450.js"><link rel="prefetch" href="/assets/js/103.f84fceba.js"><link rel="prefetch" href="/assets/js/104.2cec01a9.js"><link rel="prefetch" href="/assets/js/105.4c8d386a.js"><link rel="prefetch" href="/assets/js/106.fb5a01a3.js"><link rel="prefetch" href="/assets/js/107.e42f93be.js"><link rel="prefetch" href="/assets/js/108.4be0e7fb.js"><link rel="prefetch" href="/assets/js/109.ab946f69.js"><link rel="prefetch" href="/assets/js/11.13ac4804.js"><link rel="prefetch" href="/assets/js/110.9124a265.js"><link rel="prefetch" href="/assets/js/111.0fd02e00.js"><link rel="prefetch" href="/assets/js/112.8156a621.js"><link rel="prefetch" href="/assets/js/113.02d06572.js"><link rel="prefetch" href="/assets/js/114.16572105.js"><link rel="prefetch" href="/assets/js/115.5bb4870d.js"><link rel="prefetch" href="/assets/js/116.1512299d.js"><link rel="prefetch" href="/assets/js/117.3f6be560.js"><link rel="prefetch" href="/assets/js/118.a2f94b95.js"><link rel="prefetch" href="/assets/js/119.cbd23cf1.js"><link rel="prefetch" href="/assets/js/12.96c1e9c7.js"><link rel="prefetch" href="/assets/js/120.35ac8354.js"><link rel="prefetch" href="/assets/js/121.8cafd6ac.js"><link rel="prefetch" href="/assets/js/122.8bd8b3ec.js"><link rel="prefetch" href="/assets/js/123.66bc6567.js"><link rel="prefetch" href="/assets/js/124.86114880.js"><link rel="prefetch" href="/assets/js/125.98a360c3.js"><link rel="prefetch" href="/assets/js/126.7e69512e.js"><link rel="prefetch" href="/assets/js/127.3b557f03.js"><link rel="prefetch" href="/assets/js/128.aa91743f.js"><link rel="prefetch" href="/assets/js/129.a67d02c6.js"><link rel="prefetch" href="/assets/js/13.8a70de11.js"><link rel="prefetch" href="/assets/js/130.de463ad4.js"><link rel="prefetch" href="/assets/js/131.37e37be4.js"><link rel="prefetch" href="/assets/js/132.9c61740e.js"><link rel="prefetch" href="/assets/js/133.79e86f8a.js"><link rel="prefetch" href="/assets/js/134.d7ca3cf7.js"><link rel="prefetch" href="/assets/js/135.f9795f18.js"><link rel="prefetch" href="/assets/js/136.73448c17.js"><link rel="prefetch" href="/assets/js/137.6b28eb92.js"><link rel="prefetch" href="/assets/js/138.bfbe9c7b.js"><link rel="prefetch" href="/assets/js/139.31ce849a.js"><link rel="prefetch" href="/assets/js/14.4b876aad.js"><link rel="prefetch" href="/assets/js/140.c60678e4.js"><link rel="prefetch" href="/assets/js/141.ecfd3ed5.js"><link rel="prefetch" href="/assets/js/142.56834ba7.js"><link rel="prefetch" href="/assets/js/143.a4660836.js"><link rel="prefetch" href="/assets/js/144.bdbc7757.js"><link rel="prefetch" href="/assets/js/145.8439c8fc.js"><link rel="prefetch" href="/assets/js/146.79b35e1c.js"><link rel="prefetch" href="/assets/js/147.aa7ba0f4.js"><link rel="prefetch" href="/assets/js/148.8127900a.js"><link rel="prefetch" href="/assets/js/149.d4519e8a.js"><link rel="prefetch" href="/assets/js/15.9488169d.js"><link rel="prefetch" href="/assets/js/150.b496705c.js"><link rel="prefetch" href="/assets/js/151.2a1e45a3.js"><link rel="prefetch" href="/assets/js/152.104f6774.js"><link rel="prefetch" href="/assets/js/153.831af0da.js"><link rel="prefetch" href="/assets/js/154.eb585a5e.js"><link rel="prefetch" href="/assets/js/155.e2bd2c2f.js"><link rel="prefetch" href="/assets/js/156.5d9a6efa.js"><link rel="prefetch" href="/assets/js/157.9fd63fdc.js"><link rel="prefetch" href="/assets/js/158.96accaa5.js"><link rel="prefetch" href="/assets/js/159.a627876b.js"><link rel="prefetch" href="/assets/js/16.635ee0b3.js"><link rel="prefetch" href="/assets/js/160.0be28786.js"><link rel="prefetch" href="/assets/js/161.5c35aea8.js"><link rel="prefetch" href="/assets/js/162.c6689e15.js"><link rel="prefetch" href="/assets/js/163.0ac0f691.js"><link rel="prefetch" href="/assets/js/164.cf67f085.js"><link rel="prefetch" href="/assets/js/165.727ab9e1.js"><link rel="prefetch" href="/assets/js/166.7b2a32ad.js"><link rel="prefetch" href="/assets/js/167.e631a4bd.js"><link rel="prefetch" href="/assets/js/168.852110df.js"><link rel="prefetch" href="/assets/js/169.0e50a31a.js"><link rel="prefetch" href="/assets/js/17.e02cf70c.js"><link rel="prefetch" href="/assets/js/170.b7df585f.js"><link rel="prefetch" href="/assets/js/171.d729713a.js"><link rel="prefetch" href="/assets/js/172.f8e1231b.js"><link rel="prefetch" href="/assets/js/173.93726b73.js"><link rel="prefetch" href="/assets/js/174.7f64a44c.js"><link rel="prefetch" href="/assets/js/175.df1a7840.js"><link rel="prefetch" href="/assets/js/176.34947925.js"><link rel="prefetch" href="/assets/js/177.5777aabf.js"><link rel="prefetch" href="/assets/js/178.85274698.js"><link rel="prefetch" href="/assets/js/179.25e2561a.js"><link rel="prefetch" href="/assets/js/18.25b4b4be.js"><link rel="prefetch" href="/assets/js/180.af244bf8.js"><link rel="prefetch" href="/assets/js/181.9b77dac3.js"><link rel="prefetch" href="/assets/js/182.4ee1b5b2.js"><link rel="prefetch" href="/assets/js/183.edabcec4.js"><link rel="prefetch" href="/assets/js/184.6d944f02.js"><link rel="prefetch" href="/assets/js/185.b3a859cd.js"><link rel="prefetch" href="/assets/js/186.57894fb7.js"><link rel="prefetch" href="/assets/js/187.6b0ffa48.js"><link rel="prefetch" href="/assets/js/19.51d4d990.js"><link rel="prefetch" href="/assets/js/20.29ef26a5.js"><link rel="prefetch" href="/assets/js/21.09bb2bcf.js"><link rel="prefetch" href="/assets/js/22.bc8025cb.js"><link rel="prefetch" href="/assets/js/23.dcf28c26.js"><link rel="prefetch" href="/assets/js/24.bbfa0b36.js"><link rel="prefetch" href="/assets/js/25.21199312.js"><link rel="prefetch" href="/assets/js/26.fa793d19.js"><link rel="prefetch" href="/assets/js/27.d1610968.js"><link rel="prefetch" href="/assets/js/28.0913c2ee.js"><link rel="prefetch" href="/assets/js/29.bc1b8ed5.js"><link rel="prefetch" href="/assets/js/30.13a6243f.js"><link rel="prefetch" href="/assets/js/31.5c8a479a.js"><link rel="prefetch" href="/assets/js/32.d2b94351.js"><link rel="prefetch" href="/assets/js/33.95b216c6.js"><link rel="prefetch" href="/assets/js/34.b13f6ca4.js"><link rel="prefetch" href="/assets/js/35.49e99b49.js"><link rel="prefetch" href="/assets/js/37.998e3158.js"><link rel="prefetch" href="/assets/js/38.a7c9b535.js"><link rel="prefetch" href="/assets/js/39.cb7ef034.js"><link rel="prefetch" href="/assets/js/40.68d601e0.js"><link rel="prefetch" href="/assets/js/41.e0b76436.js"><link rel="prefetch" href="/assets/js/42.1dc7274e.js"><link rel="prefetch" href="/assets/js/43.8d207009.js"><link rel="prefetch" href="/assets/js/44.0c69f669.js"><link rel="prefetch" href="/assets/js/45.e9fd9dc6.js"><link rel="prefetch" href="/assets/js/46.3c39fd61.js"><link rel="prefetch" href="/assets/js/47.222d759f.js"><link rel="prefetch" href="/assets/js/48.756f06f5.js"><link rel="prefetch" href="/assets/js/49.57e24765.js"><link rel="prefetch" href="/assets/js/5.72084520.js"><link rel="prefetch" href="/assets/js/50.95e92047.js"><link rel="prefetch" href="/assets/js/51.c490b8b2.js"><link rel="prefetch" href="/assets/js/52.a75f3fc3.js"><link rel="prefetch" href="/assets/js/53.00784b72.js"><link rel="prefetch" href="/assets/js/54.e98d1719.js"><link rel="prefetch" href="/assets/js/55.613741c0.js"><link rel="prefetch" href="/assets/js/56.2506d341.js"><link rel="prefetch" href="/assets/js/57.5033d83f.js"><link rel="prefetch" href="/assets/js/58.6013459e.js"><link rel="prefetch" href="/assets/js/59.94a9b04c.js"><link rel="prefetch" href="/assets/js/6.12d3214a.js"><link rel="prefetch" href="/assets/js/60.d300a245.js"><link rel="prefetch" href="/assets/js/61.829c172e.js"><link rel="prefetch" href="/assets/js/62.fa083a8e.js"><link rel="prefetch" href="/assets/js/63.91ee3c39.js"><link rel="prefetch" href="/assets/js/64.e05f4361.js"><link rel="prefetch" href="/assets/js/65.75fcb117.js"><link rel="prefetch" href="/assets/js/66.a5cc4c63.js"><link rel="prefetch" href="/assets/js/67.7e8f08a7.js"><link rel="prefetch" href="/assets/js/68.f12d7bd2.js"><link rel="prefetch" href="/assets/js/69.75760814.js"><link rel="prefetch" href="/assets/js/7.993c72a8.js"><link rel="prefetch" href="/assets/js/70.68a6dcd0.js"><link rel="prefetch" href="/assets/js/71.c97c16fc.js"><link rel="prefetch" href="/assets/js/72.ef67d2b5.js"><link rel="prefetch" href="/assets/js/73.fa1673c6.js"><link rel="prefetch" href="/assets/js/74.aabe1c6e.js"><link rel="prefetch" href="/assets/js/75.b05bcde8.js"><link rel="prefetch" href="/assets/js/76.fbcfb7b6.js"><link rel="prefetch" href="/assets/js/77.b67226d1.js"><link rel="prefetch" href="/assets/js/78.482aa7d1.js"><link rel="prefetch" href="/assets/js/79.41814991.js"><link rel="prefetch" href="/assets/js/80.2aba736a.js"><link rel="prefetch" href="/assets/js/81.44271e02.js"><link rel="prefetch" href="/assets/js/82.a07a5796.js"><link rel="prefetch" href="/assets/js/83.25454035.js"><link rel="prefetch" href="/assets/js/84.1a1aeff7.js"><link rel="prefetch" href="/assets/js/85.c61c13a1.js"><link rel="prefetch" href="/assets/js/86.01b10c45.js"><link rel="prefetch" href="/assets/js/87.0f6c2dee.js"><link rel="prefetch" href="/assets/js/88.159f4733.js"><link rel="prefetch" href="/assets/js/89.18492fc9.js"><link rel="prefetch" href="/assets/js/9.1bf75535.js"><link rel="prefetch" href="/assets/js/90.8a82ad8f.js"><link rel="prefetch" href="/assets/js/91.e644ff2a.js"><link rel="prefetch" href="/assets/js/92.30d4d969.js"><link rel="prefetch" href="/assets/js/93.89e6806d.js"><link rel="prefetch" href="/assets/js/94.d3d581d1.js"><link rel="prefetch" href="/assets/js/95.5d2c129c.js"><link rel="prefetch" href="/assets/js/96.04e465fc.js"><link rel="prefetch" href="/assets/js/97.0a724d72.js"><link rel="prefetch" href="/assets/js/98.18d489d2.js"><link rel="prefetch" href="/assets/js/99.67f7b9bd.js"><link rel="prefetch" href="/assets/js/vendors~docsearch.806d23b2.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.bcf90c39.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/" class="home-link router-link-active"><img src="/assets/nav-logo.png" alt="吾行吾道，虽远必至" class="logo"> <span class="site-name can-hide">吾行吾道，虽远必至</span></a> <div class="links"><form id="search-form" role="search" class="algolia-search-wrapper search-box"><input id="algolia-search-input" class="search-query"></form> <nav class="nav-links can-hide"><div class="nav-item"><a href="/" class="nav-link">
+  主页
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="文档" class="dropdown-title"><span class="title">文档</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          论文
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/papers/academic_papers/" class="nav-link">
+  学术论文
+</a></li></ul></li><li class="dropdown-item"><h4>
+          其他
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/papers/other_papers/" class="nav-link">
+  其他文章
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="CTF" class="dropdown-title"><span class="title">CTF</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          CTF笔记
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/ctf/reverse/" class="nav-link router-link-active">
+  Reverse
+</a></li><li class="dropdown-subitem"><a href="/ctf/pwn/" class="nav-link">
+  Pwn
+</a></li></ul></li><li class="dropdown-item"><!----> <a href="/ctf/writeup/" class="nav-link">
+  writeup
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="语言" class="dropdown-title"><span class="title">语言</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/languages/cplusplus/" class="nav-link">
+  C++
+</a></li><li class="dropdown-item"><!----> <a href="/languages/python/" class="nav-link">
+  Python
+</a></li><li class="dropdown-item"><!----> <a href="/languages/android/" class="nav-link">
+  Android
+</a></li><li class="dropdown-item"><!----> <a href="/languages/golang/" class="nav-link">
+  Golang
+</a></li><li class="dropdown-item"><!----> <a href="/languages/rust/" class="nav-link">
+  Rust
+</a></li><li class="dropdown-item"><!----> <a href="/languages/vc/" class="nav-link">
+  VC
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="工具与项目" class="dropdown-title"><span class="title">工具与项目</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/tools/" class="nav-link">
+  工具
+</a></li><li class="dropdown-item"><!----> <a href="/projects/" class="nav-link">
+  项目
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="杂谈" class="dropdown-title"><span class="title">杂谈</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/diary/" class="nav-link">
+  日记
+</a></li><li class="dropdown-item"><!----> <a href="/others/" class="nav-link">
+  其他
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="更多vuepress" class="dropdown-title"><span class="title">vuepress</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          指南
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/guide/" class="nav-link">
+  指南
+</a></li><li class="dropdown-subitem"><a href="/vue/config/" class="nav-link">
+  配置
+</a></li></ul></li><li class="dropdown-item"><h4>
+          主题与插件
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/plugin/" class="nav-link">
+  插件
+</a></li><li class="dropdown-subitem"><a href="/vue/theme/" class="nav-link">
+  主题
+</a></li></ul></li><li class="dropdown-item"><h4>
+          API
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/api/cli.html" class="nav-link">
+  CLI
+</a></li><li class="dropdown-subitem"><a href="/vue/api/node.html" class="nav-link">
+  Node
+</a></li></ul></li><li class="dropdown-item"><h4>
+          开发指南
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/miscellaneous/local-development.html" class="nav-link">
+  本地开发
+</a></li><li class="dropdown-subitem"><a href="/vue/miscellaneous/design-concepts.html" class="nav-link">
+  设计理念
+</a></li><li class="dropdown-subitem"><a href="/vue/faq/" class="nav-link">
+  FAQ
+</a></li><li class="dropdown-subitem"><a href="/vue/miscellaneous/glossary.html" class="nav-link">
+  术语
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="关于" class="dropdown-title"><span class="title">关于</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/about.html" class="nav-link">
+  关于我
+</a></li><li class="dropdown-item"><!----> <a href="https://github.com/zjgcjy" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Github
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></li></ul></div></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/" class="nav-link">
+  主页
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="文档" class="dropdown-title"><span class="title">文档</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          论文
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/papers/academic_papers/" class="nav-link">
+  学术论文
+</a></li></ul></li><li class="dropdown-item"><h4>
+          其他
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/papers/other_papers/" class="nav-link">
+  其他文章
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="CTF" class="dropdown-title"><span class="title">CTF</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          CTF笔记
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/ctf/reverse/" class="nav-link router-link-active">
+  Reverse
+</a></li><li class="dropdown-subitem"><a href="/ctf/pwn/" class="nav-link">
+  Pwn
+</a></li></ul></li><li class="dropdown-item"><!----> <a href="/ctf/writeup/" class="nav-link">
+  writeup
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="语言" class="dropdown-title"><span class="title">语言</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/languages/cplusplus/" class="nav-link">
+  C++
+</a></li><li class="dropdown-item"><!----> <a href="/languages/python/" class="nav-link">
+  Python
+</a></li><li class="dropdown-item"><!----> <a href="/languages/android/" class="nav-link">
+  Android
+</a></li><li class="dropdown-item"><!----> <a href="/languages/golang/" class="nav-link">
+  Golang
+</a></li><li class="dropdown-item"><!----> <a href="/languages/rust/" class="nav-link">
+  Rust
+</a></li><li class="dropdown-item"><!----> <a href="/languages/vc/" class="nav-link">
+  VC
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="工具与项目" class="dropdown-title"><span class="title">工具与项目</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/tools/" class="nav-link">
+  工具
+</a></li><li class="dropdown-item"><!----> <a href="/projects/" class="nav-link">
+  项目
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="杂谈" class="dropdown-title"><span class="title">杂谈</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/diary/" class="nav-link">
+  日记
+</a></li><li class="dropdown-item"><!----> <a href="/others/" class="nav-link">
+  其他
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="更多vuepress" class="dropdown-title"><span class="title">vuepress</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          指南
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/guide/" class="nav-link">
+  指南
+</a></li><li class="dropdown-subitem"><a href="/vue/config/" class="nav-link">
+  配置
+</a></li></ul></li><li class="dropdown-item"><h4>
+          主题与插件
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/plugin/" class="nav-link">
+  插件
+</a></li><li class="dropdown-subitem"><a href="/vue/theme/" class="nav-link">
+  主题
+</a></li></ul></li><li class="dropdown-item"><h4>
+          API
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/api/cli.html" class="nav-link">
+  CLI
+</a></li><li class="dropdown-subitem"><a href="/vue/api/node.html" class="nav-link">
+  Node
+</a></li></ul></li><li class="dropdown-item"><h4>
+          开发指南
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/miscellaneous/local-development.html" class="nav-link">
+  本地开发
+</a></li><li class="dropdown-subitem"><a href="/vue/miscellaneous/design-concepts.html" class="nav-link">
+  设计理念
+</a></li><li class="dropdown-subitem"><a href="/vue/faq/" class="nav-link">
+  FAQ
+</a></li><li class="dropdown-subitem"><a href="/vue/miscellaneous/glossary.html" class="nav-link">
+  术语
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="关于" class="dropdown-title"><span class="title">关于</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/about.html" class="nav-link">
+  关于我
+</a></li><li class="dropdown-item"><!----> <a href="https://github.com/zjgcjy" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Github
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></li></ul></div></div> <!----></nav>  <ul class="sidebar-links"><li><a href="/ctf/reverse/" class="sidebar-link">reverse简介</a></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>《IDApro代码破解揭秘》笔记</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading open"><span>《黑客反汇编揭秘》笔记</span> <span class="arrow down"></span></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/ctf/reverse/learning-hacker-disassembling-1.html" class="active sidebar-link">黑客反汇编揭秘笔记-1</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/ctf/reverse/learning-hacker-disassembling-1.html#第6章" class="sidebar-link">第6章</a></li><li class="sidebar-sub-header"><a href="/ctf/reverse/learning-hacker-disassembling-1.html#第8章" class="sidebar-link">第8章</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/ctf/reverse/learning-hacker-disassembling-1.html#ptrace" class="sidebar-link">ptrace</a></li></ul></li></ul></li><li><a href="/ctf/reverse/learning-hacker-disassembling-2.html" class="sidebar-link">黑客反汇编揭秘笔记-2</a></li><li><a href="/ctf/reverse/learning-hacker-disassembling-3.html" class="sidebar-link">黑客反汇编揭秘笔记-3</a></li><li><a href="/ctf/reverse/learning-hacker-disassembling-4.html" class="sidebar-link">黑客反汇编揭秘笔记-4</a></li></ul></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>逆向方法与工具使用</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>其他笔记（施工中）</span> <span class="arrow right"></span></p> <!----></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><hr> <blockquote><p>本篇是《Hacker Disassembling Uncovered》的笔记。由于这本书出的时间比较长了，我看的版本还是08年出的，里面有很多东西没什么学习的必要，不过多读点书还是好的吧。在这里记个备忘。</p></blockquote> <h2 id="第6章"><a href="#第6章" class="header-anchor">#</a> 第6章</h2> <p>本来想用<code>kerberos</code>的，结果下的都用不了，可能是版本太低了。然后学习了<code>spy monitor</code>，可以用来API窥测，同时进行实时调试，对MFC和win32的支持很好，对指定的API跟踪后，可以推出虚拟地址，进而结合IDA进行分析，节省时间。快速定位API的好方法。
+实例的话，分析了winrar_3.42.exe版本，进行注册码的绕过，说实话感觉这部分是比较烦的，对没有win开发经验的我来说有点困难，不过还是简单的绕过了<code>40天试用期</code>的限制。后续的注册还是不成功，关于关键的几个变量分析的还是不够。一个负责模拟对话框的显示，这个不难；一个是信号的处理，这部分就有点吃力了，交叉引用比较多，不是很懂；还有一共负责注册的变量，没分析出来。
+后续的话，实现了一个字符串的替换。<code>registered by zjgcjy</code>哈哈 -_-</p> <div class="language-c line-numbers-mode"><pre class="language-c"><code>call  Register  <span class="token operator">-&gt;</span>mov eax<span class="token punctuation">,</span><span class="token punctuation">[</span>字符串地址指针<span class="token punctuation">]</span>
+push eax
+push <span class="token number">66</span>h
+push <span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span>
+call SetDigItemTextA
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br></div></div><p>这里还遇到一点问题，是FOA和RVA的转换问题。开始有点傻了，地址一直算错，(+﹏+)~晕。转换如下：<strong>RVA - RVA(段) == FOA - FOA(段)</strong> 因为PE载入后，各节内部相对偏移量不变。
+<a href="http://cjynet.top/2017/09/28/windows/Win32ASM-2/" target="_blank" rel="noopener noreferrer">PE结构相关<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></p> <h2 id="第8章"><a href="#第8章" class="header-anchor">#</a> 第8章</h2> <h3 id="ptrace"><a href="#ptrace" class="header-anchor">#</a> ptrace</h3> <p>ptrace提供了一种使父进程得以监视和控制其它进程的方式，它还能够改变子进程中的寄存器和内核映像，因而可以实现断点调试和系统调用的跟踪。使用ptrace，可以在用户层拦截和修改系统调用(sys call)。一个被跟踪的进程运行中，直到发生信号。则进程被中止，并且通知其父进程。在进程中止的状态下，进程的内存空间可以被读写。父进程还可以使子进程继续执行，并选择是否是否忽略引起中止的信号。</p> <h4 id="追踪子进程"><a href="#追踪子进程" class="header-anchor">#</a> 追踪子进程</h4> <p>实例如下。</p> <div class="language-c line-numbers-mode"><pre class="language-c"><code><span class="token comment">//int ptrace(int request, int pid, int addr, int data);</span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;stdlib.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;signal.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;unistd.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;errno.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/ptrace.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/types.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/wait.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/reg.h&gt;</span>   </span><span class="token comment">/* /usr/include/sys/reg.h*/</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>   
+    pid_t child<span class="token punctuation">;</span>
+    <span class="token keyword">long</span> orig_rax<span class="token punctuation">;</span>
+    child <span class="token operator">=</span> <span class="token function">fork</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>child <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">//设置子进程被跟踪</span>
+        <span class="token function">ptrace</span><span class="token punctuation">(</span>PTRACE_TRACEME<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">execl</span><span class="token punctuation">(</span><span class="token string">&quot;/bin/ls&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;ls&quot;</span><span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">else</span>
+    <span class="token punctuation">{</span>
+        <span class="token function">wait</span><span class="token punctuation">(</span><span class="token constant">NULL</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//从子进程的USER域中读取寄存器的值</span>
+        orig_rax <span class="token operator">=</span> <span class="token function">ptrace</span><span class="token punctuation">(</span>PTRACE_PEEKUSER<span class="token punctuation">,</span> child<span class="token punctuation">,</span> <span class="token number">8</span> <span class="token operator">*</span> ORIG_RAX<span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">&quot;The child made a system call %ld\n&quot;</span><span class="token punctuation">,</span> orig_rax<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment">//子进程继续执行</span>
+        <span class="token function">ptrace</span><span class="token punctuation">(</span>PTRACE_CONT<span class="token punctuation">,</span> child<span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br><span class="line-number">28</span><br><span class="line-number">29</span><br><span class="line-number">30</span><br><span class="line-number">31</span><br><span class="line-number">32</span><br><span class="line-number">33</span><br></div></div><p>解释：父进程fork了一个子进程，并且在子进程中进行系统调用。在执行前，子进程运行了ptrace，设置第一个参数是 PTRACE_TRACEME，这告诉内核当前进程正在被追踪。当子进程运行execve()之后，会把控制权转回父进程。父进程通过wait()来等待内核通知，现在它得到了通知。然后就可以查看子进程都做了什么，比如查看寄存器的值之类。当系统调用出现的时候，内核会保存原始的rax寄存器值(系统调用号)，我们可以从子进程的USER段读取这个值，这里是使用ptrace并且设置第一个参数为PTRACE_PEEKUSER。当我们检查完了系统调用之后, 可以调用ptrace并设置参数PTRACE_CONT让子进程继续运行。</p> <p>输出结果。可以看到execve的系统调用号是59。</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>➜  Desktop./ptrace64
+The child made a system call <span class="token number">59</span>
+desktop.ini                   ptrace64              wrar56b1   Hacker Disassembling Uncovered  ptrace.c                      Xman                  IDA<span class="token operator">&amp;</span>Z3<span class="token operator">&amp;</span>angr                     Shellcoder's Handbook  
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br></div></div><p>ptrace函数原型如下。
+<code>long ptrace(enum __ptrace_request request, pid_t pid, void *addr, void *data);</code>
+关于ptrace的第一部分的参数表如下。</p> <table><thead><tr><th style="text-align:left;">Request参数</th> <th style="text-align:center;">说明</th></tr></thead> <tbody><tr><td style="text-align:left;">PTRACE_TRACEME</td> <td style="text-align:center;">本进程被其父进程所跟踪</td></tr> <tr><td style="text-align:left;">PTRACE_PEEKTEXT,PTRACE_PEEKDATA</td> <td style="text-align:center;">从内存地址中读取一个字节，内存地址由addr给出</td></tr> <tr><td style="text-align:left;">PTRACE_PEEKUSR</td> <td style="text-align:center;">从USER区域中读取一个字节，偏移量为addr</td></tr> <tr><td style="text-align:left;">PTRACE_POKETEXT,PTRACE_POKEDATA</td> <td style="text-align:center;">往内存地址中写入一个字节。内存地址由addr给出</td></tr> <tr><td style="text-align:left;">PTRACE_POKEUSR</td> <td style="text-align:center;">往USER区域中写入一个字节。偏移量为addr</td></tr> <tr><td style="text-align:left;">PTRACE_SYSCALL,PTRACE_CONT</td> <td style="text-align:center;">重新运行</td></tr> <tr><td style="text-align:left;">PTRACE_KILL</td> <td style="text-align:center;">杀掉子进程，使它退出</td></tr> <tr><td style="text-align:left;">PTRACE_SINGLESTEP</td> <td style="text-align:center;">设置单步执行标志</td></tr> <tr><td style="text-align:left;">PTRACE_ATTACH</td> <td style="text-align:center;">跟踪指定pid 进程</td></tr> <tr><td style="text-align:left;">PTRACE_DETACH</td> <td style="text-align:center;">结束跟踪</td></tr></tbody></table> <p><img src="/img/2018-04/Snipaste_2018-03-20_15-06-05.png" alt="系统调用追踪流程"></p> <h4 id="读取子进程系统调用参数"><a href="#读取子进程系统调用参数" class="header-anchor">#</a> 读取子进程系统调用参数</h4> <p>系统调用的参数按顺序存放在rbx,rcx...之中,因此以write系统调用为例看如何读取寄存器的值:</p> <div class="language-c line-numbers-mode"><pre class="language-c"><code><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/ptrace.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/wait.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/user.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/syscall.h&gt;</span> </span><span class="token comment">/* SYS_write */</span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;stdlib.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;signal.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;unistd.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;errno.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/types.h&gt;</span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/reg.h&gt;</span>   </span><span class="token comment">/* /usr/include/sys/reg.h*/</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    pid_t child<span class="token punctuation">;</span>
+    <span class="token keyword">long</span> orig_rax<span class="token punctuation">;</span>
+    <span class="token keyword">int</span> status<span class="token punctuation">;</span>
+    <span class="token keyword">int</span> iscalling <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+    <span class="token keyword">struct</span> <span class="token class-name">user_regs_struct</span> regs<span class="token punctuation">;</span>
+
+    child <span class="token operator">=</span> <span class="token function">fork</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>child <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment">//设置子进程被跟踪</span>
+        <span class="token function">ptrace</span><span class="token punctuation">(</span>PTRACE_TRACEME<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">execl</span><span class="token punctuation">(</span><span class="token string">&quot;/bin/ls&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;ls&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;-l&quot;</span><span class="token punctuation">,</span> <span class="token string">&quot;-h&quot;</span><span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">else</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">while</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>
+        <span class="token punctuation">{</span>
+            <span class="token function">wait</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>status<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token comment">//子进程暂停继续，子进程退出则退出</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token function">WIFEXITED</span><span class="token punctuation">(</span>status<span class="token punctuation">)</span><span class="token punctuation">)</span>
+                <span class="token keyword">break</span><span class="token punctuation">;</span>
+            <span class="token comment">//获取系统调用号</span>
+            orig_rax <span class="token operator">=</span> <span class="token function">ptrace</span><span class="token punctuation">(</span>PTRACE_PEEKUSER<span class="token punctuation">,</span> child<span class="token punctuation">,</span> <span class="token number">8</span> <span class="token operator">*</span> ORIG_RAX<span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span>orig_rax <span class="token operator">==</span> SYS_write<span class="token punctuation">)</span>
+            <span class="token punctuation">{</span>
+                <span class="token comment">//读取user_regs_struct结构体中的数据</span>
+                <span class="token function">ptrace</span><span class="token punctuation">(</span>PTRACE_GETREGS<span class="token punctuation">,</span> child<span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">,</span> <span class="token operator">&amp;</span>regs<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token comment">//开始，打印寄存器</span>
+                <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token operator">!</span>iscalling<span class="token punctuation">)</span>
+                <span class="token punctuation">{</span>
+                    iscalling <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+                    <span class="token comment">//rdx是长度</span>
+                    <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">&quot;SYS_write call with %lld, %lld, %lld\n&quot;</span><span class="token punctuation">,</span> regs<span class="token punctuation">.</span>rdi<span class="token punctuation">,</span> regs<span class="token punctuation">.</span>rsi<span class="token punctuation">,</span> regs<span class="token punctuation">.</span>rdx<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+                <span class="token comment">//结束，打印寄存器</span>
+                <span class="token keyword">else</span>
+                <span class="token punctuation">{</span>
+                    iscalling <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+                    <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">&quot;SYS_write call return %lld\n&quot;</span><span class="token punctuation">,</span> regs<span class="token punctuation">.</span>rax<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+            <span class="token function">ptrace</span><span class="token punctuation">(</span>PTRACE_SYSCALL<span class="token punctuation">,</span> child<span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">,</span> <span class="token constant">NULL</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br><span class="line-number">28</span><br><span class="line-number">29</span><br><span class="line-number">30</span><br><span class="line-number">31</span><br><span class="line-number">32</span><br><span class="line-number">33</span><br><span class="line-number">34</span><br><span class="line-number">35</span><br><span class="line-number">36</span><br><span class="line-number">37</span><br><span class="line-number">38</span><br><span class="line-number">39</span><br><span class="line-number">40</span><br><span class="line-number">41</span><br><span class="line-number">42</span><br><span class="line-number">43</span><br><span class="line-number">44</span><br><span class="line-number">45</span><br><span class="line-number">46</span><br><span class="line-number">47</span><br><span class="line-number">48</span><br><span class="line-number">49</span><br><span class="line-number">50</span><br><span class="line-number">51</span><br><span class="line-number">52</span><br><span class="line-number">53</span><br><span class="line-number">54</span><br><span class="line-number">55</span><br><span class="line-number">56</span><br><span class="line-number">57</span><br><span class="line-number">58</span><br><span class="line-number">59</span><br><span class="line-number">60</span><br></div></div><p>输出如下。</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>➜  Desktop ./a.out
+SYS_write call with <span class="token number">1</span>, <span class="token number">32001776</span>, <span class="token number">14</span>
+总用量 60K
+SYS_write call <span class="token builtin class-name">return</span> <span class="token number">14</span>
+SYS_write call with <span class="token number">1</span>, <span class="token number">32001776</span>, <span class="token number">47</span>
+-rwxrwxrwx <span class="token number">1</span> root root <span class="token number">1</span>.4K <span class="token number">3</span>月  <span class="token number">20</span> <span class="token number">15</span>:56 <span class="token number">2</span>.c
+SYS_write call <span class="token builtin class-name">return</span> <span class="token number">47</span>
+SYS_write call with <span class="token number">1</span>, <span class="token number">32001776</span>, <span class="token number">49</span>
+-rwxrwxrwx <span class="token number">1</span> root root <span class="token number">8</span>.7K <span class="token number">3</span>月  <span class="token number">20</span> <span class="token number">16</span>:02 a.out
+SYS_write call <span class="token builtin class-name">return</span> <span class="token number">49</span>
+SYS_write call with <span class="token number">1</span>, <span class="token number">32001776</span>, <span class="token number">55</span>
+-rwxrwxrwx <span class="token number">1</span> root root  <span class="token number">282</span> <span class="token number">3</span>月  <span class="token number">15</span> <span class="token number">16</span>:40 desktop.ini
+SYS_write call <span class="token builtin class-name">return</span> <span class="token number">55</span>
+SYS_write call with <span class="token number">1</span>, <span class="token number">32001776</span>, <span class="token number">74</span>
+drwxrwxrwx <span class="token number">0</span> root root  <span class="token number">512</span> <span class="token number">3</span>月  <span class="token number">19</span> <span class="token number">22</span>:44 Hacker Disassembling Uncovered
+SYS_write call <span class="token builtin class-name">return</span> <span class="token number">74</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br></div></div><p>可以看到<code>ls -l -h</code>发生了多次write系统调用，这里读取寄存器的时候可以用之前的<code>PTRACE_PEEKUSER</code>参数,也可以直接用<code>PTRACE_PEEKUSER</code>参数将寄存器的值读取到结构体<code>user_regs_struct</code>，该结构体定义在sys/user.h中。程序中<code>WIFEXITED</code>宏用来检查子进程是被<code>ptrace</code>暂停的还是准备退出，<code>PTRACE_SYSCALL</code>作用是使内核在子进程进入和退出系统调用时都将其暂停，等价于调用<code>PTRACE_CONT</code>并且在下一个系统调用前暂停。</p> <h4 id="ptrace其他用法"><a href="#ptrace其他用法" class="header-anchor">#</a> ptrace其他用法</h4> <p>上面两个例子可以看到，ptrace的用法有很多，还比如：修改子进程系统调用参数、向其它程序注入指令等。这些和HOOK有关了，是比较有意思的用法，我也看过了，基本和上面读取子进程的用法差不多，添加了读取数据、修改数据、写入数据这三部分，从而HOOK了write函数。</p> <p><a href="http://blog.csdn.net/u012417380/article/details/60470075" target="_blank" rel="noopener noreferrer">参考资料1<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a> <a href="http://www.cnblogs.com/pannengzhi/p/5203467.html" target="_blank" rel="noopener noreferrer">参考资料2<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a> <a href="http://www.cnblogs.com/LittleHann/p/3854977.html" target="_blank" rel="noopener noreferrer">其他关于HOOK的姿势<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></p></div> <footer class="page-edit"><!----> <div class="last-updated"><span class="prefix">最后更新时间:</span> <span class="time">2020年5月11日 09:15</span></div></footer> <div class="page-nav"><p class="inner"><span class="prev">
+      ←
+      <a href="/ctf/reverse/learning-idapro-3.html" class="prev">
+        IDApro权威代码破解揭秘笔记-3
+      </a></span> <span class="next"><a href="/ctf/reverse/learning-hacker-disassembling-2.html">
+        黑客反汇编揭秘笔记-2
+      </a>
+      →
+    </span></p></div>  <!----></main></div><div class="global-ui"><!----><!----></div></div>
+    <script src="/assets/js/app.259e8595.js" defer></script><script src="/assets/js/8.8187fa34.js" defer></script><script src="/assets/js/3.710d55e8.js" defer></script><script src="/assets/js/36.cacd0f93.js" defer></script><script src="/assets/js/4.78d0c8ca.js" defer></script>
+  </body>
+</html>

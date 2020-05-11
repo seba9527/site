@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>《Windows程序设计》笔记-6 | 吾行吾道，虽远必至</title>
+    <meta name="generator" content="VuePress 1.4.1">
+    <link rel="icon" href="/icons/favicon.ico">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <meta name="description" content="分享zjgcjy的个人笔记、读书论文、学习知识">
+    <meta name="author" content="zjgcjy">
+    <meta name="keywords" content="blog, document, zjgcjy">
+    <meta name="theme-color" content="#3eaf7c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="msapplication-TileImage" content="/icons/android-chrome-192x192.png">
+    <meta name="msapplication-TileColor" content="#000000">
+    <link rel="preload" href="/assets/css/0.styles.bcf90c39.css" as="style"><link rel="preload" href="/assets/js/app.259e8595.js" as="script"><link rel="preload" href="/assets/js/8.8187fa34.js" as="script"><link rel="preload" href="/assets/js/3.710d55e8.js" as="script"><link rel="preload" href="/assets/js/90.8a82ad8f.js" as="script"><link rel="preload" href="/assets/js/4.78d0c8ca.js" as="script"><link rel="prefetch" href="/assets/js/10.b9f84329.js"><link rel="prefetch" href="/assets/js/100.64f9c727.js"><link rel="prefetch" href="/assets/js/101.b9c92fcc.js"><link rel="prefetch" href="/assets/js/102.53497450.js"><link rel="prefetch" href="/assets/js/103.f84fceba.js"><link rel="prefetch" href="/assets/js/104.2cec01a9.js"><link rel="prefetch" href="/assets/js/105.4c8d386a.js"><link rel="prefetch" href="/assets/js/106.fb5a01a3.js"><link rel="prefetch" href="/assets/js/107.e42f93be.js"><link rel="prefetch" href="/assets/js/108.4be0e7fb.js"><link rel="prefetch" href="/assets/js/109.ab946f69.js"><link rel="prefetch" href="/assets/js/11.13ac4804.js"><link rel="prefetch" href="/assets/js/110.9124a265.js"><link rel="prefetch" href="/assets/js/111.0fd02e00.js"><link rel="prefetch" href="/assets/js/112.8156a621.js"><link rel="prefetch" href="/assets/js/113.02d06572.js"><link rel="prefetch" href="/assets/js/114.16572105.js"><link rel="prefetch" href="/assets/js/115.5bb4870d.js"><link rel="prefetch" href="/assets/js/116.1512299d.js"><link rel="prefetch" href="/assets/js/117.3f6be560.js"><link rel="prefetch" href="/assets/js/118.a2f94b95.js"><link rel="prefetch" href="/assets/js/119.cbd23cf1.js"><link rel="prefetch" href="/assets/js/12.96c1e9c7.js"><link rel="prefetch" href="/assets/js/120.35ac8354.js"><link rel="prefetch" href="/assets/js/121.8cafd6ac.js"><link rel="prefetch" href="/assets/js/122.8bd8b3ec.js"><link rel="prefetch" href="/assets/js/123.66bc6567.js"><link rel="prefetch" href="/assets/js/124.86114880.js"><link rel="prefetch" href="/assets/js/125.98a360c3.js"><link rel="prefetch" href="/assets/js/126.7e69512e.js"><link rel="prefetch" href="/assets/js/127.3b557f03.js"><link rel="prefetch" href="/assets/js/128.aa91743f.js"><link rel="prefetch" href="/assets/js/129.a67d02c6.js"><link rel="prefetch" href="/assets/js/13.8a70de11.js"><link rel="prefetch" href="/assets/js/130.de463ad4.js"><link rel="prefetch" href="/assets/js/131.37e37be4.js"><link rel="prefetch" href="/assets/js/132.9c61740e.js"><link rel="prefetch" href="/assets/js/133.79e86f8a.js"><link rel="prefetch" href="/assets/js/134.d7ca3cf7.js"><link rel="prefetch" href="/assets/js/135.f9795f18.js"><link rel="prefetch" href="/assets/js/136.73448c17.js"><link rel="prefetch" href="/assets/js/137.6b28eb92.js"><link rel="prefetch" href="/assets/js/138.bfbe9c7b.js"><link rel="prefetch" href="/assets/js/139.31ce849a.js"><link rel="prefetch" href="/assets/js/14.4b876aad.js"><link rel="prefetch" href="/assets/js/140.c60678e4.js"><link rel="prefetch" href="/assets/js/141.ecfd3ed5.js"><link rel="prefetch" href="/assets/js/142.56834ba7.js"><link rel="prefetch" href="/assets/js/143.a4660836.js"><link rel="prefetch" href="/assets/js/144.bdbc7757.js"><link rel="prefetch" href="/assets/js/145.8439c8fc.js"><link rel="prefetch" href="/assets/js/146.79b35e1c.js"><link rel="prefetch" href="/assets/js/147.aa7ba0f4.js"><link rel="prefetch" href="/assets/js/148.8127900a.js"><link rel="prefetch" href="/assets/js/149.d4519e8a.js"><link rel="prefetch" href="/assets/js/15.9488169d.js"><link rel="prefetch" href="/assets/js/150.b496705c.js"><link rel="prefetch" href="/assets/js/151.2a1e45a3.js"><link rel="prefetch" href="/assets/js/152.104f6774.js"><link rel="prefetch" href="/assets/js/153.831af0da.js"><link rel="prefetch" href="/assets/js/154.eb585a5e.js"><link rel="prefetch" href="/assets/js/155.e2bd2c2f.js"><link rel="prefetch" href="/assets/js/156.5d9a6efa.js"><link rel="prefetch" href="/assets/js/157.9fd63fdc.js"><link rel="prefetch" href="/assets/js/158.96accaa5.js"><link rel="prefetch" href="/assets/js/159.a627876b.js"><link rel="prefetch" href="/assets/js/16.635ee0b3.js"><link rel="prefetch" href="/assets/js/160.0be28786.js"><link rel="prefetch" href="/assets/js/161.5c35aea8.js"><link rel="prefetch" href="/assets/js/162.c6689e15.js"><link rel="prefetch" href="/assets/js/163.0ac0f691.js"><link rel="prefetch" href="/assets/js/164.cf67f085.js"><link rel="prefetch" href="/assets/js/165.727ab9e1.js"><link rel="prefetch" href="/assets/js/166.7b2a32ad.js"><link rel="prefetch" href="/assets/js/167.e631a4bd.js"><link rel="prefetch" href="/assets/js/168.852110df.js"><link rel="prefetch" href="/assets/js/169.0e50a31a.js"><link rel="prefetch" href="/assets/js/17.e02cf70c.js"><link rel="prefetch" href="/assets/js/170.b7df585f.js"><link rel="prefetch" href="/assets/js/171.d729713a.js"><link rel="prefetch" href="/assets/js/172.f8e1231b.js"><link rel="prefetch" href="/assets/js/173.93726b73.js"><link rel="prefetch" href="/assets/js/174.7f64a44c.js"><link rel="prefetch" href="/assets/js/175.df1a7840.js"><link rel="prefetch" href="/assets/js/176.34947925.js"><link rel="prefetch" href="/assets/js/177.5777aabf.js"><link rel="prefetch" href="/assets/js/178.85274698.js"><link rel="prefetch" href="/assets/js/179.25e2561a.js"><link rel="prefetch" href="/assets/js/18.25b4b4be.js"><link rel="prefetch" href="/assets/js/180.af244bf8.js"><link rel="prefetch" href="/assets/js/181.9b77dac3.js"><link rel="prefetch" href="/assets/js/182.4ee1b5b2.js"><link rel="prefetch" href="/assets/js/183.edabcec4.js"><link rel="prefetch" href="/assets/js/184.6d944f02.js"><link rel="prefetch" href="/assets/js/185.b3a859cd.js"><link rel="prefetch" href="/assets/js/186.57894fb7.js"><link rel="prefetch" href="/assets/js/187.6b0ffa48.js"><link rel="prefetch" href="/assets/js/19.51d4d990.js"><link rel="prefetch" href="/assets/js/20.29ef26a5.js"><link rel="prefetch" href="/assets/js/21.09bb2bcf.js"><link rel="prefetch" href="/assets/js/22.bc8025cb.js"><link rel="prefetch" href="/assets/js/23.dcf28c26.js"><link rel="prefetch" href="/assets/js/24.bbfa0b36.js"><link rel="prefetch" href="/assets/js/25.21199312.js"><link rel="prefetch" href="/assets/js/26.fa793d19.js"><link rel="prefetch" href="/assets/js/27.d1610968.js"><link rel="prefetch" href="/assets/js/28.0913c2ee.js"><link rel="prefetch" href="/assets/js/29.bc1b8ed5.js"><link rel="prefetch" href="/assets/js/30.13a6243f.js"><link rel="prefetch" href="/assets/js/31.5c8a479a.js"><link rel="prefetch" href="/assets/js/32.d2b94351.js"><link rel="prefetch" href="/assets/js/33.95b216c6.js"><link rel="prefetch" href="/assets/js/34.b13f6ca4.js"><link rel="prefetch" href="/assets/js/35.49e99b49.js"><link rel="prefetch" href="/assets/js/36.cacd0f93.js"><link rel="prefetch" href="/assets/js/37.998e3158.js"><link rel="prefetch" href="/assets/js/38.a7c9b535.js"><link rel="prefetch" href="/assets/js/39.cb7ef034.js"><link rel="prefetch" href="/assets/js/40.68d601e0.js"><link rel="prefetch" href="/assets/js/41.e0b76436.js"><link rel="prefetch" href="/assets/js/42.1dc7274e.js"><link rel="prefetch" href="/assets/js/43.8d207009.js"><link rel="prefetch" href="/assets/js/44.0c69f669.js"><link rel="prefetch" href="/assets/js/45.e9fd9dc6.js"><link rel="prefetch" href="/assets/js/46.3c39fd61.js"><link rel="prefetch" href="/assets/js/47.222d759f.js"><link rel="prefetch" href="/assets/js/48.756f06f5.js"><link rel="prefetch" href="/assets/js/49.57e24765.js"><link rel="prefetch" href="/assets/js/5.72084520.js"><link rel="prefetch" href="/assets/js/50.95e92047.js"><link rel="prefetch" href="/assets/js/51.c490b8b2.js"><link rel="prefetch" href="/assets/js/52.a75f3fc3.js"><link rel="prefetch" href="/assets/js/53.00784b72.js"><link rel="prefetch" href="/assets/js/54.e98d1719.js"><link rel="prefetch" href="/assets/js/55.613741c0.js"><link rel="prefetch" href="/assets/js/56.2506d341.js"><link rel="prefetch" href="/assets/js/57.5033d83f.js"><link rel="prefetch" href="/assets/js/58.6013459e.js"><link rel="prefetch" href="/assets/js/59.94a9b04c.js"><link rel="prefetch" href="/assets/js/6.12d3214a.js"><link rel="prefetch" href="/assets/js/60.d300a245.js"><link rel="prefetch" href="/assets/js/61.829c172e.js"><link rel="prefetch" href="/assets/js/62.fa083a8e.js"><link rel="prefetch" href="/assets/js/63.91ee3c39.js"><link rel="prefetch" href="/assets/js/64.e05f4361.js"><link rel="prefetch" href="/assets/js/65.75fcb117.js"><link rel="prefetch" href="/assets/js/66.a5cc4c63.js"><link rel="prefetch" href="/assets/js/67.7e8f08a7.js"><link rel="prefetch" href="/assets/js/68.f12d7bd2.js"><link rel="prefetch" href="/assets/js/69.75760814.js"><link rel="prefetch" href="/assets/js/7.993c72a8.js"><link rel="prefetch" href="/assets/js/70.68a6dcd0.js"><link rel="prefetch" href="/assets/js/71.c97c16fc.js"><link rel="prefetch" href="/assets/js/72.ef67d2b5.js"><link rel="prefetch" href="/assets/js/73.fa1673c6.js"><link rel="prefetch" href="/assets/js/74.aabe1c6e.js"><link rel="prefetch" href="/assets/js/75.b05bcde8.js"><link rel="prefetch" href="/assets/js/76.fbcfb7b6.js"><link rel="prefetch" href="/assets/js/77.b67226d1.js"><link rel="prefetch" href="/assets/js/78.482aa7d1.js"><link rel="prefetch" href="/assets/js/79.41814991.js"><link rel="prefetch" href="/assets/js/80.2aba736a.js"><link rel="prefetch" href="/assets/js/81.44271e02.js"><link rel="prefetch" href="/assets/js/82.a07a5796.js"><link rel="prefetch" href="/assets/js/83.25454035.js"><link rel="prefetch" href="/assets/js/84.1a1aeff7.js"><link rel="prefetch" href="/assets/js/85.c61c13a1.js"><link rel="prefetch" href="/assets/js/86.01b10c45.js"><link rel="prefetch" href="/assets/js/87.0f6c2dee.js"><link rel="prefetch" href="/assets/js/88.159f4733.js"><link rel="prefetch" href="/assets/js/89.18492fc9.js"><link rel="prefetch" href="/assets/js/9.1bf75535.js"><link rel="prefetch" href="/assets/js/91.e644ff2a.js"><link rel="prefetch" href="/assets/js/92.30d4d969.js"><link rel="prefetch" href="/assets/js/93.89e6806d.js"><link rel="prefetch" href="/assets/js/94.d3d581d1.js"><link rel="prefetch" href="/assets/js/95.5d2c129c.js"><link rel="prefetch" href="/assets/js/96.04e465fc.js"><link rel="prefetch" href="/assets/js/97.0a724d72.js"><link rel="prefetch" href="/assets/js/98.18d489d2.js"><link rel="prefetch" href="/assets/js/99.67f7b9bd.js"><link rel="prefetch" href="/assets/js/vendors~docsearch.806d23b2.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.bcf90c39.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/" class="home-link router-link-active"><img src="/assets/nav-logo.png" alt="吾行吾道，虽远必至" class="logo"> <span class="site-name can-hide">吾行吾道，虽远必至</span></a> <div class="links"><form id="search-form" role="search" class="algolia-search-wrapper search-box"><input id="algolia-search-input" class="search-query"></form> <nav class="nav-links can-hide"><div class="nav-item"><a href="/" class="nav-link">
+  主页
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="文档" class="dropdown-title"><span class="title">文档</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          论文
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/papers/academic_papers/" class="nav-link">
+  学术论文
+</a></li></ul></li><li class="dropdown-item"><h4>
+          其他
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/papers/other_papers/" class="nav-link">
+  其他文章
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="CTF" class="dropdown-title"><span class="title">CTF</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          CTF笔记
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/ctf/reverse/" class="nav-link">
+  Reverse
+</a></li><li class="dropdown-subitem"><a href="/ctf/pwn/" class="nav-link">
+  Pwn
+</a></li></ul></li><li class="dropdown-item"><!----> <a href="/ctf/writeup/" class="nav-link">
+  writeup
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="语言" class="dropdown-title"><span class="title">语言</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/languages/cplusplus/" class="nav-link">
+  C++
+</a></li><li class="dropdown-item"><!----> <a href="/languages/python/" class="nav-link">
+  Python
+</a></li><li class="dropdown-item"><!----> <a href="/languages/android/" class="nav-link">
+  Android
+</a></li><li class="dropdown-item"><!----> <a href="/languages/golang/" class="nav-link">
+  Golang
+</a></li><li class="dropdown-item"><!----> <a href="/languages/rust/" class="nav-link">
+  Rust
+</a></li><li class="dropdown-item"><!----> <a href="/languages/vc/" class="nav-link router-link-active">
+  VC
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="工具与项目" class="dropdown-title"><span class="title">工具与项目</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/tools/" class="nav-link">
+  工具
+</a></li><li class="dropdown-item"><!----> <a href="/projects/" class="nav-link">
+  项目
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="杂谈" class="dropdown-title"><span class="title">杂谈</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/diary/" class="nav-link">
+  日记
+</a></li><li class="dropdown-item"><!----> <a href="/others/" class="nav-link">
+  其他
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="更多vuepress" class="dropdown-title"><span class="title">vuepress</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          指南
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/guide/" class="nav-link">
+  指南
+</a></li><li class="dropdown-subitem"><a href="/vue/config/" class="nav-link">
+  配置
+</a></li></ul></li><li class="dropdown-item"><h4>
+          主题与插件
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/plugin/" class="nav-link">
+  插件
+</a></li><li class="dropdown-subitem"><a href="/vue/theme/" class="nav-link">
+  主题
+</a></li></ul></li><li class="dropdown-item"><h4>
+          API
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/api/cli.html" class="nav-link">
+  CLI
+</a></li><li class="dropdown-subitem"><a href="/vue/api/node.html" class="nav-link">
+  Node
+</a></li></ul></li><li class="dropdown-item"><h4>
+          开发指南
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/miscellaneous/local-development.html" class="nav-link">
+  本地开发
+</a></li><li class="dropdown-subitem"><a href="/vue/miscellaneous/design-concepts.html" class="nav-link">
+  设计理念
+</a></li><li class="dropdown-subitem"><a href="/vue/faq/" class="nav-link">
+  FAQ
+</a></li><li class="dropdown-subitem"><a href="/vue/miscellaneous/glossary.html" class="nav-link">
+  术语
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="关于" class="dropdown-title"><span class="title">关于</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/about.html" class="nav-link">
+  关于我
+</a></li><li class="dropdown-item"><!----> <a href="https://github.com/zjgcjy" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Github
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></li></ul></div></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/" class="nav-link">
+  主页
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="文档" class="dropdown-title"><span class="title">文档</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          论文
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/papers/academic_papers/" class="nav-link">
+  学术论文
+</a></li></ul></li><li class="dropdown-item"><h4>
+          其他
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/papers/other_papers/" class="nav-link">
+  其他文章
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="CTF" class="dropdown-title"><span class="title">CTF</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          CTF笔记
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/ctf/reverse/" class="nav-link">
+  Reverse
+</a></li><li class="dropdown-subitem"><a href="/ctf/pwn/" class="nav-link">
+  Pwn
+</a></li></ul></li><li class="dropdown-item"><!----> <a href="/ctf/writeup/" class="nav-link">
+  writeup
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="语言" class="dropdown-title"><span class="title">语言</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/languages/cplusplus/" class="nav-link">
+  C++
+</a></li><li class="dropdown-item"><!----> <a href="/languages/python/" class="nav-link">
+  Python
+</a></li><li class="dropdown-item"><!----> <a href="/languages/android/" class="nav-link">
+  Android
+</a></li><li class="dropdown-item"><!----> <a href="/languages/golang/" class="nav-link">
+  Golang
+</a></li><li class="dropdown-item"><!----> <a href="/languages/rust/" class="nav-link">
+  Rust
+</a></li><li class="dropdown-item"><!----> <a href="/languages/vc/" class="nav-link router-link-active">
+  VC
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="工具与项目" class="dropdown-title"><span class="title">工具与项目</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/tools/" class="nav-link">
+  工具
+</a></li><li class="dropdown-item"><!----> <a href="/projects/" class="nav-link">
+  项目
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="杂谈" class="dropdown-title"><span class="title">杂谈</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/diary/" class="nav-link">
+  日记
+</a></li><li class="dropdown-item"><!----> <a href="/others/" class="nav-link">
+  其他
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="更多vuepress" class="dropdown-title"><span class="title">vuepress</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          指南
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/guide/" class="nav-link">
+  指南
+</a></li><li class="dropdown-subitem"><a href="/vue/config/" class="nav-link">
+  配置
+</a></li></ul></li><li class="dropdown-item"><h4>
+          主题与插件
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/plugin/" class="nav-link">
+  插件
+</a></li><li class="dropdown-subitem"><a href="/vue/theme/" class="nav-link">
+  主题
+</a></li></ul></li><li class="dropdown-item"><h4>
+          API
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/api/cli.html" class="nav-link">
+  CLI
+</a></li><li class="dropdown-subitem"><a href="/vue/api/node.html" class="nav-link">
+  Node
+</a></li></ul></li><li class="dropdown-item"><h4>
+          开发指南
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/miscellaneous/local-development.html" class="nav-link">
+  本地开发
+</a></li><li class="dropdown-subitem"><a href="/vue/miscellaneous/design-concepts.html" class="nav-link">
+  设计理念
+</a></li><li class="dropdown-subitem"><a href="/vue/faq/" class="nav-link">
+  FAQ
+</a></li><li class="dropdown-subitem"><a href="/vue/miscellaneous/glossary.html" class="nav-link">
+  术语
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="关于" class="dropdown-title"><span class="title">关于</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/about.html" class="nav-link">
+  关于我
+</a></li><li class="dropdown-item"><!----> <a href="https://github.com/zjgcjy" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Github
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></li></ul></div></div> <!----></nav>  <ul class="sidebar-links"><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>C++</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>Python</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>Android</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>Golang</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>Rust</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading open"><span>Windows VC</span> <span class="arrow down"></span></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/languages/vc/" class="sidebar-link">Windows VC笔记</a></li><li><a href="/languages/vc/learning-windows-vc-1.html" class="sidebar-link">《Windows程序设计》笔记-1</a></li><li><a href="/languages/vc/learning-windows-vc-2.html" class="sidebar-link">《Windows程序设计》笔记-2</a></li><li><a href="/languages/vc/learning-windows-vc-3.html" class="sidebar-link">《Windows程序设计》笔记-3</a></li><li><a href="/languages/vc/learning-windows-vc-4.html" class="sidebar-link">《Windows程序设计》笔记-4</a></li><li><a href="/languages/vc/learning-windows-vc-5.html" class="sidebar-link">《Windows程序设计》笔记-5</a></li><li><a href="/languages/vc/learning-windows-vc-6.html" class="active sidebar-link">《Windows程序设计》笔记-6</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/languages/vc/learning-windows-vc-6.html#dos-header" class="sidebar-link">DOS_Header</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/languages/vc/learning-windows-vc-6.html#dos-stub" class="sidebar-link">DOS_Stub</a></li></ul></li><li class="sidebar-sub-header"><a href="/languages/vc/learning-windows-vc-6.html#nt-header-pe文件头" class="sidebar-link">NT_Header (PE文件头)</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/languages/vc/learning-windows-vc-6.html#image-file-header" class="sidebar-link">IMAGEFILEHEADER</a></li><li class="sidebar-sub-header"><a href="/languages/vc/learning-windows-vc-6.html#image-optinonal-header" class="sidebar-link">IMAGEOPTINONALHEADER</a></li></ul></li><li class="sidebar-sub-header"><a href="/languages/vc/learning-windows-vc-6.html#节表和节" class="sidebar-link">节表和节</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/languages/vc/learning-windows-vc-6.html#pe文件到内存的映射" class="sidebar-link">PE文件到内存的映射</a></li><li class="sidebar-sub-header"><a href="/languages/vc/learning-windows-vc-6.html#节表" class="sidebar-link">节表</a></li><li class="sidebar-sub-header"><a href="/languages/vc/learning-windows-vc-6.html#映射方式" class="sidebar-link">映射方式</a></li><li class="sidebar-sub-header"><a href="/languages/vc/learning-windows-vc-6.html#rva和文件偏移的转换" class="sidebar-link">RVA和文件偏移的转换</a></li></ul></li><li class="sidebar-sub-header"><a href="/languages/vc/learning-windows-vc-6.html#导入表" class="sidebar-link">导入表</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/languages/vc/learning-windows-vc-6.html#导入表结构" class="sidebar-link">导入表结构</a></li><li class="sidebar-sub-header"><a href="/languages/vc/learning-windows-vc-6.html#导入地址表-iat" class="sidebar-link">导入地址表 IAT</a></li></ul></li><li class="sidebar-sub-header"><a href="/languages/vc/learning-windows-vc-6.html#导出表和重定位表" class="sidebar-link">导出表和重定位表</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/languages/vc/learning-windows-vc-6.html#导出表" class="sidebar-link">导出表</a></li><li class="sidebar-sub-header"><a href="/languages/vc/learning-windows-vc-6.html#重定位表" class="sidebar-link">重定位表</a></li></ul></li></ul></li></ul></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><hr> <blockquote><p>Windows 环境32位汇编语言程序设计</p></blockquote> <p>PE文件格式</p> <h1 id="概述"><a href="#概述" class="header-anchor">#</a> 概述</h1> <p>首先PE文件分为DOS部分，PE文件头，节表和节数据一共4部分。</p> <h2 id="dos-header"><a href="#dos-header" class="header-anchor">#</a> DOS_Header</h2> <p>MZ格式的文件头由IMAGE_DOS_HEADER结构体定义。最开始的DOS可执行文件的标记，为MZ。
+DOS_Header的大小为0x40。其中最后为PE文件头的偏移量：LONG AddressOfNewExeHeader，位置为文件头偏移0x003ch，大小为4字节。</p> <h3 id="dos-stub"><a href="#dos-stub" class="header-anchor">#</a> DOS_Stub</h3> <p>可执行代码部分称为DOS stub。简单的显示一个“This program cannot be run in DOS mode.”。由于现在是NT结构，就不说了。</p> <h2 id="nt-header-pe文件头"><a href="#nt-header-pe文件头" class="header-anchor">#</a> NT_Header (PE文件头)</h2> <p>NT_Header格式由IMAGE_NT_HEADER结构体定义。最开始是signature签名，被定义为00004550h，就是PE和两个0。</p> <h3 id="image-file-header"><a href="#image-file-header" class="header-anchor">#</a> IMAGE_FILE_HEADER</h3> <p>结构体如下。</p> <div class="language-c line-numbers-mode"><pre class="language-c"><code><span class="token keyword">struct</span> <span class="token class-name">IMAGE_FILE_HEADER</span>
+<span class="token punctuation">{</span>
+    Machine                 运行平台
+    NumberOfSections        节数目
+    TimeDateStamp           创建时间，从 <span class="token number">1970</span><span class="token operator">-</span><span class="token number">01</span><span class="token operator">-</span><span class="token number">01</span> <span class="token number">00</span><span class="token operator">:</span><span class="token number">00</span> 开始
+    PointerToSymbolTable    符号表指针，用于调试
+    NumberOfSymbols         符号表中符号数量，用于调试
+    SizeOfOptionalHeader    Optional结构大小，紧挨FILE_HEADER，为<span class="token number">0xe0</span>
+    Characteristics         文件属性。exe一般是<span class="token number">0x010f</span>，dll一般是<span class="token number">0x210e</span>。
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br></div></div><h3 id="image-optinonal-header"><a href="#image-optinonal-header" class="header-anchor">#</a> IMAGE_OPTINONAL_HEADER</h3> <p>optional结构体本意是让开发者在pe文件头中使用自定义的数据，但实际上IMAGE_FILE_HEADER不足以定义PE的属性，所以optional并不是可选的。</p> <div class="language-c line-numbers-mode"><pre class="language-c"><code><span class="token keyword">struct</span> <span class="token class-name">IMAGE_OPTIONAL_HEADER32</span>
+<span class="token punctuation">{</span>
+    Magic                           <span class="token number">0x107</span> ROM Image<span class="token punctuation">;</span> <span class="token number">0x108</span> EXE Image
+    MajorLinkerVersion
+    MinorLinkerVersion
+    SizeOfCode                      代码节大小
+    SizeOfInitializedData           已初始化代码节大小
+    SizeOfUninitializedData         未初始化代码节大小
+    AddressOfEntryPoint             程序执行入口RVA
+    BaseOfCode                      代码节起始RVA
+    BaseOfData                      数据节其实RVA
+    ImageBase                       装载地址
+    SectionAlignment
+    FileAlignment
+    MajorOperatingSystemVersion
+    MinorOperatingSystemVersion
+    MajorImageVersion
+    MinorImageVersion
+    MajorSubsystemVersion
+    MinorSubsystemVersion
+    Win32VersionValue
+    SizeOfImage                     载入内存PE镜像大小
+    SizeOfHeaders                   载入内存所有头<span class="token operator">+</span>节表大小
+    CheckSum
+    Subsystem                       文件子系统
+    DllCharacteristics
+    SizeOfStackReserve              初始化堆栈大小
+    SizeOfStackCommit               初始化实际提交堆栈大小
+    SizeOfHeapReserve               初始化保留的堆大小
+    SizeOfHeapCommit                初始化实际提交的堆大小
+    LoaderFlags
+    NumberOfRvaAndSizes             下面的数据目录结构数量
+    DataDirArray
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br><span class="line-number">28</span><br><span class="line-number">29</span><br><span class="line-number">30</span><br><span class="line-number">31</span><br><span class="line-number">32</span><br><span class="line-number">33</span><br><span class="line-number">34</span><br></div></div><h4 id="addressofentrypoint"><a href="#addressofentrypoint" class="header-anchor">#</a> AddressOfEntryPoint</h4> <p>指出文件执行的入口地址，是RVA地址。如果在exe中附加了一段代码并希望先执行，只需要修改这个入口地址就行了。</p> <h4 id="imagebase"><a href="#imagebase" class="header-anchor">#</a> ImageBase</h4> <p>文件优先装入的地址，当文件不需要重定位的时候最快。对于exe文件来说，每个文件总是独立使用虚拟地址空间，其地址不可能被其他模块占据，exe一般不需要重定位。对于dll来说，由于多个dll文件全部使用宿主exe文件的地址空间，不能确保地址没有被其他dll占用，所以dll必须包含重定位信息。一般exe默认是0x00400000，dll是0x10000000。</p> <h4 id="subsystem"><a href="#subsystem" class="header-anchor">#</a> Subsystem</h4> <p>Windows_CUI     win32控制台
+Windows_GUI     win32图形界面</p> <h4 id="datadirarray"><a href="#datadirarray" class="header-anchor">#</a> DataDirArray</h4> <p>这个字段是比较重要的字段之一，各个节中的数据按照用途可以分为导出表，导入表，资源，重定位表数据块。要查看某个结构，就到这里查看某结构的位置和大小。</p> <h2 id="节表和节"><a href="#节表和节" class="header-anchor">#</a> 节表和节</h2> <h3 id="pe文件到内存的映射"><a href="#pe文件到内存的映射" class="header-anchor">#</a> PE文件到内存的映射</h3> <p>Windows在装载可执行程序时候，对DOS头，PE文件头和节表部分不做任何处理，装载节的时候，根据节的属性做不同的处理。所以在同属一个模块的内存页中，从不同映射过来的内存页的属性的不同的。节是相同属性的数据的集合，所以节在内存中的对齐单位必须是一个页的大小。节的规模有大有小，首先由于磁盘映像和内存映像中节的对齐单位不同，其次是对包含未初始化的节的处理，如.data节。也有不进行映射的节，比如.reloc节，重定位数据对于文件的执行代码来说是透明的，它只对Windows装载器使用。</p> <h3 id="节表"><a href="#节表" class="header-anchor">#</a> 节表</h3> <p>PE文件中所有的节的属性都被定义在节表中，有一系列IMAGE_SECTION_HEADER的结构体排列组成，紧跟着PE文件头，从PE文件头开始偏移0x00f8的地方。</p> <div class="language-c line-numbers-mode"><pre class="language-c"><code><span class="token keyword">struct</span> <span class="token class-name">IMAGE_SECTION_HEADER</span>
+<span class="token punctuation">{</span>
+    Name1                       <span class="token number">8</span>字节的节区名称
+    <span class="token keyword">union</span> Misc
+            PhysicalAddress     
+            VirtualSize         节区的实际大小
+    VirtualAddress              节区的RVA地址
+    SizeOfRawData               在文件中对齐的大小
+    PointerToRawData            文件中的偏移
+    PointerToRelocations        
+    PointerToLinenumbers
+    NumberOfRelocations
+    NumberOfLinenumbers
+    Characteristics             节的属性
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br></div></div><p>MASM32产生的exe文件中，代码节被命名为.text，可读写的数据节为.data，只读数据，导入表和导出表的节为.rdata，资源节为.rsrc。也有其他编译器将导入表放在.idata，中，代码节被命名为.code。</p> <h4 id="pointertorawdata"><a href="#pointertorawdata" class="header-anchor">#</a> PointerToRawData</h4> <p>PointerToRawData 是指出了节在磁盘文件中的偏移地址，从文件头开始计算。</p> <h4 id="sizeofrawdata"><a href="#sizeofrawdata" class="header-anchor">#</a> SizeOfRawData</h4> <p>SizeOfRawData 指出了某个节在磁盘文件中的大小。</p> <h3 id="映射方式"><a href="#映射方式" class="header-anchor">#</a> 映射方式</h3> <p>装载器从PE文件中找到某个节，即从PointerToRawData开始的大小为SizeOfRawData 的字节数据，把他们映射到内存中去，位置是从模块基址开始的偏移的VirtualAddress地方，并占用VirtualSize的值按照页大小的对齐。</p> <h3 id="rva和文件偏移的转换"><a href="#rva和文件偏移的转换" class="header-anchor">#</a> RVA和文件偏移的转换</h3> <p>RVA是 relative virtual address的缩写，表示相对虚拟地址，是某个数据位置相对与文件头的位置。
+对于DOS头，DOS stub，PE头，节表来说，无所谓RVA和文件偏移。因为他们在文件中和内存映射中的大小和偏移都不变。RVA只是对节来说的。
+想要获得RVA对应的文件偏移，唯一的办法就是：如果目标RVA在某个节中，用目标RVA减去节的起始RVA'，获得数据在节中的偏移量。再通过PointerToRawData获得节在文件中的偏移，加上刚刚获得的偏移就是文件偏移量。</p> <h2 id="导入表"><a href="#导入表" class="header-anchor">#</a> 导入表</h2> <p>导入函数组成导入表，导入函数就是被程序调用的函数，但其代码不在程序中，这些代码位于一个或多个DLL中，调用程序中只保留一些函数信息。
+只有当PE文件装载入内存的时候，Windows装载器才将DLL装入，并调用导入函数指令和函数实际地址，这就是动态链接，这是依靠PE文件中的导入表来完成的。</p> <h3 id="导入表结构"><a href="#导入表结构" class="header-anchor">#</a> 导入表结构</h3> <p>导入表由一系列IMAGE_IMPORT_DESCRIPTOR结构组成，每个结构对应一个DLL文件，</p> <div class="language-c line-numbers-mode"><pre class="language-c"><code><span class="token keyword">struct</span> <span class="token class-name">IMAGE_IMPORT_DESCRIPTOR</span>
+<span class="token punctuation">{</span>
+    <span class="token keyword">union</span>
+        Characteristics
+        OriginalFirstThunk      指向包含一系列IMAGE_THUNK_DATA的数组（不会变）
+    TimeDateStamp
+    ForwarderChain
+    Name1                       对应的DLL名称
+    FirstThunk                  指向包含一系列IMAGE_THUNK_DATA的数组（会改变）
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br></div></div><p>IMAGE_THUNK_DATA的数组中每个元素定义了一个导入函数的信息，并且以0结尾。
+当最高位为1时，表示函数以序号方式导入，这时结构体的值是函数的序号。
+当最高位为0时，表示函数以字符串类型的函数名方式导入，这时结构体的值是个RVA，指向一个用来定义导入函数名称的IMAGE_IMPORT_BY_NAME结构。</p> <div class="language-c line-numbers-mode"><pre class="language-c"><code><span class="token keyword">struct</span> <span class="token class-name">IMAGE_IMPORT_BY_NAME</span>
+<span class="token punctuation">{</span>
+    Hint    函数的序号，可选字段
+    Name1   导入函数的名称字符串，以<span class="token number">0</span>结尾。
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br></div></div><p>当PE文件装载入内存时，FirstThunk所指向的数组的值都被替换成了真正的函数入口地址，这样做的目的是可以反过来查询地址的对应导入函数名。</p> <h3 id="导入地址表-iat"><a href="#导入地址表-iat" class="header-anchor">#</a> 导入地址表 IAT</h3> <p>把FirstThunk所指向的数组称为导入地址数组。在PE文件中，所有DLL对应的导入地址数组在位置上排列在一起，数组的组合称为导入地址表IAT。
+导入表中第一个IMAGE_IMPORT_DESCRIPTOR结构的FirstThunk指向的就是IAT的起始地址。
+或者可以通过数据目录表，查找数据目录表中第13项（索引值为12/IMAGE_DIRECTORY_ENTRY_IAT），直接用来定义IAT数据块的位置和大小。</p> <h2 id="导出表和重定位表"><a href="#导出表和重定位表" class="header-anchor">#</a> 导出表和重定位表</h2> <h3 id="导出表"><a href="#导出表" class="header-anchor">#</a> 导出表</h3> <p>在包含导出函数的DLL中，导出信息位于导出表，通过导出表，DLL文件向系统提供导出函数的名称，序号和入口地址。以便完成动态链接。</p> <h3 id="重定位表"><a href="#重定位表" class="header-anchor">#</a> 重定位表</h3> <p>首先要明白，在X86下，涉及到直接寻址的指令都是要重定位的。</p> <h4 id="重定位算法"><a href="#重定位算法" class="header-anchor">#</a> 重定位算法</h4> <p>将直接寻址的指令中的双字地址减去建议装载地址，获得RVA，再加上模块的实际装入地址，获得VA。由于建议装载地址在PE文件头中，而实际装入地址由装载器决定，所以重定位所需要的只是需要修正的代码的地址。</p> <h4 id="重定位表的位置"><a href="#重定位表的位置" class="header-anchor">#</a> 重定位表的位置</h4> <p>一般单独存放在一个可以丢弃的.reloc节中，和资源差不多，不是必须的。重定位表的位置可以由数据目录表IMAGE_DATA_DIRECTORY结构获取。
+获得重定位表位置后，地址指向的就是很多重定位块，每一块描述一个内存页的所有重定位项。每个重定位块分起始RVA和块长度，之后的重定位项低12位表示数据在当前页面中的RVA，高4为表示重定位项种类。
+假设模块装入地址为00400000h处。</p> <table><thead><tr><th>重定位表偏移</th> <th style="text-align:right;">数据</th> <th style="text-align:center;">说明</th></tr></thead> <tbody><tr><td>0000h</td> <td style="text-align:right;">00001000h</td> <td style="text-align:center;">第一个块，页面地址是00401000h</td></tr> <tr><td>0004h</td> <td style="text-align:right;">00000010h</td> <td style="text-align:center;">该重定位块长度10h</td></tr> <tr><td>0008h</td> <td style="text-align:right;">3012h</td> <td style="text-align:center;">重定位位置00401012h</td></tr> <tr><td>000ah</td> <td style="text-align:right;">3040h</td> <td style="text-align:center;">重定位位置00401040h</td></tr> <tr><td>000ch</td> <td style="text-align:right;">306fh</td> <td style="text-align:center;">重定位位置0040106fh</td></tr> <tr><td>000eh</td> <td style="text-align:right;">0000h</td> <td style="text-align:center;">用于对齐的空白数据</td></tr> <tr><td>0010h</td> <td style="text-align:right;">00002000h</td> <td style="text-align:center;">第一个块，页面地址是00402000h</td></tr> <tr><td>0014h</td> <td style="text-align:right;">0000000ch</td> <td style="text-align:center;">该重定位块长度0ch</td></tr> <tr><td>0018h</td> <td style="text-align:right;">3080h</td> <td style="text-align:center;">重定位位置00402080h</td></tr> <tr><td>001ah</td> <td style="text-align:right;">30f0h</td> <td style="text-align:center;">重定位位置004020f0h</td></tr> <tr><td>001ch</td> <td style="text-align:right;">00000000h</td> <td style="text-align:center;">重定位数据块结束标志</td></tr></tbody></table> <p>PE解析到这里就不详细讲了，以后若对这方面深入研究再说，具体资料可以查阅 WindowsPE权威指南。</p></div> <footer class="page-edit"><!----> <div class="last-updated"><span class="prefix">最后更新时间:</span> <span class="time">2020年5月11日 09:15</span></div></footer> <div class="page-nav"><p class="inner"><span class="prev">
+      ←
+      <a href="/languages/vc/learning-windows-vc-5.html" class="prev">
+        《Windows程序设计》笔记-5
+      </a></span> <!----></p></div>  <!----></main></div><div class="global-ui"><!----><!----></div></div>
+    <script src="/assets/js/app.259e8595.js" defer></script><script src="/assets/js/8.8187fa34.js" defer></script><script src="/assets/js/3.710d55e8.js" defer></script><script src="/assets/js/90.8a82ad8f.js" defer></script><script src="/assets/js/4.78d0c8ca.js" defer></script>
+  </body>
+</html>

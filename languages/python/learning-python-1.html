@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>python2学习笔记-1 | 吾行吾道，虽远必至</title>
+    <meta name="generator" content="VuePress 1.4.1">
+    <link rel="icon" href="/icons/favicon.ico">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <meta name="description" content="分享zjgcjy的个人笔记、读书论文、学习知识">
+    <meta name="author" content="zjgcjy">
+    <meta name="keywords" content="blog, document, zjgcjy">
+    <meta name="theme-color" content="#3eaf7c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="msapplication-TileImage" content="/icons/android-chrome-192x192.png">
+    <meta name="msapplication-TileColor" content="#000000">
+    <link rel="preload" href="/assets/css/0.styles.bcf90c39.css" as="style"><link rel="preload" href="/assets/js/app.259e8595.js" as="script"><link rel="preload" href="/assets/js/8.8187fa34.js" as="script"><link rel="preload" href="/assets/js/3.710d55e8.js" as="script"><link rel="preload" href="/assets/js/74.aabe1c6e.js" as="script"><link rel="preload" href="/assets/js/4.78d0c8ca.js" as="script"><link rel="prefetch" href="/assets/js/10.b9f84329.js"><link rel="prefetch" href="/assets/js/100.64f9c727.js"><link rel="prefetch" href="/assets/js/101.b9c92fcc.js"><link rel="prefetch" href="/assets/js/102.53497450.js"><link rel="prefetch" href="/assets/js/103.f84fceba.js"><link rel="prefetch" href="/assets/js/104.2cec01a9.js"><link rel="prefetch" href="/assets/js/105.4c8d386a.js"><link rel="prefetch" href="/assets/js/106.fb5a01a3.js"><link rel="prefetch" href="/assets/js/107.e42f93be.js"><link rel="prefetch" href="/assets/js/108.4be0e7fb.js"><link rel="prefetch" href="/assets/js/109.ab946f69.js"><link rel="prefetch" href="/assets/js/11.13ac4804.js"><link rel="prefetch" href="/assets/js/110.9124a265.js"><link rel="prefetch" href="/assets/js/111.0fd02e00.js"><link rel="prefetch" href="/assets/js/112.8156a621.js"><link rel="prefetch" href="/assets/js/113.02d06572.js"><link rel="prefetch" href="/assets/js/114.16572105.js"><link rel="prefetch" href="/assets/js/115.5bb4870d.js"><link rel="prefetch" href="/assets/js/116.1512299d.js"><link rel="prefetch" href="/assets/js/117.3f6be560.js"><link rel="prefetch" href="/assets/js/118.a2f94b95.js"><link rel="prefetch" href="/assets/js/119.cbd23cf1.js"><link rel="prefetch" href="/assets/js/12.96c1e9c7.js"><link rel="prefetch" href="/assets/js/120.35ac8354.js"><link rel="prefetch" href="/assets/js/121.8cafd6ac.js"><link rel="prefetch" href="/assets/js/122.8bd8b3ec.js"><link rel="prefetch" href="/assets/js/123.66bc6567.js"><link rel="prefetch" href="/assets/js/124.86114880.js"><link rel="prefetch" href="/assets/js/125.98a360c3.js"><link rel="prefetch" href="/assets/js/126.7e69512e.js"><link rel="prefetch" href="/assets/js/127.3b557f03.js"><link rel="prefetch" href="/assets/js/128.aa91743f.js"><link rel="prefetch" href="/assets/js/129.a67d02c6.js"><link rel="prefetch" href="/assets/js/13.8a70de11.js"><link rel="prefetch" href="/assets/js/130.de463ad4.js"><link rel="prefetch" href="/assets/js/131.37e37be4.js"><link rel="prefetch" href="/assets/js/132.9c61740e.js"><link rel="prefetch" href="/assets/js/133.79e86f8a.js"><link rel="prefetch" href="/assets/js/134.d7ca3cf7.js"><link rel="prefetch" href="/assets/js/135.f9795f18.js"><link rel="prefetch" href="/assets/js/136.73448c17.js"><link rel="prefetch" href="/assets/js/137.6b28eb92.js"><link rel="prefetch" href="/assets/js/138.bfbe9c7b.js"><link rel="prefetch" href="/assets/js/139.31ce849a.js"><link rel="prefetch" href="/assets/js/14.4b876aad.js"><link rel="prefetch" href="/assets/js/140.c60678e4.js"><link rel="prefetch" href="/assets/js/141.ecfd3ed5.js"><link rel="prefetch" href="/assets/js/142.56834ba7.js"><link rel="prefetch" href="/assets/js/143.a4660836.js"><link rel="prefetch" href="/assets/js/144.bdbc7757.js"><link rel="prefetch" href="/assets/js/145.8439c8fc.js"><link rel="prefetch" href="/assets/js/146.79b35e1c.js"><link rel="prefetch" href="/assets/js/147.aa7ba0f4.js"><link rel="prefetch" href="/assets/js/148.8127900a.js"><link rel="prefetch" href="/assets/js/149.d4519e8a.js"><link rel="prefetch" href="/assets/js/15.9488169d.js"><link rel="prefetch" href="/assets/js/150.b496705c.js"><link rel="prefetch" href="/assets/js/151.2a1e45a3.js"><link rel="prefetch" href="/assets/js/152.104f6774.js"><link rel="prefetch" href="/assets/js/153.831af0da.js"><link rel="prefetch" href="/assets/js/154.eb585a5e.js"><link rel="prefetch" href="/assets/js/155.e2bd2c2f.js"><link rel="prefetch" href="/assets/js/156.5d9a6efa.js"><link rel="prefetch" href="/assets/js/157.9fd63fdc.js"><link rel="prefetch" href="/assets/js/158.96accaa5.js"><link rel="prefetch" href="/assets/js/159.a627876b.js"><link rel="prefetch" href="/assets/js/16.635ee0b3.js"><link rel="prefetch" href="/assets/js/160.0be28786.js"><link rel="prefetch" href="/assets/js/161.5c35aea8.js"><link rel="prefetch" href="/assets/js/162.c6689e15.js"><link rel="prefetch" href="/assets/js/163.0ac0f691.js"><link rel="prefetch" href="/assets/js/164.cf67f085.js"><link rel="prefetch" href="/assets/js/165.727ab9e1.js"><link rel="prefetch" href="/assets/js/166.7b2a32ad.js"><link rel="prefetch" href="/assets/js/167.e631a4bd.js"><link rel="prefetch" href="/assets/js/168.852110df.js"><link rel="prefetch" href="/assets/js/169.0e50a31a.js"><link rel="prefetch" href="/assets/js/17.e02cf70c.js"><link rel="prefetch" href="/assets/js/170.b7df585f.js"><link rel="prefetch" href="/assets/js/171.d729713a.js"><link rel="prefetch" href="/assets/js/172.f8e1231b.js"><link rel="prefetch" href="/assets/js/173.93726b73.js"><link rel="prefetch" href="/assets/js/174.7f64a44c.js"><link rel="prefetch" href="/assets/js/175.df1a7840.js"><link rel="prefetch" href="/assets/js/176.34947925.js"><link rel="prefetch" href="/assets/js/177.5777aabf.js"><link rel="prefetch" href="/assets/js/178.85274698.js"><link rel="prefetch" href="/assets/js/179.25e2561a.js"><link rel="prefetch" href="/assets/js/18.25b4b4be.js"><link rel="prefetch" href="/assets/js/180.af244bf8.js"><link rel="prefetch" href="/assets/js/181.9b77dac3.js"><link rel="prefetch" href="/assets/js/182.4ee1b5b2.js"><link rel="prefetch" href="/assets/js/183.edabcec4.js"><link rel="prefetch" href="/assets/js/184.6d944f02.js"><link rel="prefetch" href="/assets/js/185.b3a859cd.js"><link rel="prefetch" href="/assets/js/186.57894fb7.js"><link rel="prefetch" href="/assets/js/187.6b0ffa48.js"><link rel="prefetch" href="/assets/js/19.51d4d990.js"><link rel="prefetch" href="/assets/js/20.29ef26a5.js"><link rel="prefetch" href="/assets/js/21.09bb2bcf.js"><link rel="prefetch" href="/assets/js/22.bc8025cb.js"><link rel="prefetch" href="/assets/js/23.dcf28c26.js"><link rel="prefetch" href="/assets/js/24.bbfa0b36.js"><link rel="prefetch" href="/assets/js/25.21199312.js"><link rel="prefetch" href="/assets/js/26.fa793d19.js"><link rel="prefetch" href="/assets/js/27.d1610968.js"><link rel="prefetch" href="/assets/js/28.0913c2ee.js"><link rel="prefetch" href="/assets/js/29.bc1b8ed5.js"><link rel="prefetch" href="/assets/js/30.13a6243f.js"><link rel="prefetch" href="/assets/js/31.5c8a479a.js"><link rel="prefetch" href="/assets/js/32.d2b94351.js"><link rel="prefetch" href="/assets/js/33.95b216c6.js"><link rel="prefetch" href="/assets/js/34.b13f6ca4.js"><link rel="prefetch" href="/assets/js/35.49e99b49.js"><link rel="prefetch" href="/assets/js/36.cacd0f93.js"><link rel="prefetch" href="/assets/js/37.998e3158.js"><link rel="prefetch" href="/assets/js/38.a7c9b535.js"><link rel="prefetch" href="/assets/js/39.cb7ef034.js"><link rel="prefetch" href="/assets/js/40.68d601e0.js"><link rel="prefetch" href="/assets/js/41.e0b76436.js"><link rel="prefetch" href="/assets/js/42.1dc7274e.js"><link rel="prefetch" href="/assets/js/43.8d207009.js"><link rel="prefetch" href="/assets/js/44.0c69f669.js"><link rel="prefetch" href="/assets/js/45.e9fd9dc6.js"><link rel="prefetch" href="/assets/js/46.3c39fd61.js"><link rel="prefetch" href="/assets/js/47.222d759f.js"><link rel="prefetch" href="/assets/js/48.756f06f5.js"><link rel="prefetch" href="/assets/js/49.57e24765.js"><link rel="prefetch" href="/assets/js/5.72084520.js"><link rel="prefetch" href="/assets/js/50.95e92047.js"><link rel="prefetch" href="/assets/js/51.c490b8b2.js"><link rel="prefetch" href="/assets/js/52.a75f3fc3.js"><link rel="prefetch" href="/assets/js/53.00784b72.js"><link rel="prefetch" href="/assets/js/54.e98d1719.js"><link rel="prefetch" href="/assets/js/55.613741c0.js"><link rel="prefetch" href="/assets/js/56.2506d341.js"><link rel="prefetch" href="/assets/js/57.5033d83f.js"><link rel="prefetch" href="/assets/js/58.6013459e.js"><link rel="prefetch" href="/assets/js/59.94a9b04c.js"><link rel="prefetch" href="/assets/js/6.12d3214a.js"><link rel="prefetch" href="/assets/js/60.d300a245.js"><link rel="prefetch" href="/assets/js/61.829c172e.js"><link rel="prefetch" href="/assets/js/62.fa083a8e.js"><link rel="prefetch" href="/assets/js/63.91ee3c39.js"><link rel="prefetch" href="/assets/js/64.e05f4361.js"><link rel="prefetch" href="/assets/js/65.75fcb117.js"><link rel="prefetch" href="/assets/js/66.a5cc4c63.js"><link rel="prefetch" href="/assets/js/67.7e8f08a7.js"><link rel="prefetch" href="/assets/js/68.f12d7bd2.js"><link rel="prefetch" href="/assets/js/69.75760814.js"><link rel="prefetch" href="/assets/js/7.993c72a8.js"><link rel="prefetch" href="/assets/js/70.68a6dcd0.js"><link rel="prefetch" href="/assets/js/71.c97c16fc.js"><link rel="prefetch" href="/assets/js/72.ef67d2b5.js"><link rel="prefetch" href="/assets/js/73.fa1673c6.js"><link rel="prefetch" href="/assets/js/75.b05bcde8.js"><link rel="prefetch" href="/assets/js/76.fbcfb7b6.js"><link rel="prefetch" href="/assets/js/77.b67226d1.js"><link rel="prefetch" href="/assets/js/78.482aa7d1.js"><link rel="prefetch" href="/assets/js/79.41814991.js"><link rel="prefetch" href="/assets/js/80.2aba736a.js"><link rel="prefetch" href="/assets/js/81.44271e02.js"><link rel="prefetch" href="/assets/js/82.a07a5796.js"><link rel="prefetch" href="/assets/js/83.25454035.js"><link rel="prefetch" href="/assets/js/84.1a1aeff7.js"><link rel="prefetch" href="/assets/js/85.c61c13a1.js"><link rel="prefetch" href="/assets/js/86.01b10c45.js"><link rel="prefetch" href="/assets/js/87.0f6c2dee.js"><link rel="prefetch" href="/assets/js/88.159f4733.js"><link rel="prefetch" href="/assets/js/89.18492fc9.js"><link rel="prefetch" href="/assets/js/9.1bf75535.js"><link rel="prefetch" href="/assets/js/90.8a82ad8f.js"><link rel="prefetch" href="/assets/js/91.e644ff2a.js"><link rel="prefetch" href="/assets/js/92.30d4d969.js"><link rel="prefetch" href="/assets/js/93.89e6806d.js"><link rel="prefetch" href="/assets/js/94.d3d581d1.js"><link rel="prefetch" href="/assets/js/95.5d2c129c.js"><link rel="prefetch" href="/assets/js/96.04e465fc.js"><link rel="prefetch" href="/assets/js/97.0a724d72.js"><link rel="prefetch" href="/assets/js/98.18d489d2.js"><link rel="prefetch" href="/assets/js/99.67f7b9bd.js"><link rel="prefetch" href="/assets/js/vendors~docsearch.806d23b2.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.bcf90c39.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/" class="home-link router-link-active"><img src="/assets/nav-logo.png" alt="吾行吾道，虽远必至" class="logo"> <span class="site-name can-hide">吾行吾道，虽远必至</span></a> <div class="links"><form id="search-form" role="search" class="algolia-search-wrapper search-box"><input id="algolia-search-input" class="search-query"></form> <nav class="nav-links can-hide"><div class="nav-item"><a href="/" class="nav-link">
+  主页
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="文档" class="dropdown-title"><span class="title">文档</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          论文
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/papers/academic_papers/" class="nav-link">
+  学术论文
+</a></li></ul></li><li class="dropdown-item"><h4>
+          其他
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/papers/other_papers/" class="nav-link">
+  其他文章
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="CTF" class="dropdown-title"><span class="title">CTF</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          CTF笔记
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/ctf/reverse/" class="nav-link">
+  Reverse
+</a></li><li class="dropdown-subitem"><a href="/ctf/pwn/" class="nav-link">
+  Pwn
+</a></li></ul></li><li class="dropdown-item"><!----> <a href="/ctf/writeup/" class="nav-link">
+  writeup
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="语言" class="dropdown-title"><span class="title">语言</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/languages/cplusplus/" class="nav-link">
+  C++
+</a></li><li class="dropdown-item"><!----> <a href="/languages/python/" class="nav-link router-link-active">
+  Python
+</a></li><li class="dropdown-item"><!----> <a href="/languages/android/" class="nav-link">
+  Android
+</a></li><li class="dropdown-item"><!----> <a href="/languages/golang/" class="nav-link">
+  Golang
+</a></li><li class="dropdown-item"><!----> <a href="/languages/rust/" class="nav-link">
+  Rust
+</a></li><li class="dropdown-item"><!----> <a href="/languages/vc/" class="nav-link">
+  VC
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="工具与项目" class="dropdown-title"><span class="title">工具与项目</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/tools/" class="nav-link">
+  工具
+</a></li><li class="dropdown-item"><!----> <a href="/projects/" class="nav-link">
+  项目
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="杂谈" class="dropdown-title"><span class="title">杂谈</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/diary/" class="nav-link">
+  日记
+</a></li><li class="dropdown-item"><!----> <a href="/others/" class="nav-link">
+  其他
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="更多vuepress" class="dropdown-title"><span class="title">vuepress</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          指南
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/guide/" class="nav-link">
+  指南
+</a></li><li class="dropdown-subitem"><a href="/vue/config/" class="nav-link">
+  配置
+</a></li></ul></li><li class="dropdown-item"><h4>
+          主题与插件
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/plugin/" class="nav-link">
+  插件
+</a></li><li class="dropdown-subitem"><a href="/vue/theme/" class="nav-link">
+  主题
+</a></li></ul></li><li class="dropdown-item"><h4>
+          API
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/api/cli.html" class="nav-link">
+  CLI
+</a></li><li class="dropdown-subitem"><a href="/vue/api/node.html" class="nav-link">
+  Node
+</a></li></ul></li><li class="dropdown-item"><h4>
+          开发指南
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/miscellaneous/local-development.html" class="nav-link">
+  本地开发
+</a></li><li class="dropdown-subitem"><a href="/vue/miscellaneous/design-concepts.html" class="nav-link">
+  设计理念
+</a></li><li class="dropdown-subitem"><a href="/vue/faq/" class="nav-link">
+  FAQ
+</a></li><li class="dropdown-subitem"><a href="/vue/miscellaneous/glossary.html" class="nav-link">
+  术语
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="关于" class="dropdown-title"><span class="title">关于</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/about.html" class="nav-link">
+  关于我
+</a></li><li class="dropdown-item"><!----> <a href="https://github.com/zjgcjy" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Github
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></li></ul></div></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/" class="nav-link">
+  主页
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="文档" class="dropdown-title"><span class="title">文档</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          论文
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/papers/academic_papers/" class="nav-link">
+  学术论文
+</a></li></ul></li><li class="dropdown-item"><h4>
+          其他
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/papers/other_papers/" class="nav-link">
+  其他文章
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="CTF" class="dropdown-title"><span class="title">CTF</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          CTF笔记
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/ctf/reverse/" class="nav-link">
+  Reverse
+</a></li><li class="dropdown-subitem"><a href="/ctf/pwn/" class="nav-link">
+  Pwn
+</a></li></ul></li><li class="dropdown-item"><!----> <a href="/ctf/writeup/" class="nav-link">
+  writeup
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="语言" class="dropdown-title"><span class="title">语言</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/languages/cplusplus/" class="nav-link">
+  C++
+</a></li><li class="dropdown-item"><!----> <a href="/languages/python/" class="nav-link router-link-active">
+  Python
+</a></li><li class="dropdown-item"><!----> <a href="/languages/android/" class="nav-link">
+  Android
+</a></li><li class="dropdown-item"><!----> <a href="/languages/golang/" class="nav-link">
+  Golang
+</a></li><li class="dropdown-item"><!----> <a href="/languages/rust/" class="nav-link">
+  Rust
+</a></li><li class="dropdown-item"><!----> <a href="/languages/vc/" class="nav-link">
+  VC
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="工具与项目" class="dropdown-title"><span class="title">工具与项目</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/tools/" class="nav-link">
+  工具
+</a></li><li class="dropdown-item"><!----> <a href="/projects/" class="nav-link">
+  项目
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="杂谈" class="dropdown-title"><span class="title">杂谈</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/diary/" class="nav-link">
+  日记
+</a></li><li class="dropdown-item"><!----> <a href="/others/" class="nav-link">
+  其他
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="更多vuepress" class="dropdown-title"><span class="title">vuepress</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          指南
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/guide/" class="nav-link">
+  指南
+</a></li><li class="dropdown-subitem"><a href="/vue/config/" class="nav-link">
+  配置
+</a></li></ul></li><li class="dropdown-item"><h4>
+          主题与插件
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/plugin/" class="nav-link">
+  插件
+</a></li><li class="dropdown-subitem"><a href="/vue/theme/" class="nav-link">
+  主题
+</a></li></ul></li><li class="dropdown-item"><h4>
+          API
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/api/cli.html" class="nav-link">
+  CLI
+</a></li><li class="dropdown-subitem"><a href="/vue/api/node.html" class="nav-link">
+  Node
+</a></li></ul></li><li class="dropdown-item"><h4>
+          开发指南
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/miscellaneous/local-development.html" class="nav-link">
+  本地开发
+</a></li><li class="dropdown-subitem"><a href="/vue/miscellaneous/design-concepts.html" class="nav-link">
+  设计理念
+</a></li><li class="dropdown-subitem"><a href="/vue/faq/" class="nav-link">
+  FAQ
+</a></li><li class="dropdown-subitem"><a href="/vue/miscellaneous/glossary.html" class="nav-link">
+  术语
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="关于" class="dropdown-title"><span class="title">关于</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/about.html" class="nav-link">
+  关于我
+</a></li><li class="dropdown-item"><!----> <a href="https://github.com/zjgcjy" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Github
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></li></ul></div></div> <!----></nav>  <ul class="sidebar-links"><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>C++</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading open"><span>Python</span> <span class="arrow down"></span></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/languages/python/" class="sidebar-link">Python笔记</a></li><li><section class="sidebar-group collapsable is-sub-group depth-1"><p class="sidebar-heading open"><span>python基础学习笔记</span> <span class="arrow down"></span></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/languages/python/learning-python-1.html" class="active sidebar-link">python2学习笔记-1</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/languages/python/learning-python-1.html#基础知识" class="sidebar-link">基础知识</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/languages/python/learning-python-1.html#使用pip管理pyhton拓展库" class="sidebar-link">使用pip管理pyhton拓展库</a></li><li class="sidebar-sub-header"><a href="/languages/python/learning-python-1.html#内置对象与函数" class="sidebar-link">内置对象与函数</a></li><li class="sidebar-sub-header"><a href="/languages/python/learning-python-1.html#内存管理" class="sidebar-link">内存管理</a></li><li class="sidebar-sub-header"><a href="/languages/python/learning-python-1.html#数字" class="sidebar-link">数字</a></li><li class="sidebar-sub-header"><a href="/languages/python/learning-python-1.html#常用表达式与函数" class="sidebar-link">常用表达式与函数</a></li><li class="sidebar-sub-header"><a href="/languages/python/learning-python-1.html#关于输入输出" class="sidebar-link">关于输入输出</a></li><li class="sidebar-sub-header"><a href="/languages/python/learning-python-1.html#导入模块" class="sidebar-link">导入模块</a></li><li class="sidebar-sub-header"><a href="/languages/python/learning-python-1.html#from-模块名-import-对象名-as-别名" class="sidebar-link">from 模块名 import 对象名 [as 别名]</a></li><li class="sidebar-sub-header"><a href="/languages/python/learning-python-1.html#python的-name-属性" class="sidebar-link">python的__name__属性</a></li><li class="sidebar-sub-header"><a href="/languages/python/learning-python-1.html#python程序框架生产器" class="sidebar-link">python程序框架生产器</a></li></ul></li></ul></li><li><a href="/languages/python/learning-python-2.html" class="sidebar-link">python2学习笔记-2</a></li><li><a href="/languages/python/learning-python-3.html" class="sidebar-link">python2学习笔记-3</a></li><li><a href="/languages/python/learning-python-4.html" class="sidebar-link">python2学习笔记-4</a></li><li><a href="/languages/python/learning-python-5.html" class="sidebar-link">python2学习笔记-5</a></li><li><a href="/languages/python/learning-python-6.html" class="sidebar-link">python2学习笔记-6</a></li></ul></section></li><li><a href="/languages/python/learning-pip.html" class="sidebar-link">pip的使用方法</a></li><li><a href="/languages/python/learning-python-and-crypto.html" class="sidebar-link">《python密码学编程》笔记-1</a></li><li><a href="/languages/python/learning-python-from-beginning-1.html" class="sidebar-link">《python编程从入门到实践》笔记-1</a></li><li><a href="/languages/python/learning-python3-1.html" class="sidebar-link">python3用法</a></li></ul></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>Android</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>Golang</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>Rust</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>Windows VC</span> <span class="arrow right"></span></p> <!----></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><hr> <blockquote><p>python作为一种胶水语言（脚本语言），其丰富的拓展性和易用性使其在很多方面非常有优势，到现在我还没有正式学过python，以下是学习笔记，留作备用，常回来看看。</p></blockquote> <h2 id="基础知识"><a href="#基础知识" class="header-anchor">#</a> 基础知识</h2> <p>python文件一般拓展名位py，如果是GUI程序则可以保存位pyw文件，pyc则是加密过的。</p> <h3 id="使用pip管理pyhton拓展库"><a href="#使用pip管理pyhton拓展库" class="header-anchor">#</a> 使用pip管理pyhton拓展库</h3> <p>关于pip的使用与拓展库的安装可以查看一起写的一篇文章，不在赘述。</p> <p>查看版本：</p> <div class="language-python line-numbers-mode"><pre class="language-python"><code><span class="token keyword">import</span> sys
+<span class="token keyword">print</span> sys<span class="token punctuation">.</span>version   <span class="token comment">#查看版本</span>
+<span class="token keyword">print</span> sys<span class="token punctuation">.</span>version_info  <span class="token comment">#同上</span>
+<span class="token keyword">print</span> sys<span class="token punctuation">.</span>winver  <span class="token comment">#同上</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br></div></div><h3 id="内置对象与函数"><a href="#内置对象与函数" class="header-anchor">#</a> 内置对象与函数</h3> <p>python内置对象，内置函数有很多，如 数字，文件，字符串，集合，列表，字典，元组，布尔、空类型，编程单元类型，
+其中 列表和字典属于可变序列。 字符串和元组属于不可变序列。试图修改时，将抛出异常。</p> <p>type()函数用来返回变量类型。print type(x)
+isinstance()用来测试对象是否为指定的类型的实例。print isinstance('hello world',int)
+id()用来查看变量的内存地址 print id(x)</p> <p>列表用[]，类似于C++里面的数组；元组用()，不可修改</p> <div class="language-python line-numbers-mode"><pre class="language-python"><code>x<span class="token operator">=</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token punctuation">]</span>
+<span class="token keyword">print</span> x   <span class="token comment">#[1,2,3]</span>
+<span class="token keyword">print</span> x<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span>  <span class="token comment">#1</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br></div></div><h3 id="内存管理"><a href="#内存管理" class="header-anchor">#</a> 内存管理</h3> <p>python采用的基于值的内存管理方式，多个变量可以对应同一个值，即同一个内存地址，修改变量的值并不是修改变量本身，而是修改变量指针的内存地址的值，当两个变量的值相同时，id()得到的是相同的。变量的命名不能是关键字，可以通过 print keyword.kwlist查看所有关键字。</p> <h3 id="数字"><a href="#数字" class="header-anchor">#</a> 数字</h3> <p>python可以表示大数。 0x表示16进制，0o表示8进制，0b表示2进制。可以使用j或者J表示复数。x.real x.imag x.conjugate分别求实部，虚部，共轭复数。</p> <h3 id="常用表达式与函数"><a href="#常用表达式与函数" class="header-anchor">#</a> 常用表达式与函数</h3> <p>x/y 除法（python3中是真除法）
+-x  取反
+|、^、&amp;、&lt;&lt;、&gt;&gt;、~ 位运算符</p> <p>bin(x) 把数字转换成二进制
+chr(x) 把数字转换成ASCII码
+hex(x) 把数字转换成十六进制
+int(x) 把数字转换成十进制
+ord(x) 把字符转成数字
+str(obj)把对象转换成字符串
+len(obj)求元素个数
+dir(x)返回对象的成员列表
+help(obj)获取帮助信息</p> <h3 id="关于输入输出"><a href="#关于输入输出" class="header-anchor">#</a> 关于输入输出</h3> <p>使用input()接受键盘输入，x=input('please input')，在python2中根据界定符决定变量的类型；在python3中input返回的均是str字符串类型，相当于python2中的raw_input()函数。python2中使用print语句输出，python3中使用print()函数输出。</p> <h4 id="重定向"><a href="#重定向" class="header-anchor">#</a> 重定向</h4> <div class="language-python line-numbers-mode"><pre class="language-python"><code><span class="token comment">#python2</span>
+fp<span class="token operator">=</span><span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">r'h:/mytext.txt'</span><span class="token punctuation">,</span><span class="token string">'w'</span><span class="token punctuation">)</span>    <span class="token comment">#r表示原始字符串，\之后的不进行转义</span>
+<span class="token keyword">print</span><span class="token operator">&gt;&gt;</span>fp<span class="token punctuation">,</span><span class="token string">'hello world'</span>
+fp<span class="token punctuation">.</span>close<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token comment">#python3</span>
+fp<span class="token operator">=</span><span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">'h://mytext.txt'</span><span class="token punctuation">,</span><span class="token string">'a+'</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">'hello world'</span><span class="token punctuation">,</span><span class="token builtin">file</span><span class="token operator">=</span>fp<span class="token punctuation">)</span>
+fp<span class="token punctuation">.</span>close<span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br></div></div><h4 id="输出不换行"><a href="#输出不换行" class="header-anchor">#</a> 输出不换行</h4> <div class="language-python line-numbers-mode"><pre class="language-python"><code><span class="token comment">#可以使用续行符\来换行</span>
+<span class="token comment">#python2</span>
+<span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">print</span> i<span class="token punctuation">,</span>
+<span class="token comment">#python3</span>
+<span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span>i<span class="token punctuation">,</span>end<span class="token operator">=</span><span class="token string">' '</span><span class="token punctuation">)</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br></div></div><h3 id="导入模块"><a href="#导入模块" class="header-anchor">#</a> 导入模块</h3> <p>模块导入有两种方式。</p> <h4 id="import-模块名-as-别名"><a href="#import-模块名-as-别名" class="header-anchor">#</a> import  模块名 [as 别名]</h4> <p>使用时需要加上模块名的前缀进行访问。</p> <h3 id="from-模块名-import-对象名-as-别名"><a href="#from-模块名-import-对象名-as-别名" class="header-anchor">#</a> from 模块名 import 对象名 [as 别名]</h3> <p>仅导入需要的对象，并且可以起别名，不需要前缀。
+也可以一次导入模块中所有的对象。
+from 模块名 import *
+模板导入的顺序需要遵循一下的规则1.标准模板库2.第三方模板库3.自定义模板库</p> <h3 id="python的-name-属性"><a href="#python的-name-属性" class="header-anchor">#</a> python的__name__属性</h3> <p>每个python脚本执行的时候都有一个__name__属性，当其作为文件独立执行的时候__name__等于__main__，但当其作为模块导入其他时__name__被自动设置为模块名。</p> <h3 id="python程序框架生产器"><a href="#python程序框架生产器" class="header-anchor">#</a> python程序框架生产器</h3> <p>用法 python codefreamework.py  newfile.py</p> <div class="language-python line-numbers-mode"><pre class="language-python"><code><span class="token comment"># -*- coding: cp936 -*-</span>
+<span class="token keyword">import</span> os
+<span class="token keyword">import</span> sys
+<span class="token keyword">import</span> datetime
+
+head<span class="token operator">=</span><span class="token string">'#'</span><span class="token operator">+</span><span class="token string">'-'</span><span class="token operator">*</span><span class="token number">20</span><span class="token operator">+</span><span class="token string">'\n'</span><span class="token operator">+</span>\
+     <span class="token string">'#Function description:\n'</span><span class="token operator">+</span>\
+     <span class="token string">'#'</span><span class="token operator">+</span><span class="token string">'-'</span><span class="token operator">*</span><span class="token number">20</span><span class="token operator">+</span><span class="token string">'\n'</span><span class="token operator">+</span>\
+     <span class="token string">'#Author: Chen JiaYu\n'</span><span class="token operator">+</span>\
+     <span class="token string">'#QQ: 1169348492\n'</span><span class="token operator">+</span>\
+     <span class="token string">'#Email: zjgcjy@gmail.com\n'</span><span class="token operator">+</span>\
+     <span class="token string">'#'</span><span class="token operator">+</span><span class="token string">'-'</span><span class="token operator">*</span><span class="token number">20</span><span class="token operator">+</span><span class="token string">'\n'</span>
+desFile<span class="token operator">=</span>sys<span class="token punctuation">.</span>argv<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span>     <span class="token comment">#目标文件名字 e.g newfile.py</span>
+<span class="token keyword">if</span> os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>exists<span class="token punctuation">(</span>desFile<span class="token punctuation">)</span> <span class="token keyword">or</span> <span class="token keyword">not</span> desFile<span class="token punctuation">.</span>endswith<span class="token punctuation">(</span><span class="token string">'.py'</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">print</span> <span class="token string">'%s already exist or is not a Python code file.!'</span><span class="token operator">%</span>desFile
+    sys<span class="token punctuation">.</span>exit<span class="token punctuation">(</span><span class="token punctuation">)</span>
+fp<span class="token operator">=</span><span class="token builtin">open</span><span class="token punctuation">(</span>desFile<span class="token punctuation">,</span><span class="token string">'w'</span><span class="token punctuation">)</span>
+today<span class="token operator">=</span><span class="token builtin">str</span><span class="token punctuation">(</span>datetime<span class="token punctuation">.</span>date<span class="token punctuation">.</span>today<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+fp<span class="token punctuation">.</span>write<span class="token punctuation">(</span><span class="token string">'#-*-coding:utf-8 -*-\n'</span><span class="token punctuation">)</span>
+fp<span class="token punctuation">.</span>write<span class="token punctuation">(</span><span class="token string">'#Filename:'</span><span class="token operator">+</span>desFile<span class="token operator">+</span><span class="token string">'\n'</span><span class="token punctuation">)</span>
+fp<span class="token punctuation">.</span>write<span class="token punctuation">(</span>head<span class="token punctuation">)</span>
+fp<span class="token punctuation">.</span>write<span class="token punctuation">(</span><span class="token string">'#Date:'</span><span class="token operator">+</span>today<span class="token operator">+</span><span class="token string">'\n'</span><span class="token punctuation">)</span>
+fp<span class="token punctuation">.</span>write<span class="token punctuation">(</span><span class="token string">'#'</span><span class="token operator">+</span><span class="token string">'-'</span><span class="token operator">*</span><span class="token number">20</span><span class="token operator">+</span><span class="token string">'\n'</span><span class="token punctuation">)</span>
+fp<span class="token punctuation">.</span>close<span class="token punctuation">(</span><span class="token punctuation">)</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br></div></div></div> <footer class="page-edit"><!----> <div class="last-updated"><span class="prefix">最后更新时间:</span> <span class="time">2020年5月11日 09:15</span></div></footer> <div class="page-nav"><p class="inner"><span class="prev">
+      ←
+      <a href="/languages/python/" class="prev router-link-active">
+        Python笔记
+      </a></span> <span class="next"><a href="/languages/python/learning-python-2.html">
+        python2学习笔记-2
+      </a>
+      →
+    </span></p></div>  <!----></main></div><div class="global-ui"><!----><!----></div></div>
+    <script src="/assets/js/app.259e8595.js" defer></script><script src="/assets/js/8.8187fa34.js" defer></script><script src="/assets/js/3.710d55e8.js" defer></script><script src="/assets/js/74.aabe1c6e.js" defer></script><script src="/assets/js/4.78d0c8ca.js" defer></script>
+  </body>
+</html>
