@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>ROPOB: Obfuscating Binary Code via Return Oriented Programming | 吾行吾道，虽远必至</title>
+    <meta name="generator" content="VuePress 1.5.0">
+    <link rel="icon" href="/icons/favicon.ico">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <meta name="description" content="分享zjgcjy的个人笔记、读书论文、学习知识">
+    <meta name="author" content="zjgcjy">
+    <meta name="keywords" content="blog, document, zjgcjy">
+    <meta name="theme-color" content="#3eaf7c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="msapplication-TileImage" content="/icons/android-chrome-192x192.png">
+    <meta name="msapplication-TileColor" content="#000000">
+    <link rel="preload" href="/assets/css/0.styles.8cd36500.css" as="style"><link rel="preload" href="/assets/js/app.0d0fb6f2.js" as="script"><link rel="preload" href="/assets/js/10.82c11494.js" as="script"><link rel="preload" href="/assets/js/3.321f60fd.js" as="script"><link rel="preload" href="/assets/js/5.b9229a6c.js" as="script"><link rel="preload" href="/assets/js/6.cf3d0550.js" as="script"><link rel="prefetch" href="/assets/js/100.365ad264.js"><link rel="prefetch" href="/assets/js/101.abe25d0e.js"><link rel="prefetch" href="/assets/js/102.c7f14836.js"><link rel="prefetch" href="/assets/js/103.21f2cbc6.js"><link rel="prefetch" href="/assets/js/104.58233a93.js"><link rel="prefetch" href="/assets/js/105.88399408.js"><link rel="prefetch" href="/assets/js/106.b4b9932c.js"><link rel="prefetch" href="/assets/js/107.ad0d35fb.js"><link rel="prefetch" href="/assets/js/108.0929f4ad.js"><link rel="prefetch" href="/assets/js/109.b940bfa8.js"><link rel="prefetch" href="/assets/js/11.8ad2cc0c.js"><link rel="prefetch" href="/assets/js/110.3b1e3494.js"><link rel="prefetch" href="/assets/js/111.b4c7a86e.js"><link rel="prefetch" href="/assets/js/112.cc6bd8d5.js"><link rel="prefetch" href="/assets/js/113.7e61c960.js"><link rel="prefetch" href="/assets/js/114.871955b5.js"><link rel="prefetch" href="/assets/js/115.6de1641b.js"><link rel="prefetch" href="/assets/js/116.4109a8a9.js"><link rel="prefetch" href="/assets/js/117.33668076.js"><link rel="prefetch" href="/assets/js/118.46b2e143.js"><link rel="prefetch" href="/assets/js/119.fc3cfeca.js"><link rel="prefetch" href="/assets/js/12.f80b5144.js"><link rel="prefetch" href="/assets/js/120.ab2d4cca.js"><link rel="prefetch" href="/assets/js/121.3d33662c.js"><link rel="prefetch" href="/assets/js/122.27124650.js"><link rel="prefetch" href="/assets/js/123.665722ba.js"><link rel="prefetch" href="/assets/js/124.57fb4cad.js"><link rel="prefetch" href="/assets/js/125.05547a9f.js"><link rel="prefetch" href="/assets/js/126.0d2ff294.js"><link rel="prefetch" href="/assets/js/127.7092b99e.js"><link rel="prefetch" href="/assets/js/128.fa65a0a7.js"><link rel="prefetch" href="/assets/js/129.bb6db82c.js"><link rel="prefetch" href="/assets/js/13.e7e91204.js"><link rel="prefetch" href="/assets/js/130.9fbb0c69.js"><link rel="prefetch" href="/assets/js/131.b2048d61.js"><link rel="prefetch" href="/assets/js/132.06817910.js"><link rel="prefetch" href="/assets/js/133.d84d990e.js"><link rel="prefetch" href="/assets/js/134.40b14642.js"><link rel="prefetch" href="/assets/js/135.595fefd2.js"><link rel="prefetch" href="/assets/js/136.35573eaa.js"><link rel="prefetch" href="/assets/js/137.62f890c1.js"><link rel="prefetch" href="/assets/js/138.c5803539.js"><link rel="prefetch" href="/assets/js/139.a08102f0.js"><link rel="prefetch" href="/assets/js/14.08d63ee6.js"><link rel="prefetch" href="/assets/js/140.48a6436d.js"><link rel="prefetch" href="/assets/js/141.9e983e77.js"><link rel="prefetch" href="/assets/js/142.43d39fb4.js"><link rel="prefetch" href="/assets/js/143.6eb7fda3.js"><link rel="prefetch" href="/assets/js/144.29f80905.js"><link rel="prefetch" href="/assets/js/145.8b3fb9c7.js"><link rel="prefetch" href="/assets/js/146.010eda21.js"><link rel="prefetch" href="/assets/js/147.7dc9fd67.js"><link rel="prefetch" href="/assets/js/148.bd90772a.js"><link rel="prefetch" href="/assets/js/149.22319a7a.js"><link rel="prefetch" href="/assets/js/15.36064fc8.js"><link rel="prefetch" href="/assets/js/150.997e6df5.js"><link rel="prefetch" href="/assets/js/151.24183157.js"><link rel="prefetch" href="/assets/js/152.eb73c0fb.js"><link rel="prefetch" href="/assets/js/153.e13bfe23.js"><link rel="prefetch" href="/assets/js/154.9db4617e.js"><link rel="prefetch" href="/assets/js/155.827832ff.js"><link rel="prefetch" href="/assets/js/156.66c48606.js"><link rel="prefetch" href="/assets/js/157.38bebb54.js"><link rel="prefetch" href="/assets/js/158.93d80b40.js"><link rel="prefetch" href="/assets/js/159.3e6b8936.js"><link rel="prefetch" href="/assets/js/16.4d5a2350.js"><link rel="prefetch" href="/assets/js/160.27f81049.js"><link rel="prefetch" href="/assets/js/161.0695be1e.js"><link rel="prefetch" href="/assets/js/162.3d02a78e.js"><link rel="prefetch" href="/assets/js/163.997c4bb7.js"><link rel="prefetch" href="/assets/js/164.e524506a.js"><link rel="prefetch" href="/assets/js/165.2e38fa83.js"><link rel="prefetch" href="/assets/js/166.d6c7aacf.js"><link rel="prefetch" href="/assets/js/167.5f8dd325.js"><link rel="prefetch" href="/assets/js/168.197b0ddd.js"><link rel="prefetch" href="/assets/js/169.2773d92f.js"><link rel="prefetch" href="/assets/js/17.cab7fe60.js"><link rel="prefetch" href="/assets/js/170.38f85cd4.js"><link rel="prefetch" href="/assets/js/171.4b3a3587.js"><link rel="prefetch" href="/assets/js/172.efa98cb9.js"><link rel="prefetch" href="/assets/js/173.a439f204.js"><link rel="prefetch" href="/assets/js/174.701ac0bd.js"><link rel="prefetch" href="/assets/js/175.874a16b6.js"><link rel="prefetch" href="/assets/js/176.64effa0d.js"><link rel="prefetch" href="/assets/js/177.b9007548.js"><link rel="prefetch" href="/assets/js/178.1ab7223c.js"><link rel="prefetch" href="/assets/js/179.82b4bf0c.js"><link rel="prefetch" href="/assets/js/18.ee407f46.js"><link rel="prefetch" href="/assets/js/180.333e4e97.js"><link rel="prefetch" href="/assets/js/181.4644b42c.js"><link rel="prefetch" href="/assets/js/182.bf113d4f.js"><link rel="prefetch" href="/assets/js/183.8bb121a9.js"><link rel="prefetch" href="/assets/js/184.c854b7a2.js"><link rel="prefetch" href="/assets/js/185.64504728.js"><link rel="prefetch" href="/assets/js/186.af3b6dcf.js"><link rel="prefetch" href="/assets/js/187.cafb1e01.js"><link rel="prefetch" href="/assets/js/188.5e0f2b0e.js"><link rel="prefetch" href="/assets/js/189.f214666c.js"><link rel="prefetch" href="/assets/js/19.befaf473.js"><link rel="prefetch" href="/assets/js/20.578d16bb.js"><link rel="prefetch" href="/assets/js/21.0ccb9fb4.js"><link rel="prefetch" href="/assets/js/22.5bbb0087.js"><link rel="prefetch" href="/assets/js/23.c9dec188.js"><link rel="prefetch" href="/assets/js/24.8ea28b98.js"><link rel="prefetch" href="/assets/js/25.b723b744.js"><link rel="prefetch" href="/assets/js/26.2ddaca80.js"><link rel="prefetch" href="/assets/js/27.2941f641.js"><link rel="prefetch" href="/assets/js/28.2d6d5def.js"><link rel="prefetch" href="/assets/js/29.fb1c75ad.js"><link rel="prefetch" href="/assets/js/30.68c9be8b.js"><link rel="prefetch" href="/assets/js/31.3794c4a3.js"><link rel="prefetch" href="/assets/js/32.bea816b5.js"><link rel="prefetch" href="/assets/js/33.fe5e013e.js"><link rel="prefetch" href="/assets/js/34.f64712f9.js"><link rel="prefetch" href="/assets/js/35.2bea5136.js"><link rel="prefetch" href="/assets/js/36.c27f48fd.js"><link rel="prefetch" href="/assets/js/37.e112280c.js"><link rel="prefetch" href="/assets/js/38.8de63378.js"><link rel="prefetch" href="/assets/js/39.96779350.js"><link rel="prefetch" href="/assets/js/4.9bc59980.js"><link rel="prefetch" href="/assets/js/40.6ab44ac9.js"><link rel="prefetch" href="/assets/js/41.08e557c5.js"><link rel="prefetch" href="/assets/js/42.7ff3fe71.js"><link rel="prefetch" href="/assets/js/43.158bba5c.js"><link rel="prefetch" href="/assets/js/44.35d70c3d.js"><link rel="prefetch" href="/assets/js/45.9900382e.js"><link rel="prefetch" href="/assets/js/46.1b2c7d96.js"><link rel="prefetch" href="/assets/js/47.336a95bb.js"><link rel="prefetch" href="/assets/js/48.7ca852ad.js"><link rel="prefetch" href="/assets/js/49.ed8ff81c.js"><link rel="prefetch" href="/assets/js/50.77fb4cbd.js"><link rel="prefetch" href="/assets/js/51.dbdd5144.js"><link rel="prefetch" href="/assets/js/52.57b2f179.js"><link rel="prefetch" href="/assets/js/53.2762b871.js"><link rel="prefetch" href="/assets/js/54.9f51f95e.js"><link rel="prefetch" href="/assets/js/55.d0df8799.js"><link rel="prefetch" href="/assets/js/56.ba1847d2.js"><link rel="prefetch" href="/assets/js/57.ecd0c2bd.js"><link rel="prefetch" href="/assets/js/58.de0fda25.js"><link rel="prefetch" href="/assets/js/59.d1ed7749.js"><link rel="prefetch" href="/assets/js/60.66a53304.js"><link rel="prefetch" href="/assets/js/61.a3aaf036.js"><link rel="prefetch" href="/assets/js/62.75bc2686.js"><link rel="prefetch" href="/assets/js/63.7f0e6b0f.js"><link rel="prefetch" href="/assets/js/64.8ed62110.js"><link rel="prefetch" href="/assets/js/65.d7880a08.js"><link rel="prefetch" href="/assets/js/66.ba24f811.js"><link rel="prefetch" href="/assets/js/67.b667fa05.js"><link rel="prefetch" href="/assets/js/68.ecf0e3df.js"><link rel="prefetch" href="/assets/js/69.94dfc273.js"><link rel="prefetch" href="/assets/js/7.667c6757.js"><link rel="prefetch" href="/assets/js/70.a680ea5d.js"><link rel="prefetch" href="/assets/js/71.1e4e4e84.js"><link rel="prefetch" href="/assets/js/72.98070809.js"><link rel="prefetch" href="/assets/js/73.191bf09c.js"><link rel="prefetch" href="/assets/js/74.3703a1cc.js"><link rel="prefetch" href="/assets/js/75.3e89cf6a.js"><link rel="prefetch" href="/assets/js/76.66d93782.js"><link rel="prefetch" href="/assets/js/77.4b64585b.js"><link rel="prefetch" href="/assets/js/78.f6da29d6.js"><link rel="prefetch" href="/assets/js/79.e18b7959.js"><link rel="prefetch" href="/assets/js/8.1f25eb6e.js"><link rel="prefetch" href="/assets/js/80.5b5131a2.js"><link rel="prefetch" href="/assets/js/81.d5ea70cb.js"><link rel="prefetch" href="/assets/js/82.85185f57.js"><link rel="prefetch" href="/assets/js/83.7283a52e.js"><link rel="prefetch" href="/assets/js/84.f72ab82d.js"><link rel="prefetch" href="/assets/js/85.1b091be8.js"><link rel="prefetch" href="/assets/js/86.699fd603.js"><link rel="prefetch" href="/assets/js/87.c18f6645.js"><link rel="prefetch" href="/assets/js/88.67adf348.js"><link rel="prefetch" href="/assets/js/89.7acc9387.js"><link rel="prefetch" href="/assets/js/9.f07aceae.js"><link rel="prefetch" href="/assets/js/90.bd32e938.js"><link rel="prefetch" href="/assets/js/91.da8be0ce.js"><link rel="prefetch" href="/assets/js/92.3c83de0c.js"><link rel="prefetch" href="/assets/js/93.0ebebd12.js"><link rel="prefetch" href="/assets/js/94.7ec10d45.js"><link rel="prefetch" href="/assets/js/95.a3510831.js"><link rel="prefetch" href="/assets/js/96.199c7f96.js"><link rel="prefetch" href="/assets/js/97.c41f2eb9.js"><link rel="prefetch" href="/assets/js/98.bdef68bb.js"><link rel="prefetch" href="/assets/js/99.88d75108.js"><link rel="prefetch" href="/assets/js/vendors~docsearch.b6a0ed3d.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.8cd36500.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/" class="home-link router-link-active"><img src="/assets/nav-logo.png" alt="吾行吾道，虽远必至" class="logo"> <span class="site-name can-hide">吾行吾道，虽远必至</span></a> <div class="links"><form id="search-form" role="search" class="algolia-search-wrapper search-box"><input id="algolia-search-input" class="search-query"></form> <nav class="nav-links can-hide"><div class="nav-item"><a href="/" class="nav-link">
+  主页
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="文档" class="dropdown-title"><span class="title">文档</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          论文
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/papers/academic_papers/" class="nav-link router-link-active">
+  学术论文
+</a></li></ul></li><li class="dropdown-item"><h4>
+          其他
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/papers/other_papers/" class="nav-link">
+  其他文章
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="CTF" class="dropdown-title"><span class="title">CTF</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          CTF笔记
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/ctf/reverse/" class="nav-link">
+  Reverse
+</a></li><li class="dropdown-subitem"><a href="/ctf/pwn/" class="nav-link">
+  Pwn
+</a></li></ul></li><li class="dropdown-item"><!----> <a href="/ctf/writeup/" class="nav-link">
+  writeup
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="语言" class="dropdown-title"><span class="title">语言</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/languages/cplusplus/" class="nav-link">
+  C++
+</a></li><li class="dropdown-item"><!----> <a href="/languages/python/" class="nav-link">
+  Python
+</a></li><li class="dropdown-item"><!----> <a href="/languages/android/" class="nav-link">
+  Android
+</a></li><li class="dropdown-item"><!----> <a href="/languages/golang/" class="nav-link">
+  Golang
+</a></li><li class="dropdown-item"><!----> <a href="/languages/rust/" class="nav-link">
+  Rust
+</a></li><li class="dropdown-item"><!----> <a href="/languages/vc/" class="nav-link">
+  VC
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="工具与项目" class="dropdown-title"><span class="title">工具与项目</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/tools/" class="nav-link">
+  工具
+</a></li><li class="dropdown-item"><!----> <a href="/projects/" class="nav-link">
+  项目
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="杂谈" class="dropdown-title"><span class="title">杂谈</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/diary/" class="nav-link">
+  日记
+</a></li><li class="dropdown-item"><!----> <a href="/others/" class="nav-link">
+  其他
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="更多vuepress" class="dropdown-title"><span class="title">vuepress</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          指南
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/guide/" class="nav-link">
+  指南
+</a></li><li class="dropdown-subitem"><a href="/vue/config/" class="nav-link">
+  配置
+</a></li></ul></li><li class="dropdown-item"><h4>
+          主题与插件
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/plugin/" class="nav-link">
+  插件
+</a></li><li class="dropdown-subitem"><a href="/vue/theme/" class="nav-link">
+  主题
+</a></li></ul></li><li class="dropdown-item"><h4>
+          API
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/api/cli.html" class="nav-link">
+  CLI
+</a></li><li class="dropdown-subitem"><a href="/vue/api/node.html" class="nav-link">
+  Node
+</a></li></ul></li><li class="dropdown-item"><h4>
+          开发指南
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/miscellaneous/local-development.html" class="nav-link">
+  本地开发
+</a></li><li class="dropdown-subitem"><a href="/vue/miscellaneous/design-concepts.html" class="nav-link">
+  设计理念
+</a></li><li class="dropdown-subitem"><a href="/vue/faq/" class="nav-link">
+  FAQ
+</a></li><li class="dropdown-subitem"><a href="/vue/miscellaneous/glossary.html" class="nav-link">
+  术语
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="关于" class="dropdown-title"><span class="title">关于</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/about.html" class="nav-link">
+  关于我
+</a></li><li class="dropdown-item"><!----> <a href="https://github.com/zjgcjy" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Github
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></li></ul></div></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/" class="nav-link">
+  主页
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="文档" class="dropdown-title"><span class="title">文档</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          论文
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/papers/academic_papers/" class="nav-link router-link-active">
+  学术论文
+</a></li></ul></li><li class="dropdown-item"><h4>
+          其他
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/papers/other_papers/" class="nav-link">
+  其他文章
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="CTF" class="dropdown-title"><span class="title">CTF</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          CTF笔记
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/ctf/reverse/" class="nav-link">
+  Reverse
+</a></li><li class="dropdown-subitem"><a href="/ctf/pwn/" class="nav-link">
+  Pwn
+</a></li></ul></li><li class="dropdown-item"><!----> <a href="/ctf/writeup/" class="nav-link">
+  writeup
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="语言" class="dropdown-title"><span class="title">语言</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/languages/cplusplus/" class="nav-link">
+  C++
+</a></li><li class="dropdown-item"><!----> <a href="/languages/python/" class="nav-link">
+  Python
+</a></li><li class="dropdown-item"><!----> <a href="/languages/android/" class="nav-link">
+  Android
+</a></li><li class="dropdown-item"><!----> <a href="/languages/golang/" class="nav-link">
+  Golang
+</a></li><li class="dropdown-item"><!----> <a href="/languages/rust/" class="nav-link">
+  Rust
+</a></li><li class="dropdown-item"><!----> <a href="/languages/vc/" class="nav-link">
+  VC
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="工具与项目" class="dropdown-title"><span class="title">工具与项目</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/tools/" class="nav-link">
+  工具
+</a></li><li class="dropdown-item"><!----> <a href="/projects/" class="nav-link">
+  项目
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="杂谈" class="dropdown-title"><span class="title">杂谈</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/diary/" class="nav-link">
+  日记
+</a></li><li class="dropdown-item"><!----> <a href="/others/" class="nav-link">
+  其他
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="更多vuepress" class="dropdown-title"><span class="title">vuepress</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          指南
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/guide/" class="nav-link">
+  指南
+</a></li><li class="dropdown-subitem"><a href="/vue/config/" class="nav-link">
+  配置
+</a></li></ul></li><li class="dropdown-item"><h4>
+          主题与插件
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/plugin/" class="nav-link">
+  插件
+</a></li><li class="dropdown-subitem"><a href="/vue/theme/" class="nav-link">
+  主题
+</a></li></ul></li><li class="dropdown-item"><h4>
+          API
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/api/cli.html" class="nav-link">
+  CLI
+</a></li><li class="dropdown-subitem"><a href="/vue/api/node.html" class="nav-link">
+  Node
+</a></li></ul></li><li class="dropdown-item"><h4>
+          开发指南
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/vue/miscellaneous/local-development.html" class="nav-link">
+  本地开发
+</a></li><li class="dropdown-subitem"><a href="/vue/miscellaneous/design-concepts.html" class="nav-link">
+  设计理念
+</a></li><li class="dropdown-subitem"><a href="/vue/faq/" class="nav-link">
+  FAQ
+</a></li><li class="dropdown-subitem"><a href="/vue/miscellaneous/glossary.html" class="nav-link">
+  术语
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="关于" class="dropdown-title"><span class="title">关于</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/about.html" class="nav-link">
+  关于我
+</a></li><li class="dropdown-item"><!----> <a href="https://github.com/zjgcjy" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Github
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></li></ul></div></div> <!----></nav>  <ul class="sidebar-links"><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading open"><span>学术论文</span> <span class="arrow down"></span></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/papers/academic_papers/" aria-current="page" class="sidebar-link">什么是学术论文</a></li><li><a href="/papers/academic_papers/graduation-paper.html" class="sidebar-link">毕业论文选题</a></li><li><a href="/papers/academic_papers/usenix-2020-fans.html" class="sidebar-link">FANS: Fuzzing Android Native System Services via Automated Interface Analysis</a></li><li><a href="/papers/academic_papers/s&amp;p-2018-ropob.html" aria-current="page" class="active sidebar-link">ROPOB: Obfuscating Binary Code via Return Oriented Programming</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/papers/academic_papers/s&amp;p-2018-ropob.html#摘要" class="sidebar-link">摘要</a></li><li class="sidebar-sub-header"><a href="/papers/academic_papers/s&amp;p-2018-ropob.html#简介" class="sidebar-link">简介</a></li><li class="sidebar-sub-header"><a href="/papers/academic_papers/s&amp;p-2018-ropob.html#概述" class="sidebar-link">概述</a></li><li class="sidebar-sub-header"><a href="/papers/academic_papers/s&amp;p-2018-ropob.html#设计与实现" class="sidebar-link">设计与实现</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/papers/academic_papers/s&amp;p-2018-ropob.html#重建框架" class="sidebar-link">重建框架</a></li><li class="sidebar-sub-header"><a href="/papers/academic_papers/s&amp;p-2018-ropob.html#基本块分割" class="sidebar-link">基本块分割</a></li><li class="sidebar-sub-header"><a href="/papers/academic_papers/s&amp;p-2018-ropob.html#控制流映射表" class="sidebar-link">控制流映射表</a></li><li class="sidebar-sub-header"><a href="/papers/academic_papers/s&amp;p-2018-ropob.html#rop-插桩" class="sidebar-link">ROP 插桩</a></li></ul></li><li class="sidebar-sub-header"><a href="/papers/academic_papers/s&amp;p-2018-ropob.html#评估" class="sidebar-link">评估</a></li><li class="sidebar-sub-header"><a href="/papers/academic_papers/s&amp;p-2018-ropob.html#相关工作" class="sidebar-link">相关工作</a></li><li class="sidebar-sub-header"><a href="/papers/academic_papers/s&amp;p-2018-ropob.html#讨论与限制" class="sidebar-link">讨论与限制</a></li><li class="sidebar-sub-header"><a href="/papers/academic_papers/s&amp;p-2018-ropob.html#结论与后期工作" class="sidebar-link">结论与后期工作</a></li><li class="sidebar-sub-header"><a href="/papers/academic_papers/s&amp;p-2018-ropob.html#思考" class="sidebar-link">思考</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/papers/academic_papers/s&amp;p-2018-ropob.html#文章综述" class="sidebar-link">文章综述</a></li><li class="sidebar-sub-header"><a href="/papers/academic_papers/s&amp;p-2018-ropob.html#关键部分" class="sidebar-link">关键部分</a></li><li class="sidebar-sub-header"><a href="/papers/academic_papers/s&amp;p-2018-ropob.html#研究方法" class="sidebar-link">研究方法</a></li><li class="sidebar-sub-header"><a href="/papers/academic_papers/s&amp;p-2018-ropob.html#存在问题" class="sidebar-link">存在问题</a></li><li class="sidebar-sub-header"><a href="/papers/academic_papers/s&amp;p-2018-ropob.html#产生原因" class="sidebar-link">产生原因</a></li><li class="sidebar-sub-header"><a href="/papers/academic_papers/s&amp;p-2018-ropob.html#解决方法" class="sidebar-link">解决方法</a></li><li class="sidebar-sub-header"><a href="/papers/academic_papers/s&amp;p-2018-ropob.html#创新点" class="sidebar-link">创新点</a></li><li class="sidebar-sub-header"><a href="/papers/academic_papers/s&amp;p-2018-ropob.html#不足之处" class="sidebar-link">不足之处</a></li></ul></li></ul></li><li><a href="/papers/academic_papers/acsac-2019-speculator.html" class="sidebar-link">Speculator：A Tool to Analyze Speculative Execution Attacks and Mitigations</a></li></ul></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>其他文章</span> <span class="arrow right"></span></p> <!----></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><blockquote><p>论文名称：ROPOB: Obfuscating Binary Code via Return Oriented Programming</p> <p>关键词：混淆 ROP 逆向</p> <p>论文类型：会议</p> <p>发表位置：S&amp;P：IEEE Symposium on Security and Privacy</p> <p>发表年份：2018</p></blockquote> <h2 id="摘要"><a href="#摘要" class="header-anchor">#</a> 摘要</h2> <p>软件逆向工程已广泛用于软件重用和恶意目的，例如软件窃取和恶意软件伪装。为了提高对手逆向工程的难度，需要将混淆处理引入保护的软件中，现有的混淆方法效率低下且难以部署。</p> <p>在本文中，我们提出了一种基于 ROP 的二进制混淆处理方案，旨在作为一种高效且可部署的反逆向工程方法，基本思想是将直接控制流转换为间接控制流。</p> <p>基本原理：静态分析通常不足以查明间接控制流的目标地址。</p> <p>结果表明， ROPOB 可以成功地转换所有的直接控制流，而不会引起执行错误。开销可以接受：混淆覆盖率超过90％时，平均性能开销小于10％。</p> <h2 id="简介"><a href="#简介" class="header-anchor">#</a> 简介</h2> <p>首先介绍以下软件窃取与恶意软件伪装的概念，包括一些软件重打包的概念，以及造成的严重危害。然后说明了逆向工程和混淆的基本概念。总结一些现有的工作：</p> <ol><li>基于生成混淆代码的</li> <li>利用信号机制来处理控制流的，但开销较大</li> <li>利用特殊处理器的特性，即信息跟踪，来混淆代码，方式是异常处理</li></ol> <p>然后介绍了 ROP 的基本原理，并介绍了 RopSteg ，一个代码保护方案，该代码试图通过执行位于其他位置的意外匹配，来隐藏选定的指令序列。说明了该方案的核心思想：利用 ROP 混淆控制流，粒度是基本块。</p> <ol><li>首先，反汇编一个要保护的 ELF 文件，并将可执行代码分成基本块。然后，对基本块进行插桩，转换成 gadget</li> <li>通过 ret 指令，转换所有已识别的直接控制流</li> <li>将所有 gadget 和设计好的有效负载添加到原始文件中，并利用二进制重写来生成混淆的文件。</li></ol> <p>这里的有效负载将用于控制流转换，并将存储在一个新的负载代码段中。它是使用 ROP 进行混淆的一种轻量级方法。由于 ROP 仅在用户空间中起作用，不涉及信号处理或其他内核。因此转换控制流的过程比信号要快。而且 ROP 是线程安全的。</p> <p>主要贡献</p> <ol><li>提出了一种新的基于 ROP 的方法来实现控制流混淆。实验证明，该方法对静态逆向工程分析是有效和实用的。</li> <li>混淆方案高效并广泛使用。</li> <li>实现了 ROPOB 的工具，实验证明，能正确转换直接控制流，混淆覆盖率超过90％时，平均性能开销小于10％。</li></ol> <h2 id="概述"><a href="#概述" class="header-anchor">#</a> 概述</h2> <p>假设3个前提</p> <ol><li>未混淆的代码是 ELF 文件格式的。</li> <li>混淆文件在未修改的 Linux 系统上。</li> <li>敌手只采用静态分析方法，如 IDA 。</li></ol> <p>混淆方案步骤</p> <ol><li>反汇编代码段，切割成基本块粒度</li> <li>在基本块粒度上插桩，转换成 gadget</li> <li>将所有的 gadget 和设计的有效负载写入汇编器文件，然后将其组合成新的 ELF 文件。设计的有效负载是 gadget 的起始地址列表。其功能是指导所有 gadget 的执行。</li> <li>复制新的 ELF 文件中的代码和所有的负载，生成混淆文件。</li></ol> <p><img src="/assets/img/Snipaste_2020-05-22_15-12-48.b9444827.png" alt="混淆方案"></p> <p>然后擦除原生文件中的代码段，现在的段既有代码段，也有负载段，还有数据段不能被擦除，需要维持数据完整性。</p> <p>总而言之，我们的所有工作都在用户空间中，不涉及内核空间。此外，由于静态分析中没有控制流信息，因此我们的方法可以使所有静态去混淆技术无效。同时增加动态去混淆方法的难度。因为在混淆处理的文件中没有函数调用，所以即使攻击者动态地找到执行路径，也很难提取高级语义。</p> <p>挑战有3</p> <ol><li>基本块无法彻底分区。因此，一些间接控制流可能跳入基本块的内部，而不是入口，这将使有效载荷入口检查失败。？基本块的定义不是就一个入口吗？</li> <li>间接的控制流图不能静态分析，有必要实现一个间接跳转表。</li> <li>必须保持所有数据可用，设计一个重建的框架</li></ol> <p><img src="/assets/img/Snipaste_2020-05-22_15-34-22.b5e610e8.png" alt="设计实例"></p> <p>虚线是原始的路径，实现是混淆后的路径，通过维持一个设计好的负载，进行检查和跳转。</p> <h2 id="设计与实现"><a href="#设计与实现" class="header-anchor">#</a> 设计与实现</h2> <p>工具主要包括三部分，一个基本的重建框架；基本块分割方法和控制流完整性检验。</p> <h3 id="重建框架"><a href="#重建框架" class="header-anchor">#</a> 重建框架</h3> <p>基本原则是语义正确，设计了一个框架，同时支持汇编级别的插桩。主要是反汇编，再重新汇编到新的文件中。</p> <p><img src="/assets/img/Snipaste_2020-05-22_15-48-59.87e85e7a.png" alt="重建框架"></p> <p>看图是比较清晰的。</p> <ol><li>首先提取原始文件的代码段，切割成基本块，同时收集控制流信息</li> <li>然后应用汇编级别的插桩工具</li> <li>之后使用重写的基本块和控制流信息生成汇编文件</li> <li>将生成的代码段和原始的复制到一起，生成中间文件</li> <li>擦除原始的代码段，保留数据段</li></ol> <h3 id="基本块分割"><a href="#基本块分割" class="header-anchor">#</a> 基本块分割</h3> <p>介绍了基本块的概念，切分基本块的原则</p> <ol><li>控制流相关的指令，比如 jmp/jcc/call/ret 指令，说明基本块结束，同时目标地址是基本块入口。</li> <li>忽略间接跳转指令的目标操作数，如 jmp/jcc/call</li> <li>jmp/jcc/call/ret 的下一条指令是基本块的入口</li></ol> <h3 id="控制流映射表"><a href="#控制流映射表" class="header-anchor">#</a> 控制流映射表</h3> <p>不能解决间接的跳转指令，因为这些跳转指令的操作数由上下文决定。因为重用了原始文件中的所有数据部分，原始间接 CFRI 计算出的目标地址与 ROP 混淆后的间接 CFRI 的目标地址相同。在这种情况下，必须要对间接 CFRI 的地址进行转换才行，否则程序会崩溃。所以设计这样一个跳转表。</p> <p><img src="/assets/img/Snipaste_2020-05-22_17-18-50.96fc16e8.png" alt="控制流映射表"></p> <p>如图所示，对于这样一个转换的 gadget ，如果间接 CFRI 的地址是 BB1 的入口，首先计算目标地址，然后检查控制流映射表在 Gadget1 的目标地址。如果我们的基本块分区错过了一个基本块（ BB1 中的入口为 0x804caca ，而间接 CFRI 跳转到 0x804caca ），将找不到任何表条目来匹配 0x804caca 。但是其与入口的的偏移量等于 0x7007e05 和 0x7007dff 之间的偏移量，并且还要确认仅在基本块的末尾而不是在中间块应用了插桩。因此可以正确找到入口。</p> <h3 id="rop-插桩"><a href="#rop-插桩" class="header-anchor">#</a> ROP 插桩</h3> <p>负载是 ROP gadget 的列表，同时还对不同的控制流设计不同的插桩原则。</p> <ol><li>对于不以 CFRI 结尾的基本块，将基本块入口地址压栈。</li> <li>对于以直接 CRFI 结尾的基本块，基本就是 call/jmp 指令，将下一个 gadget 地址压栈；如果是 jcc 指令，一般有2条路径。</li> <li>对于间接 CRFI ，采用控制流映射表。</li> <li>对于 ret 结束的基本块，不需要其他操作。</li></ol> <p><img src="/assets/img/Snipaste_2020-05-22_17-36-51.a0e4480a.png" alt="ROP 插桩"></p> <h2 id="评估"><a href="#评估" class="header-anchor">#</a> 评估</h2> <h2 id="相关工作"><a href="#相关工作" class="header-anchor">#</a> 相关工作</h2> <h2 id="讨论与限制"><a href="#讨论与限制" class="header-anchor">#</a> 讨论与限制</h2> <h2 id="结论与后期工作"><a href="#结论与后期工作" class="header-anchor">#</a> 结论与后期工作</h2> <h2 id="思考"><a href="#思考" class="header-anchor">#</a> 思考</h2> <h3 id="文章综述"><a href="#文章综述" class="header-anchor">#</a> 文章综述</h3> <p>该文章提出了一种 <code>fuzz</code> 安卓原生系统服务的方法。能自动化的生成事务，并调用相应的接口。 <code>fans</code> 能自动化处理接口间的复杂依赖。这种依赖性体现在三方面：变量模式、类型别名和变量依赖性。最后发现了30多个漏洞，138个 <code>Java</code> 异常，这些东西要 <code>fuzz</code> 到，必须要有一个精确的接口模型。</p> <h3 id="关键部分"><a href="#关键部分" class="header-anchor">#</a> 关键部分</h3> <blockquote><p>用来记录本篇文章关键的地方，标注好内容和页码</p></blockquote> <h3 id="研究方法"><a href="#研究方法" class="header-anchor">#</a> 研究方法</h3> <blockquote><p>可以看出此类问题，大家都是采用一个什么样的方法去解决的</p></blockquote> <h3 id="存在问题"><a href="#存在问题" class="header-anchor">#</a> 存在问题</h3> <p>如何解决面临的挑战</p> <ol><li>多层接口的识别</li> <li>接口模型的解析</li> <li>语义正确的输入生成</li></ol> <h3 id="产生原因"><a href="#产生原因" class="header-anchor">#</a> 产生原因</h3> <h3 id="解决方法"><a href="#解决方法" class="header-anchor">#</a> 解决方法</h3> <h3 id="创新点"><a href="#创新点" class="header-anchor">#</a> 创新点</h3> <p>自动化进行 <code>fuzz</code></p> <p>正确处理事务之间的依赖</p> <h3 id="不足之处"><a href="#不足之处" class="header-anchor">#</a> 不足之处</h3> <blockquote><p>别人论文里的不足可能是你 <code>idea</code> 的来源</p></blockquote></div> <footer class="page-edit"><!----> <div class="last-updated"><span class="prefix">最后更新时间:</span> <span class="time">2020年5月22日 09:37</span></div></footer> <div class="page-nav"><p class="inner"><span class="prev">
+      ←
+      <a href="/papers/academic_papers/usenix-2020-fans.html" class="prev">
+        FANS: Fuzzing Android Native System Services via Automated Interface Analysis
+      </a></span> <span class="next"><a href="/papers/academic_papers/acsac-2019-speculator.html">
+        Speculator：A Tool to Analyze Speculative Execution Attacks and Mitigations
+      </a>
+      →
+    </span></p></div>  <!----></main></div><div class="global-ui"><!----><!----></div></div>
+    <script src="/assets/js/app.0d0fb6f2.js" defer></script><script src="/assets/js/10.82c11494.js" defer></script><script src="/assets/js/3.321f60fd.js" defer></script><script src="/assets/js/5.b9229a6c.js" defer></script><script src="/assets/js/6.cf3d0550.js" defer></script>
+  </body>
+</html>
